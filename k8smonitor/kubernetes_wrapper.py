@@ -1,5 +1,4 @@
 import kubernetes
-import subprocess
 
 def discover():
   config = kubernetes.config

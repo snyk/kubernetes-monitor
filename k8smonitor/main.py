@@ -2,6 +2,7 @@ import time
 import uuid
 import json
 import websocket
+
 from k8smonitor import config
 from k8smonitor import kubernetes_wrapper
 
@@ -10,7 +11,7 @@ myUuid = uuid.uuid4()
 url = 'ws://%(hostname)s:%(port)s/api/v1/register/%(uuid)s' % {
   'hostname': config.KUBERNETES_AGENT['HOSTNAME'],
   'port': config.KUBERNETES_AGENT['PORT'],
-  'uuid': myUuid,
+  'uuid': str(myUuid),
 }
 
 print('attempting to connect to %s' % url)
