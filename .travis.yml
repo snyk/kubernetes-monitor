@@ -25,11 +25,9 @@ jobs:
       script: npm run test
     # release and deploy stage
     - stage: Release and deploy
-      if: branch IN (master, develop) AND type != pull_request
+      if: branch IN (master) AND type != pull_request
       script:
         - npx semantic-release
-        - ./scripts/travis_after_success.sh
 branches:
   only:
    - master
-   - develop
