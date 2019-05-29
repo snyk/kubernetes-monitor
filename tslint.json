@@ -1,0 +1,14 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "rules": {
+    "interface-name": false,
+    "no-var-requires": false,
+    "object-literal-sort-keys": false,
+    "quotemark": {
+      "options": "single"
+    }
+  }
+}

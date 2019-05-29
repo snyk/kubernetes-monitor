@@ -1,0 +1,74 @@
+{
+  "name": "@snyk/kubernetes-monitor",
+  "description": "Snyk kubernetes Monitioring Container",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "jest",
+    "test:coverage": "npm run test:unit -- --coverage",
+    "test:watch": "tsc-watch --onSuccess 'npm run test:unit'",
+    "start": "bin/start",
+    "prepare": "npm run build",
+    "build": "npx typescript",
+    "dev": "tsc-watch --project tsconfig.json --onSuccess 'bin/start' | ./node_modules/.bin/bunyan",
+    "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'"
+  },
+  "author": "snyk.io",
+  "license": "private",
+  "private": true,
+  "dependencies": {
+    "@kubernetes/client-node": "^0.8.2",
+    "@sentry/node": "^4.4.1",
+    "@snyk/log": "^2.8.0",
+    "@types/body-parser": "^1.17.0",
+    "@types/compression": "0.0.36",
+    "@types/express": "^4.16.0",
+    "@types/lodash": "^4.14.118",
+    "@types/newrelic": "^3.4.0",
+    "@types/node": "^10.12.5",
+    "@types/raven": "^2.5.1",
+    "@types/request": "^2.48.1",
+    "@types/request-promise": "^4.1.42",
+    "@types/response-time": "^2.3.3",
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
+    "express": "^4.16.4",
+    "kubernetes-client": "^8.1.2",
+    "lodash": "^4.17.11",
+    "newrelic": "^4.10.0",
+    "request-promise": "^4.2.4",
+    "response-time": "^2.3.2",
+    "snyk-config": "^2.2.0",
+    "snyk-docker-plugin": "^1.24.1",
+    "source-map-support": "^0.5.9",
+    "tslib": "^1.9.3",
+    "typescript": "^3.1.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.9",
+    "jest": "^23.6.0",
+    "supertest": "^3.3.0",
+    "ts-jest": "^23.10.4",
+    "tsc-watch": "^1.0.30",
+    "tslint": "^5.11.0",
+    "typescript": "^3.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snyk/snyk-kubernetes-monitor.git"
+  },
+  "release": {
+    "verifyConditions": [
+      "@semantic-release/github"
+    ],
+    "publish": [
+      "@semantic-release/github"
+    ],
+    "success": [
+      "@semantic-release/github"
+    ],
+    "fail": [
+      "@semantic-release/github"
+    ]
+  }
+}

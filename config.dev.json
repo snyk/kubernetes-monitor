@@ -1,0 +1,10 @@
+{
+  "LOGGING": {
+    "level": "debug"
+  },
+   "NEWRELIC": {
+    "agent_enabled": true,
+    "app_name": "kubernetes-monitor dev"
+  },
+  "SENTRY_DSN": "secret-missing"
+}

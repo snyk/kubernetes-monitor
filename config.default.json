@@ -1,0 +1,12 @@
+{
+  "LOGGING": {
+    "name": "kubernetes-monitor",
+    "level": "info"
+  },
+  "PORT": 1212,
+  "NEWRELIC": {
+    "agent_enabled": false
+  },
+  "PAYLOAD_MAX_SIZE": "50mb",
+  "SERVER_CONN_TIMEOUT": 300000
+}

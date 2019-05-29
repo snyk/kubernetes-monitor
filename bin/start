@@ -1,0 +1,6 @@
+#! /bin/sh
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+exec node --inspect=5444 $NODE_OPTIONS "$PROJECT_ROOT" "$@"

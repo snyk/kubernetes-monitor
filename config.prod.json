@@ -1,0 +1,11 @@
+{
+  "LOGGING": {
+    "level": "info"
+  },
+  "PORT": 1212,
+  "NEWRELIC": {
+    "agent_enabled": true,
+    "app_name": "kubernetes-monitor prod"
+  },
+  "SENTRY_DSN": "secret-missing"
+}
