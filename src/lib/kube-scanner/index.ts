@@ -5,7 +5,7 @@
  * IMPORTANT:
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
-import k8s = require("@kubernetes/client-node");
+import k8s = require('@kubernetes/client-node');
 // import rp = require("request-promise");
 
 const kc = new k8s.KubeConfig();

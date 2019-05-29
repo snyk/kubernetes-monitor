@@ -1,8 +1,7 @@
 import * as log from '@snyk/log';
 import * as config from './config';
-import * as sentry from './sentry';
 
-export const Logger = log(config.LOGGING, sentry);
+export const Logger = log(config.LOGGING);
 export const logger = Logger('main');
 
 export function loggingFunc(logContext: any, label: string = 'Reply sent'): void {
