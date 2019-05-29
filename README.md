@@ -1,7 +1,7 @@
 # snyk/kubernetes-monitor #
 
 ## Summary ##
-Docker container to monitor Kubernetes clusters' security
+Container to monitor Kubernetes clusters' security
 
 ## Running Locally ##
 https://kubernetes.io/docs/tasks/tools/install-minikube/
