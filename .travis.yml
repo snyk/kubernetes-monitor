@@ -24,10 +24,7 @@ jobs:
     - stage: Test
       script: npm run test
     # release and deploy stage
-    - stage: Release and deploy
-      if: branch IN (master) AND type != pull_request
-      script:
-        - npx semantic-release
+    # TODO when we can build and publish a container
 branches:
   only:
    - master
