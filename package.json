@@ -36,7 +36,7 @@
     "request-promise": "^4.2.4",
     "response-time": "^2.3.2",
     "snyk-config": "^2.2.0",
-    "snyk-docker-plugin": "^1.24.1",
+    "snyk-docker-plugin": "^1.25.0",
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
     "typescript": "^3.1.6",
