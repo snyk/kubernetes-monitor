@@ -3,14 +3,8 @@
     "name": "kubernetes-monitor",
     "level": "info"
   },
-  "PORT": 1212,
-  "NEWRELIC": {
-    "agent_enabled": false
-  },
-  "PAYLOAD_MAX_SIZE": "50mb",
   "MONITOR": {
-    "SCAN_INTERVAL": 60000,
-    "INITIAL_REFRESH": 1000
-  },
-  "SERVER_CONN_TIMEOUT": 300000
+    "SCAN_INTERVAL_MS": 60000,
+    "INITIAL_REFRESH_MS": 1000
+  }
 }
