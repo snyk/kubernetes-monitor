@@ -34,6 +34,7 @@
     "kubernetes-client": "^8.1.2",
     "lodash": "^4.17.11",
     "request-promise": "^4.2.4",
+    "request-promise-native": "^1.0.7",
     "response-time": "^2.3.2",
     "snyk-config": "^2.2.0",
     "snyk-docker-plugin": "^1.25.0",
