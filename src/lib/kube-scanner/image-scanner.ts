@@ -5,14 +5,21 @@ export interface ScanResult {
 }
 
 export async function scanImages(images: string[]): Promise<ScanResult[]> {
-  const inspectPromises = images.map((image) => plugin.inspect(image));
-  const results = await Promise.all(inspectPromises).catch((error) => {
-    console.log(error);
-    throw error;
-  });
-  return results.map((result) => {
-    return {
-      dependencies: result.package.dependencies,
-    };
-  });
+  const scannedImages: ScanResult[] = [];
+
+  for (const image of images) {
+    await plugin.inspect(image)
+      .then((result) => {
+        scannedImages.push({
+          dependencies: result.package.dependencies,
+        });
+      }, (error) => {
+        console.log(`Could not scan the image ${image}: ${error.message}`);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
+
+  return scannedImages;
 }
