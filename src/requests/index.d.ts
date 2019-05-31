@@ -7,5 +7,5 @@ export interface DepGraphPayload {
     userId: string;
     imageLocator: string;
     agentId: string;
-    dependencies: any; // TODO(ivan): correct type
+    dependencies?: any; // TODO(ivan): correct type
 }

@@ -6,7 +6,9 @@
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
 import k8s = require('@kubernetes/client-node');
+import { sendDepGraph } from '../../requests/homebase/v1';
 import { getUniqueImages, pullImages } from '../images/images';
+import { scanImages, ScanResult } from './image-scanner';
 
 const kc = new k8s.KubeConfig();
 // should be: kc.loadFromCluster;
@@ -38,6 +40,16 @@ class KubeApiWrapper {
 
     try {
       await pullImages(images);
+
+      const depTrees: ScanResult[] = await scanImages(images);
+      console.log(depTrees);
+
+      // TODO(ivan): send the actual data
+      await sendDepGraph({
+        userId: '',
+        imageLocator: '',
+        agentId: '',
+      });
     } catch (error) {
       console.log(error);
       return undefined;
