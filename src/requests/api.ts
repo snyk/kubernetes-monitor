@@ -20,7 +20,7 @@ function call(url: string, method: string | undefined, userOptions?: ApiOptions)
     gzip: true, // yes! send me compressed data
   };
   return request(options).catch((error) => {
-    const reportedError = new Error('Request to vulndb-service failed') as any;
+    const reportedError = new Error(`Request to the ${url} failed`) as any;
     reportedError.failedReqOptions = options;
     reportedError.innerError = error;
     return Promise.reject(reportedError);
