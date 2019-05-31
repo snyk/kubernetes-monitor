@@ -8,7 +8,7 @@
 import k8s = require('@kubernetes/client-node');
 import { sendDepGraph } from '../../requests/homebase/v1';
 import { getUniqueImages, pullImages } from '../images/images';
-import { scanImages, ScanResult } from './image-scanner';
+import { scanImages /*, ScanResult*/ } from './image-scanner';
 
 const kc = new k8s.KubeConfig();
 // should be: kc.loadFromCluster;
@@ -35,14 +35,14 @@ class KubeApiWrapper {
       return undefined;
     }
 
-    const allImages = imageMetadata.map((meta) => meta.image);
-    const images = getUniqueImages(allImages);
-
     try {
-      await pullImages(images);
+      const allImages = imageMetadata.map((meta) => meta.image);
+      const uniqueImages = getUniqueImages(allImages);
 
-      const depTrees: ScanResult[] = await scanImages(images);
-      console.log(depTrees);
+      const pulledImages = await pullImages(uniqueImages);
+
+      // const depTrees: ScanResult[] =
+      await scanImages(pulledImages);
 
       // TODO(ivan): send the actual data
       await sendDepGraph({
@@ -50,12 +50,14 @@ class KubeApiWrapper {
         imageLocator: '',
         agentId: '',
       });
+
+      const pulledImageMetadata = imageMetadata.filter((meta) =>
+        pulledImages.includes(meta.image));
+      return { imageMetadata: pulledImageMetadata };
     } catch (error) {
       console.log(error);
       return undefined;
     }
-
-    return { imageMetadata };
   }
 
   private static async getImageForAllNamespaces(): Promise<
