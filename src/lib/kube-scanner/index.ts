@@ -6,7 +6,7 @@
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
 import k8s = require('@kubernetes/client-node');
-// import rp = require("request-promise");
+import { getUniqueImages, pullImages } from '../images/images';
 
 const kc = new k8s.KubeConfig();
 // should be: kc.loadFromCluster;
@@ -29,10 +29,21 @@ interface KubeImage {
 class KubeApiWrapper {
   public static async scan(): Promise<ScanResponse | undefined> {
     const imageMetadata = await this.getImageForAllNamespaces();
-    if (imageMetadata) {
-      return { imageMetadata };
+    if (!imageMetadata) {
+      return undefined;
     }
-    return undefined;
+
+    const allImages = imageMetadata.map((meta) => meta.image);
+    const images = getUniqueImages(allImages);
+
+    try {
+      await pullImages(images);
+    } catch (error) {
+      console.log(error);
+      return undefined;
+    }
+
+    return { imageMetadata };
   }
 
   private static async getImageForAllNamespaces(): Promise<
