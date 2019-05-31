@@ -6,5 +6,8 @@
   "MONITOR": {
     "SCAN_INTERVAL_MS": 60000,
     "INITIAL_REFRESH_MS": 1000
+  },
+  "HOMEBASE": {
+    "url": "https://homebase.dev.snyk.io"
   }
 }
