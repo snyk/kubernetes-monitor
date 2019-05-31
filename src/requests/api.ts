@@ -1,20 +1,20 @@
 import request = require('request-promise-native');
 import { ApiOptions } from '.';
 
-export function get(url: string, userOptions: ApiOptions) {
+export function get(url: string, userOptions?: ApiOptions) {
   return call(url, 'GET', userOptions);
 }
 
-export function post(url: string, userOptions: ApiOptions) {
+export function post(url: string, userOptions?: ApiOptions) {
   return call(url, 'POST', userOptions);
 }
 
-function call(url: string, method: string | undefined, userOptions: ApiOptions): Promise<any> {
+function call(url: string, method: string | undefined, userOptions?: ApiOptions): Promise<any> {
   const options = {
     uri: url,
-    qs: userOptions.query,
+    qs: userOptions && userOptions.query,
     method: method || 'GET',
-    body: userOptions.body || undefined,
+    body: userOptions && userOptions.body || undefined,
     simple: true, // reject if not 2xx
     json: true, // send and receive JSON objects (parse response body)
     gzip: true, // yes! send me compressed data
