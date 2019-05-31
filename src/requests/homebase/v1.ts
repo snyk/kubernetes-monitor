@@ -1,9 +1,9 @@
+import { DepGraphPayload } from '..';
+import * as config from '../../common/config';
 import { post } from '../api';
 
-export class Homebase {
-  public sendDepGraph(graph: any) {
-    post('https://homebase/api/v1/', {
-      body: graph,
-    });
-  }
+export function sendDepGraph(payload: DepGraphPayload): Promise<any> {
+  return post(`${config.HOMEBASE.url}/api/v1/dependency-graph`, {
+    body: payload,
+  });
 }
