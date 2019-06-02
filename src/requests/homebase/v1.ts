@@ -2,8 +2,10 @@ import { DepGraphPayload } from '..';
 import * as config from '../../common/config';
 import { post } from '../api';
 
-export function sendDepGraph(payload: DepGraphPayload): Promise<any> {
-  return post(`${config.HOMEBASE.url}/api/v1/dependency-graph`, {
-    body: payload,
-  });
+export async function sendDepGraph(...payloads: DepGraphPayload[]) {
+  for (const payload of payloads) {
+    await post(`${config.HOMEBASE.url}/api/v1/dependency-graph`, {
+      body: payload,
+    });
+  }
 }
