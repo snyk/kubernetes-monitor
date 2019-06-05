@@ -9,7 +9,7 @@ async function safeScan() {
   try {
     await scan();
   } catch (err) {
-    console.log('ERROR IN SCAN DURRRRRRR');
+    console.log(`An error occurred during image scan: ${err.message}`);
   }
 }
 
