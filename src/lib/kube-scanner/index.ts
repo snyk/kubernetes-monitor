@@ -6,7 +6,10 @@
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
 import k8s = require('@kubernetes/client-node');
-// import rp = require("request-promise");
+import { sendDepGraph } from '../../requests';
+import { DepGraphPayload, KubeImage, ScanResponse } from '../../requests/types';
+import { pullImages } from '../images/images';
+import { constructPayloads, scanImages, ScanResult } from './image-scanner';
 
 const kc = new k8s.KubeConfig();
 // should be: kc.loadFromCluster;
@@ -17,50 +20,61 @@ if (!currentCluster) {
 }
 const k8sApi = kc.makeApiClient(k8s.Core_v1Api);
 
-interface ScanResponse {
-  imageMetadata: KubeImage[];
-}
-
-interface KubeImage {
-  scope: string;
-  image: string;
-}
-
 class KubeApiWrapper {
-  public static async scan(): Promise<ScanResponse | undefined> {
+  public static async scan(): Promise<ScanResponse> {
     const imageMetadata = await this.getImageForAllNamespaces();
-    if (imageMetadata) {
-      return { imageMetadata };
-    }
-    return undefined;
+
+    const allImages = imageMetadata.map((meta) => meta.image);
+    const uniqueImages = [...new Set<string>(allImages)];
+
+    const pulledImages = await pullImages(uniqueImages);
+
+    const scannedImages: ScanResult[] = await scanImages(pulledImages);
+    const payloads: DepGraphPayload[] = constructPayloads(scannedImages, imageMetadata);
+
+    await sendDepGraph(...payloads);
+
+    const pulledImageMetadata = imageMetadata.filter((meta) =>
+      pulledImages.includes(meta.image));
+    return { imageMetadata: pulledImageMetadata };
   }
 
-  private static async getImageForAllNamespaces(): Promise<
-    KubeImage[] | undefined
-  > {
+  private static async getImageForAllNamespaces(): Promise<KubeImage[]> {
+    let output: KubeImage[] = [];
+
+    let response;
     try {
-      const response = await k8sApi.listPodForAllNamespaces();
-      let output: KubeImage[] = [];
-      for (const item of response.body.items) {
-        if (!item.metadata.namespace.startsWith('kube') && currentCluster) {
-          const { name: podName, namespace, creationTimestamp } = item.metadata;
-          const images = item.spec.containers.map(
-            ({ name: containerName, image }) => {
-              return {
-                scope: `${currentCluster.name}/${namespace}/${podName}`,
-                status: item.status.phase,
-                podCreationTime: creationTimestamp,
-                image,
-              };
-            });
-          output = output.concat([...images]);
-        }
-      }
-      return output;
-    } catch (error) {
-      console.error(error);
-      return undefined;
+      response = await k8sApi.listPodForAllNamespaces();
+    } catch (err) {
+      console.log('ERROR LISTING POD FOR ALL NAMESPACES');
+      throw err;
     }
+
+    if (!response || !response.body || !currentCluster) {
+      return output;
+    }
+
+    for (const item of response.body.items) {
+      if (item.metadata.namespace.startsWith('kube')) {
+        continue;
+      }
+
+      const { name, namespace, creationTimestamp } = item.metadata;
+      const images = item.spec.containers.map(
+        ({ name: containerName, image }) => ({
+            cluster: currentCluster.name,
+            namespace,
+            name,
+            type: item.kind || '',
+            status: item.status.phase,
+            podCreationTime: creationTimestamp,
+            image,
+          } as KubeImage),
+        );
+      output = output.concat([...images]);
+    }
+
+    return output;
   }
 }
 
