@@ -1,10 +1,24 @@
+
 import KubeApiWrapper = require('./lib/kube-scanner');
 
-export async function monitor(config, logger) {
-  setTimeout(() => {
+async function scan() {
+  await KubeApiWrapper.scan();
+}
+
+async function safeScan() {
+  try {
+    await scan();
+  } catch (err) {
+    console.log('ERROR IN SCAN DURRRRRRR');
+  }
+}
+
+export async function monitor(config) {
+  setTimeout(async () => {
     setInterval(async () => {
-      const scan_output = await KubeApiWrapper.scan();
-      console.log(scan_output);
-    }, config.MONITOR.SCAN_INTERVAL);
-  }, config.MONITOR.INITIAL_REFRESH);
+      await safeScan();
+    }, config.MONITOR.SCAN_INTERVAL_MS);
+
+    await safeScan();
+  }, config.MONITOR.INITIAL_REFRESH_MS);
 }
