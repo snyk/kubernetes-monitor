@@ -8,6 +8,7 @@
 import k8s = require('@kubernetes/client-node');
 import { V1PodList } from '@kubernetes/client-node';
 import { Cluster } from '@kubernetes/client-node/dist/config_types';
+import { isEmpty } from 'lodash';
 import { sendDepGraph } from '../../transmitter';
 import { DepGraphPayload, KubeImage, ScanResponse } from '../../transmitter/types';
 import { pullImages } from '../images';
@@ -20,6 +21,19 @@ function getCurrentCluster(k8sConfig: k8s.KubeConfig): Cluster {
   }
   return cluster;
 }
+
+// we should not be concerned with k8s-related namespaces
+const IgnoredNamespace = 'kube';
+
+const DefaultWorkloadType = 'Pod';
+const SupportedWorkloadTypes = [
+  'Deployment',
+  'ReplicaSet',
+  'StatefulSet',
+  'DaemonSet',
+  'CronJob',
+  'ReplicationController',
+];
 
 const kc = new k8s.KubeConfig();
 // should be: kc.loadFromCluster;
@@ -62,9 +76,23 @@ class KubeApiWrapper {
     }
 
     for (const item of allPodsResponse.body.items) {
-      if (item.metadata.namespace.startsWith('kube')) {
+      if (item.metadata.namespace.startsWith(IgnoredNamespace)) {
         continue;
       }
+
+      const podOwner = item.metadata.ownerReferences
+        .find((owner) => SupportedWorkloadTypes.includes(owner.kind));
+      const isAssociatedWithParent = item.metadata.ownerReferences
+        .some((owner) => !isEmpty(owner.kind));
+
+      if (podOwner === undefined && isAssociatedWithParent) {
+        // Unsupported workload, continue
+        continue;
+      }
+
+      const workloadType = (podOwner === undefined && !isAssociatedWithParent)
+        ? DefaultWorkloadType
+        : podOwner!.kind;
 
       const { name, namespace, creationTimestamp } = item.metadata;
       const images = item.spec.containers.map(
@@ -72,7 +100,7 @@ class KubeApiWrapper {
             cluster: currentCluster.name,
             namespace,
             name,
-            type: item.kind || 'TODO-GET-TYPE',
+            type: workloadType,
             status: item.status.phase,
             podCreationTime: creationTimestamp,
             baseImageName: image,
