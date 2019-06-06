@@ -1,6 +1,6 @@
 import * as plugin from 'snyk-docker-plugin';
 import config = require('../../common/config');
-import { DepGraphPayload, KubeImage } from '../../transmitter/types';
+import { IDepGraphPayload, IKubeImage } from '../../transmitter/types';
 
 export interface ScanResult {
   image: string;
@@ -29,7 +29,7 @@ export async function scanImages(images: string[]): Promise<ScanResult[]> {
 }
 
 export function constructPayloads(scannedImages: ScanResult[],
-                                  imageMetadata: KubeImage[]): DepGraphPayload[] {
+                                  imageMetadata: IKubeImage[]): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
     const metadata = imageMetadata.find((meta) => meta.baseImageName === scannedImage.image);
     if (!metadata) {
@@ -48,7 +48,7 @@ export function constructPayloads(scannedImages: ScanResult[],
       imageLocator,
       agentId: config.AGENT_ID,
       dependencyGraph: scannedImage.pluginResult,
-    } as DepGraphPayload;
+    } as IDepGraphPayload;
   });
 
   return results;

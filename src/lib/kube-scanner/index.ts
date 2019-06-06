@@ -10,7 +10,7 @@ import { V1PodList } from '@kubernetes/client-node';
 import { Cluster } from '@kubernetes/client-node/dist/config_types';
 import { isEmpty } from 'lodash';
 import { sendDepGraph } from '../../transmitter';
-import { DepGraphPayload, KubeImage, ScanResponse } from '../../transmitter/types';
+import { IDepGraphPayload, IKubeImage, IScanResponse } from '../../transmitter/types';
 import { pullImages } from '../images';
 import { constructPayloads, scanImages, ScanResult } from './image-scanner';
 
@@ -42,7 +42,7 @@ const currentCluster = getCurrentCluster(kc);
 const k8sApi = kc.makeApiClient(k8s.Core_v1Api);
 
 class KubeApiWrapper {
-  public static async scan(): Promise<ScanResponse> {
+  public static async scan(): Promise<IScanResponse> {
     const imageMetadata = await this.getImageForAllNamespaces();
 
     const allImages = imageMetadata.map((meta) => meta.baseImageName);
@@ -51,7 +51,7 @@ class KubeApiWrapper {
     const pulledImages = await pullImages(uniqueImages);
 
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
-    const payloads: DepGraphPayload[] = constructPayloads(scannedImages, imageMetadata);
+    const payloads: IDepGraphPayload[] = constructPayloads(scannedImages, imageMetadata);
 
     await sendDepGraph(...payloads);
 
@@ -60,8 +60,8 @@ class KubeApiWrapper {
     return { imageMetadata: pulledImageMetadata };
   }
 
-  private static async getImageForAllNamespaces(): Promise<KubeImage[]> {
-    let imagesInAllNamespaces: KubeImage[] = [];
+  private static async getImageForAllNamespaces(): Promise<IKubeImage[]> {
+    let imagesInAllNamespaces: IKubeImage[] = [];
 
     let allPodsResponse: { body: V1PodList };
     try {
@@ -104,7 +104,7 @@ class KubeApiWrapper {
             status: item.status.phase,
             podCreationTime: creationTimestamp,
             baseImageName: image,
-          } as KubeImage),
+          } as IKubeImage),
         );
       imagesInAllNamespaces = imagesInAllNamespaces.concat([...images]);
     }

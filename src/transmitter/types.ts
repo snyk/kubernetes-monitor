@@ -10,17 +10,17 @@ export interface IImageLocator extends IWorkloadLocator {
   imageId: string;
 }
 
-export interface DepGraphPayload {
+export interface IDepGraphPayload {
   imageLocator: IImageLocator;
   agentId: string;
   dependencyGraph?: any;
 }
 
-export interface ScanResponse {
-  imageMetadata: KubeImage[];
+export interface IScanResponse {
+  imageMetadata: IKubeImage[];
 }
 
-export interface KubeImage {
+export interface IKubeImage {
   cluster: string;
   namespace: string;
   name: string;
