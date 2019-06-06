@@ -10,8 +10,8 @@
     "start": "bin/start",
     "prepare": "npm run build",
     "build": "npx typescript",
-    "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .' | ./node_modules/.bin/bunyan",
-    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .' | ./node_modules/.bin/bunyan",
+    "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
+    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
     "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'"
   },
   "author": "snyk.io",
@@ -19,7 +19,6 @@
   "private": true,
   "dependencies": {
     "@kubernetes/client-node": "^0.8.2",
-    "@snyk/log": "^2.8.0",
     "@types/body-parser": "^1.17.0",
     "@types/child-process-promise": "^2.2.1",
     "@types/compression": "0.0.36",
@@ -38,7 +37,6 @@
     "kubernetes-client": "^8.1.2",
     "lodash": "^4.17.11",
     "needle": "^2.4.0",
-    "request-promise": "^4.2.4",
     "response-time": "^2.3.2",
     "snyk-config": "^2.2.0",
     "snyk-docker-plugin": "^1.25.0",
@@ -57,7 +55,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/snyk/snyk-kubernetes-monitor.git"
+    "url": "https://github.com/snyk/kubernetes-monitor.git"
   },
   "release": {
     "verifyConditions": [

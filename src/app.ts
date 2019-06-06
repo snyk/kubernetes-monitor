@@ -1,4 +1,3 @@
-
 import KubeApiWrapper = require('./lib/kube-scanner');
 
 async function scan() {

@@ -6,25 +6,32 @@
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
 import k8s = require('@kubernetes/client-node');
-import { sendDepGraph } from '../../requests';
-import { DepGraphPayload, KubeImage, ScanResponse } from '../../requests/types';
-import { pullImages } from '../images/images';
+import { V1PodList } from '@kubernetes/client-node';
+import { Cluster } from '@kubernetes/client-node/dist/config_types';
+import { sendDepGraph } from '../../transmitter';
+import { DepGraphPayload, KubeImage, ScanResponse } from '../../transmitter/types';
+import { pullImages } from '../images';
 import { constructPayloads, scanImages, ScanResult } from './image-scanner';
+
+function getCurrentCluster(k8sConfig: k8s.KubeConfig): Cluster {
+  const cluster = k8sConfig.getCurrentCluster();
+  if (cluster === null) {
+    throw new Error(`Couldnt connect to current cluster info`);
+  }
+  return cluster;
+}
 
 const kc = new k8s.KubeConfig();
 // should be: kc.loadFromCluster;
 kc.loadFromDefault();
-const currentCluster = kc.getCurrentCluster();
-if (!currentCluster) {
-  throw new Error(`Couldnt connect to current cluster info`);
-}
+const currentCluster = getCurrentCluster(kc);
 const k8sApi = kc.makeApiClient(k8s.Core_v1Api);
 
 class KubeApiWrapper {
   public static async scan(): Promise<ScanResponse> {
     const imageMetadata = await this.getImageForAllNamespaces();
 
-    const allImages = imageMetadata.map((meta) => meta.image);
+    const allImages = imageMetadata.map((meta) => meta.baseImageName);
     const uniqueImages = [...new Set<string>(allImages)];
 
     const pulledImages = await pullImages(uniqueImages);
@@ -35,26 +42,26 @@ class KubeApiWrapper {
     await sendDepGraph(...payloads);
 
     const pulledImageMetadata = imageMetadata.filter((meta) =>
-      pulledImages.includes(meta.image));
+      pulledImages.includes(meta.baseImageName));
     return { imageMetadata: pulledImageMetadata };
   }
 
   private static async getImageForAllNamespaces(): Promise<KubeImage[]> {
-    let output: KubeImage[] = [];
+    let imagesInAllNamespaces: KubeImage[] = [];
 
-    let response;
+    let allPodsResponse: { body: V1PodList };
     try {
-      response = await k8sApi.listPodForAllNamespaces();
-    } catch (err) {
-      console.log('ERROR LISTING POD FOR ALL NAMESPACES');
-      throw err;
+      allPodsResponse = await k8sApi.listPodForAllNamespaces();
+    } catch (error) {
+      console.log(`Could not list pods for all namespaces: ${error.message}`);
+      throw error;
     }
 
-    if (!response || !response.body || !currentCluster) {
-      return output;
+    if (!allPodsResponse || !allPodsResponse.body) {
+      return imagesInAllNamespaces;
     }
 
-    for (const item of response.body.items) {
+    for (const item of allPodsResponse.body.items) {
       if (item.metadata.namespace.startsWith('kube')) {
         continue;
       }
@@ -65,16 +72,16 @@ class KubeApiWrapper {
             cluster: currentCluster.name,
             namespace,
             name,
-            type: item.kind || '',
+            type: item.kind || 'TODO-GET-TYPE',
             status: item.status.phase,
             podCreationTime: creationTimestamp,
-            image,
+            baseImageName: image,
           } as KubeImage),
         );
-      output = output.concat([...images]);
+      imagesInAllNamespaces = imagesInAllNamespaces.concat([...images]);
     }
 
-    return output;
+    return imagesInAllNamespaces;
   }
 }
 

@@ -1,6 +1,6 @@
 import * as plugin from 'snyk-docker-plugin';
 import config = require('../../common/config');
-import { DepGraphPayload, KubeImage } from '../../requests/types';
+import { DepGraphPayload, KubeImage } from '../../transmitter/types';
 
 export interface ScanResult {
   image: string;
@@ -31,20 +31,18 @@ export async function scanImages(images: string[]): Promise<ScanResult[]> {
 export function constructPayloads(scannedImages: ScanResult[],
                                   imageMetadata: KubeImage[]): DepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
-    const metadata = imageMetadata.find((meta) => meta.image === scannedImage.image);
+    const metadata = imageMetadata.find((meta) => meta.baseImageName === scannedImage.image);
     if (!metadata) {
       throw Error('Unexpected missing image'); // should never happen?
     }
 
-    const { image, ...workloadLocator } = metadata;
+    const { baseImageName: image, ...workloadLocator } = metadata;
 
     const imageLocator = {
       userLocator: config.USER_LOCATOR,
       imageId: image,
       ...workloadLocator,
     };
-
-    imageLocator.type = 'MOCKED_IN_EGG';
 
     return {
       imageLocator,

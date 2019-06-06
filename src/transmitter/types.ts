@@ -1,8 +1,3 @@
-export interface ApiOptions {
-  body?: any;
-  query?: any;
-}
-
 export interface IWorkloadLocator {
   userLocator: string;
   cluster: string;
@@ -30,5 +25,5 @@ export interface KubeImage {
   namespace: string;
   name: string;
   type: string;
-  image: string;
+  baseImageName: string;
 }
