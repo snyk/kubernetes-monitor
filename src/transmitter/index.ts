@@ -1,8 +1,8 @@
 import needle = require('needle');
 import * as config from '../common/config';
-import { DepGraphPayload } from './types';
+import { IDepGraphPayload } from './types';
 
-export async function sendDepGraph(...payloads: DepGraphPayload[]) {
+export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
   for (const payload of payloads) {
     try {
       await needle('post', `${config.HOMEBASE.url}/api/v1/dependency-graph`, payload, {
