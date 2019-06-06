@@ -1,3 +1,4 @@
+import * as config from './common/config';
 import KubeApiWrapper = require('./lib/kube-scanner');
 
 async function scan() {
@@ -12,7 +13,7 @@ async function safeScan() {
   }
 }
 
-export async function monitor(config) {
+export async function monitor() {
   setTimeout(async () => {
     setInterval(async () => {
       await safeScan();

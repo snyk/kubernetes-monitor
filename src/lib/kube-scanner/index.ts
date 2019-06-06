@@ -5,53 +5,42 @@
  * IMPORTANT:
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
-import k8s = require('@kubernetes/client-node');
 import { V1PodList } from '@kubernetes/client-node';
-import { Cluster } from '@kubernetes/client-node/dist/config_types';
 import { sendDepGraph } from '../../transmitter';
-import { DepGraphPayload, KubeImage, ScanResponse } from '../../transmitter/types';
+import { IDepGraphPayload, IKubeImage, IScanResponse } from '../../transmitter/types';
 import { pullImages } from '../images';
-import { constructPayloads, scanImages, ScanResult } from './image-scanner';
+import { k8sApi } from './cluster';
+import { constructHomebaseWorkloadPayloads, scanImages, ScanResult } from './image-scanner';
+import { buildMetadataForWorkload } from './metadata-extractor';
 
-function getCurrentCluster(k8sConfig: k8s.KubeConfig): Cluster {
-  const cluster = k8sConfig.getCurrentCluster();
-  if (cluster === null) {
-    throw new Error(`Couldnt connect to current cluster info`);
-  }
-  return cluster;
-}
-
-const kc = new k8s.KubeConfig();
-// should be: kc.loadFromCluster;
-kc.loadFromDefault();
-const currentCluster = getCurrentCluster(kc);
-const k8sApi = kc.makeApiClient(k8s.Core_v1Api);
+// we should not be concerned with k8s-related namespaces
+const IgnoredNamespace = 'kube';
 
 class KubeApiWrapper {
-  public static async scan(): Promise<ScanResponse> {
-    const imageMetadata = await this.getImageForAllNamespaces();
+  public static async scan(): Promise<IScanResponse> {
+    const workloadMetadata = await this.getAllWorkloads();
 
-    const allImages = imageMetadata.map((meta) => meta.baseImageName);
+    const allImages = workloadMetadata.map((meta) => meta.imageName);
     const uniqueImages = [...new Set<string>(allImages)];
 
     const pulledImages = await pullImages(uniqueImages);
 
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
-    const payloads: DepGraphPayload[] = constructPayloads(scannedImages, imageMetadata);
+    const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
 
-    await sendDepGraph(...payloads);
+    await sendDepGraph(...homebasePayloads);
 
-    const pulledImageMetadata = imageMetadata.filter((meta) =>
-      pulledImages.includes(meta.baseImageName));
+    const pulledImageMetadata = workloadMetadata.filter((meta) =>
+      pulledImages.includes(meta.imageName));
     return { imageMetadata: pulledImageMetadata };
   }
 
-  private static async getImageForAllNamespaces(): Promise<KubeImage[]> {
-    let imagesInAllNamespaces: KubeImage[] = [];
+  private static async getAllWorkloads(): Promise<IKubeImage[]> {
+    let imagesInAllNamespaces: IKubeImage[] = [];
 
     let allPodsResponse: { body: V1PodList };
     try {
-      allPodsResponse = await k8sApi.listPodForAllNamespaces();
+      allPodsResponse = await k8sApi.coreClient.listPodForAllNamespaces();
     } catch (error) {
       console.log(`Could not list pods for all namespaces: ${error.message}`);
       throw error;
@@ -61,24 +50,15 @@ class KubeApiWrapper {
       return imagesInAllNamespaces;
     }
 
-    for (const item of allPodsResponse.body.items) {
-      if (item.metadata.namespace.startsWith('kube')) {
+    for (const pod of allPodsResponse.body.items) {
+      if (pod.metadata.namespace.startsWith(IgnoredNamespace)) {
         continue;
       }
 
-      const { name, namespace, creationTimestamp } = item.metadata;
-      const images = item.spec.containers.map(
-        ({ name: containerName, image }) => ({
-            cluster: currentCluster.name,
-            namespace,
-            name,
-            type: item.kind || 'TODO-GET-TYPE',
-            status: item.status.phase,
-            podCreationTime: creationTimestamp,
-            baseImageName: image,
-          } as KubeImage),
-        );
-      imagesInAllNamespaces = imagesInAllNamespaces.concat([...images]);
+      const imagesMetadata = await buildMetadataForWorkload(pod);
+      if (imagesMetadata !== undefined && imagesMetadata.length > 0) {
+        imagesInAllNamespaces = imagesInAllNamespaces.concat([...imagesMetadata]);
+      }
     }
 
     return imagesInAllNamespaces;
