@@ -28,8 +28,9 @@ export async function scanImages(images: string[]): Promise<ScanResult[]> {
   return scannedImages;
 }
 
-export function constructPayloads(scannedImages: ScanResult[],
-                                  imageMetadata: IKubeImage[]): IDepGraphPayload[] {
+export function constructHomebaseWorkloadPayloads(
+    scannedImages: ScanResult[],
+    imageMetadata: IKubeImage[]): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
     const metadata = imageMetadata.find((meta) => meta.baseImageName === scannedImage.image);
     if (!metadata) {

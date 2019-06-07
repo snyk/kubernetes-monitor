@@ -5,67 +5,42 @@
  * IMPORTANT:
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
-import k8s = require('@kubernetes/client-node');
 import { V1PodList } from '@kubernetes/client-node';
-import { Cluster } from '@kubernetes/client-node/dist/config_types';
-import { isEmpty } from 'lodash';
 import { sendDepGraph } from '../../transmitter';
 import { IDepGraphPayload, IKubeImage, IScanResponse } from '../../transmitter/types';
 import { pullImages } from '../images';
-import { constructPayloads, scanImages, ScanResult } from './image-scanner';
-
-function getCurrentCluster(k8sConfig: k8s.KubeConfig): Cluster {
-  const cluster = k8sConfig.getCurrentCluster();
-  if (cluster === null) {
-    throw new Error(`Couldnt connect to current cluster info`);
-  }
-  return cluster;
-}
+import { k8sApi } from './cluster';
+import { constructHomebaseWorkloadPayloads, scanImages, ScanResult } from './image-scanner';
+import { buildMetadataForWorkload } from './metadata-extractor';
 
 // we should not be concerned with k8s-related namespaces
 const IgnoredNamespace = 'kube';
 
-const DefaultWorkloadType = 'Pod';
-const SupportedWorkloadTypes = [
-  'Deployment',
-  'ReplicaSet',
-  'StatefulSet',
-  'DaemonSet',
-  'CronJob',
-  'ReplicationController',
-];
-
-const kc = new k8s.KubeConfig();
-// should be: kc.loadFromCluster;
-kc.loadFromDefault();
-const currentCluster = getCurrentCluster(kc);
-const k8sApi = kc.makeApiClient(k8s.Core_v1Api);
-
 class KubeApiWrapper {
   public static async scan(): Promise<IScanResponse> {
-    const imageMetadata = await this.getImageForAllNamespaces();
+    const workloadMetadata = await this.getAllWorkloads();
 
-    const allImages = imageMetadata.map((meta) => meta.baseImageName);
+    const allImages = workloadMetadata.map((meta) => meta.baseImageName);
     const uniqueImages = [...new Set<string>(allImages)];
 
     const pulledImages = await pullImages(uniqueImages);
 
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
-    const payloads: IDepGraphPayload[] = constructPayloads(scannedImages, imageMetadata);
+    const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
 
-    await sendDepGraph(...payloads);
+    await sendDepGraph(...homebasePayloads);
 
-    const pulledImageMetadata = imageMetadata.filter((meta) =>
+    const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.baseImageName));
     return { imageMetadata: pulledImageMetadata };
   }
 
-  private static async getImageForAllNamespaces(): Promise<IKubeImage[]> {
+  private static async getAllWorkloads(): Promise<IKubeImage[]> {
     let imagesInAllNamespaces: IKubeImage[] = [];
 
     let allPodsResponse: { body: V1PodList };
     try {
-      allPodsResponse = await k8sApi.listPodForAllNamespaces();
+      allPodsResponse = await k8sApi.coreClient.listPodForAllNamespaces();
     } catch (error) {
       console.log(`Could not list pods for all namespaces: ${error.message}`);
       throw error;
@@ -75,38 +50,15 @@ class KubeApiWrapper {
       return imagesInAllNamespaces;
     }
 
-    for (const item of allPodsResponse.body.items) {
-      if (item.metadata.namespace.startsWith(IgnoredNamespace)) {
+    for (const pod of allPodsResponse.body.items) {
+      if (pod.metadata.namespace.startsWith(IgnoredNamespace)) {
         continue;
       }
 
-      const podOwner = item.metadata.ownerReferences
-        .find((owner) => SupportedWorkloadTypes.includes(owner.kind));
-      const isAssociatedWithParent = item.metadata.ownerReferences
-        .some((owner) => !isEmpty(owner.kind));
-
-      if (podOwner === undefined && isAssociatedWithParent) {
-        // Unsupported workload, continue
-        continue;
+      const imagesMetadata = await buildMetadataForWorkload(pod);
+      if (imagesMetadata !== undefined && imagesMetadata.length > 0) {
+        imagesInAllNamespaces = imagesInAllNamespaces.concat([...imagesMetadata]);
       }
-
-      const workloadType = (podOwner === undefined && !isAssociatedWithParent)
-        ? DefaultWorkloadType
-        : podOwner!.kind;
-
-      const { name, namespace, creationTimestamp } = item.metadata;
-      const images = item.spec.containers.map(
-        ({ name: containerName, image }) => ({
-            cluster: currentCluster.name,
-            namespace,
-            name,
-            type: workloadType,
-            status: item.status.phase,
-            podCreationTime: creationTimestamp,
-            baseImageName: image,
-          } as IKubeImage),
-        );
-      imagesInAllNamespaces = imagesInAllNamespaces.concat([...images]);
     }
 
     return imagesInAllNamespaces;
