@@ -8,8 +8,11 @@ async function scan() {
 async function safeScan() {
   try {
     await scan();
-  } catch (err) {
-    console.log(`An error occurred during image scan: ${err.message}`);
+  } catch (error) {
+    const errorMessage = (error && error.response)
+      ? `${error.response.statusCode} ${error.response.statusMessage}`
+      : error.message;
+    console.log(`An error occurred during image scan: ${errorMessage}`);
   }
 }
 

@@ -55,9 +55,14 @@ class KubeApiWrapper {
         continue;
       }
 
-      const imagesMetadata = await buildMetadataForWorkload(pod);
-      if (imagesMetadata !== undefined && imagesMetadata.length > 0) {
-        imagesInAllNamespaces = imagesInAllNamespaces.concat([...imagesMetadata]);
+      try {
+        const imagesMetadata = await buildMetadataForWorkload(pod);
+        if (imagesMetadata !== undefined && imagesMetadata.length > 0) {
+          imagesInAllNamespaces = imagesInAllNamespaces.concat([...imagesMetadata]);
+        }
+      } catch (error) {
+        console.log(`Could not build image metadata for pod ${pod.metadata.name}: ${error.message}`);
+        throw error;
       }
     }
 
