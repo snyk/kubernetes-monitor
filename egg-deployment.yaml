@@ -5,21 +5,12 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-  creationTimestamp: 2019-06-03T11:58:37Z
-  generation: 1
   labels:
     run: snyk-egg
   name: snyk-egg
   namespace: default
-  resourceVersion: "105687"
-  selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/snyk-egg
-  uid: ebc87a2f-85f6-11e9-82be-08002772c3ea
 spec:
-  progressDeadlineSeconds: 2147483647
   replicas: 1
-  revisionHistoryLimit: 2147483647
   selector:
     matchLabels:
       run: snyk-egg
@@ -30,16 +21,12 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         run: snyk-egg
     spec:
       containers:
       - image: sheseksnyk/egg-carton:latest
         name: snyk-egg
-        ports:
-        - containerPort: 8080
-          protocol: TCP
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
@@ -50,7 +37,6 @@ spec:
           mountPath: "/root/.docker"
       dnsPolicy: ClusterFirst
       restartPolicy: Always
-      schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
@@ -66,16 +52,3 @@ spec:
             path: "config.json"
       serviceAccount: snyk-k8s-service-account
       serviceAccountName: snyk-k8s-service-account
-status:
-  availableReplicas: 1
-  conditions:
-  - lastTransitionTime: 2019-06-03T11:58:37Z
-    lastUpdateTime: 2019-06-03T11:58:37Z
-    message: Deployment has minimum availability.
-    reason: MinimumReplicasAvailable
-    status: "True"
-    type: Available
-  observedGeneration: 1
-  readyReplicas: 1
-  replicas: 1
-  updatedReplicas: 1
