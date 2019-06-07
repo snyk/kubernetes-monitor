@@ -32,10 +32,7 @@ export function constructHomebaseWorkloadPayloads(
     scannedImages: ScanResult[],
     imageMetadata: IKubeImage[]): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
-    const metadata = imageMetadata.find((meta) => meta.imageName === scannedImage.image);
-    if (!metadata) {
-      throw Error('Unexpected missing image'); // should never happen?
-    }
+    const metadata = imageMetadata.find((meta) => meta.imageName === scannedImage.image)!;
 
     const { imageName: image, ...workloadLocator } = metadata;
 
