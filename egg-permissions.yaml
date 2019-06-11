@@ -1,0 +1,55 @@
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: snyk-k8s-cluster-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - replicationcontrollers
+  verbs:
+  - get
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resources:
+  - replicasets
+  - daemonsets
+  - deployments
+  - statefulsets
+  verbs:
+  - get
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: snyk-k8s-service-account
+imagePullSecrets:
+  - name: snyk-docker-config
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: snyk-k8s-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: snyk-k8s-service-account
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: snyk-k8s-cluster-role
+---

@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: snyk-egg
+  name: snyk-egg
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: snyk-egg
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: snyk-egg
+    spec:
+      containers:
+      - image: sheseksnyk/egg-carton:latest
+        name: snyk-egg
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - name: docker-socket-mount
+          mountPath: /var/run/docker.sock
+        - name: docker-config
+          readOnly: true
+          mountPath: "/root/.docker"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      volumes:
+      - name: docker-socket-mount
+        hostPath:
+          path: /var/run/docker.sock
+          type: ""
+      - name: docker-config
+        secret:
+          secretName: eggdockercfg
+      serviceAccount: snyk-k8s-service-account
+      serviceAccountName: snyk-k8s-service-account
