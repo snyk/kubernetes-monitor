@@ -7,7 +7,7 @@
       "SCAN_INTERVAL_MS": 60000,
       "INITIAL_REFRESH_MS": 1000
     },
-    "USER_LOCATOR": "203210a3-1de0-4ed3-b6a6-3acd24b71639",
+    "INTEGRATION_ID": "203210a3-1de0-4ed3-b6a6-3acd24b71639",
     "HOMEBASE": {
       "url": "https://localhost:3000"
     }
