@@ -5,6 +5,7 @@
   "scripts": {
     "test": "npm run lint && npm run test:unit",
     "test:unit": "./tap test -R spec",
+    "test:integration": "./scripts/prep_test.sh && ./tap test/integration -Rdot --timeout=240 && ./scripts/end_test.sh || (./scripts/end_test.sh && exit 1)",
     "test:coverage": "npm run test:unit -- --coverage",
     "test:watch": "tsc-watch --onSuccess 'npm run test:unit'",
     "start": "bin/start",
@@ -28,7 +29,6 @@
     "@types/node": "^10.12.5",
     "@types/raven": "^2.5.1",
     "@types/request": "^2.48.1",
-    "@types/request-promise": "^4.1.42",
     "@types/response-time": "^2.3.3",
     "body-parser": "^1.18.3",
     "child-process-promise": "^2.2.1",
@@ -43,9 +43,11 @@
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
     "typescript": "^3.1.6",
-    "ws": "^7.0.0"
+    "ws": "^7.0.0",
+    "yaml": "^1.6.0"
   },
   "devDependencies": {
+    "sleep-promise": "^8.0.1",
     "supertest": "^3.3.0",
     "tap": "github:snyk/node-tap#alternative-runtimes",
     "ts-node": "^8.1.0",
