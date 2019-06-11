@@ -12,9 +12,10 @@ kubectl run snyk-k8s-monitor --image-pull-policy=Never --image=snyk-k8s-monitor:
 
 ## Building with the provided .yaml files ##
 
-You can execute the following commands from the root project folder:
+You will first need a `dockercfg` file for configuring the monitor to be able to pull from a private registry.
+Once you have the file, you can run the following to install the secret into k8s:
 ```shell
-docker build -t snyk-k8s-monitor --rm .
+kubectl create secret generic eggdockercfg --from-file=config.json
 ```
 
 Then you can apply the "permissions" -- basically creating the Service Account with constrained permissions.
@@ -28,3 +29,11 @@ And finally, to start the container:
 kubectl apply -f egg-deployment.yaml
 ```
 The above command applies a whole deployment.
+
+Have a look at `egg-deployment.yaml` to see where the image is being pulled from.
+If you would like to use a locally-built image, then modify the following lines like this:
+```yaml
+      containers:
+      - image: <your-local-image-name:tag>
+        imagePullPolicy: Never
+```
