@@ -4,7 +4,7 @@
     "level": "info"
   },
   "MONITOR": {
-    "SCAN_INTERVAL_MS": 60000,
+    "SCAN_INTERVAL_MS": 1200000,
     "INITIAL_REFRESH_MS": 1000
   },
   "USER_LOCATOR": "203210a3-1de0-4ed3-b6a6-3acd24b71639",

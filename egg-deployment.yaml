@@ -21,7 +21,7 @@ spec:
         run: snyk-egg
     spec:
       containers:
-      - image: sheseksnyk/egg-carton:latest
+      - image: gcr.io/snyk-main/snyk-egg:latest
         name: snyk-egg
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File

@@ -18,7 +18,7 @@ function buildImageMetadata(
 ): IKubeImage[] {
   const { name, namespace, labels, annotations, uid } = objectMeta;
   const images = containers.map(({ name: containerName, image }) => ({
-      kind,
+      type: kind,
       name,
       namespace,
       labels,

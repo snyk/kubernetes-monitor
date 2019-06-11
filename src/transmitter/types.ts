@@ -4,7 +4,7 @@ export interface IWorkloadLocator {
   userLocator: string;
   cluster: string;
   namespace: string;
-  kind: string;
+  type: string;
   name: string;
   labels: StringMap | undefined;
   annotations: StringMap | undefined;
@@ -26,7 +26,7 @@ export interface IScanResponse {
 }
 
 export interface IKubeImage {
-  kind: string;
+  type: string;
   name: string;
   namespace: string;
   labels: StringMap | undefined;

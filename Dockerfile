@@ -11,26 +11,15 @@ RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${
                 -C /usr/local/bin docker/docker \
  && rm docker-${DOCKERVERSION}.tgz
 
-RUN mkdir -p /srv/app
-WORKDIR /srv/app
-
-# Create a user called `snyk` which will run the monitor
-RUN useradd --home-dir /srv/app -s /bin/bash snyk
-RUN chown -R snyk:snyk /srv/app
-
-# Add the `snyk` user to the `docker` group to allow access to `docker.sock`
-RUN groupadd docker
-RUN usermod -aG docker snyk
-
-USER snyk
+WORKDIR /root
 
 # Add manifest files and install before adding anything else to take advantage of layer caching
-ADD --chown=snyk:snyk package.json package-lock.json .snyk ./
+ADD package.json package-lock.json .snyk ./
 
 RUN npm install
 
 # add the rest of the app files
-ADD --chown=snyk:snyk . .
+ADD . .
 
 # Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
 RUN npm run prepare
