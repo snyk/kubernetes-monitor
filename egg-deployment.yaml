@@ -42,8 +42,5 @@ spec:
       - name: docker-config
         secret:
           secretName: eggdockercfg
-          items:
-          - key: ".dockerconfigjson"
-            path: "config.json"
       serviceAccount: snyk-k8s-service-account
       serviceAccountName: snyk-k8s-service-account
