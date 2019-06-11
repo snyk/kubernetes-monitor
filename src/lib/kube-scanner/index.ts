@@ -18,17 +18,28 @@ const IgnoredNamespace = 'kube';
 
 class KubeApiWrapper {
   public static async scan(): Promise<IScanResponse> {
+    console.log('Begin querying all workloads...');
     const workloadMetadata = await this.getAllWorkloads();
 
     const allImages = workloadMetadata.map((meta) => meta.imageName);
+    console.log(`Queried ${allImages.length} workloads: ${allImages.join(', ')}.`);
     const uniqueImages = [...new Set<string>(allImages)];
 
+    console.log('Begin pulling images...');
     const pulledImages = await pullImages(uniqueImages);
+    console.log(`Pulled ${pulledImages.length} images: ${pulledImages.join(', ')}.`);
 
+    console.log('Begin scanning images...');
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
-    const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
+    console.log(`Scanned ${scannedImages.length} images: ${scannedImages.map((image) => image.image)}.`);
 
+    console.log('Begin constructing payloads...');
+    const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
+    console.log(`Constructed ${homebasePayloads.length} payloads.`);
+
+    console.log('Sending dep-graphs to homebase...');
     await sendDepGraph(...homebasePayloads);
+    console.log('Done!');
 
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.imageName));
@@ -61,8 +72,12 @@ class KubeApiWrapper {
           imagesInAllNamespaces = imagesInAllNamespaces.concat([...imagesMetadata]);
         }
       } catch (error) {
-        console.log(`Could not build image metadata for pod ${pod.metadata.name}: ${error.message}`);
-        throw error;
+        const errorMessage = error.response
+          ? `${error.response.statusCode} ${error.response.statusMessage}`
+          : error.message;
+        const images = pod.spec.containers.map((container) => container.image).join(', ');
+        console.log(`Could not build image metadata for pod ${pod.metadata.name}: ${errorMessage}`);
+        console.log(`The pod uses the following images: ${images}`);
       }
     }
 
