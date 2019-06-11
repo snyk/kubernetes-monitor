@@ -37,7 +37,7 @@ export function constructHomebaseWorkloadPayloads(
     const { imageName: image, ...workloadLocator } = metadata;
 
     const imageLocator = {
-      userLocator: config.USER_LOCATOR,
+      userLocator: config.INTEGRATION_ID,
       imageId: image,
       ...workloadLocator,
     };
