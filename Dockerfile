@@ -1,4 +1,4 @@
-FROM nodesource/nsolid:dubnium-latest
+FROM node:dubnium-alpine
 
 MAINTAINER Snyk Ltd
 
@@ -6,10 +6,12 @@ ENV NODE_ENV production
 
 # INSTALLING DOCKER, CAN BE REMOVED WHEN WE DON'T TRY TO `DOCKER PULL`
 ENV DOCKERVERSION=18.06.3-ce
-RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
+RUN apk --no-cache add --virtual curl-dep curl \
+ && curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
  && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
                 -C /usr/local/bin docker/docker \
- && rm docker-${DOCKERVERSION}.tgz
+ && rm docker-${DOCKERVERSION}.tgz \
+ && apk del curl-dep
 
 WORKDIR /root
 
