@@ -22,12 +22,12 @@ class KubeApiWrapper {
     const workloadMetadata = await this.getAllWorkloads();
 
     const allImages = workloadMetadata.map((meta) => meta.imageName);
-    console.log(`Queried ${allImages.length} workloads: ${allImages.join(', ')}.`);
+    console.log(`Queried ${allImages.length} workloads: ${allImages}.`);
     const uniqueImages = [...new Set<string>(allImages)];
 
     console.log('Begin pulling images...');
     const pulledImages = await pullImages(uniqueImages);
-    console.log(`Pulled ${pulledImages.length} images: ${pulledImages.join(', ')}.`);
+    console.log(`Pulled ${pulledImages.length} images: ${pulledImages}.`);
 
     console.log('Begin scanning images...');
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
