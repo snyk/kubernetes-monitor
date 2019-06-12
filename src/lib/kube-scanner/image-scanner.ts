@@ -45,7 +45,7 @@ export function constructHomebaseWorkloadPayloads(
     return {
       imageLocator,
       agentId: config.AGENT_ID,
-      dependencyGraph: scannedImage.pluginResult,
+      dependencyGraph: JSON.stringify(scannedImage.pluginResult),
     } as IDepGraphPayload;
   });
 
