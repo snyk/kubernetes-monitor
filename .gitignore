@@ -39,4 +39,7 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
+# Snyk local configuration file
+config.local.json
+
 .vscode/*
