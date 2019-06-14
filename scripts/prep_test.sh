@@ -21,20 +21,19 @@ echo "Kubernetes ready!"
 SERVICE_ENV=test
 cp config.${SERVICE_ENV}.json config.local.json
 
-# Load egg into KinD cluster
+# Load snyk-monitor into KinD cluster
 docker build -t snyk-k8s-monitor:test --no-cache .
 ./kind load docker-image snyk-k8s-monitor:test
-./kubectl create secret generic eggdockercfg \
-  --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-  --type=kubernetes.io/dockerconfigjson
+./kubectl create namespace snyk-monitor
+./kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json="{}" --from-literal=integrationId="aaaabbbb-cccc-dddd-eeee-ffff11112222"
 
 # Create test deployment yaml file
-echo "Creating egg-test-deployment.yaml from egg-deployment.yaml"
+echo "Creating snyk-monitor-test-deployment.yaml from snyk-monitor-deployment.yaml"
 node ./scripts/test-yaml-creator.js
-if [[ -f "egg-test-deployment.yaml" ]]; then
-  echo "egg-test-deployment.yaml created successfully"
+if [[ -f "snyk-monitor-test-deployment.yaml" ]]; then
+  echo "snyk-monitor-test-deployment.yaml created successfully"
 fi
 
 # Apply deployments
-./kubectl apply -f egg-permissions.yaml
-./kubectl apply -f egg-test-deployment.yaml
+./kubectl apply -f snyk-monitor-permissions.yaml
+./kubectl apply -f snyk-monitor-test-deployment.yaml
