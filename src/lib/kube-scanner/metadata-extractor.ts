@@ -1,21 +1,18 @@
-import { V1Container, V1ObjectMeta, V1OwnerReference, V1Pod } from '@kubernetes/client-node';
-import { isEmpty, keys } from 'lodash';
+import { V1OwnerReference, V1Pod } from '@kubernetes/client-node';
+import { isEmpty } from 'lodash';
 import { IKubeImage } from '../../transmitter/types';
-import { currentClusterName, k8sApi } from './cluster';
+import { currentClusterName } from './cluster';
+import { KubeObjectMetadata } from './types';
+import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
 
-type IWorkloadHandlerFunc = (
-  podOwner: V1OwnerReference | undefined,
-  pod: V1Pod,
-) => Promise<IKubeImage[]>;
+const podKindName = 'Pod';
+const loopingThreshold = 20;
 
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
-function buildImageMetadata(
-    kind: string,
-    objectMeta: V1ObjectMeta,
-    specMeta: V1ObjectMeta,
-    containers: V1Container[],
-): IKubeImage[] {
+function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
+  const { kind, objectMeta, specMeta, containers } = workloadMeta;
+
   const { name, namespace, labels, annotations, uid } = objectMeta;
   const images = containers.map(({ name: containerName, image }) => ({
       type: kind,
@@ -34,159 +31,54 @@ function buildImageMetadata(
   return images;
 }
 
-const DeploymentHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
+async function findParentWorkload(
+  ownerRefs: V1OwnerReference[] | undefined,
+  namespace: string,
+): Promise<KubeObjectMetadata | undefined> {
+  let ownerReferences = ownerRefs;
+  let parentMetadata: KubeObjectMetadata | undefined;
+
+  for (let i = 0; i < loopingThreshold; i++) {
+    // We are interested only in a subset of all workloads.
+    const supportedWorkload = getSupportedWorkload(ownerReferences);
+
+    if (supportedWorkload === undefined) {
+      // Reached the top (or an unsupported workload): return the current parent metadata.
+      return parentMetadata;
+    }
+
+    const workloadReader = getWorkloadReader(supportedWorkload.kind);
+    parentMetadata = await workloadReader(supportedWorkload.name, namespace);
+    ownerReferences = parentMetadata.ownerRefs;
   }
 
-  const deploymentResult = await k8sApi.appsClient.readNamespacedDeployment(
-    podOwner.name, pod.metadata.namespace);
-  const deployment = deploymentResult.body;
+  return undefined;
+}
 
-  return buildImageMetadata(deployment.kind,
-    deployment.metadata,
-    deployment.spec.template.metadata,
-    deployment.spec.template.spec.containers);
-};
+export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[] | undefined> {
+  const isAssociatedWithParent = pod.metadata.ownerReferences !== undefined
+    ? pod.metadata.ownerReferences.some((owner) => !isEmpty(owner.kind))
+    : false;
 
-const ReplicaSetHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
+  // Pods that are not associated with any workloads
+  // do not need to be read with the API (we already have their meta+spec)
+  // so just return the information directly.
+  if (!isAssociatedWithParent) {
+    return buildImageMetadata({
+      kind: podKindName, // Reading pod.kind is undefined, so use this
+      objectMeta: pod.metadata,
+      // Notice the pod.metadata repeats; this is because pods
+      // do not have the "template" property.
+      specMeta: pod.metadata,
+      ownerRefs: [],
+      containers: pod.spec.containers,
+    });
   }
 
-  const replicaSetResult = await k8sApi.appsClient.readNamespacedReplicaSet(
-    podOwner.name, pod.metadata.namespace);
-  const replicaSet = replicaSetResult.body;
+  const podOwner: KubeObjectMetadata | undefined = await findParentWorkload(
+    pod.metadata.ownerReferences, pod.metadata.namespace);
 
-  return buildImageMetadata(replicaSet.kind,
-    replicaSet.metadata,
-    replicaSet.spec.template.metadata,
-    replicaSet.spec.template.spec.containers);
-};
-
-const StatefulSetHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
-  }
-
-  const statefulSetResult = await k8sApi.appsClient.readNamespacedStatefulSet(
-    podOwner.name, pod.metadata.namespace);
-  const statefulSet = statefulSetResult.body;
-
-  return buildImageMetadata(statefulSet.kind,
-    statefulSet.metadata,
-    statefulSet.spec.template.metadata,
-    statefulSet.spec.template.spec.containers);
-};
-
-const DaemonSetHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
-  }
-
-  const daemonSetResult = await k8sApi.appsClient.readNamespacedDaemonSet(
-    podOwner.name, pod.metadata.namespace);
-  const daemonSet = daemonSetResult.body;
-
-  return buildImageMetadata(daemonSet.kind,
-    daemonSet.metadata,
-    daemonSet.spec.template.metadata,
-    daemonSet.spec.template.spec.containers);
-};
-
-const JobHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
-  }
-
-  const jobResult = await k8sApi.batchClient.readNamespacedJob(
-    podOwner.name, pod.metadata.namespace);
-  const job = jobResult.body;
-
-  return buildImageMetadata(job.kind,
-    job.metadata,
-    job.spec.template.metadata,
-    job.spec.template.spec.containers);
-};
-
-// Keep an eye on this! We need v1beta1 API for CronJobs.
-// https://kubernetes.io/docs/concepts/overview/kubernetes-api/#api-versioning
-// CronJobs will appear in v2 API, but for now there' only v2alpha1, so it's a bad idea to use it.
-const CronJobHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
-  }
-
-  const cronJobResult = await k8sApi.batchUnstableClient.readNamespacedCronJob(
-    podOwner.name, pod.metadata.namespace);
-  const cronJob = cronJobResult.body;
-
-  return buildImageMetadata(cronJob.kind,
-    cronJob.metadata,
-    // Notice: unlike the other references, here we use `jobTemplate` and not `template`.
-    cronJob.spec.jobTemplate.metadata,
-    cronJob.spec.jobTemplate.spec.template.spec.containers);
-};
-
-const ReplicationControllerHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner === undefined) {
-    throw Error(`Expected to find a parent/owner of the pod ${pod.metadata.name}`);
-  }
-
-  const replicationControllerResult = await k8sApi.coreClient.readNamespacedReplicationController(
-    podOwner.name, pod.metadata.namespace);
-  const replicationController = replicationControllerResult.body;
-
-  return buildImageMetadata(replicationController.kind,
-    replicationController.metadata,
-    replicationController.spec.template.metadata,
-    replicationController.spec.template.spec.containers);
-};
-
-const PodHandler: IWorkloadHandlerFunc = async (podOwner, pod) => {
-  if (podOwner !== undefined || podOwner !== null) {
-    throw Error(`The pod must not have any parent/owner`);
-  }
-
-  return buildImageMetadata(DefaultWorkloadType,
-    pod.metadata,
-    pod.metadata, // Pods are a bit special in that they lack `spec.template.metadata`
-    pod.spec.containers);
-};
-
-const WorkloadHandler = {
-  Deployment: DeploymentHandler,
-  ReplicaSet: ReplicaSetHandler,
-  StatefulSet: StatefulSetHandler,
-  DaemonSet: DaemonSetHandler,
-  Job: JobHandler,
-  CronJob: CronJobHandler,
-  ReplicationController: ReplicationControllerHandler,
-  Pod: PodHandler,
-};
-
-const { Pod, ...SupportedWorkloads } = WorkloadHandler;
-
-const SupportedWorkloadTypes = keys(SupportedWorkloads);
-const DefaultWorkloadType = 'Pod';
-
-export function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[] | undefined> {
-  // Determine the workload type -- some workloads carry extra metadata info.
-  // We are also interested only in a small subset of all workloads.
-  const podOwner = pod.metadata.ownerReferences
-    .find((owner) => SupportedWorkloadTypes.includes(owner.kind));
-  const isAssociatedWithParent = pod.metadata.ownerReferences
-    .some((owner) => !isEmpty(owner.kind));
-
-  if (podOwner === undefined && isAssociatedWithParent) {
-    // Unsupported workload, we don't want to track it.
-    return Promise.resolve(undefined);
-  }
-
-  const workloadType = (podOwner === undefined && !isAssociatedWithParent)
-    ? DefaultWorkloadType
-    : podOwner!.kind;
-
-  const handler: IWorkloadHandlerFunc = WorkloadHandler[workloadType];
-  return handler(podOwner, pod);
+  return podOwner === undefined
+    ? undefined
+    : buildImageMetadata(podOwner);
 }
