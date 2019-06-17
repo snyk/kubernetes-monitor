@@ -1,0 +1,21 @@
+# Default values for snyk-monitor.
+
+# The snyk-monitor relies on several k8s secrets in order to be configured properly.
+# These secrets are named "snyk-monitor-secrets", though you can change the name.
+# The secrets should be created externally, before applying this Helm chart.
+# The currently used keys within the secret are: "dockercfg.json", "integrationId".
+monitorSecrets: snyk-monitor
+
+# One of: Cluster, Namespaced
+# Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
+# Namespaced - creates a Role and RoleBinding with the ServiceAccount
+scope: Cluster
+
+# The registry from which to pull the snyk-monitor image.
+image:
+  repository: gcr.io/snyk-main/kubernetes-monitor
+  tag: latest
+  pullPolicy: Always
+
+# The path of the docker socket on the node. For PKS: /var/vcap/data/sys/run/docker/docker.sock
+dockerSocketHostPath: "/var/run/docker.sock"
