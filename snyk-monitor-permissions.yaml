@@ -2,7 +2,9 @@
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: snyk-k8s-cluster-role
+  name: snyk-monitor
+  labels:
+    app.kubernetes.io/name: snyk-monitor
 rules:
 - apiGroups:
   - ""
@@ -36,20 +38,23 @@ rules:
 kind: ServiceAccount
 apiVersion: v1
 metadata:
-  name: snyk-k8s-service-account
-imagePullSecrets:
-  - name: snyk-docker-config
+  name: snyk-monitor
+  namespace: snyk-monitor
+  labels:
+    app.kubernetes.io/name: snyk-monitor
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: snyk-k8s-cluster-role-binding
+  name: snyk-monitor
+  labels:
+    app.kubernetes.io/name: snyk-monitor
 subjects:
 - kind: ServiceAccount
-  name: snyk-k8s-service-account
-  namespace: default
+  name: snyk-monitor
+  namespace: snyk-monitor
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: snyk-k8s-cluster-role
+  name: snyk-monitor
 ---

@@ -1,7 +1,7 @@
-# snyk/kubernetes-monitor #
+# snyk/kubernetes-monitor-chart #
 
 ## Summary ##
-Container to monitor Kubernetes clusters' security
+A Helm chart for the Snyk Monitor
 
 ## Prerequisites ##
 
@@ -9,7 +9,7 @@ Container to monitor Kubernetes clusters' security
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
 
-As with any k8s deployment, a namespace must be provisioned first.
+As with any Helm chart deployment, a namespace must be provisioned first.
 You can run the following command to create the namespace:
 ```shell
 kubectl create namespace snyk-monitor
@@ -47,23 +47,15 @@ kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockerc
 
 Note that the secret _must_ be namespaced, and the namespace (which we configured earlier) is called _snyk-monitor_.
 
+## Installation ##
 
-Next, you can create the necessary `ServiceAccount`, `ClusterRole`, and `ClusterRoleBinding` required for the monitor's deployment. These objects ensure the monitor has the right (limited) level of access to resources in the cluster. The command is as follows:
+Run the following command to launch the Snyk monitor in your cluster:
+
 ```shell
-kubectl apply -f snyk-monitor-permissions.yaml
+helm install ./snyk-monitor --namespace snyk-monitor
 ```
 
-
-Finally, to launch the Snyk monitor in your cluster, run the following:
+For Helm 3, you may run the following:
 ```shell
-kubectl apply -f snyk-monitor-deployment.yaml
-```
-
-## Using a local Docker image for testing ##
-
-If you would like to use a locally-built image, then modify the following lines in `snyk-monitor-deployment.yaml` like this:
-```yaml
-      containers:
-      - image: <your-local-image-name:tag>
-        imagePullPolicy: Never
+helm install --generate-name --namespace snyk-monitor  ./snyk-monitor
 ```

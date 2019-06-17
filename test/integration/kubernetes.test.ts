@@ -28,14 +28,14 @@ test('egg monitor container started', async t => {
     undefined,
     'Kind cluster instance is not empty',
   );
-  const response = await k8sApi.listNamespacedPod('default');
+  const response = await k8sApi.listNamespacedPod('snyk-monitor');
   t.ok(response.body.items.length > 0, 'PodList is not empty');
   for (const item of response.body.items) {
     if (item.metadata.namespace.startsWith('kube')) {
       continue;
     }
-    t.ok(item.metadata.name.includes('snyk-egg'), 'Egg container exists');
+    t.ok(item.metadata.name.includes('snyk-monitor'), 'Snyk monitor container exists');
     // All pod phases could be found here: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
-    t.notEqual(item.status.phase, 'Failed', `Egg container didn't failed`);
+    t.notEqual(item.status.phase, 'Failed', `Snyk monitor container didn't failed`);
   }
 });
