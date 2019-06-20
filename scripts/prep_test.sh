@@ -17,7 +17,7 @@ if ! test -f ./kind; then
 fi
 
 # Create a new Kubernetes cluster using KinD
-./kind create cluster --name="kind"
+./kind create cluster --config="./scripts/cluster.yaml" --name="kind"
 export KUBECONFIG="$(./kind get kubeconfig-path --name="kind")"
 echo "Kubernetes ready!"
 
