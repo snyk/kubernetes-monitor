@@ -22,8 +22,8 @@ jobs:
     # test stage
     - stage: Test
       if: type = pull_request
-      script: npm run test:integration
-      name: Kubernetes Integration tests
+      script: npm run test
+      name: Run kubernetes-monitor tests
     # release and deploy stage
     # TODO when we can build and publish a container
 branches:
