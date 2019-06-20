@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine
+  namespace: services
+  labels:
+    app: alpine
+spec:
+  containers:
+  - name: alpine
+    image: alpine
+    command: ['sh', '-c', 'echo Hello from alpine pod! && sleep 360000']
