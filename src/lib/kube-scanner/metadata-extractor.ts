@@ -5,7 +5,6 @@ import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
 
-const podKindName = 'Pod';
 const loopingThreshold = 20;
 
 // Constructs the workload metadata based on a variety of k8s properties.
@@ -16,13 +15,13 @@ function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
   const { name, namespace, labels, annotations, uid } = objectMeta;
   const images = containers.map(({ name: containerName, image }) => ({
       type: kind,
-      name,
+      name: name || 'unknown',
       namespace,
-      labels,
-      annotations,
+      labels: labels || {},
+      annotations: annotations || {},
       uid,
-      specLabels: specMeta.labels,
-      specAnnotations: specMeta.annotations,
+      specLabels: specMeta.labels || {},
+      specAnnotations: specMeta.annotations || {},
       containerName,
       imageName: image,
       cluster: currentClusterName,
@@ -65,7 +64,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
   // so just return the information directly.
   if (!isAssociatedWithParent) {
     return buildImageMetadata({
-      kind: podKindName, // Reading pod.kind is undefined, so use this
+      kind: 'Pod', // Reading pod.kind may be undefined, so use this
       objectMeta: pod.metadata,
       // Notice the pod.metadata repeats; this is because pods
       // do not have the "template" property.

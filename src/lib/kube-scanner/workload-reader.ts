@@ -14,7 +14,7 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
   const deployment = deploymentResult.body;
 
   return {
-    kind: deployment.kind,
+    kind: 'Deployment',
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,
@@ -28,7 +28,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
   const replicaSet = replicaSetResult.body;
 
   return {
-    kind: replicaSet.kind,
+    kind: 'ReplicaSet',
     objectMeta: replicaSet.metadata,
     specMeta: replicaSet.spec.template.metadata,
     containers: replicaSet.spec.template.spec.containers,
@@ -42,7 +42,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
   const statefulSet = statefulSetResult.body;
 
   return {
-    kind: statefulSet.kind,
+    kind: 'StatefulSet',
     objectMeta: statefulSet.metadata,
     specMeta: statefulSet.spec.template.metadata,
     containers: statefulSet.spec.template.spec.containers,
@@ -56,7 +56,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
   const daemonSet = daemonSetResult.body;
 
   return {
-    kind: daemonSet.kind,
+    kind: 'DaemonSet',
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
     containers: daemonSet.spec.template.spec.containers,
@@ -70,7 +70,7 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const job = jobResult.body;
 
   return {
-    kind: job.kind,
+    kind: 'Job',
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
     containers: job.spec.template.spec.containers,
@@ -87,7 +87,7 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const cronJob = cronJobResult.body;
 
   return {
-    kind: cronJob.kind,
+    kind: 'CronJob',
     objectMeta: cronJob.metadata,
     specMeta: cronJob.spec.jobTemplate.metadata,
     containers: cronJob.spec.jobTemplate.spec.template.spec.containers,
@@ -101,7 +101,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
   const replicationController = replicationControllerResult.body;
 
   return {
-    kind: replicationController.kind,
+    kind: 'ReplicationController',
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,
