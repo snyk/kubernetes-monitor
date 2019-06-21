@@ -38,6 +38,8 @@ spec:
               secretKeyRef:
                 name: {{ .Values.monitorSecrets }}
                 key: integrationId
+          - name: SNYK_NAMESPACE
+            value: {{ .Release.Namespace }}
       volumes:
         - name: docker-socket-mount
           hostPath:

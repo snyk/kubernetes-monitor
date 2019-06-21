@@ -1,8 +1,6 @@
 import { KubeConfig } from '@kubernetes/client-node';
 import { IK8sClients, K8sClients } from './types';
 
-const kubeConfig = getKubeConfig();
-
 function getKubeConfig(): KubeConfig {
   const kc = new KubeConfig();
   // TODO(ivanstanev): We may need to change this to loadFromClusterAndUser()
@@ -28,5 +26,6 @@ function getK8sApi(k8sConfig: KubeConfig): IK8sClients {
   return new K8sClients(k8sConfig);
 }
 
+export const kubeConfig = getKubeConfig();
 export const currentClusterName = getCurrentCluster(kubeConfig);
 export const k8sApi = getK8sApi(kubeConfig);

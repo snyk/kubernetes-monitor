@@ -1,14 +1,12 @@
 {
-    "LOGGING": {
-      "name": "kubernetes-monitor",
-      "level": "info"
-    },
-    "MONITOR": {
-      "SCAN_INTERVAL_MS": 60000,
-      "INITIAL_REFRESH_MS": 1000
-    },
-    "HOMEBASE": {
-      "url": "https://localhost:3000"
-    }
+  "LOGGING": {
+    "name": "kubernetes-monitor",
+    "level": "info"
+  },
+  "MONITOR": {
+    "INITIAL_REFRESH_MS": 1000
+  },
+  "HOMEBASE": {
+    "url": "https://localhost:3000"
   }
-  
+}
