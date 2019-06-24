@@ -1,16 +1,20 @@
 #!/bin/bash
 
 # Download and install kubectl
-echo "Downloading kubectl"
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$(uname -s | awk '{print tolower($0)}')/amd64/kubectl
-chmod +x kubectl
-echo "Kubectl successfully installed!"
+if ! test -f ./kubectl; then
+  echo "Downloading kubectl"
+  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$(uname -s | awk '{print tolower($0)}')/amd64/kubectl
+  chmod +x kubectl
+  echo "Kubectl successfully installed!"
+fi
 
 # Download and install KinD
-echo "Downloading KinD"
-curl -Lo kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-$(uname -s | awk '{print tolower($0)}')-amd64
-chmod +x kind 
-echo "KinD successfully installed!"
+if ! test -f ./kind; then
+  echo "Downloading KinD"
+  curl -Lo kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-$(uname -s | awk '{print tolower($0)}')-amd64
+  chmod +x kind
+  echo "KinD successfully installed!"
+fi
 
 # Create a new Kubernetes cluster using KinD
 ./kind create cluster --name="kind"
