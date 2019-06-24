@@ -43,3 +43,7 @@ jspm_packages
 config.local.json
 
 .vscode/*
+
+# test utilities
+kind
+kubectl
