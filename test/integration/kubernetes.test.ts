@@ -17,7 +17,7 @@ const getKindConfigPath = async () => {
   }
 };
 
-test('egg monitor container started', async t => {
+test('egg monitor container started', async (t) => {
   // wait to let the container go through a cycle
   await sleep(config.MONITOR.INITIAL_REFRESH_MS);
   const kindPath = await getKindConfigPath();
@@ -36,6 +36,6 @@ test('egg monitor container started', async t => {
     }
     t.ok(item.metadata.name.includes('snyk-monitor'), 'Snyk monitor container exists');
     // All pod phases could be found here: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
-    t.notEqual(item.status.phase, 'Failed', `Snyk monitor container didn't failed`);
+    t.notEqual(item.status.phase, 'Failed', `Snyk monitor container didn't fail`);
   }
 });
