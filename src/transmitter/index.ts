@@ -11,7 +11,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
         },
       );
     } catch (error) {
-      console.log(error.message);
+      console.log(JSON.stringify(error));
     }
   }
 }

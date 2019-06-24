@@ -1,26 +1,5 @@
 #!/bin/bash
 
-# Download and install kubectl
-echo "Downloading kubectl"
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$(uname -s | awk '{print tolower($0)}')/amd64/kubectl
-chmod +x kubectl
-echo "Kubectl successfully installed!"
-
-# Download and install KinD
-echo "Downloading KinD"
-curl -Lo kind https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-$(uname -s | awk '{print tolower($0)}')-amd64
-chmod +x kind 
-echo "KinD successfully installed!"
-
-# Create a new Kubernetes cluster using KinD
-./kind create cluster --config="./test/fixtures/cluster-config.yaml" --name="kind"
-export KUBECONFIG="$(./kind get kubeconfig-path --name="kind")"
-echo "Kubernetes ready!"
-
-# Load snyk-monitor into KinD cluster
-docker build -t snyk-k8s-monitor:test --no-cache .
-./kind load docker-image snyk-k8s-monitor:test
-
 # Create the necessary prerequisites for the snyk-monitor: the namespace and the secret
 ./kubectl create namespace snyk-monitor
 ./kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json="{}" --from-literal=integrationId="aaaabbbb-cccc-dddd-eeee-ffff11112222"
@@ -34,6 +13,7 @@ echo "Deploying sample workloads"
 ./kubectl apply -f ./test/fixtures/redis-deployment.yaml
 echo "Deployed sample workloads!"
 
+./kubectl create secret generic fix -n snyk-monitor --from-literal=nsswitch="hosts: files dns"
 # Create test deployment yaml file from the original yaml file
 echo "Creating snyk-monitor-test-deployment.yaml from snyk-monitor-deployment.yaml"
 node ./scripts/test-yaml-creator.js
