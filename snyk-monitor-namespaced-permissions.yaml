@@ -1,5 +1,5 @@
 ---
-kind: ClusterRole
+kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: snyk-monitor
@@ -12,13 +12,6 @@ rules:
   - pods
   verbs:
   - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - watch
 - apiGroups:
   - ""
   resources:
@@ -50,7 +43,7 @@ metadata:
   labels:
     app.kubernetes.io/name: snyk-monitor
 ---
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: snyk-monitor
@@ -62,6 +55,14 @@ subjects:
   namespace: snyk-monitor
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: Role
   name: snyk-monitor
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: snyk-monitor
+  namespace: snyk-monitor
+data:
+  namespace: snyk-monitor
 ---
