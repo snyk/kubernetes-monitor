@@ -16,6 +16,12 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - namespaces
+  verbs:
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - replicationcontrollers
   verbs:
   - get
