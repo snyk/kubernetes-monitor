@@ -12,6 +12,7 @@ rules:
   - pods
   verbs:
   - list
+  - watch
 - apiGroups:
   - ""
   resources:

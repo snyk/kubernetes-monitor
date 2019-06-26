@@ -1,13 +1,9 @@
 import * as config from './common/config';
-import KubeApiWrapper = require('./lib/kube-scanner');
+import { beginWatchingWorkloads } from './lib/kube-scanner/watchers/namespaces';
 
-async function scan() {
-  await KubeApiWrapper.scan();
-}
-
-async function safeScan() {
+function safeMonitoring() {
   try {
-    await scan();
+    beginWatchingWorkloads();
   } catch (error) {
     const errorMessage = (error && error.response)
       ? `${error.response.statusCode} ${error.response.statusMessage}`
@@ -16,12 +12,6 @@ async function safeScan() {
   }
 }
 
-export async function monitor() {
-  setTimeout(async () => {
-    setInterval(async () => {
-      await safeScan();
-    }, config.MONITOR.SCAN_INTERVAL_MS);
-
-    await safeScan();
-  }, config.MONITOR.INITIAL_REFRESH_MS);
+export function monitor() {
+  setTimeout(safeMonitoring, config.MONITOR.INITIAL_REFRESH_MS);
 }

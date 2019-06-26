@@ -1,29 +1,61 @@
 import * as k8s from '@kubernetes/client-node';
+import { V1Namespace } from '@kubernetes/client-node';
+import config = require('../../../common/config');
+import { kubeConfig } from '../cluster';
+import { podWatchHandler } from './handlers';
+import { WatchEventType } from './types';
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
+const watches = {
+};
 
-const watch = new k8s.Watch(kc);
-const req = watch.watch('/api/v1/namespaces',
-  // optional query parameters can go here.
-  {},
-  // callback is called for each received object.
-  (type, obj) => {
-    if (type === 'ADDED') {
-        console.log('new object:');
-    } else if (type === 'MODIFIED') {
-        console.log('changed object:');
-    } else if (type === 'DELETED') {
-        console.log('deleted object:');
-    } else {
-        console.log('unknown type: ' + type);
+const k8sWatch = new k8s.Watch(kubeConfig);
+
+function deleteWatchesForNamespace(namespace: string) {
+  console.log(`Stopping watching for changes to namespace ${namespace}`);
+
+  if (watches[namespace] !== undefined) {
+    try {
+      watches[namespace].abort();
+      delete watches[namespace];
+    } catch (error) {
+      console.log(`Error: could not stop watch for namespace ${namespace}`);
     }
-    console.log(obj);
-  },
-  // done callback is called if the watch terminates normally
-  (err) => {
-    console.error(err);
-  });
+  }
+}
 
-// watch returns a request object which you can use to abort the watch.
-setTimeout(() => { req.abort(); }, 10 * 1000);
+function genericErrorHandler(error) {
+  console.log(error);
+}
+
+function setupWatchesForNamespace(namespace: string) {
+  console.log(`Attempting to watch for changes to namespace ${namespace}...`);
+  const queryOptions = {};
+  watches[namespace] = k8sWatch.watch(`/api/v1/namespaces/${namespace}/pods`,
+    queryOptions, podWatchHandler, genericErrorHandler);
+  console.log(`Watching for changes to namespace ${namespace}`);
+}
+
+export function beginWatchingWorkloads() {
+  if (config.NAMESPACE) {
+    console.log(`The kubernetes-monitor is restricted to the ${config.NAMESPACE} namespace.`);
+    setupWatchesForNamespace(config.NAMESPACE);
+    return;
+  }
+
+  const queryOptions = {};
+  k8sWatch.watch(`/api/v1/namespaces`,
+    queryOptions,
+    (eventType: string, namespace: V1Namespace) => {
+      if (namespace.metadata.name.startsWith('kube')) {
+        return;
+      }
+
+      if (eventType === WatchEventType.Added) {
+        setupWatchesForNamespace(namespace.metadata.name);
+      } else if (eventType === WatchEventType.Deleted) {
+        deleteWatchesForNamespace(namespace.metadata.name);
+      }
+    },
+    genericErrorHandler,
+  );
+}

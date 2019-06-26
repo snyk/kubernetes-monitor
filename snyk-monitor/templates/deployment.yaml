@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "snyk-monitor.name" . }}
@@ -38,6 +38,8 @@ spec:
               secretKeyRef:
                 name: {{ .Values.monitorSecrets }}
                 key: integrationId
+          - name: SNYK_NAMESPACE
+            value: {{ .Release.Namespace }}
       volumes:
         - name: docker-socket-mount
           hostPath:
