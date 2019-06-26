@@ -32,6 +32,12 @@ spec:
               secretKeyRef:
                 name: snyk-monitor
                 key: integrationId
+          - name: SNYK_NAMESPACE
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: namespace
+                optional: true
       securityContext: {}
       volumes:
       - name: docker-socket-mount
