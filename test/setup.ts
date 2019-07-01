@@ -237,7 +237,7 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
   const testYaml = 'snyk-monitor-test-deployment.yaml';
   createTestYamlDeployment(testYaml, integrationId);
 
-  await applyK8sYaml('./snyk-monitor-permissions.yaml');
+  await applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await applyK8sYaml('./snyk-monitor-test-deployment.yaml');
 
   try {
