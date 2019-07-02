@@ -39,7 +39,7 @@ spec:
                 name: {{ .Values.monitorSecrets }}
                 key: integrationId
           - name: SNYK_NAMESPACE
-            value: {{ .Release.Namespace }}
+            value: {{ include "snyk-monitor.scope" . }}
       volumes:
         - name: docker-socket-mount
           hostPath:
