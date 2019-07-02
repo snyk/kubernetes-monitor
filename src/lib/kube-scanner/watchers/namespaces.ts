@@ -23,15 +23,14 @@ function deleteWatchesForNamespace(namespace: string) {
   }
 }
 
-function genericErrorHandler(error) {
-  console.log(error);
-}
-
 function setupWatchesForNamespace(namespace: string) {
   console.log(`Attempting to watch for changes to namespace ${namespace}...`);
   const queryOptions = {};
   watches[namespace] = k8sWatch.watch(`/api/v1/namespaces/${namespace}/pods`,
-    queryOptions, podWatchHandler, genericErrorHandler);
+    queryOptions, podWatchHandler, (error) => {
+      const errorMessage = error.message ? error.message : error;
+      console.log(`An error occurred during Pod watch: ${errorMessage}`);
+    });
   console.log(`Watching for changes to namespace ${namespace}`);
 }
 
@@ -56,6 +55,9 @@ export function beginWatchingWorkloads() {
         deleteWatchesForNamespace(namespace.metadata.name);
       }
     },
-    genericErrorHandler,
+    (error) => {
+      const errorMessage = error.message ? error.message : error;
+      console.log(`An error occurred while watching for all namespace changes: ${errorMessage}`);
+    },
   );
 }
