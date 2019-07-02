@@ -11,7 +11,8 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
         },
       );
     } catch (error) {
-      console.log(error.message);
+      const errorMessage = error.message ? error.message : error;
+      console.log(`Could not send data to Homebase: ${errorMessage}`);
     }
   }
 }
