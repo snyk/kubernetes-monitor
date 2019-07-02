@@ -29,3 +29,12 @@ logfile
 
 selenium-debug.log
 tests_output/
+
+README.md
+Tiltfile
+bin
+scripts
+tap
+snyk-monitor
+*-deployment.yaml
+*-permissions.yaml
