@@ -1,5 +1,4 @@
 import { V1OwnerReference } from '@kubernetes/client-node';
-import { keys } from 'lodash';
 import { k8sApi } from './cluster';
 import { KubeObjectMetadata } from './types';
 
@@ -122,7 +121,7 @@ const workloadReader = {
   ReplicationController: replicationControllerReader,
 };
 
-export const SupportedWorkloadTypes = keys(workloadReader);
+export const SupportedWorkloadTypes = Object.keys(workloadReader);
 
 export function getWorkloadReader(workloadType: string): IWorkloadReaderFunc {
   return workloadReader[workloadType];
@@ -130,6 +129,6 @@ export function getWorkloadReader(workloadType: string): IWorkloadReaderFunc {
 
 export function getSupportedWorkload(ownerRefs: V1OwnerReference[] | undefined): V1OwnerReference | undefined {
   return ownerRefs !== undefined
-    ? ownerRefs.find((owner) => SupportedWorkloadTypes.includes(owner.kind))
+    ? ownerRefs.find((owner) => workloadReader[owner.kind])
     : undefined;
 }
