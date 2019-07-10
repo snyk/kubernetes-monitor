@@ -5,14 +5,14 @@ import setup = require('../setup'); // Must be located before 'tap' import
 // tslint:disable-next-line: ordered-imports
 import * as tap from 'tap';
 import * as config from '../../src/common/config';
-import { IWorkloadLocator } from '../../src/transmitter/types';
+import { IWorkloadInfo } from '../../src/transmitter/types';
 import { getKindConfigPath } from '../helpers/kind';
 
 let integrationId: string;
 const toneDownFactor = 5;
 const maxPodChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
 
-type WorkloadLocatorValidator = (workloads: IWorkloadLocator[] | undefined) => boolean;
+type WorkloadLocatorValidator = (workloads: IWorkloadInfo[] | undefined) => boolean;
 
 tap.tearDown(async () => {
   console.log('Begin removing the snyk-monitor...');
@@ -63,7 +63,7 @@ async function validateHomebaseStoredData(
   while (remainingChecks > 0) {
     const homebaseResponse = await needle('get', url, null);
     const responseBody = homebaseResponse.body;
-    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
+    const workloads: IWorkloadInfo[] | undefined = responseBody.workloads;
     const result = validatorFn(workloads);
     if (result) {
       return true;
@@ -84,11 +84,11 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
       workloads.every((workload) => workload.userLocator === integrationId) &&
       workloads.every((workload) => workload.cluster === 'inCluster') &&
       workloads.find((workload) => workload.name === 'alpine' && workload.type === 'Pod'
-      && workload.namespace === 'services') !== undefined &&
+      && workload.apiGroup === '' && workload.namespace === 'services') !== undefined &&
       workloads.find((workload) => workload.name === 'nginx' && workload.type === 'ReplicationController'
-      && workload.namespace === 'services') !== undefined &&
+      && workload.apiGroup === '' && workload.namespace === 'services') !== undefined &&
       workloads.find((workload) => workload.name === 'redis' && workload.type === 'Deployment'
-      && workload.namespace === 'services') !== undefined;
+      && workload.apiGroup === 'apps' && workload.namespace === 'services') !== undefined;
   };
 
   // We don't want to spam Homebase with requests; do it infrequently
@@ -105,7 +105,7 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
       workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === 'Deployment'
-      && workload.namespace === 'services') !== undefined;
+      && workload.apiGroup === 'apps' && workload.namespace === 'services') !== undefined;
   };
 
   const homebaseTestResult = await validateHomebaseStoredData(validatorFn);
