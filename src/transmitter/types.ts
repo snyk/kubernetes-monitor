@@ -37,4 +37,5 @@ export interface IKubeImage {
   containerName: string;
   imageName: string;
   cluster: string;
+  apiGroupName: string;
 }

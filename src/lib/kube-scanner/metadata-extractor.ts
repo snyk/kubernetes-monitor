@@ -9,7 +9,7 @@ const loopingThreshold = 20;
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
 function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
-  const { kind, objectMeta, specMeta, containers } = workloadMeta;
+  const { kind, group, objectMeta, specMeta, containers } = workloadMeta;
 
   const { name, namespace, labels, annotations, uid } = objectMeta;
   const images = containers.map(({ name: containerName, image }) => ({
@@ -24,6 +24,7 @@ function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
       containerName,
       imageName: image,
       cluster: currentClusterName,
+      apiGroupName: group,
     } as IKubeImage),
   );
   return images;
@@ -62,6 +63,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
   if (!isAssociatedWithParent) {
     return buildImageMetadata({
       kind: 'Pod', // Reading pod.kind may be undefined, so use this
+      group: apiGroupExtractor(pod.apiVersion),
       objectMeta: pod.metadata,
       // Notice the pod.metadata repeats; this is because pods
       // do not have the "template" property.
@@ -83,4 +85,17 @@ export function isPodAssociatedWithParent(pod: V1Pod): boolean {
   return pod.metadata.ownerReferences !== undefined
   ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
   : false;
+}
+
+// An API group is a collection of objects that are logically related.
+// For example, all batch objects like Job or ScheduledJob could be in the batch API Group
+// group name is being used as an alias on the CLI and for display.
+export function apiGroupExtractor(apiVersion: string): string {
+  if (apiVersion) {
+    const [group, version] = apiVersion.split('/');
+    if (group && version) {
+      return group;
+    }
+  }
+  return '';
 }

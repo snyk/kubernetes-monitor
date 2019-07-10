@@ -3,6 +3,7 @@ import { Apps_v1Api, Batch_v1Api, Batch_v1beta1Api, Core_v1Api, KubeConfig,
 
 export interface KubeObjectMetadata {
   kind: string;
+  group: string;
   objectMeta: V1ObjectMeta;
   specMeta: V1ObjectMeta;
   containers: V1Container[];
