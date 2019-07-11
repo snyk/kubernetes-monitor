@@ -1,5 +1,4 @@
 import { V1OwnerReference, V1Pod } from '@kubernetes/client-node';
-import { isEmpty } from 'lodash';
 import { IKubeImage } from '../../transmitter/types';
 import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
@@ -55,9 +54,7 @@ async function findParentWorkload(
 }
 
 export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[] | undefined> {
-  const isAssociatedWithParent = pod.metadata.ownerReferences !== undefined
-    ? pod.metadata.ownerReferences.some((owner) => !isEmpty(owner.kind))
-    : false;
+  const isAssociatedWithParent = isPodAssociatedWithParent(pod);
 
   // Pods that are not associated with any workloads
   // do not need to be read with the API (we already have their meta+spec)
@@ -80,4 +77,10 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
   return podOwner === undefined
     ? undefined
     : buildImageMetadata(podOwner);
+}
+
+export function isPodAssociatedWithParent(pod: V1Pod): boolean {
+  return pod.metadata.ownerReferences !== undefined
+  ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
+  : false;
 }
