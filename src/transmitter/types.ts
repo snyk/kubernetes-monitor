@@ -11,6 +11,10 @@ export interface IWorkloadLocator {
   uid: string;
 }
 
+export interface IWorkloadInfo extends IWorkloadLocator {
+  apiGroup: string;
+}
+
 export interface IImageLocator extends IWorkloadLocator {
   imageId: string;
 }
@@ -37,5 +41,5 @@ export interface IKubeImage {
   containerName: string;
   imageName: string;
   cluster: string;
-  apiGroupName: string;
+  apiGroup: string;
 }

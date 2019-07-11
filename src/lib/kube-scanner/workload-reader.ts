@@ -1,6 +1,6 @@
 import { V1OwnerReference } from '@kubernetes/client-node';
 import { k8sApi } from './cluster';
-import { apiGroupExtractor } from './metadata-extractor';
+import { extractApiGroup } from './metadata-extractor';
 import { KubeObjectMetadata } from './types';
 
 type IWorkloadReaderFunc = (
@@ -15,7 +15,7 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 
   return {
     kind: 'Deployment',
-    group: apiGroupExtractor(deployment.apiVersion),
+    group: extractApiGroup(deployment.apiVersion),
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,
@@ -30,7 +30,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 
   return {
     kind: 'ReplicaSet',
-    group: apiGroupExtractor(replicaSet.apiVersion),
+    group: extractApiGroup(replicaSet.apiVersion),
     objectMeta: replicaSet.metadata,
     specMeta: replicaSet.spec.template.metadata,
     containers: replicaSet.spec.template.spec.containers,
@@ -45,7 +45,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
 
   return {
     kind: 'StatefulSet',
-    group: apiGroupExtractor(statefulSet.apiVersion),
+    group: extractApiGroup(statefulSet.apiVersion),
     objectMeta: statefulSet.metadata,
     specMeta: statefulSet.spec.template.metadata,
     containers: statefulSet.spec.template.spec.containers,
@@ -60,7 +60,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
 
   return {
     kind: 'DaemonSet',
-    group: apiGroupExtractor(daemonSet.apiVersion),
+    group: extractApiGroup(daemonSet.apiVersion),
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
     containers: daemonSet.spec.template.spec.containers,
@@ -75,7 +75,7 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
 
   return {
     kind: 'Job',
-    group: apiGroupExtractor(job.apiVersion),
+    group: extractApiGroup(job.apiVersion),
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
     containers: job.spec.template.spec.containers,
@@ -93,7 +93,7 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
 
   return {
     kind: 'CronJob',
-    group: apiGroupExtractor(cronJob.apiVersion),
+    group: extractApiGroup(cronJob.apiVersion),
     objectMeta: cronJob.metadata,
     specMeta: cronJob.spec.jobTemplate.metadata,
     containers: cronJob.spec.jobTemplate.spec.template.spec.containers,
@@ -108,7 +108,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
 
   return {
     kind: 'ReplicationController',
-    group: apiGroupExtractor(replicationController.apiVersion),
+    group: extractApiGroup(replicationController.apiVersion),
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,

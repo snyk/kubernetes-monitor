@@ -5,7 +5,7 @@ import setup = require('../setup'); // Must be located before 'tap' import
 // tslint:disable-next-line: ordered-imports
 import * as tap from 'tap';
 import * as config from '../../src/common/config';
-import { IWorkloadLocator } from '../../src/transmitter/types';
+import { IWorkloadInfo } from '../../src/transmitter/types';
 import { getKindConfigPath } from '../helpers/kind';
 
 let integrationId: string;
@@ -65,17 +65,35 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
       .catch((error) => t.fail(error));
 
     const responseBody = homebaseResponse.body;
-    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
+    const workloads: IWorkloadInfo[] | undefined = responseBody.workloads;
 
-    if (workloads !== undefined && workloads.length === 3 &&
-        workloads.every((workload) => workload.userLocator === integrationId) &&
-        workloads.every((workload) => workload.cluster === 'inCluster') &&
-        workloads.find((workload) => workload.name === 'alpine' &&
-          workload.type === 'Pod' && workload.namespace === 'services') &&
-        workloads.find((workload) => workload.name === 'nginx' &&
-          workload.type === 'ReplicationController' && workload.namespace === 'services') &&
-        workloads.find((workload) => workload.name === 'redis'
-          && workload.type === 'Deployment' && workload.namespace === 'services')) {
+    if (
+      workloads !== undefined &&
+      workloads.length === 3 &&
+      workloads.every((workload) => workload.userLocator === integrationId) &&
+      workloads.every((workload) => workload.cluster === 'inCluster') &&
+      workloads.find(
+        (workload) =>
+          workload.name === 'alpine' &&
+          workload.type === 'Pod' &&
+          workload.apiGroup === '' &&
+          workload.namespace === 'services',
+      ) &&
+      workloads.find(
+        (workload) =>
+          workload.name === 'nginx' &&
+          workload.type === 'ReplicationController' &&
+          workload.apiGroup === '' &&
+          workload.namespace === 'services',
+      ) &&
+      workloads.find(
+        (workload) =>
+          workload.name === 'redis' &&
+          workload.type === 'Deployment' &&
+          workload.apiGroup === 'apps' &&
+          workload.namespace === 'services',
+      )
+    ) {
       break;
     }
 

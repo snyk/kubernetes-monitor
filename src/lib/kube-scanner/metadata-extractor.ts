@@ -24,7 +24,7 @@ function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
       containerName,
       imageName: image,
       cluster: currentClusterName,
-      apiGroupName: group,
+      apiGroup: group,
     } as IKubeImage),
   );
   return images;
@@ -63,7 +63,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
   if (!isAssociatedWithParent) {
     return buildImageMetadata({
       kind: 'Pod', // Reading pod.kind may be undefined, so use this
-      group: apiGroupExtractor(pod.apiVersion),
+      group: extractApiGroup(pod.apiVersion),
       objectMeta: pod.metadata,
       // Notice the pod.metadata repeats; this is because pods
       // do not have the "template" property.
@@ -89,8 +89,7 @@ export function isPodAssociatedWithParent(pod: V1Pod): boolean {
 
 // An API group is a collection of objects that are logically related.
 // For example, all batch objects like Job or ScheduledJob could be in the batch API Group
-// group name is being used as an alias on the CLI and for display.
-export function apiGroupExtractor(apiVersion: string): string {
+export function extractApiGroup(apiVersion: string): string {
   if (apiVersion) {
     const [group, version] = apiVersion.split('/');
     if (group && version) {
