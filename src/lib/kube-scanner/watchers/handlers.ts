@@ -2,12 +2,12 @@ import { V1Pod } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import WorkloadWorker = require('../../../lib/kube-scanner');
 import { buildMetadataForWorkload } from '../metadata-extractor';
-import { WatchEventType } from './types';
+import { PodPhase, WatchEventType } from './types';
 
 export async function podWatchHandler(eventType: string, pod: V1Pod) {
   const logId = uuidv4().substring(0, 8);
 
-  if (eventType === WatchEventType.Deleted) {
+  if (eventType === WatchEventType.Modified && !isPodReady(pod)) {
     return;
   }
 
@@ -35,4 +35,8 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
     console.log(`${logId}: Could not build image metadata for pod ${pod.metadata.name}: ${errorMessage}`);
     console.log(`${logId}: The pod uses the following images: ${imageNames}`);
   }
+}
+
+export function isPodReady(pod) {
+  return pod.status.phase === PodPhase.Running;
 }
