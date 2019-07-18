@@ -9,6 +9,10 @@ import { IWorkloadLocator } from '../../src/transmitter/types';
 import { getKindConfigPath } from '../helpers/kind';
 
 let integrationId: string;
+const toneDownFactor = 5;
+const maxPodChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
+
+type WorkloadLocatorValidator = (workloads: IWorkloadLocator[] | undefined) => boolean;
 
 tap.tearDown(async () => {
   console.log('Begin removing the snyk-monitor...');
@@ -51,73 +55,59 @@ tap.test('snyk-monitor container started', async (t) => {
   console.log('Done -- snyk-monitor exists!');
 });
 
+async function validateHomebaseStoredData(
+  validatorFn: WorkloadLocatorValidator, remainingChecks: number = maxPodChecks,
+): Promise<boolean> {
+  // TODO: consider if we're OK to expose this publicly?
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/api/v1/workloads/${integrationId}`;
+  while (remainingChecks > 0) {
+    const homebaseResponse = await needle('get', url, null);
+    const responseBody = homebaseResponse.body;
+    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
+    const result = validatorFn(workloads);
+    if (result) {
+      return true;
+    }
+    await sleep(1000 * toneDownFactor);
+    remainingChecks--;
+  }
+  return false;
+}
+
 tap.test('snyk-monitor sends data to homebase', async (t) => {
   t.plan(1);
 
   console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
+
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return workloads !== undefined && workloads.length === 3 &&
+      workloads.every((workload) => workload.userLocator === integrationId) &&
+      workloads.every((workload) => workload.cluster === 'inCluster') &&
+      workloads.find((workload) => workload.name === 'alpine' && workload.type === 'Pod'
+      && workload.namespace === 'services') !== undefined &&
+      workloads.find((workload) => workload.name === 'nginx' && workload.type === 'ReplicationController'
+      && workload.namespace === 'services') !== undefined &&
+      workloads.find((workload) => workload.name === 'redis' && workload.type === 'Deployment'
+      && workload.namespace === 'services') !== undefined;
+  };
+
   // We don't want to spam Homebase with requests; do it infrequently
-  const toneDownFactor = 5;
-  let podStartChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
-  // TODO: consider if we're OK to expose this publicly?
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/api/v1/workloads/${integrationId}`;
-  while (podStartChecks-- > 0) {
-    const homebaseResponse = await needle('get', url, null)
-      .catch((error) => t.fail(error));
-
-    const responseBody = homebaseResponse.body;
-    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
-
-    if (workloads !== undefined && workloads.length === 3 &&
-        workloads.every((workload) => workload.userLocator === integrationId) &&
-        workloads.every((workload) => workload.cluster === 'inCluster') &&
-        workloads.find((workload) => workload.name === 'alpine' &&
-          workload.type === 'Pod' && workload.namespace === 'services') &&
-        workloads.find((workload) => workload.name === 'nginx' &&
-          workload.type === 'ReplicationController' && workload.namespace === 'services') &&
-        workloads.find((workload) => workload.name === 'redis'
-          && workload.type === 'Deployment' && workload.namespace === 'services')) {
-      break;
-    }
-
-    await sleep(1000 * toneDownFactor);
-  }
-  if (podStartChecks <= 0) {
-    t.fail('The snyk-monitor did not send data to homebase in the expected timeframe');
-  } else {
-    t.pass('k8s monitor successfully sent expected data to homebase');
-    console.log('Done -- snyk-monitor sent data to Homebase!');
-  }
+  const homebaseTestResult = await validateHomebaseStoredData(validatorFn);
+  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
 });
 
 tap.test('snyk-monitor sends correct data to homebase after adding another deployment', async (t) => {
   t.plan(1);
 
   await setup.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
-
   console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
-  // We don't want to spam Homebase with requests; do it infrequently
-  const toneDownFactor = 5;
-  let podStartChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
-  // TODO: consider if we're OK to expose this publicly?
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/api/v1/workloads/${integrationId}`;
-  while (podStartChecks-- > 0) {
-    const homebaseResponse = await needle('get', url, null)
-      .catch((error) => t.fail(error));
 
-    const responseBody = homebaseResponse.body;
-    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return workloads !== undefined &&
+      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === 'Deployment'
+      && workload.namespace === 'services') !== undefined;
+  };
 
-    if (workloads && workloads.find((workload) => workload.name === 'nginx-deployment'
-          && workload.type === 'Deployment' && workload.namespace === 'services')) {
-      break;
-    }
-
-    await sleep(1000 * toneDownFactor);
-  }
-  if (podStartChecks <= 0) {
-    t.fail('The snyk-monitor did not send data to homebase in the expected timeframe');
-  } else {
-    t.pass('k8s monitor successfully sent expected data to homebase');
-    console.log('Done -- snyk-monitor sent data to Homebase!');
-  }
+  const homebaseTestResult = await validateHomebaseStoredData(validatorFn);
+  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
 });
