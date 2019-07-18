@@ -115,7 +115,7 @@ async function createSecret(secretName: string, namespace: string, secrets: { [k
   console.log(`Created secret ${secretName}!`);
 }
 
-async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
+export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
   console.log(`Applying ${pathToYamlDeployment}...`);
   await exec(`./kubectl apply -f ${pathToYamlDeployment}`);
   console.log(`Applied ${pathToYamlDeployment}!`);

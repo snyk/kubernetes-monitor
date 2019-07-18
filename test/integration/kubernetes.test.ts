@@ -88,3 +88,36 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
     console.log('Done -- snyk-monitor sent data to Homebase!');
   }
 });
+
+tap.test('snyk-monitor sends correct data to homebase after adding another deployment', async (t) => {
+  t.plan(1);
+
+  await setup.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
+
+  console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
+  // We don't want to spam Homebase with requests; do it infrequently
+  const toneDownFactor = 5;
+  let podStartChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
+  // TODO: consider if we're OK to expose this publicly?
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/api/v1/workloads/${integrationId}`;
+  while (podStartChecks-- > 0) {
+    const homebaseResponse = await needle('get', url, null)
+      .catch((error) => t.fail(error));
+
+    const responseBody = homebaseResponse.body;
+    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
+
+    if (workloads && workloads.find((workload) => workload.name === 'nginx-deployment'
+          && workload.type === 'Deployment' && workload.namespace === 'services')) {
+      break;
+    }
+
+    await sleep(1000 * toneDownFactor);
+  }
+  if (podStartChecks <= 0) {
+    t.fail('The snyk-monitor did not send data to homebase in the expected timeframe');
+  } else {
+    t.pass('k8s monitor successfully sent expected data to homebase');
+    console.log('Done -- snyk-monitor sent data to Homebase!');
+  }
+});
