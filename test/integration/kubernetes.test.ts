@@ -84,7 +84,7 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined && workloads.length === 3 &&
       workloads.every((workload) => workload.userLocator === integrationId) &&
-      workloads.every((workload) => workload.cluster === 'inCluster') &&
+      workloads.every((workload) => workload.cluster.indexOf('Default cluster') !== -1) &&
       workloads.find((workload) => workload.name === 'alpine' && workload.type === 'Pod'
       && workload.namespace === 'services') !== undefined &&
       workloads.find((workload) => workload.name === 'nginx' && workload.type === 'ReplicationController'

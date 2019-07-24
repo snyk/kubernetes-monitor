@@ -1,4 +1,5 @@
 import { KubeConfig } from '@kubernetes/client-node';
+import config = require('../../common/config');
 import { IK8sClients, K8sClients } from './types';
 
 function getKubeConfig(): KubeConfig {
@@ -14,12 +15,9 @@ function getKubeConfig(): KubeConfig {
   return kc;
 }
 
-function getCurrentCluster(k8sConfig: KubeConfig): string {
-  const cluster = k8sConfig.getCurrentCluster();
-  if (cluster === null) {
-    throw new Error(`Couldnt connect to current cluster info`);
-  }
-  return cluster.name;
+// Gets the cluster name, passed as a config variable inside the app.
+function getCurrentCluster(): string {
+  return config.CLUSTER_NAME;
 }
 
 function getK8sApi(k8sConfig: KubeConfig): IK8sClients {
@@ -27,5 +25,5 @@ function getK8sApi(k8sConfig: KubeConfig): IK8sClients {
 }
 
 export const kubeConfig = getKubeConfig();
-export const currentClusterName = getCurrentCluster(kubeConfig);
+export const currentClusterName = getCurrentCluster();
 export const k8sApi = getK8sApi(kubeConfig);
