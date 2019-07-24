@@ -5,8 +5,8 @@
  * IMPORTANT:
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
-import { sendDepGraph } from '../../transmitter';
-import { constructHomebaseWorkloadPayloads } from '../../transmitter/payload';
+import { deleteHomebaseWorkload, sendDepGraph } from '../../transmitter';
+import { constructHomebaseDeleteWorkloadPayloads, constructHomebaseWorkloadPayloads } from '../../transmitter/payload';
 import { IDepGraphPayload, IKubeImage, IScanResponse } from '../../transmitter/types';
 import { pullImages } from '../images';
 import { scanImages, ScanResult } from './image-scanner';
@@ -42,5 +42,10 @@ export = class WorkloadWorker {
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.imageName));
     return { imageMetadata: pulledImageMetadata };
+  }
+
+  public async delete(workloadMetadata: IKubeImage[]) {
+    const deletePayloads = constructHomebaseDeleteWorkloadPayloads(workloadMetadata);
+    await deleteHomebaseWorkload(deletePayloads);
   }
 };
