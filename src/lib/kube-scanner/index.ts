@@ -6,9 +6,10 @@
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
 import { sendDepGraph } from '../../transmitter';
+import { constructHomebaseWorkloadPayloads } from '../../transmitter/payload';
 import { IDepGraphPayload, IKubeImage, IScanResponse } from '../../transmitter/types';
 import { pullImages } from '../images';
-import { constructHomebaseWorkloadPayloads, scanImages, ScanResult } from './image-scanner';
+import { scanImages, ScanResult } from './image-scanner';
 
 export = class WorkloadWorker {
   private readonly logId: string;
