@@ -58,10 +58,14 @@ helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/
 Run the following command to launch the Snyk monitor in your cluster:
 
 ```shell
-helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
 ```
+
+To better organise the data scanned inside your cluster, the monitor requires a cluster name to be set.
+Replace the value of `clusterName` with the name of your cluster.
+
 
 For Helm 3, you may run the following:
 ```shell
-helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor
+helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
 ```
