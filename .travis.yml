@@ -19,13 +19,31 @@ install:
   - npm install
 jobs:
   include:
-    # test stage
-    - stage: Test
-      if: type = pull_request
+    # PR tests for staging branch
+    - stage: Test-PR-staging
+      if: branch = staging AND type = pull_request
       script: npm run test
-      name: Run kubernetes-monitor tests
-    # release and deploy stage
-    # TODO when we can build and publish a container
+      name: kubernetes-monitor PR tests
+    # merge tests before building the product on staging branch
+    - stage: Test-Merge-staging
+      if: branch = staging AND type = push
+      script: npm run test # TODO: only check linting, unittest
+      name: kubernetes-monitor merge initial tests
+    # building the product on staging branch after merging
+    - stage: Build
+      if: branch = staging AND type = push
+      # we will need to change the tag to test-candidate, then use the image, then re-tag to test-approved
+      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker build -t sheseksnyk/kubernetes-monitor:test-approved --no-cache . && docker push sheseksnyk/kubernetes-monitor:test-approved
+      name: build the kubernetes-monitor image
+      # TODO: run integration tests with the image we just built, then mark it as test-passed
+    - stage: Publish
+      if: branch = master AND type = push
+      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker pull sheseksnyk/kubernetes-monitor:test-approved && docker tag sheseksnyk/kubernetes-monitor:test-approved sheseksnyk/kubernetes-monitor:latest && docker push sheseksnyk/kubernetes-monitor:latest
+      name: publish the kubernetes-monitor (npm, container, helm)
+    - stage: pre-publish
+      if: branch = master AND type = pull_request
+      script: # TODO slack notification?
+      name: pre-publish notification
 branches:
   only:
    - master
