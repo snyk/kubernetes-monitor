@@ -1,15 +1,36 @@
 import { V1Pod } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import WorkloadWorker = require('../../../lib/kube-scanner');
+import { IKubeImage } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../metadata-extractor';
 import { PodPhase, WatchEventType } from './types';
 
-export async function podWatchHandler(eventType: string, pod: V1Pod) {
-  const logId = uuidv4().substring(0, 8);
+async function handleReadyPod(
+    workloadWorker: WorkloadWorker,
+    workloadMetadata: IKubeImage[],
+    logId: string,
+) {
+  const processedImages = await workloadWorker.process(workloadMetadata);
+  const processedImageNames = processedImages.imageMetadata.map((image) => image.imageName);
+  console.log(`${logId}: Processed the following images: ${processedImageNames}.`);
+}
 
+async function handleRemovedPod(
+  workloadWorker: WorkloadWorker,
+  workloadMetadata: IKubeImage[],
+  logId: string,
+) {
+  await workloadWorker.delete(workloadMetadata);
+  console.log(`${logId}: Removed the following images: ${workloadMetadata.map((workload) => workload.imageName)}`);
+}
+
+export async function podWatchHandler(eventType: string, pod: V1Pod) {
+  // This tones down the number of scans whenever a Pod is about to be scheduled by K8s
   if (eventType === WatchEventType.Modified && !isPodReady(pod)) {
     return;
   }
+
+  const logId = uuidv4().substring(0, 8);
 
   try {
     const workloadMetadata = await buildMetadataForWorkload(pod);
@@ -22,10 +43,25 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
     }
 
     const workloadWorker = new WorkloadWorker(logId);
-    const processedImages = await workloadWorker.process(workloadMetadata);
 
-    const processedImageNames = processedImages.imageMetadata.map((image) => image.imageName);
-    console.log(`${logId}: Processed the following images: ${processedImageNames}.`);
+    switch (eventType) {
+      case WatchEventType.Deleted:
+        await handleRemovedPod(workloadWorker, workloadMetadata, logId);
+        break;
+      case WatchEventType.Added:
+      case WatchEventType.Modified:
+        await handleReadyPod(workloadWorker, workloadMetadata, logId);
+        break;
+      case WatchEventType.Error:
+        console.log(`${logId}: An error event occurred for the Pod, skipping scanning`);
+        break;
+      case WatchEventType.Bookmark:
+        console.log(`${logId}: A bookmark event occurred for the Pod, skipping scanning`);
+        break;
+      default:
+        console.log(`${logId}: An unknown event has occurred: ${eventType}`);
+        break;
+    }
   } catch (error) {
     const errorMessage = error.response
       ? `${error.response.statusCode} ${error.response.statusMessage}`

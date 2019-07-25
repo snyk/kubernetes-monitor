@@ -21,6 +21,11 @@ export interface IDepGraphPayload {
   dependencyGraph?: any;
 }
 
+export interface IDeleteImagePayload {
+  imageLocator: IImageLocator;
+  agentId: string;
+}
+
 export interface IScanResponse {
   imageMetadata: IKubeImage[];
 }
