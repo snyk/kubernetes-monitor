@@ -8,7 +8,7 @@ const loopingThreshold = 20;
 
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
-function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
+export function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
   const { kind, objectMeta, specMeta, containers } = workloadMeta;
 
   const { name, namespace, labels, annotations, uid } = objectMeta;
