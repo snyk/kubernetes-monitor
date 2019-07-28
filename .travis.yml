@@ -37,7 +37,7 @@ jobs:
       name: build the kubernetes-monitor image
       # TODO: run integration tests with the image we just built, then mark it as test-passed
     - stage: pre-publish
-      if: branch = master AND type = pull_request
+      if: branch = master AND type = pull_request AND head_branch = staging
       script: "curl -X POST -H \"Content-Type:application/json\" -d \"{\\\"attachments\\\": [{\\\"color\\\": \\\"warning\\\", \\\"fallback\\\": \\\"Build Notification: $TRAVIS_BUILD_WEB_URL\\\", \\\"title\\\": \\\"Kubernetes-Monitor Publish Notification\\\", \\\"text\\\": \\\":egg: A new version is about to be published! :egg:\nhttps://github.com/$TRAVIS_PULL_REQUEST_SLUG/pull/$TRAVIS_PULL_REQUEST\nbranch of origin is $TRAVIS_PULL_REQUEST_BRANCH\\\"}]}\" $SLACK_WEBHOOK"
       name: pre-publish notification
     - stage: Publish
