@@ -2,12 +2,12 @@ apiVersion: v1
 entries:
   snyk-monitor:
   - apiVersion: v1
-    created: 2019-07-28T17:09:43.436663+03:00
+    created: 2019-07-28T18:44:24.746294+03:00
     description: A Helm chart for the Snyk Monitor
-    digest: a76533efbac867e7f6106c6149ba5aa426b980a4b4bb67b6f1268cc4d5397c12
+    digest: 81bcf47022f94bf021472874c526febe99c3c4a12b02bc429ee28de9ece9e01e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
     name: snyk-monitor
     urls:
     - https://snyk.github.io/kubernetes-monitor/snyk-monitor-0.1.0.tgz
     version: 0.1.0
-generated: 2019-07-28T17:09:43.432974+03:00
+generated: 2019-07-28T18:44:24.74544+03:00
