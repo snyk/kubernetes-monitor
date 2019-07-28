@@ -1,4 +1,4 @@
-docker_build("sheseksnyk/kubernetes-monitor", ".",
+docker_build("snyk/kubernetes-monitor", ".",
   live_update=[
     fall_back_on(["package.json", "package-lock.json"]),
     sync('.', '/src'),
