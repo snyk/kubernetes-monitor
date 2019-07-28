@@ -36,14 +36,14 @@ jobs:
       script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker build -t sheseksnyk/kubernetes-monitor:test-approved --no-cache . && docker push sheseksnyk/kubernetes-monitor:test-approved
       name: build the kubernetes-monitor image
       # TODO: run integration tests with the image we just built, then mark it as test-passed
+    - stage: pre-publish
+      if: branch = master AND type = pull_request AND head_branch = staging
+      script: "curl -X POST -H \"Content-Type:application/json\" -d \"{\\\"attachments\\\": [{\\\"color\\\": \\\"warning\\\", \\\"fallback\\\": \\\"Build Notification: $TRAVIS_BUILD_WEB_URL\\\", \\\"title\\\": \\\"Kubernetes-Monitor Publish Notification\\\", \\\"text\\\": \\\":egg: A new version is about to be published! :egg:\nhttps://github.com/$TRAVIS_PULL_REQUEST_SLUG/pull/$TRAVIS_PULL_REQUEST\nbranch of origin is $TRAVIS_PULL_REQUEST_BRANCH\\\"}]}\" $SLACK_WEBHOOK"
+      name: pre-publish notification
     - stage: Publish
       if: branch = master AND type = push
       script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker pull sheseksnyk/kubernetes-monitor:test-approved && docker tag sheseksnyk/kubernetes-monitor:test-approved sheseksnyk/kubernetes-monitor:latest && docker push sheseksnyk/kubernetes-monitor:latest
       name: publish the kubernetes-monitor (npm, container, helm)
-    - stage: pre-publish
-      if: branch = master AND type = pull_request
-      script: # TODO slack notification?
-      name: pre-publish notification
 branches:
   only:
    - master
