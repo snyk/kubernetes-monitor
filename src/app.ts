@@ -1,14 +1,14 @@
 import * as config from './common/config';
+import logger = require('./common/logger');
+import { currentClusterName } from './lib/kube-scanner/cluster';
 import { beginWatchingWorkloads } from './lib/kube-scanner/watchers/namespaces';
 
 function safeMonitoring() {
   try {
+    logger.info({cluster: currentClusterName}, 'Starting to monitoring');
     beginWatchingWorkloads();
   } catch (error) {
-    const errorMessage = (error && error.response)
-      ? `${error.response.statusCode} ${error.response.statusMessage}`
-      : error.message;
-    console.log(`An error occurred during image scan: ${errorMessage}`);
+    logger.error({error}, 'An error occurred while monitoring the cluster');
   }
 }
 
