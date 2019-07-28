@@ -1,3 +1,4 @@
+import logger = require('../../common/logger');
 import { pull } from './docker';
 
 export async function pullImages(images: string[]): Promise<string[]> {
@@ -8,7 +9,7 @@ export async function pullImages(images: string[]): Promise<string[]> {
       await pull(image);
       pulledImages.push(image);
     } catch (error) {
-      console.log(`Failed to pull ${image}: ${error.message}`);
+      logger.error({error, image}, 'Failed to pull image');
     }
   }
 
