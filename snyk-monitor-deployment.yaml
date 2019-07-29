@@ -38,6 +38,12 @@ spec:
                 name: snyk-monitor
                 key: namespace
                 optional: true
+          - name: SNYK_HOMEBASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: homebaseUrl
+                optional: true
       securityContext: {}
       volumes:
       - name: docker-socket-mount
