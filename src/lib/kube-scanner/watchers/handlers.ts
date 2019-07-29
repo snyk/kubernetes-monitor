@@ -26,7 +26,7 @@ async function handleRemovedPod(
 
 export async function podWatchHandler(eventType: string, pod: V1Pod) {
   // This tones down the number of scans whenever a Pod is about to be scheduled by K8s
-  if (eventType === WatchEventType.Modified && !isPodReady(pod)) {
+  if (eventType !== WatchEventType.Deleted && !isPodReady(pod)) {
     return;
   }
 
@@ -73,6 +73,8 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
   }
 }
 
-export function isPodReady(pod) {
-  return pod.status.phase === PodPhase.Running;
+export function isPodReady(pod: V1Pod) {
+  return pod.status.phase === PodPhase.Running &&
+    pod.status.containerStatuses.some((container) =>
+      container.state.running !== undefined || container.state.waiting !== undefined);
 }
