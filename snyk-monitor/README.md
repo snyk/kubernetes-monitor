@@ -47,15 +47,21 @@ kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockerc
 
 Note that the secret _must_ be namespaced, and the namespace (which we configured earlier) is called _snyk-monitor_.
 
-## Installation ##
+## Installation from Helm repo ##
+
+Add Snyk's Helm repo:
+
+```shell
+helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/
+```
 
 Run the following command to launch the Snyk monitor in your cluster:
 
 ```shell
-helm install ./snyk-monitor --namespace snyk-monitor
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor
 ```
 
 For Helm 3, you may run the following:
 ```shell
-helm install --generate-name --namespace snyk-monitor  ./snyk-monitor
+helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor
 ```
