@@ -9,7 +9,7 @@ function isSuccessStatusCode(statusCode: number | undefined): boolean {
 export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
   for (const payload of payloads) {
     try {
-      const result = await needle('post', `${config.HOMEBASE.url}/api/v1/dependency-graph`, payload, {
+      const result = await needle('post', `${config.HOMEBASE_URL}/api/v1/dependency-graph`, payload, {
           json: true,
           compressed: true,
         },
@@ -29,7 +29,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
 export async function deleteHomebaseWorkload(payloads: IDeleteImagePayload[]) {
   for (const payload of payloads) {
     try {
-      const result = await needle('delete', `${config.HOMEBASE.url}/api/v1/image`, payload, {
+      const result = await needle('delete', `${config.HOMEBASE_URL}/api/v1/image`, payload, {
           json: true,
           compressed: true,
         },
