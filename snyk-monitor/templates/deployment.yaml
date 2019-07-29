@@ -40,6 +40,8 @@ spec:
                 key: integrationId
           - name: SNYK_NAMESPACE
             value: {{ include "snyk-monitor.scope" . }}
+          - name: SNYK_HOMEBASE_URL
+            value: {{ .Values.homebaseUrl }}
       volumes:
         - name: docker-socket-mount
           hostPath:

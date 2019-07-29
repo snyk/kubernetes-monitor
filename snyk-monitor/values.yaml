@@ -11,6 +11,9 @@ monitorSecrets: snyk-monitor
 # Namespaced - creates a Role and RoleBinding with the ServiceAccount
 scope: Cluster
 
+# The endpoint that being used to transmit monitored information
+homebaseUrl: ""
+
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
