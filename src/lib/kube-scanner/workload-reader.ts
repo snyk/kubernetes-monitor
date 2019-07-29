@@ -5,12 +5,18 @@ import { KubeObjectMetadata } from './types';
 type IWorkloadReaderFunc = (
   workloadName: string,
   namespace: string,
-) => Promise<KubeObjectMetadata>;
+) => Promise<KubeObjectMetadata | undefined>;
 
 const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const deploymentResult = await k8sApi.appsClient.readNamespacedDeployment(
     workloadName, namespace);
   const deployment = deploymentResult.body;
+
+  if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
+      !deployment.spec.template.spec) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
 
   return {
     kind: 'Deployment',
@@ -26,6 +32,12 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     workloadName, namespace);
   const replicaSet = replicaSetResult.body;
 
+  if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
+      !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
+
   return {
     kind: 'ReplicaSet',
     objectMeta: replicaSet.metadata,
@@ -39,6 +51,12 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
   const statefulSetResult = await k8sApi.appsClient.readNamespacedStatefulSet(
     workloadName, namespace);
   const statefulSet = statefulSetResult.body;
+
+  if (!statefulSet.metadata || !statefulSet.spec || !statefulSet.spec.template.metadata ||
+      !statefulSet.spec.template.spec) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
 
   return {
     kind: 'StatefulSet',
@@ -54,6 +72,12 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
     workloadName, namespace);
   const daemonSet = daemonSetResult.body;
 
+  if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.spec ||
+      !daemonSet.spec.template.metadata) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
+
   return {
     kind: 'DaemonSet',
     objectMeta: daemonSet.metadata,
@@ -67,6 +91,11 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const jobResult = await k8sApi.batchClient.readNamespacedJob(
     workloadName, namespace);
   const job = jobResult.body;
+
+  if (!job.metadata || !job.spec || !job.spec.template.spec || !job.spec.template.metadata) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
 
   return {
     kind: 'Job',
@@ -85,6 +114,12 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     workloadName, namespace);
   const cronJob = cronJobResult.body;
 
+  if (!cronJob.metadata || !cronJob.spec || !cronJob.spec.jobTemplate.metadata ||
+      !cronJob.spec.jobTemplate.spec || !cronJob.spec.jobTemplate.spec.template.spec) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
+
   return {
     kind: 'CronJob',
     objectMeta: cronJob.metadata,
@@ -98,6 +133,12 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
   const replicationControllerResult = await k8sApi.coreClient.readNamespacedReplicationController(
     workloadName, namespace);
   const replicationController = replicationControllerResult.body;
+
+  if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
+      !replicationController.spec.template.metadata || !replicationController.spec.template.spec) {
+    // TODO(ivanstanev): add logging to know when/if it happens!
+    return undefined;
+  }
 
   return {
     kind: 'ReplicationController',

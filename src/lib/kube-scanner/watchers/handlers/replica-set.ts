@@ -10,6 +10,12 @@ export async function replicaSetWatchHandler(eventType: string, replicaSet: V1Re
 
   const logId = uuidv4().substring(0, 8);
 
+  if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
+      !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec) {
+    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
+    return;
+  }
+
   await deleteWorkload({
     kind: 'ReplicaSet',
     objectMeta: replicaSet.metadata,

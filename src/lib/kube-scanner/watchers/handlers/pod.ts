@@ -36,8 +36,10 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
     const workloadMetadata = await buildMetadataForWorkload(pod);
 
     if (workloadMetadata === undefined || workloadMetadata.length === 0) {
-      const imageNames = pod.spec.containers.map((container) => container.image);
-      console.log(`${logId}: Could not process the images for Pod ${pod.metadata.name}!` +
+      // TODO: remove this logging, and more specifically the forced cast.
+      // For now, keep it here to resolve type errors, but we won't be logging the image name in the future.
+      const imageNames = pod.spec!.containers.map((container) => container.image);
+      console.log(`${logId}: Could not process the images for Pod ${pod.metadata!.name}!` +
         `The workload is possibly unsupported. The pod's spec has the following images: ${imageNames}`);
       return;
     }
@@ -66,15 +68,18 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
     const errorMessage = error.response
       ? `${error.response.statusCode} ${error.response.statusMessage}`
       : error.message;
-    const imageNames = pod.spec.containers.map((container) => container.image);
+    // TODO: remove this logging, and more specifically the forced cast.
+    // For now, keep it here to resolve type errors, but we won't be logging the image name in the future.
+    const imageNames = pod.spec!.containers.map((container) => container.image);
 
-    console.log(`${logId}: Could not build image metadata for pod ${pod.metadata.name}: ${errorMessage}`);
+    console.log(`${logId}: Could not build image metadata for pod ${pod.metadata!.name}: ${errorMessage}`);
     console.log(`${logId}: The pod uses the following images: ${imageNames}`);
   }
 }
 
 export function isPodReady(pod: V1Pod) {
-  return pod.status.phase === PodPhase.Running &&
-    pod.status.containerStatuses.some((container) =>
-      container.state.running !== undefined || container.state.waiting !== undefined);
+  return pod.status !== undefined && pod.status.phase === PodPhase.Running &&
+    pod.status.containerStatuses !== undefined && pod.status.containerStatuses.some((container) =>
+      container.state !== undefined &&
+      (container.state.running !== undefined || container.state.waiting !== undefined));
 }

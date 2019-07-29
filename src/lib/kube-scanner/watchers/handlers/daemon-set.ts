@@ -10,6 +10,12 @@ export async function daemonSetWatchHandler(eventType: string, daemonSet: V1Daem
 
   const logId = uuidv4().substring(0, 8);
 
+  if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.metadata ||
+      !daemonSet.spec.template.spec) {
+    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
+    return;
+  }
+
   await deleteWorkload({
     kind: 'DaemonSet',
     objectMeta: daemonSet.metadata,
