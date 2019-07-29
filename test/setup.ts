@@ -1,4 +1,4 @@
-import { Core_v1Api, KubeConfig } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import { exec } from 'child-process-promise';
 import { accessSync, chmodSync, constants, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import needle = require('needle');
@@ -161,7 +161,7 @@ async function isMonitorInReadyState(): Promise<boolean> {
   const kindConfigPath = await getKindConfigPath();
   const kubeConfig = new KubeConfig();
   kubeConfig.loadFromFile(kindConfigPath);
-  const k8sApi = kubeConfig.makeApiClient(Core_v1Api);
+  const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
 
   // First make sure our monitor Pod exists (is deployed).
   const podsResponse = await k8sApi.listNamespacedPod('snyk-monitor');
@@ -169,12 +169,13 @@ async function isMonitorInReadyState(): Promise<boolean> {
     return false;
   }
 
-  const monitorPod = podsResponse.body.items.find((pod) => pod.metadata.name.includes('snyk-monitor'));
+  const monitorPod = podsResponse.body.items.find((pod) => pod.metadata !== undefined &&
+    pod.metadata.name !== undefined && pod.metadata.name.includes('snyk-monitor'));
   if (monitorPod === undefined) {
     return false;
   }
 
-  return monitorPod.status.phase === 'Running';
+  return monitorPod.status !== undefined && monitorPod.status.phase === 'Running';
 }
 
 async function waitForMonitorToBeReady(): Promise<void> {

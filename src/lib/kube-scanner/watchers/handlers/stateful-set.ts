@@ -10,6 +10,12 @@ export async function statefulSetWatchHandler(eventType: string, statefulSet: V1
 
   const logId = uuidv4().substring(0, 8);
 
+  if (!statefulSet.metadata || !statefulSet.spec || !statefulSet.spec.template.metadata ||
+      !statefulSet.spec.template.spec) {
+    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
+    return;
+  }
+
   await deleteWorkload({
     kind: 'StatefulSet',
     objectMeta: statefulSet.metadata,
