@@ -121,6 +121,12 @@ export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> 
   console.log(`Applied ${pathToYamlDeployment}!`);
 }
 
+export async function deleteDeployment(deploymentName: string, namespace: string) {
+  console.log(`Deleting deployment ${deploymentName} in namespace ${namespace}...`);
+  await exec(`./kubectl delete deployment ${deploymentName} -n ${namespace}`);
+  console.log(`Deleted deployment ${deploymentName}!`);
+}
+
 function createTestYamlDeployment(newYamlPath: string, integrationId: string): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');

@@ -56,10 +56,10 @@ tap.test('snyk-monitor container started', async (t) => {
 });
 
 async function validateHomebaseStoredData(
-  validatorFn: WorkloadLocatorValidator, remainingChecks: number = maxPodChecks,
+  validatorFn: WorkloadLocatorValidator, relativeUrl: string, remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
   // TODO: consider if we're OK to expose this publicly?
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/api/v1/workloads/${integrationId}`;
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
   while (remainingChecks > 0) {
     const homebaseResponse = await needle('get', url, null);
     const responseBody = homebaseResponse.body;
@@ -92,7 +92,7 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
   };
 
   // We don't want to spam Homebase with requests; do it infrequently
-  const homebaseTestResult = await validateHomebaseStoredData(validatorFn);
+  const homebaseTestResult = await validateHomebaseStoredData(validatorFn, `api/v1/workloads/${integrationId}`);
   t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
 });
 
@@ -108,6 +108,33 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
       && workload.namespace === 'services') !== undefined;
   };
 
-  const homebaseTestResult = await validateHomebaseStoredData(validatorFn);
+  const homebaseTestResult = await validateHomebaseStoredData(validatorFn, `api/v1/workloads/${integrationId}`);
   t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+});
+
+tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
+  // First ensure the deployment exists from the previous test
+  const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
+    return workloads !== undefined &&
+      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === 'Deployment'
+      && workload.namespace === 'services') !== undefined;
+  };
+
+  const homebaseTestResult = await validateHomebaseStoredData(deploymentValidatorFn,
+    `api/v1/workloads/${integrationId}`);
+  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+
+  const deploymentName = 'nginx-deployment';
+  const namespace = 'services';
+  await setup.deleteDeployment(deploymentName, namespace);
+
+  // Finally, remove the workload and ensure that the snyk-monitor notifies Homebase
+  const deleteValidatorFn: WorkloadLocatorValidator = (workloads) => {
+    return workloads !== undefined && workloads.every((workload) => workload.name !== 'nginx-deployment');
+  };
+
+  const clusterName = 'Default cluster';
+  const homebaseDeleteTestResult = await validateHomebaseStoredData(deleteValidatorFn,
+    `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
+  t.ok(homebaseDeleteTestResult, 'snyk-monitor sent deleted workload data to homebase in the expected timeframe');
 });
