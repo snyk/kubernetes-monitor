@@ -8,6 +8,9 @@ const loopingThreshold = 20;
 
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
+// This function expects a workload's Kubernetes metadata and extracts the fields
+// that we want to send to Homebase. The workload is abstracted in the KubeObjectMetadata type
+// and can be any of our supported workloads (Deployment, ReplicaSet, etc.).
 export function buildImageMetadata(workloadMeta: KubeObjectMetadata): IKubeImage[] {
   const { kind, objectMeta, specMeta, containers } = workloadMeta;
 
@@ -82,6 +85,8 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
     });
   }
 
+  // The parent workload may be undefined if we couldn't find a supported workload.
+  // For example, this can happen if a Pod was created by some custom resource.
   const podOwner: KubeObjectMetadata | undefined = await findParentWorkload(
     pod.metadata.ownerReferences, pod.metadata.namespace);
 

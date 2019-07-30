@@ -36,6 +36,7 @@ function deleteWatchesForNamespace(namespace: string) {
 }
 
 function setupWatchesForNamespace(namespace: string) {
+  // Here we register Watches for all workloads within the namespace.
   logger.info({namespace}, 'Setting up namespace watch');
   const queryOptions = {};
   watches[namespace] = [
@@ -65,6 +66,10 @@ export function beginWatchingWorkloads() {
     return;
   }
 
+  // The snyk-monitor is configured to listen to the whole cluster.
+  // Start watching for changes to the namespaces in the cluster.
+  // When a new namespace appears, attach the workload Watches to it.
+  // (Also, delete the Watch once the namespace disappears)
   const queryOptions = {};
   k8sWatch.watch(`/api/v1/namespaces`,
     queryOptions,

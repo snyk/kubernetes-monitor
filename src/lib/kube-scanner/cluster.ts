@@ -11,6 +11,10 @@ function getKubeConfig(): KubeConfig {
   // { name: 'user' } as User
   // We need to identify what the implications of this are, and whether
   // our customers would want to configure this. Keep an eye on this!
+  //
+  // Update 1: (some) cloud providers seem to auto-configure this data.
+  // For GKE/GCE, the configuration to load the cluster is mounted inside the Pod automatically.
+  // Therefore, loadFromDefault() works as expected but we need to verify it on other platforms as well.
   kc.loadFromDefault();
   return kc;
 }

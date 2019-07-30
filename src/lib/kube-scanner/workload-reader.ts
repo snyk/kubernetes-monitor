@@ -108,7 +108,7 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
 
 // Keep an eye on this! We need v1beta1 API for CronJobs.
 // https://kubernetes.io/docs/concepts/overview/kubernetes-api/#api-versioning
-// CronJobs will appear in v2 API, but for now there' only v2alpha1, so it's a bad idea to use it.
+// CronJobs will appear in v2 API, but for now there's only v2alpha1, and it's a bad idea to use an alpha API.
 const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const cronJobResult = await k8sApi.batchUnstableClient.readNamespacedCronJob(
     workloadName, namespace);
@@ -168,6 +168,7 @@ export function getWorkloadReader(workloadType: string): IWorkloadReaderFunc {
   return workloadReader[workloadType];
 }
 
+// A workload is supported if its 'kind' field is something we expect to handle.
 export function getSupportedWorkload(ownerRefs: V1OwnerReference[] | undefined): V1OwnerReference | undefined {
   return ownerRefs !== undefined
     ? ownerRefs.find((owner) => SupportedWorkloadTypes.includes(owner.kind))

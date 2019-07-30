@@ -6,6 +6,7 @@ export interface ScanResult {
   pluginResult: any;
 }
 
+// Given a list of image names, run the Snyk Docker plugin on them and collect the results.
 export async function scanImages(images: string[]): Promise<ScanResult[]> {
   const scannedImages: ScanResult[] = [];
 
