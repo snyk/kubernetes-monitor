@@ -143,7 +143,7 @@ function createTestYamlDeployment(newYamlPath: string, integrationId: string): v
 
   // Inject the baseUrl of homebase that snyk-monitor container use to send metadata
   deployment.spec.template.spec.containers[0].env[2] = {
-    name: 'SNYK_HOMEBASE_URL',
+    name: 'SNYK_INTEGRATION_API',
     value: 'https://homebase.dev.snyk.io',
   };
 

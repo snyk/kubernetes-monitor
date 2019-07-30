@@ -7,6 +7,6 @@
     "INITIAL_REFRESH_MS": 1000
   },
   "INTEGRATION_ID": "203210a3-1de0-4ed3-b6a6-3acd24b71639",
-  "HOMEBASE_URL": "https://homebase.snyk.io",
+  "DEFAULT_HOMEBASE_URL": "https://homebase.snyk.io",
   "NAMESPACE": ""
 }
