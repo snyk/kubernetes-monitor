@@ -1,18 +1,27 @@
 import { V1Pod } from '@kubernetes/client-node';
+import async = require('async');
 import * as uuidv4 from 'uuid/v4';
+import config = require('../../../../common/config');
 import WorkloadWorker = require('../../../../lib/kube-scanner');
 import { IKubeImage } from '../../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase, WatchEventType } from '../types';
+
+async function queueWorker(task, callback) {
+  const {workloadWorker, workloadMetadata, logId} = task;
+  const processedImages = await workloadWorker.process(workloadMetadata);
+  const processedImageNames = processedImages.imageMetadata.map((image) => image.imageName);
+  console.log(`${logId}: Processed the following images: ${processedImageNames}.`);
+}
+
+const workloadsToScanQueue = async.queue(queueWorker, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
 
 async function handleReadyPod(
     workloadWorker: WorkloadWorker,
     workloadMetadata: IKubeImage[],
     logId: string,
 ) {
-  const processedImages = await workloadWorker.process(workloadMetadata);
-  const processedImageNames = processedImages.imageMetadata.map((image) => image.imageName);
-  console.log(`${logId}: Processed the following images: ${processedImageNames}.`);
+  workloadsToScanQueue.push({workloadWorker, workloadMetadata, logId});
 }
 
 export async function podWatchHandler(eventType: string, pod: V1Pod) {
