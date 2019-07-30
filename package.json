@@ -20,6 +20,7 @@
   "private": true,
   "dependencies": {
     "@kubernetes/client-node": "^0.8.2",
+    "@types/async": "^3.0.1",
     "@types/body-parser": "^1.17.0",
     "@types/child-process-promise": "^2.2.1",
     "@types/compression": "0.0.36",
@@ -29,6 +30,7 @@
     "@types/raven": "^2.5.1",
     "@types/request": "^2.48.1",
     "@types/response-time": "^2.3.3",
+    "async": "^2.6.2",
     "body-parser": "^1.18.3",
     "child-process-promise": "^2.2.1",
     "compression": "^1.7.3",
