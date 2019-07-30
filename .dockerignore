@@ -32,7 +32,6 @@ tests_output/
 
 README.md
 Tiltfile
-scripts
 tap
 snyk-monitor
 *-deployment.yaml
