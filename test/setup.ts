@@ -121,6 +121,12 @@ export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> 
   console.log(`Applied ${pathToYamlDeployment}!`);
 }
 
+export async function deleteDeployment(deploymentName: string, namespace: string) {
+  console.log(`Deleting deployment ${deploymentName} in namespace ${namespace}...`);
+  await exec(`./kubectl delete deployment ${deploymentName} -n ${namespace}`);
+  console.log(`Deleted deployment ${deploymentName}!`);
+}
+
 function createTestYamlDeployment(newYamlPath: string, integrationId: string): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
@@ -143,7 +149,7 @@ function createTestYamlDeployment(newYamlPath: string, integrationId: string): v
 
   // Inject the baseUrl of homebase that snyk-monitor container use to send metadata
   deployment.spec.template.spec.containers[0].env[2] = {
-    name: 'SNYK_HOMEBASE_URL',
+    name: 'SNYK_INTEGRATION_API',
     value: 'https://homebase.dev.snyk.io',
   };
 
