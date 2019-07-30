@@ -69,4 +69,5 @@ metadata:
   namespace: snyk-monitor
 data:
   namespace: snyk-monitor
+  integrationApi: ""
 ---

@@ -75,5 +75,5 @@ metadata:
   namespace: snyk-monitor
 data:
   namespace: ""
-  homebaseUrl: ""
+  integrationApi: ""
 ---

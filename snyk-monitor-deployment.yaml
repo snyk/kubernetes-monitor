@@ -38,11 +38,11 @@ spec:
                 name: snyk-monitor
                 key: namespace
                 optional: true
-          - name: SNYK_HOMEBASE_URL
+          - name: SNYK_INTEGRATION_API
             valueFrom:
               configMapKeyRef:
                 name: snyk-monitor
-                key: homebaseUrl
+                key: integrationApi
                 optional: true
       securityContext: {}
       volumes:
