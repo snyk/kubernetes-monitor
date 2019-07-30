@@ -10,6 +10,12 @@ export async function cronJobWatchHandler(eventType: string, cronJob: V1beta1Cro
 
   const logId = uuidv4().substring(0, 8);
 
+  if (!cronJob.metadata || !cronJob.spec || !cronJob.spec.jobTemplate.spec ||
+      !cronJob.spec.jobTemplate.metadata || !cronJob.spec.jobTemplate.spec.template.spec) {
+    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
+    return;
+  }
+
   await deleteWorkload({
     kind: 'CronJob',
     objectMeta: cronJob.metadata,

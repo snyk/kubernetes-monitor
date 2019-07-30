@@ -70,7 +70,8 @@ export function beginWatchingWorkloads() {
   k8sWatch.watch(`/api/v1/namespaces`,
     queryOptions,
     (eventType: string, namespace: V1Namespace) => {
-      if (namespace.metadata.name.startsWith('kube')) {
+      if (!namespace.metadata || namespace.metadata.name === undefined ||
+          namespace.metadata.name.startsWith('kube')) {
         return;
       }
 

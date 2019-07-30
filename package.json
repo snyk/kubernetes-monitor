@@ -19,7 +19,7 @@
   "license": "private",
   "private": true,
   "dependencies": {
-    "@kubernetes/client-node": "^0.8.2",
+    "@kubernetes/client-node": "^0.10.2",
     "@types/async": "^3.0.1",
     "@types/body-parser": "^1.17.0",
     "@types/child-process-promise": "^2.2.1",
