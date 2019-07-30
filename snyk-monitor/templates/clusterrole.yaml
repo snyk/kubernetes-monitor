@@ -22,6 +22,7 @@ rules:
   - replicationcontrollers
   verbs:
   - get
+  - watch
 - apiGroups:
   - batch
   resources:
@@ -29,6 +30,7 @@ rules:
   - jobs
   verbs:
   - get
+  - watch
 - apiGroups:
   - apps
   resources:
@@ -38,4 +40,5 @@ rules:
   - statefulsets
   verbs:
   - get
+  - watch
 {{- end }}
