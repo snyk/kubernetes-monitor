@@ -1,9 +1,9 @@
 import { V1Pod } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
-import WorkloadWorker = require('../../../lib/kube-scanner');
-import { IKubeImage } from '../../../transmitter/types';
-import { buildMetadataForWorkload } from '../metadata-extractor';
-import { PodPhase, WatchEventType } from './types';
+import WorkloadWorker = require('../../../../lib/kube-scanner');
+import { IKubeImage } from '../../../../transmitter/types';
+import { buildMetadataForWorkload } from '../../metadata-extractor';
+import { PodPhase, WatchEventType } from '../types';
 
 async function handleReadyPod(
     workloadWorker: WorkloadWorker,
@@ -13,15 +13,6 @@ async function handleReadyPod(
   const processedImages = await workloadWorker.process(workloadMetadata);
   const processedImageNames = processedImages.imageMetadata.map((image) => image.imageName);
   console.log(`${logId}: Processed the following images: ${processedImageNames}.`);
-}
-
-async function handleRemovedPod(
-  workloadWorker: WorkloadWorker,
-  workloadMetadata: IKubeImage[],
-  logId: string,
-) {
-  await workloadWorker.delete(workloadMetadata);
-  console.log(`${logId}: Removed the following images: ${workloadMetadata.map((workload) => workload.imageName)}`);
 }
 
 export async function podWatchHandler(eventType: string, pod: V1Pod) {
@@ -45,9 +36,6 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
     const workloadWorker = new WorkloadWorker(logId);
 
     switch (eventType) {
-      case WatchEventType.Deleted:
-        await handleRemovedPod(workloadWorker, workloadMetadata, logId);
-        break;
       case WatchEventType.Added:
       case WatchEventType.Modified:
         await handleReadyPod(workloadWorker, workloadMetadata, logId);
@@ -57,6 +45,9 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
         break;
       case WatchEventType.Bookmark:
         console.log(`${logId}: A bookmark event occurred for the Pod, skipping scanning`);
+        break;
+      case WatchEventType.Deleted:
+        console.log(`${logId}: A deleted event occurred for the Pod, skipping scanning`);
         break;
       default:
         console.log(`${logId}: An unknown event has occurred: ${eventType}`);
