@@ -11,16 +11,12 @@ import { podWatchHandler } from './handlers/pod';
 import { replicaSetWatchHandler } from './handlers/replica-set';
 import { replicationControllerWatchHandler } from './handlers/replication-controller';
 import { statefulSetWatchHandler } from './handlers/stateful-set';
-import { WatchEventType } from './types';
+import { ILooseObject, WatchEventType } from './types';
 
 const watches = {
 };
 
 const k8sWatch = new k8s.Watch(kubeConfig);
-
-function genericErrorHandler(error) {
-  logger.error({error}, 'An error occurred during Pod watch');
-}
 
 function deleteWatchesForNamespace(namespace: string) {
   logger.info({namespace}, 'Removing watch for namespace');
@@ -40,21 +36,21 @@ function setupWatchesForNamespace(namespace: string) {
   const queryOptions = {};
   watches[namespace] = [
     k8sWatch.watch(`/api/v1/namespaces/${namespace}/pods`,
-      queryOptions, podWatchHandler, genericErrorHandler),
+      queryOptions, podWatchHandler, watchEndHandler(namespace, 'pods')),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/deployments`,
-      queryOptions, deploymentWatchHandler, genericErrorHandler),
+      queryOptions, deploymentWatchHandler, watchEndHandler(namespace, 'deployments')),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/replicasets`,
-      queryOptions, replicaSetWatchHandler, genericErrorHandler),
+      queryOptions, replicaSetWatchHandler, watchEndHandler(namespace, 'replicasets')),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/daemonsets`,
-      queryOptions, daemonSetWatchHandler, genericErrorHandler),
+      queryOptions, daemonSetWatchHandler, watchEndHandler(namespace, 'daemonsets')),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/statefulsets`,
-      queryOptions, statefulSetWatchHandler, genericErrorHandler),
+      queryOptions, statefulSetWatchHandler, watchEndHandler(namespace, 'statefulsets')),
     k8sWatch.watch(`/apis/batch/v1beta1/watch/namespaces/${namespace}/cronjobs`,
-      queryOptions, cronJobWatchHandler, genericErrorHandler),
+      queryOptions, cronJobWatchHandler, watchEndHandler(namespace, 'cronjobs')),
     k8sWatch.watch(`/apis/batch/v1/watch/namespaces/${namespace}/jobs`,
-      queryOptions, jobWatchHandler, genericErrorHandler),
+      queryOptions, jobWatchHandler, watchEndHandler(namespace, 'jobs')),
     k8sWatch.watch(`/api/v1/watch/namespaces/${namespace}/replicationcontrollers`,
-      queryOptions, replicationControllerWatchHandler, genericErrorHandler),
+      queryOptions, replicationControllerWatchHandler, watchEndHandler(namespace, 'replicationcontrollers')),
   ];
 }
 
@@ -80,8 +76,18 @@ export function beginWatchingWorkloads() {
         deleteWatchesForNamespace(namespace.metadata.name);
       }
     },
-    (error) => {
-      logger.error({error}, 'An error occurred while watching for all namespace changes');
-    },
+    watchEndHandler('all namespaces', 'all namespaces'),
   );
+}
+
+function watchEndHandler(namespace: string, resourceWatched: string): (err: string) => void {
+  const logContext: ILooseObject = {namespace, resourceWatched};
+  return function(optionalError) {
+    let logFunc = logger.info;
+    if (optionalError) {
+      logContext.error = optionalError;
+      logFunc = logger.error;
+    }
+    logFunc(logContext, 'watch ended');
+  };
 }
