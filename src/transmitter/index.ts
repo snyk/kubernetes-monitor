@@ -1,5 +1,6 @@
 import needle = require('needle');
 import * as config from '../common/config';
+import logger = require('../common/logger');
 import { IDeleteImagePayload, IDepGraphPayload } from './types';
 
 const homebaseUrl = config.INTEGRATION_API || config.DEFAULT_HOMEBASE_URL;
@@ -18,12 +19,10 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
       );
 
       if (!isSuccessStatusCode(result.statusCode!)) {
-        const httpErrorText = `Server error: ${result.statusCode} ${result.statusMessage}.`;
-        const payloadText = `Payload: ${JSON.stringify(payload)}`;
-        throw new Error(`${httpErrorText} ${payloadText}`);      }
+        throw new Error(`${result.statusCode} ${result.statusMessage}`);
+      }
     } catch (error) {
-      const errorMessage = error.message ? error.message : error;
-      console.log(`Could not send the dependency scan result to Homebase: ${errorMessage}`);
+      logger.error({error}, 'Could not send the dependency scan result to Homebase');
     }
   }
 }
@@ -38,13 +37,10 @@ export async function deleteHomebaseWorkload(payloads: IDeleteImagePayload[]) {
       );
 
       if (!isSuccessStatusCode(result.statusCode)) {
-        const httpErrorText = `Server error: ${result.statusCode} ${result.statusMessage}.`;
-        const payloadText = `Payload: ${JSON.stringify(payload)}`;
-        throw new Error(`${httpErrorText} ${payloadText}`);
+        throw new Error(`${result.statusCode} ${result.statusMessage}`);
       }
     } catch (error) {
-      const errorMessage = error.message ? error.message : error;
-      console.log(`Could not send workload to delete to Homebase: ${errorMessage}`);
+      logger.error({error}, 'Could not send workload to delete to Homebase');
     }
   }
 }

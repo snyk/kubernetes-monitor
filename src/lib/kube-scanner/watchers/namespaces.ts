@@ -1,6 +1,7 @@
 import * as k8s from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
 import config = require('../../../common/config');
+import logger = require('../../../common/logger');
 import { kubeConfig } from '../cluster';
 import { cronJobWatchHandler } from './handlers/cron-job';
 import { daemonSetWatchHandler } from './handlers/daemon-set';
@@ -18,25 +19,24 @@ const watches = {
 const k8sWatch = new k8s.Watch(kubeConfig);
 
 function genericErrorHandler(error) {
-  const errorMessage = error.message ? error.message : error;
-  console.log(`An error occurred during Pod watch: ${errorMessage}`);
+  logger.error({error}, 'An error occurred during Pod watch');
 }
 
 function deleteWatchesForNamespace(namespace: string) {
-  console.log(`Stopping watching for changes to namespace ${namespace}`);
+  logger.info({namespace}, 'Removing watch for namespace');
 
   if (watches[namespace] !== undefined) {
     try {
       watches[namespace].forEach((watch) => watch.abort());
       delete watches[namespace];
     } catch (error) {
-      console.log(`Error: could not stop watch for namespace ${namespace}`);
+      logger.error({error, namespace}, 'Could not stop watch for namespace');
     }
   }
 }
 
 function setupWatchesForNamespace(namespace: string) {
-  console.log(`Attempting to watch for changes to namespace ${namespace}...`);
+  logger.info({namespace}, 'Setting up namespace watch');
   const queryOptions = {};
   watches[namespace] = [
     k8sWatch.watch(`/api/v1/namespaces/${namespace}/pods`,
@@ -56,12 +56,11 @@ function setupWatchesForNamespace(namespace: string) {
     k8sWatch.watch(`/api/v1/watch/namespaces/${namespace}/replicationcontrollers`,
       queryOptions, replicationControllerWatchHandler, genericErrorHandler),
   ];
-  console.log(`Watching for changes to namespace ${namespace}`);
 }
 
 export function beginWatchingWorkloads() {
   if (config.NAMESPACE) {
-    console.log(`The kubernetes-monitor is restricted to the ${config.NAMESPACE} namespace.`);
+    logger.info({namespace: config.NAMESPACE}, 'kubernetes-monitor restricted to specific namespace');
     setupWatchesForNamespace(config.NAMESPACE);
     return;
   }
@@ -82,8 +81,7 @@ export function beginWatchingWorkloads() {
       }
     },
     (error) => {
-      const errorMessage = error.message ? error.message : error;
-      console.log(`An error occurred while watching for all namespace changes: ${errorMessage}`);
+      logger.error({error}, 'An error occurred while watching for all namespace changes');
     },
   );
 }
