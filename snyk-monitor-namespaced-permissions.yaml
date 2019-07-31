@@ -70,4 +70,5 @@ metadata:
 data:
   namespace: snyk-monitor
   integrationApi: ""
+  clusterName: ""
 ---

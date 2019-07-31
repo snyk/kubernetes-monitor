@@ -6,8 +6,8 @@ import metadataExtractor = require('../../src/lib/kube-scanner/metadata-extracto
 
 tap.test('isPodAssociatedWithParent', async (t) => {
   const mockPodWithoutMetadata = {};
-  t.throws(() => metadataExtractor.isPodAssociatedWithParent(mockPodWithoutMetadata as V1Pod),
-    'isPodAssociatedWithParent throws an error on pod without metadata');
+  t.notOk(metadataExtractor.isPodAssociatedWithParent(mockPodWithoutMetadata as V1Pod),
+    'pod with no object data is not associated with parent');
 
   const mockPodWithEmptyMetadata = {metadata: {}};
   const isPodWithEmptyMetadataAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(

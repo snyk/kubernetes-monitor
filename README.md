@@ -66,6 +66,9 @@ kubectl apply -f snyk-monitor-namespaced-permissions.yaml
 ```
 Similarly to the cluster-scoped deployment, this `Role` ensures the monitor can only _read_ or _watch_ resources, never to modify them!
 
+By default, the Snyk monitor sends workload information to Snyk using a default cluster name.
+To _change the cluster name_, you can modify `snyk-monitor-namespaced-permissions.yaml` (for the Namespaced deployment) or `snyk-monitor-cluster-permissions.yaml` (for the Cluster-scoped deployment) and set the string value of `clusterName` to the name of your cluster. You will now see your workloads appearing in Snyk under the new cluster name.
+
 
 Finally, to launch the Snyk monitor in your cluster, run the following:
 ```shell

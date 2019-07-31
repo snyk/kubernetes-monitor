@@ -1,4 +1,5 @@
 import * as plugin from 'snyk-docker-plugin';
+import logger = require('../../common/logger');
 
 export interface ScanResult {
   image: string;
@@ -19,7 +20,7 @@ export async function scanImages(images: string[]): Promise<ScanResult[]> {
         pluginResult: result,
       });
     } catch (error) {
-      console.log(`Could not scan the image ${image}: ${error.message}`);
+      logger.error({error, image}, 'Failed to scan image');
     }
   }
 

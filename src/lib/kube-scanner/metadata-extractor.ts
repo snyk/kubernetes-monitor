@@ -46,7 +46,13 @@ async function findParentWorkload(
     }
 
     const workloadReader = getWorkloadReader(supportedWorkload.kind);
-    parentMetadata = await workloadReader(supportedWorkload.name, namespace);
+    const nextParentMetadata = await workloadReader(supportedWorkload.name, namespace);
+    if (nextParentMetadata === undefined) {
+      // Could not extract data for the next parent, so return whatever we have so far.
+      return parentMetadata;
+    }
+
+    parentMetadata = nextParentMetadata;
     ownerReferences = parentMetadata.ownerRefs;
   }
 
@@ -55,6 +61,11 @@ async function findParentWorkload(
 
 export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[] | undefined> {
   const isAssociatedWithParent = isPodAssociatedWithParent(pod);
+
+  if (!pod.metadata || pod.metadata.namespace === undefined || !pod.spec) {
+    // Some required parameters are missing, we cannot process further
+    return undefined;
+  }
 
   // Pods that are not associated with any workloads
   // do not need to be read with the API (we already have their meta+spec)
@@ -80,7 +91,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
 }
 
 export function isPodAssociatedWithParent(pod: V1Pod): boolean {
-  return pod.metadata.ownerReferences !== undefined
-  ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
-  : false;
+  return pod.metadata !== undefined && pod.metadata.ownerReferences !== undefined
+    ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
+    : false;
 }

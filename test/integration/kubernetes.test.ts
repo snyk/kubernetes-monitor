@@ -1,4 +1,4 @@
-import { Core_v1Api, KubeConfig } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import needle = require('needle');
 import sleep = require('sleep-promise');
 import setup = require('../setup'); // Must be located before 'tap' import
@@ -33,13 +33,13 @@ tap.test('deploy snyk-monitor', async (t) => {
 });
 
 tap.test('snyk-monitor container started', async (t) => {
-  t.plan(3);
+  t.plan(4);
 
   console.log('Getting KinD config...');
   const kindConfigPath = await getKindConfigPath();
   const kubeConfig = new KubeConfig();
   kubeConfig.loadFromFile(kindConfigPath);
-  const k8sApi = kubeConfig.makeApiClient(Core_v1Api);
+  const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
   console.log('Loaded KinD config!');
 
   // wait to let the container go through a cycle
@@ -49,9 +49,11 @@ tap.test('snyk-monitor container started', async (t) => {
   const response = await k8sApi.listNamespacedPod('snyk-monitor');
   t.ok(response.body.items.length > 0, 'PodList is not empty');
 
-  const monitorPod = response.body.items.find((pod) => pod.metadata.name.includes('snyk-monitor'));
+  const monitorPod = response.body.items.find((pod) => pod.metadata !== undefined &&
+    pod.metadata.name !== undefined && pod.metadata.name.includes('snyk-monitor'));
   t.ok(monitorPod !== undefined, 'Snyk monitor container exists');
-  t.notEqual(monitorPod!.status.phase, 'Failed', 'Snyk monitor container didn\'t fail');
+  t.ok(monitorPod!.status !== undefined, 'Snyk monitor status object exists');
+  t.notEqual(monitorPod!.status!.phase, 'Failed', 'Snyk monitor container didn\'t fail');
   console.log('Done -- snyk-monitor exists!');
 });
 
@@ -82,7 +84,7 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined && workloads.length === 3 &&
       workloads.every((workload) => workload.userLocator === integrationId) &&
-      workloads.every((workload) => workload.cluster === 'inCluster') &&
+      workloads.every((workload) => workload.cluster.indexOf('Default cluster') !== -1) &&
       workloads.find((workload) => workload.name === 'alpine' && workload.type === 'Pod'
       && workload.namespace === 'services') !== undefined &&
       workloads.find((workload) => workload.name === 'nginx' && workload.type === 'ReplicationController'
