@@ -18,3 +18,7 @@ export enum PodPhase {
   // For some reason the state of the pod could not be obtained.
   Unknown = 'Unknown',
 }
+
+export interface ILooseObject {
+  [key: string]: any;
+}
