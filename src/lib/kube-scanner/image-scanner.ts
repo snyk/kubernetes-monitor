@@ -20,7 +20,7 @@ export async function scanImages(images: string[]): Promise<ScanResult[]> {
         pluginResult: result,
       });
     } catch (error) {
-      logger.error({error, image}, 'Failed to scan image');
+      logger.warn({error, image}, 'Failed to scan image');
     }
   }
 
