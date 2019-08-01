@@ -1,5 +1,5 @@
 import * as plugin from 'snyk-docker-plugin';
-import logger = require('../../common/logger');
+import logger = require('../common/logger');
 
 export interface ScanResult {
   image: string;

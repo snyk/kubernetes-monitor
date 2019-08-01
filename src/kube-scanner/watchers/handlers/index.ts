@@ -1,4 +1,4 @@
-import logger = require('../../../../common/logger');
+import logger = require('../../../common/logger');
 import WorkloadWorker = require('../../../kube-scanner');
 import { buildImageMetadata } from '../../metadata-extractor';
 import { KubeObjectMetadata } from '../../types';

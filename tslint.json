@@ -4,6 +4,7 @@
     "tslint:recommended"
   ],
   "rules": {
+    "ordered-imports": false,
     "no-console": false,
     "interface-name": false,
     "no-var-requires": false,
