@@ -5,12 +5,12 @@
  * IMPORTANT:
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
-import logger = require('../../common/logger');
-import { deleteHomebaseWorkload, sendDepGraph } from '../../transmitter';
-import { constructHomebaseDeleteWorkloadPayloads, constructHomebaseWorkloadPayloads } from '../../transmitter/payload';
-import { IDepGraphPayload, IKubeImage, IScanResponse } from '../../transmitter/types';
+import logger = require('../common/logger');
 import { pullImages } from '../images';
 import { scanImages, ScanResult } from './image-scanner';
+import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
+import { constructHomebaseDeleteWorkloadPayloads, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
+import { IDepGraphPayload, IKubeImage, IScanResponse } from '../transmitter/types';
 
 export = class WorkloadWorker {
   private readonly logId: string;

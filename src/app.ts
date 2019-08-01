@@ -1,7 +1,7 @@
 import * as config from './common/config';
 import logger = require('./common/logger');
-import { currentClusterName } from './lib/kube-scanner/cluster';
-import { beginWatchingWorkloads } from './lib/kube-scanner/watchers/namespaces';
+import { currentClusterName } from './kube-scanner/cluster';
+import { beginWatchingWorkloads } from './kube-scanner/watchers/namespaces';
 
 function safeMonitoring() {
   try {
