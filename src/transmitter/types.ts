@@ -41,5 +41,6 @@ export interface IKubeImage {
   specAnnotations: StringMap  | undefined;
   containerName: string;
   imageName: string;
+  imageId: string;
   cluster: string;
 }

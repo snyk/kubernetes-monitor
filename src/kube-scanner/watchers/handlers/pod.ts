@@ -7,16 +7,40 @@ import WorkloadWorker = require('../../../kube-scanner');
 import { IKubeImage } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase, WatchEventType } from '../types';
+import state = require('../../../state');
 
 async function queueWorker(task, callback) {
-  const {workloadWorker, workloadMetadata} = task;
-  await workloadWorker.process(workloadMetadata);
+  const {workloadWorker, workloadMetadata, imageKeys} = task;
+  try {
+    await workloadWorker.process(workloadMetadata);
+  } catch (err) {
+    logger.error({err, task}, 'error processing a workload in the pod handler 2');
+    deleteFailedKeysFromState(imageKeys);
+  }
 }
 
 const workloadsToScanQueue = async.queue(queueWorker, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
 
+workloadsToScanQueue.error(function(err, task) {
+  logger.error({err, task}, 'error processing a workload in the pod handler 1');
+});
+
 async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IKubeImage[]) {
-  workloadsToScanQueue.push({workloadWorker, workloadMetadata});
+  const imagesToScan: IKubeImage[] = [];
+  const imageKeys: string[] = [];
+  for (const image of workloadMetadata) {
+    const imageKey = `${image.namespace}/${image.type}/${image.name}/${image.imageId}`;
+    if (state.imagesAlreadyScanned.get(imageKey) !== undefined) {
+      continue;
+    }
+    state.imagesAlreadyScanned.set(imageKey, ''); // empty string takes zero bytes and is !== undefined
+    imagesToScan.push(image);
+    imageKeys.push(imageKey);
+  }
+
+  if (imagesToScan.length > 0) {
+    workloadsToScanQueue.push({workloadWorker, workloadMetadata: imagesToScan, imageKeys});
+  }
 }
 
 export async function podWatchHandler(eventType: string, pod: V1Pod) {
@@ -62,4 +86,18 @@ export function isPodReady(pod: V1Pod) {
     pod.status.containerStatuses !== undefined && pod.status.containerStatuses.some((container) =>
       container.state !== undefined &&
       (container.state.running !== undefined || container.state.waiting !== undefined));
+}
+
+function deleteFailedKeysFromState(keys) {
+  try {
+    for (const key of keys) {
+      try {
+        state.imagesAlreadyScanned.del(key);
+      } catch (delError) {
+        logger.error({delError, key}, 'failed deleting a key of an unsuccessfully scanned image');
+      }
+    }
+  } catch (delError) {
+    logger.error({delError, keys}, 'failed deleting all keys of an unsuccessfully scanned workload');
+  }
 }
