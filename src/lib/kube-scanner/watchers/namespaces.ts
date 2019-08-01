@@ -83,11 +83,12 @@ export function beginWatchingWorkloads() {
 function watchEndHandler(namespace: string, resourceWatched: string): (err: string) => void {
   const logContext: ILooseObject = {namespace, resourceWatched};
   return function(optionalError) {
-    let logFunc = logger.info;
+    const logMsg = 'watch ended';
     if (optionalError) {
       logContext.error = optionalError;
-      logFunc = logger.error;
+      logger.error(logContext, logMsg);
+      return;
     }
-    logFunc(logContext, 'watch ended');
+    logger.info(logContext, logMsg);
   };
 }
