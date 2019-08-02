@@ -1,7 +1,7 @@
 import * as k8s from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
-import config = require('../../../common/config');
-import logger = require('../../../common/logger');
+import config = require('../../common/config');
+import logger = require('../../common/logger');
 import { kubeConfig } from '../cluster';
 import { cronJobWatchHandler } from './handlers/cron-job';
 import { daemonSetWatchHandler } from './handlers/daemon-set';

@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import { SupportedWorkloadTypes } from '../../src/lib/kube-scanner/workload-reader';
+import { SupportedWorkloadTypes } from '../../src/kube-scanner/workload-reader';
 
 tap.test('SupportedWorkloadTypes', async (t) => {
   t.ok(SupportedWorkloadTypes.indexOf('Deployment') > -1, 'Deployment is a supported workload');

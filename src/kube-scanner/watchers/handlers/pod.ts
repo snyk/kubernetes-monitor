@@ -1,10 +1,10 @@
 import { V1Pod } from '@kubernetes/client-node';
 import async = require('async');
 import * as uuidv4 from 'uuid/v4';
-import config = require('../../../../common/config');
-import logger = require('../../../../common/logger');
-import WorkloadWorker = require('../../../../lib/kube-scanner');
-import { IKubeImage } from '../../../../transmitter/types';
+import config = require('../../../common/config');
+import logger = require('../../../common/logger');
+import WorkloadWorker = require('../../../kube-scanner');
+import { IKubeImage } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase, WatchEventType } from '../types';
 

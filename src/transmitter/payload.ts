@@ -1,5 +1,5 @@
 import config = require('../common/config');
-import { ScanResult } from '../lib/kube-scanner/image-scanner';
+import { ScanResult } from '../kube-scanner/image-scanner';
 import { IDeleteImagePayload, IDepGraphPayload, IKubeImage } from './types';
 
 export function constructHomebaseWorkloadPayloads(
