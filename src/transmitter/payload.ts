@@ -8,14 +8,14 @@ export function constructHomebaseWorkloadPayloads(
     imageMetadata: IKubeImage[],
 ): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
-    const metadata = imageMetadata.find((meta) => meta.imageName === scannedImage.image)!;
+    const metadata = imageMetadata.find((meta) => meta.imageName === scannedImage.imageWithTag)!;
 
     const { imageName: image, ...workloadLocator } = metadata;
 
     const imageLocator = {
       ...workloadLocator,
       userLocator: config.INTEGRATION_ID,
-      imageId: image,
+      imageId: scannedImage.image,
     };
 
     return {
