@@ -24,3 +24,24 @@ tap.test('extractNamespaceName', async (t) => {
   t.equals(namespaces.extractNamespaceName(namespaceNameExists), 'literally anything else',
     'extractNamespaceName returns namespace.metadata.name');
 });
+
+tap.test('isKubernetesInternalNamespace', async (t) => {
+  t.ok(namespaces.isKubernetesInternalNamespace('kube-node-lease'),
+    'kube-node-lease is a k8s internal namespace');
+  t.ok(namespaces.isKubernetesInternalNamespace('kube-public'),
+    'kube-public is a k8s internal namespace');
+  t.ok(namespaces.isKubernetesInternalNamespace('kube-system'),
+    'kube-system is a k8s internal namespace');
+  t.notOk(namespaces.isKubernetesInternalNamespace('kube-node-lease-'),
+    'kube-node-lease- is not a k8s internal namespace');
+  t.notOk(namespaces.isKubernetesInternalNamespace('node-lease'),
+    'kubenode-lease is not a k8s internal namespace');
+  t.notOk(namespaces.isKubernetesInternalNamespace('snyk-monitor'),
+    'snyk-monitor is not a k8s internal namespace');
+  t.notOk(namespaces.isKubernetesInternalNamespace('egg'),
+    'egg is not a k8s internal namespace');
+  t.notOk(namespaces.isKubernetesInternalNamespace(''),
+    'empty string is not a k8s internal namespace');
+  t.notOk(namespaces.isKubernetesInternalNamespace(undefined as unknown as string),
+    'undefined is not a k8s internal namespace');
+});
