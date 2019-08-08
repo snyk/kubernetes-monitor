@@ -67,7 +67,9 @@ export function beginWatchingWorkloads() {
     (eventType: string, namespace: V1Namespace) => {
       try {
         const namespaceName = extractNamespaceName(namespace);
-        if (namespaceName.startsWith('kube')) {
+        if (isKubernetesInternalNamespace(namespaceName)) {
+          // disregard namespaces internal to kubernetes
+          logger.info({namespaceName}, 'ignoring blacklisted namespace');
           return;
         }
 
@@ -102,4 +104,14 @@ export function extractNamespaceName(namespace: V1Namespace): string {
     return namespace.metadata.name;
   }
   throw new Error('Namespace missing metadata.name');
+}
+
+export function isKubernetesInternalNamespace(namespace: string): boolean {
+  const kubernetesInternalNamespaces = [
+    'kube-node-lease',
+    'kube-public',
+    'kube-system',
+  ];
+
+  return kubernetesInternalNamespaces.includes(namespace);
 }
