@@ -9,11 +9,12 @@
     "test:coverage": "npm run test:unit -- --coverage",
     "test:watch": "tsc-watch --onSuccess 'npm run test:unit'",
     "start": "bin/start",
-    "prepare": "npm run build",
+    "prepare": "npm run snyk-protect && npm run build",
     "build": "npx typescript",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
-    "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'"
+    "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'",
+    "snyk-protect": "snyk protect"
   },
   "author": "snyk.io",
   "license": "private",
@@ -45,7 +46,8 @@
     "tslib": "^1.9.3",
     "typescript": "^3.1.6",
     "ws": "^7.0.0",
-    "yaml": "^1.6.0"
+    "yaml": "^1.6.0",
+    "snyk": "^1.212.0"
   },
   "devDependencies": {
     "sleep-promise": "^8.0.1",
@@ -73,5 +75,6 @@
     "fail": [
       "@semantic-release/github"
     ]
-  }
+  },
+  "snyk": true
 }
