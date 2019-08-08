@@ -3,7 +3,7 @@ import { V1Namespace } from '@kubernetes/client-node';
 
 import namespaces = require('../../src/kube-scanner/watchers/namespaces');
 
-tap.test('SupportedWorkloadTypes', async (t) => {
+tap.test('extractNamespaceName', async (t) => {
   const namespaceEmpty = {} as V1Namespace;
   t.throws(() => namespaces.extractNamespaceName(namespaceEmpty),
     'extractNamespaceName throws on empty input');
