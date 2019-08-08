@@ -1,5 +1,5 @@
 import { V1OwnerReference, V1Pod } from '@kubernetes/client-node';
-import { IKubeImage } from '../../transmitter/types';
+import { IKubeImage } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';

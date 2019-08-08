@@ -1,4 +1,4 @@
-import logger = require('../../common/logger');
+import logger = require('../common/logger');
 import { pull } from './docker';
 
 export async function pullImages(images: string[]): Promise<string[]> {

@@ -1,5 +1,5 @@
 import { KubeConfig } from '@kubernetes/client-node';
-import config = require('../../common/config');
+import config = require('../common/config');
 import { IK8sClients, K8sClients } from './types';
 
 function getKubeConfig(): KubeConfig {

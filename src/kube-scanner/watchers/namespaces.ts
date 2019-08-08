@@ -1,7 +1,7 @@
 import * as k8s from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
-import config = require('../../../common/config');
-import logger = require('../../../common/logger');
+import config = require('../../common/config');
+import logger = require('../../common/logger');
 import { kubeConfig } from '../cluster';
 import { cronJobWatchHandler } from './handlers/cron-job';
 import { daemonSetWatchHandler } from './handlers/daemon-set';
@@ -65,15 +65,21 @@ export function beginWatchingWorkloads() {
   k8sWatch.watch(`/api/v1/namespaces`,
     queryOptions,
     (eventType: string, namespace: V1Namespace) => {
-      if (!namespace.metadata || namespace.metadata.name === undefined ||
-          namespace.metadata.name.startsWith('kube')) {
-        return;
-      }
+      try {
+        const namespaceName = extractNamespaceName(namespace);
+        if (isKubernetesInternalNamespace(namespaceName)) {
+          // disregard namespaces internal to kubernetes
+          logger.info({namespaceName}, 'ignoring blacklisted namespace');
+          return;
+        }
 
-      if (eventType === WatchEventType.Added) {
-        setupWatchesForNamespace(namespace.metadata.name);
-      } else if (eventType === WatchEventType.Deleted) {
-        deleteWatchesForNamespace(namespace.metadata.name);
+        if (eventType === WatchEventType.Added) {
+          setupWatchesForNamespace(namespaceName);
+        } else if (eventType === WatchEventType.Deleted) {
+          deleteWatchesForNamespace(namespaceName);
+        }
+      } catch (err) {
+        logger.error({err, eventType, namespace}, 'error handling a namespace event');
       }
     },
     watchEndHandler('all namespaces', 'all namespaces'),
@@ -91,4 +97,21 @@ function watchEndHandler(namespace: string, resourceWatched: string): (err: stri
     }
     logger.info(logContext, logMsg);
   };
+}
+
+export function extractNamespaceName(namespace: V1Namespace): string {
+  if (namespace && namespace.metadata && namespace.metadata.name) {
+    return namespace.metadata.name;
+  }
+  throw new Error('Namespace missing metadata.name');
+}
+
+export function isKubernetesInternalNamespace(namespace: string): boolean {
+  const kubernetesInternalNamespaces = [
+    'kube-node-lease',
+    'kube-public',
+    'kube-system',
+  ];
+
+  return kubernetesInternalNamespaces.includes(namespace);
 }
