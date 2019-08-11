@@ -14,22 +14,34 @@ const maxPodChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFa
 
 type WorkloadLocatorValidator = (workloads: IWorkloadLocator[] | undefined) => boolean;
 
-tap.tearDown(async () => {
+async function tearDown() {
   console.log('Begin removing the snyk-monitor...');
   await tap.removeMonitor();
   console.log('Removed the snyk-monitor!');
-});
+}
+
+tap.tearDown(tearDown);
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
   console.log('Begin deploying the snyk-monitor...');
-
   t.plan(1);
 
-  integrationId = await tap.deployMonitor();
-
-  console.log(`Deployed the snyk-monitor with integration ID ${integrationId}!`);
-  t.pass('successfully deployed the snyk-monitor');
+  try {
+    integrationId = await tap.deployMonitor();
+    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}!`);
+    t.pass('successfully deployed the snyk-monitor');
+  } catch (err) {
+    console.error(err);
+    t.fail('failed setting up the snyk-monitor');
+    try {
+      // attempt to clean up ...
+      await tearDown();
+    } finally {
+      // ... but make sure the test suite doesn't proceed if the setup failed
+      process.exit(-1);
+    }
+  }
 });
 
 tap.test('snyk-monitor container started', async (t) => {
