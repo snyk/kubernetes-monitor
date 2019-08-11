@@ -5,7 +5,7 @@ import { beginWatchingWorkloads } from './kube-scanner/watchers/namespaces';
 
 function safeMonitoring() {
   try {
-    logger.info({cluster: currentClusterName}, 'Starting to monitoring');
+    logger.info({cluster: currentClusterName}, 'Starting to monitor');
     beginWatchingWorkloads();
   } catch (error) {
     logger.error({error}, 'An error occurred while monitoring the cluster');
