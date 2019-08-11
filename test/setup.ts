@@ -72,12 +72,21 @@ function getIntegrationId(): string {
   return integrationId;
 }
 
+// available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
 async function createKindCluster(
     clusterName = 'kind',
     configPath = './test/fixtures/cluster-config.yaml',
+    kindImageTag = 'latest',
 ): Promise<void> {
-  console.log(`Creating cluster "${clusterName}"...`);
-  await exec(`./kind create cluster --config="${configPath}" --name="${clusterName}"`);
+  console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
+
+  let kindImageArgument = '';
+  if (kindImageTag !== 'latest') {
+    // not specifying the "--image" argument tells Kind to pick the latest image
+    // which does not necessarily have the "latest" tag
+    kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
+  }
+  await exec(`./kind create cluster --config="${configPath}" --name="${clusterName}" ${kindImageArgument}`);
   console.log(`Created cluster ${clusterName}!`);
 }
 
