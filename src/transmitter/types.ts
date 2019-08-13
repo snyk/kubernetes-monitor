@@ -26,10 +26,6 @@ export interface IDeleteImagePayload {
   agentId: string;
 }
 
-export interface IScanResponse {
-  imageMetadata: IKubeImage[];
-}
-
 export interface IKubeImage {
   type: string;
   name: string;
