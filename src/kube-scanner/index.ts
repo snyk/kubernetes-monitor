@@ -27,10 +27,18 @@ export = class WorkloadWorker {
 
     logger.info({logId, imageCount: uniqueImages.length}, 'Pulling unique images');
     const pulledImages = await pullImages(uniqueImages);
+    if (pulledImages.length === 0) {
+      logger.info({}, 'No images were pulled, halting scanner process.');
+      return;
+    }
 
     logger.info({logId, imageCount: pulledImages.length}, 'Scanning pulled images');
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
     logger.info({logId, imageCount: scannedImages.length}, 'Successfully scanned images');
+    if (scannedImages.length === 0) {
+      logger.info({}, 'No images were scanned, halting scanner process.');
+      return;
+    }
 
     const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
     await sendDepGraph(...homebasePayloads);
