@@ -28,7 +28,7 @@ export = class WorkloadWorker {
     logger.info({logId, imageCount: uniqueImages.length}, 'Pulling unique images');
     const pulledImages = await pullImages(uniqueImages);
 
-    logger.info({logId, imageCount: pullImages.length}, 'Scanning pulled images');
+    logger.info({logId, imageCount: pulledImages.length}, 'Scanning pulled images');
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
     logger.info({logId, imageCount: scannedImages.length}, 'Successfully scanned images');
 
