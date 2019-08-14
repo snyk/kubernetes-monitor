@@ -2,6 +2,7 @@ import { V1Job } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
+import { WorkloadKind } from '../../types';
 
 export async function jobWatchHandler(eventType: string, job: V1Job) {
   if (eventType !== WatchEventType.Deleted) {
@@ -16,7 +17,7 @@ export async function jobWatchHandler(eventType: string, job: V1Job) {
   }
 
   await deleteWorkload({
-    kind: 'Job',
+    kind: WorkloadKind.Job,
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
     containers: job.spec.template.spec.containers,
