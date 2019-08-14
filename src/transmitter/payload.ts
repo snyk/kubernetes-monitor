@@ -12,9 +12,9 @@ export function constructHomebaseWorkloadPayloads(
     const { imageName: image, ...workloadLocator } = metadata;
 
     const imageLocator = {
+      ...workloadLocator,
       userLocator: config.INTEGRATION_ID,
       imageId: image,
-      ...workloadLocator,
     };
 
     return {
@@ -34,9 +34,9 @@ export function constructHomebaseDeleteWorkloadPayloads(
     const { imageName: image, ...workloadLocator } = scannedImage;
 
     const imageLocator = {
-      userLocator: config.INTEGRATION_ID,
-      imageId: image,
       ...workloadLocator,
+      imageId: image,
+      userLocator: config.INTEGRATION_ID,
     };
 
     return {
