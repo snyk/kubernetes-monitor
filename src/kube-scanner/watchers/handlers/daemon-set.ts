@@ -2,6 +2,7 @@ import { V1DaemonSet } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
+import { WorkloadKind } from '../../types';
 
 export async function daemonSetWatchHandler(eventType: string, daemonSet: V1DaemonSet) {
   if (eventType !== WatchEventType.Deleted) {
@@ -17,7 +18,7 @@ export async function daemonSetWatchHandler(eventType: string, daemonSet: V1Daem
   }
 
   await deleteWorkload({
-    kind: 'DaemonSet',
+    kind: WorkloadKind.DaemonSet,
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
     containers: daemonSet.spec.template.spec.containers,

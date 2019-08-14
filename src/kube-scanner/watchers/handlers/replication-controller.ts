@@ -2,6 +2,7 @@ import { V1ReplicationController } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
+import { WorkloadKind } from '../../types';
 
 export async function replicationControllerWatchHandler(
     eventType: string, replicationController: V1ReplicationController) {
@@ -18,7 +19,7 @@ export async function replicationControllerWatchHandler(
   }
 
   await deleteWorkload({
-    kind: 'ReplicationController',
+    kind: WorkloadKind.ReplicationController,
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,

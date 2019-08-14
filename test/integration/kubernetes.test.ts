@@ -7,6 +7,7 @@ import * as tap from 'tap';
 import * as config from '../../src/common/config';
 import { IWorkloadLocator } from '../../src/transmitter/types';
 import { getKindConfigPath } from '../helpers/kind';
+import { WorkloadKind } from '../../src/kube-scanner/types';
 
 let integrationId: string;
 const toneDownFactor = 5;
@@ -97,11 +98,11 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
     return workloads !== undefined && workloads.length === 3 &&
       workloads.every((workload) => workload.userLocator === integrationId) &&
       workloads.every((workload) => workload.cluster.indexOf('Default cluster') !== -1) &&
-      workloads.find((workload) => workload.name === 'alpine' && workload.type === 'Pod'
+      workloads.find((workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod
       && workload.namespace === 'services') !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx' && workload.type === 'ReplicationController'
+      workloads.find((workload) => workload.name === 'nginx' && workload.type === WorkloadKind.ReplicationController
       && workload.namespace === 'services') !== undefined &&
-      workloads.find((workload) => workload.name === 'redis' && workload.type === 'Deployment'
+      workloads.find((workload) => workload.name === 'redis' && workload.type === WorkloadKind.Deployment
       && workload.namespace === 'services') !== undefined;
   };
 
@@ -118,7 +119,7 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === 'Deployment'
+      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === WorkloadKind.Deployment
       && workload.namespace === 'services') !== undefined;
   };
 
@@ -130,7 +131,7 @@ tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
   // First ensure the deployment exists from the previous test
   const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === 'Deployment'
+      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === WorkloadKind.Deployment
       && workload.namespace === 'services') !== undefined;
   };
 
