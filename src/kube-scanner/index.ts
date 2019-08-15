@@ -10,7 +10,7 @@ import { pullImages } from '../images';
 import { scanImages, ScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayloads, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
-import { IDepGraphPayload, IKubeImage, IScanResponse } from '../transmitter/types';
+import { IDepGraphPayload, IKubeImage } from '../transmitter/types';
 
 export = class WorkloadWorker {
   private readonly logId: string;
@@ -19,7 +19,7 @@ export = class WorkloadWorker {
     this.logId = logId;
   }
 
-  public async process(workloadMetadata: IKubeImage[]): Promise<IScanResponse> {
+  public async process(workloadMetadata: IKubeImage[]) {
     const logId = this.logId;
     const allImages = workloadMetadata.map((meta) => meta.imageName);
     logger.info({logId, imageCount: allImages.length}, 'Queried workloads');
@@ -27,10 +27,18 @@ export = class WorkloadWorker {
 
     logger.info({logId, imageCount: uniqueImages.length}, 'Pulling unique images');
     const pulledImages = await pullImages(uniqueImages);
+    if (pulledImages.length === 0) {
+      logger.info({}, 'No images were pulled, halting scanner process.');
+      return;
+    }
 
-    logger.info({logId, imageCount: pullImages.length}, 'Scanning pulled images');
+    logger.info({logId, imageCount: pulledImages.length}, 'Scanning pulled images');
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
     logger.info({logId, imageCount: scannedImages.length}, 'Successfully scanned images');
+    if (scannedImages.length === 0) {
+      logger.info({}, 'No images were scanned, halting scanner process.');
+      return;
+    }
 
     const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
     await sendDepGraph(...homebasePayloads);
@@ -39,8 +47,6 @@ export = class WorkloadWorker {
       pulledImages.includes(meta.imageName));
 
     logger.info({logId, imageCount: pulledImageMetadata.length}, 'Processed images');
-
-    return { imageMetadata: pulledImageMetadata };
   }
 
   public async delete(workloadMetadata: IKubeImage[]) {
