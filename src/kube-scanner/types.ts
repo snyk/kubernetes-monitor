@@ -1,6 +1,17 @@
 import { AppsV1Api, BatchV1Api, BatchV1beta1Api, CoreV1Api, KubeConfig,
   V1Container, V1ObjectMeta, V1OwnerReference } from '@kubernetes/client-node';
 
+export enum WorkloadKind {
+  Deployment = 'Deployment',
+  ReplicaSet = 'ReplicaSet',
+  StatefulSet = 'StatefulSet',
+  DaemonSet = 'DaemonSet',
+  Job = 'Job',
+  CronJob = 'CronJob',
+  ReplicationController = 'ReplicationController',
+  Pod = 'Pod',
+}
+
 export interface KubeObjectMetadata {
   kind: string;
   objectMeta: V1ObjectMeta;
