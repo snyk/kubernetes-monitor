@@ -12,6 +12,7 @@ import { replicaSetWatchHandler } from './handlers/replica-set';
 import { replicationControllerWatchHandler } from './handlers/replication-controller';
 import { statefulSetWatchHandler } from './handlers/stateful-set';
 import { ILooseObject, WatchEventType } from './types';
+import { WorkloadKind } from '../types';
 
 const watches = {
 };
@@ -36,21 +37,21 @@ function setupWatchesForNamespace(namespace: string) {
   const queryOptions = {};
   watches[namespace] = [
     k8sWatch.watch(`/api/v1/namespaces/${namespace}/pods`,
-      queryOptions, podWatchHandler, watchEndHandler(namespace, 'pods')),
+      queryOptions, podWatchHandler, watchEndHandler(namespace, WorkloadKind.Pod)),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/deployments`,
-      queryOptions, deploymentWatchHandler, watchEndHandler(namespace, 'deployments')),
+      queryOptions, deploymentWatchHandler, watchEndHandler(namespace, WorkloadKind.Deployment)),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/replicasets`,
-      queryOptions, replicaSetWatchHandler, watchEndHandler(namespace, 'replicasets')),
+      queryOptions, replicaSetWatchHandler, watchEndHandler(namespace, WorkloadKind.ReplicaSet)),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/daemonsets`,
-      queryOptions, daemonSetWatchHandler, watchEndHandler(namespace, 'daemonsets')),
+      queryOptions, daemonSetWatchHandler, watchEndHandler(namespace, WorkloadKind.DaemonSet)),
     k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/statefulsets`,
-      queryOptions, statefulSetWatchHandler, watchEndHandler(namespace, 'statefulsets')),
+      queryOptions, statefulSetWatchHandler, watchEndHandler(namespace, WorkloadKind.StatefulSet)),
     k8sWatch.watch(`/apis/batch/v1beta1/watch/namespaces/${namespace}/cronjobs`,
-      queryOptions, cronJobWatchHandler, watchEndHandler(namespace, 'cronjobs')),
+      queryOptions, cronJobWatchHandler, watchEndHandler(namespace, WorkloadKind.CronJob)),
     k8sWatch.watch(`/apis/batch/v1/watch/namespaces/${namespace}/jobs`,
-      queryOptions, jobWatchHandler, watchEndHandler(namespace, 'jobs')),
+      queryOptions, jobWatchHandler, watchEndHandler(namespace, WorkloadKind.Job)),
     k8sWatch.watch(`/api/v1/watch/namespaces/${namespace}/replicationcontrollers`,
-      queryOptions, replicationControllerWatchHandler, watchEndHandler(namespace, 'replicationcontrollers')),
+      queryOptions, replicationControllerWatchHandler, watchEndHandler(namespace, WorkloadKind.ReplicationController)),
   ];
 }
 

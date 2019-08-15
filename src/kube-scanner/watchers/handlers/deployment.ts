@@ -2,6 +2,7 @@ import { V1Deployment } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
+import { WorkloadKind } from '../../types';
 
 export async function deploymentWatchHandler(eventType: string, deployment: V1Deployment) {
   if (eventType !== WatchEventType.Deleted) {
@@ -17,7 +18,7 @@ export async function deploymentWatchHandler(eventType: string, deployment: V1De
   }
 
   await deleteWorkload({
-    kind: 'Deployment',
+    kind: WorkloadKind.Deployment,
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,

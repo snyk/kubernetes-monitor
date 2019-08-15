@@ -1,6 +1,6 @@
 import { V1OwnerReference } from '@kubernetes/client-node';
 import { k8sApi } from './cluster';
-import { KubeObjectMetadata } from './types';
+import { KubeObjectMetadata, WorkloadKind } from './types';
 
 type IWorkloadReaderFunc = (
   workloadName: string,
@@ -19,7 +19,7 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
   }
 
   return {
-    kind: 'Deployment',
+    kind: WorkloadKind.Deployment,
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,
@@ -39,7 +39,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
   }
 
   return {
-    kind: 'ReplicaSet',
+    kind: WorkloadKind.ReplicaSet,
     objectMeta: replicaSet.metadata,
     specMeta: replicaSet.spec.template.metadata,
     containers: replicaSet.spec.template.spec.containers,
@@ -59,7 +59,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
   }
 
   return {
-    kind: 'StatefulSet',
+    kind: WorkloadKind.StatefulSet,
     objectMeta: statefulSet.metadata,
     specMeta: statefulSet.spec.template.metadata,
     containers: statefulSet.spec.template.spec.containers,
@@ -79,7 +79,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
   }
 
   return {
-    kind: 'DaemonSet',
+    kind: WorkloadKind.DaemonSet,
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
     containers: daemonSet.spec.template.spec.containers,
@@ -98,7 +98,7 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   }
 
   return {
-    kind: 'Job',
+    kind: WorkloadKind.Job,
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
     containers: job.spec.template.spec.containers,
@@ -121,7 +121,7 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   }
 
   return {
-    kind: 'CronJob',
+    kind: WorkloadKind.CronJob,
     objectMeta: cronJob.metadata,
     specMeta: cronJob.spec.jobTemplate.metadata,
     containers: cronJob.spec.jobTemplate.spec.template.spec.containers,
@@ -141,7 +141,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
   }
 
   return {
-    kind: 'ReplicationController',
+    kind: WorkloadKind.ReplicationController,
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,
@@ -153,13 +153,13 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
 // This gives us a quick look up table where we can abstract away the internal implementation of reading a resource
 // and just grab a generic handler/reader that does that for us (based on the "kind").
 const workloadReader = {
-  Deployment: deploymentReader,
-  ReplicaSet: replicaSetReader,
-  StatefulSet: statefulSetReader,
-  DaemonSet: daemonSetReader,
-  Job: jobReader,
-  CronJob: cronJobReader,
-  ReplicationController: replicationControllerReader,
+  [WorkloadKind.Deployment]: deploymentReader,
+  [WorkloadKind.ReplicaSet]: replicaSetReader,
+  [WorkloadKind.StatefulSet]: statefulSetReader,
+  [WorkloadKind.DaemonSet]: daemonSetReader,
+  [WorkloadKind.Job]: jobReader,
+  [WorkloadKind.CronJob]: cronJobReader,
+  [WorkloadKind.ReplicationController]: replicationControllerReader,
 };
 
 export const SupportedWorkloadTypes = Object.keys(workloadReader);
