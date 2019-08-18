@@ -9,8 +9,8 @@ import logger = require('../common/logger');
 import { pullImages } from '../images';
 import { scanImages, ScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
-import { constructHomebaseDeleteWorkloadPayloads, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
-import { IDepGraphPayload, IKubeImage } from '../transmitter/types';
+import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
+import { IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
 
 export = class WorkloadWorker {
   private readonly logId: string;
@@ -49,11 +49,10 @@ export = class WorkloadWorker {
     logger.info({logId, imageCount: pulledImageMetadata.length}, 'Processed images');
   }
 
-  public async delete(workloadMetadata: IKubeImage[]) {
-    const deletePayloads = constructHomebaseDeleteWorkloadPayloads(workloadMetadata);
-    const deletedWorkloadNames = workloadMetadata.map((workload) => workload.name);
-    logger.info({logId: this.logId, workloadCount: deletedWorkloadNames.length, workload: deletedWorkloadNames},
+  public async delete(localWorkloadLocator: ILocalWorkloadLocator) {
+    const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
+    logger.info({logId: this.logId, workload: localWorkloadLocator},
       'Removing workloads from homebase');
-    await deleteHomebaseWorkload(deletePayloads);
+    await deleteHomebaseWorkload(deletePayload);
   }
 };

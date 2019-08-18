@@ -1,17 +1,23 @@
 interface StringMap { [key: string]: string; }
 
-export interface IWorkloadLocator {
-  userLocator: string;
-  cluster: string;
+export interface ILocalWorkloadLocator {
   namespace: string;
   type: string;
   name: string;
+}
+
+export interface IWorkloadLocator extends ILocalWorkloadLocator {
+  userLocator: string;
+  cluster: string;
+}
+
+export interface IWorkloadMetadata extends IWorkloadLocator {
   labels: StringMap | undefined;
   annotations: StringMap | undefined;
   uid: string;
 }
 
-export interface IImageLocator extends IWorkloadLocator {
+export interface IImageLocator extends IWorkloadMetadata {
   imageId: string;
 }
 
@@ -21,8 +27,8 @@ export interface IDepGraphPayload {
   dependencyGraph?: any;
 }
 
-export interface IDeleteImagePayload {
-  imageLocator: IImageLocator;
+export interface IDeleteWorkloadPayload {
+  workloadLocator: IWorkloadLocator;
   agentId: string;
 }
 

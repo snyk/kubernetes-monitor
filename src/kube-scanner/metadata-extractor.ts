@@ -1,5 +1,5 @@
 import { V1OwnerReference, V1Pod, V1PodStatus } from '@kubernetes/client-node';
-import { IKubeImage } from '../transmitter/types';
+import { IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
@@ -68,6 +68,20 @@ async function findParentWorkload(
   }
 
   return undefined;
+}
+
+export function buildWorkloadMetadata(kubernetesMetadata: KubeObjectMetadata): ILocalWorkloadLocator {
+  if (!kubernetesMetadata.objectMeta ||
+    kubernetesMetadata.objectMeta.namespace === undefined ||
+    kubernetesMetadata.objectMeta.name === undefined) {
+    throw new Error('can\'t build workload metadata for object');
+  }
+
+  return {
+    type: kubernetesMetadata.kind,
+    name: kubernetesMetadata.objectMeta.name,
+    namespace: kubernetesMetadata.objectMeta.namespace,
+  };
 }
 
 export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[] | undefined> {
