@@ -1,4 +1,4 @@
-import { V1OwnerReference, V1Pod, V1PodStatus } from '@kubernetes/client-node';
+import { V1OwnerReference, V1Pod, V1ContainerStatus } from '@kubernetes/client-node';
 import { IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
@@ -9,20 +9,14 @@ const loopingThreshold = 20;
 
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
-export function buildImageMetadata(workloadMeta: KubeObjectMetadata, podStatus?: V1PodStatus): IKubeImage[] {
-  const { kind, objectMeta, specMeta, containers } = workloadMeta;
+export function buildImageMetadata(
+  workloadMeta: KubeObjectMetadata,
+  containerStatuses: V1ContainerStatus[],
+  ): IKubeImage[] {
+  const { kind, objectMeta, specMeta } = workloadMeta;
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
-  // hideous hack because this function is called from both a "create" and "delete" context
-  // the "delete" context doesn't have the podStatus since it's called from a controller deletion
-  let containerDataArray;
-  if (podStatus !== undefined) {
-    containerDataArray = podStatus.containerStatuses!;
-  } else {
-    containerDataArray = containers;
-  }
-
-  const images = containerDataArray.map(({ name: containerName, image, imageID }) => ({
+  const images = containerStatuses.map(({ name: containerName, image, imageID }) => ({
       type: kind,
       name: name || 'unknown',
       namespace,
@@ -92,8 +86,8 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
     return undefined;
   }
 
-  if (!pod.status) {
-    logger.warn({pod}, 'pod lacks status');
+  if (!(pod.status && pod.status.containerStatuses)) {
+    logger.warn({pod}, 'pod lacks status or status.containerStatus');
     return undefined;
   }
 
@@ -110,7 +104,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
       ownerRefs: [],
       containers: pod.spec.containers,
     },
-    pod.status,
+    pod.status.containerStatuses,
     );
   }
 
@@ -119,7 +113,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[]
 
   return podOwner === undefined
     ? undefined
-    : buildImageMetadata(podOwner, pod.status);
+    : buildImageMetadata(podOwner, pod.status.containerStatuses);
 }
 
 export function isPodAssociatedWithParent(pod: V1Pod): boolean {
