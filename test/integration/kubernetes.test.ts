@@ -96,18 +96,17 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined && workloads.length === 3 &&
-      workloads.every((workload) => workload.userLocator === integrationId) &&
-      workloads.every((workload) => workload.cluster.indexOf('Default cluster') !== -1) &&
-      workloads.find((workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod
-      && workload.namespace === 'services') !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx' && workload.type === WorkloadKind.ReplicationController
-      && workload.namespace === 'services') !== undefined &&
-      workloads.find((workload) => workload.name === 'redis' && workload.type === WorkloadKind.Deployment
-      && workload.namespace === 'services') !== undefined;
+      workloads.find((workload) => workload.name === 'alpine' &&
+        workload.type === WorkloadKind.Pod) !== undefined &&
+      workloads.find((workload) => workload.name === 'nginx' &&
+        workload.type === WorkloadKind.ReplicationController) !== undefined &&
+      workloads.find((workload) => workload.name === 'redis' &&
+        workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
   // We don't want to spam Homebase with requests; do it infrequently
-  const homebaseTestResult = await validateHomebaseStoredData(validatorFn, `api/v1/workloads/${integrationId}`);
+  const homebaseTestResult = await validateHomebaseStoredData(
+    validatorFn, `api/v2/workloads/${integrationId}/Default cluster/services`);
   t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
 });
 
@@ -119,11 +118,12 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === WorkloadKind.Deployment
-      && workload.namespace === 'services') !== undefined;
+      workloads.find((workload) => workload.name === 'nginx-deployment' &&
+        workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
-  const homebaseTestResult = await validateHomebaseStoredData(validatorFn, `api/v1/workloads/${integrationId}`);
+  const homebaseTestResult = await validateHomebaseStoredData(
+    validatorFn, `api/v2/workloads/${integrationId}/Default cluster/services`);
   t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
 });
 
@@ -131,12 +131,12 @@ tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
   // First ensure the deployment exists from the previous test
   const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx-deployment' && workload.type === WorkloadKind.Deployment
-      && workload.namespace === 'services') !== undefined;
+      workloads.find((workload) => workload.name === 'nginx-deployment' &&
+        workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
   const homebaseTestResult = await validateHomebaseStoredData(deploymentValidatorFn,
-    `api/v1/workloads/${integrationId}`);
+    `api/v2/workloads/${integrationId}/Default cluster/services`);
   t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
 
   const deploymentName = 'nginx-deployment';
