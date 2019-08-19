@@ -1,6 +1,7 @@
 import config = require('../common/config');
+import { currentClusterName } from '../kube-scanner/cluster';
 import { ScanResult } from '../kube-scanner/image-scanner';
-import { IDeleteImagePayload, IDepGraphPayload, IKubeImage } from './types';
+import { IDeleteWorkloadPayload, IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from './types';
 
 export function constructHomebaseWorkloadPayloads(
     scannedImages: ScanResult[],
@@ -27,23 +28,15 @@ export function constructHomebaseWorkloadPayloads(
   return results;
 }
 
-export function constructHomebaseDeleteWorkloadPayloads(
-  imageMetadata: IKubeImage[],
-): IDeleteImagePayload[] {
-  const results = imageMetadata.map((scannedImage) => {
-    const { imageName: image, ...workloadLocator } = scannedImage;
-
-    const imageLocator = {
-      ...workloadLocator,
-      imageId: image,
+export function constructHomebaseDeleteWorkloadPayload(
+  localWorkloadLocator: ILocalWorkloadLocator,
+): IDeleteWorkloadPayload {
+  return {
+    workloadLocator: {
+      ...localWorkloadLocator,
       userLocator: config.INTEGRATION_ID,
-    };
-
-    return {
-      imageLocator,
-      agentId: config.AGENT_ID,
-    } as IDeleteImagePayload;
-  });
-
-  return results;
+      cluster: currentClusterName,
+    },
+    agentId: config.AGENT_ID,
+  };
 }

@@ -1,7 +1,7 @@
 import needle = require('needle');
 import * as config from '../common/config';
 import logger = require('../common/logger');
-import { IDeleteImagePayload, IDepGraphPayload } from './types';
+import { IDeleteWorkloadPayload, IDepGraphPayload } from './types';
 
 const homebaseUrl = config.INTEGRATION_API || config.DEFAULT_HOMEBASE_URL;
 
@@ -27,20 +27,24 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
   }
 }
 
-export async function deleteHomebaseWorkload(payloads: IDeleteImagePayload[]) {
-  for (const payload of payloads) {
-    try {
-      const result = await needle('delete', `${homebaseUrl}/api/v1/image`, payload, {
-          json: true,
-          compressed: true,
-        },
-      );
+export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload) {
+  try {
+    const result = await needle('delete', `${homebaseUrl}/api/v1/workload`, payload, {
+        json: true,
+        compressed: true,
+      },
+    );
 
-      if (!isSuccessStatusCode(result.statusCode)) {
-        throw new Error(`${result.statusCode} ${result.statusMessage}`);
-      }
-    } catch (error) {
-      logger.error({error}, 'Could not send workload to delete to Homebase');
+    if (result.statusCode === 404) {
+      const msg = 'Attempted to delete a workload Homebase could not find. Maybe we\'re still building it?';
+      logger.info({payload}, msg);
+      return;
     }
+
+    if (!isSuccessStatusCode(result.statusCode)) {
+      throw new Error(`${result.statusCode} ${result.statusMessage}`);
+    }
+  } catch (error) {
+    logger.error({error, payload}, 'Could not send workload to delete to Homebase');
   }
 }
