@@ -11,8 +11,25 @@ import { scanImages, ScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
 import { IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
+import { KubeObjectMetadata } from './types';
+import { buildWorkloadMetadata } from './metadata-extractor';
 
-export = class WorkloadWorker {
+export async function deleteWorkload(kubernetesMetadata: KubeObjectMetadata, logId: string) {
+  try {
+    if (kubernetesMetadata.ownerRefs !== undefined && kubernetesMetadata.ownerRefs.length > 0) {
+      return;
+    }
+
+    const localWorkloadLocator = buildWorkloadMetadata(kubernetesMetadata);
+    const workloadWorker = new WorkloadWorker(logId);
+    await workloadWorker.delete(localWorkloadLocator);
+  } catch (error) {
+    logger.error({error, resourceType: kubernetesMetadata.kind, resourceName: kubernetesMetadata.objectMeta.name},
+      'Could not delete workload');
+  }
+}
+
+export class WorkloadWorker {
   private readonly logId: string;
 
   constructor(logId: string) {
@@ -55,4 +72,4 @@ export = class WorkloadWorker {
       'Removing workloads from homebase');
     await deleteHomebaseWorkload(deletePayload);
   }
-};
+}

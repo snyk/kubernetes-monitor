@@ -3,11 +3,11 @@ import async = require('async');
 import * as uuidv4 from 'uuid/v4';
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
-import WorkloadWorker = require('../../../kube-scanner');
 import { IKubeImage } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase, WatchEventType } from '../types';
 import state = require('../../../state');
+import { WorkloadWorker } from './index';
 
 async function queueWorker(task, callback) {
   const {workloadWorker, workloadMetadata, imageKeys} = task;

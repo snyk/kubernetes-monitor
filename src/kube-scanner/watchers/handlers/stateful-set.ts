@@ -1,8 +1,8 @@
 import { V1StatefulSet } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
-import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
+import { deleteWorkload } from './index';
 
 export async function statefulSetWatchHandler(eventType: string, statefulSet: V1StatefulSet) {
   if (eventType !== WatchEventType.Deleted) {

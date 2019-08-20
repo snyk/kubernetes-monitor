@@ -1,3 +1,5 @@
+import { Request } from 'request';
+
 export enum WatchEventType {
   Added = 'ADDED',
   Modified = 'MODIFIED',
@@ -21,4 +23,10 @@ export enum PodPhase {
 
 export interface ILooseObject {
   [key: string]: any;
+}
+
+export interface ITrackedWatches {
+  [namespace: string]: {
+    [watchedKubernetesObject: string]: Request;
+  };
 }

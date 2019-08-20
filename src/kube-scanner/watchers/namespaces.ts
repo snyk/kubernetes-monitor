@@ -1,58 +1,144 @@
-import * as k8s from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
 import config = require('../../common/config');
 import logger = require('../../common/logger');
-import { kubeConfig } from '../cluster';
-import { cronJobWatchHandler } from './handlers/cron-job';
-import { daemonSetWatchHandler } from './handlers/daemon-set';
-import { deploymentWatchHandler } from './handlers/deployment';
-import { jobWatchHandler } from './handlers/job';
-import { podWatchHandler } from './handlers/pod';
-import { replicaSetWatchHandler } from './handlers/replica-set';
-import { replicationControllerWatchHandler } from './handlers/replication-controller';
-import { statefulSetWatchHandler } from './handlers/stateful-set';
-import { ILooseObject, WatchEventType } from './types';
-import { WorkloadKind } from '../types';
+import { WatchEventType, ILooseObject, ITrackedWatches } from './types';
+import { IWatchHandlerOptions, WatchedKubernetesObject, IWatchSetupTracker } from './handlers/types';
+import { setupDeploymentWatch, setupReplicaSetWatch, setupStatefulSetWatch,
+  setupDaemonSetWatch, setupJobWatch, setupCronJobWatch, setupReplicationControllerWatch,
+  setupPodWatch, setupNamespacesWatch } from './handlers';
 
-const watches = {
+const workloadWatchSetters: IWatchSetupTracker = {
+  [WatchedKubernetesObject.Deployment]: setupDeploymentWatch,
+  [WatchedKubernetesObject.ReplicaSet]: setupReplicaSetWatch,
+  [WatchedKubernetesObject.StatefulSet]: setupStatefulSetWatch,
+  [WatchedKubernetesObject.DaemonSet]: setupDaemonSetWatch,
+  [WatchedKubernetesObject.Job]: setupJobWatch,
+  [WatchedKubernetesObject.CronJob]: setupCronJobWatch,
+  [WatchedKubernetesObject.ReplicationController]: setupReplicationControllerWatch,
+  [WatchedKubernetesObject.Pod]: setupPodWatch,
+  [WatchedKubernetesObject.AllNamespaces]: setupNamespacesWatch,
 };
 
-const k8sWatch = new k8s.Watch(kubeConfig);
+const trackedNamespaceWatches: ITrackedWatches = {};
 
-function deleteWatchesForNamespace(namespace: string) {
-  logger.info({namespace}, 'Removing watch for namespace');
+function restartingWatchEndHandler(watchOptions: IWatchHandlerOptions): (err: string) => void {
+  const { namespace, resourceWatched } = watchOptions;
+  const logContext: ILooseObject = {namespace, resourceWatched};
 
-  if (watches[namespace] !== undefined) {
-    try {
-      watches[namespace].forEach((watch) => watch.abort());
-      delete watches[namespace];
-    } catch (error) {
-      logger.error({error, namespace}, 'Could not stop watch for namespace');
+  if (resourceWatched === undefined) {
+    throw new Error('Missing watched resource type');
+  }
+
+  return function(optionalError) {
+    const logMsg = 'watch ended';
+
+    if (optionalError) {
+      logContext.error = optionalError;
+      logger.error(logContext, logMsg);
+      return;
     }
+
+    logger.info(logContext, logMsg);
+
+    try {
+      logger.info(logContext, 'attempting to restart watch');
+      createAndTrackWatch(trackedNamespaceWatches, namespace, resourceWatched, watchOptions);
+    } catch (error) {
+      logContext.error = error;
+      logger.error(logContext, 'could not restart watch');
+    }
+  };
+}
+
+export function namespaceWatchHandler(eventType: string, namespace: V1Namespace) {
+  try {
+    const namespaceName = extractNamespaceName(namespace);
+    if (isKubernetesInternalNamespace(namespaceName)) {
+      // disregard namespaces internal to kubernetes
+      logger.info({namespaceName}, 'ignoring blacklisted namespace');
+      return;
+    }
+
+    if (eventType === WatchEventType.Added) {
+      setupWatchesForNamespace(namespaceName);
+    } else if (eventType === WatchEventType.Deleted) {
+      deleteWatchesForNamespace(namespaceName);
+    }
+  } catch (err) {
+    logger.error({err, eventType, namespace}, 'error handling a namespace event');
   }
 }
 
+function createAndTrackWatch(
+  trackedWatches: ITrackedWatches,
+  namespace: string,
+  resourceWatched: WatchedKubernetesObject,
+  watchOptions: IWatchHandlerOptions,
+) {
+  if (trackedWatches[namespace] === undefined) {
+    trackedWatches[namespace] = {};
+  }
+
+  trackedWatches[namespace][resourceWatched] = workloadWatchSetters[resourceWatched](watchOptions);
+}
+
+function deleteWatchesForNamespace(namespace: string) {
+  if (trackedNamespaceWatches[namespace] === undefined) {
+    return;
+  }
+
+  logger.info({namespace}, 'deleting namespace watch');
+
+  const watches = trackedNamespaceWatches[namespace];
+
+  for (const watchKind of Object.keys(watches)) {
+    const watch = watches[watchKind];
+    try {
+      watch.abort();
+    } catch (error) {
+      logger.error({ error, namespace, watchKind }, 'could not abort watch for namespace');
+    }
+  }
+
+  delete trackedNamespaceWatches[namespace];
+}
+
 function setupWatchesForNamespace(namespace: string) {
+  // This attempts to delete any existing watches; we want to abort & override current watches
+  // if we have to set up a new one!
+  deleteWatchesForNamespace(namespace);
+
   logger.info({namespace}, 'Setting up namespace watch');
-  const queryOptions = {};
-  watches[namespace] = [
-    k8sWatch.watch(`/api/v1/namespaces/${namespace}/pods`,
-      queryOptions, podWatchHandler, watchEndHandler(namespace, WorkloadKind.Pod)),
-    k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/deployments`,
-      queryOptions, deploymentWatchHandler, watchEndHandler(namespace, WorkloadKind.Deployment)),
-    k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/replicasets`,
-      queryOptions, replicaSetWatchHandler, watchEndHandler(namespace, WorkloadKind.ReplicaSet)),
-    k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/daemonsets`,
-      queryOptions, daemonSetWatchHandler, watchEndHandler(namespace, WorkloadKind.DaemonSet)),
-    k8sWatch.watch(`/apis/apps/v1/watch/namespaces/${namespace}/statefulsets`,
-      queryOptions, statefulSetWatchHandler, watchEndHandler(namespace, WorkloadKind.StatefulSet)),
-    k8sWatch.watch(`/apis/batch/v1beta1/watch/namespaces/${namespace}/cronjobs`,
-      queryOptions, cronJobWatchHandler, watchEndHandler(namespace, WorkloadKind.CronJob)),
-    k8sWatch.watch(`/apis/batch/v1/watch/namespaces/${namespace}/jobs`,
-      queryOptions, jobWatchHandler, watchEndHandler(namespace, WorkloadKind.Job)),
-    k8sWatch.watch(`/api/v1/watch/namespaces/${namespace}/replicationcontrollers`,
-      queryOptions, replicationControllerWatchHandler, watchEndHandler(namespace, WorkloadKind.ReplicationController)),
-  ];
+
+  for (const watchKind of Object.values(WatchedKubernetesObject)) {
+    const workloadKind = watchKind as WatchedKubernetesObject;
+
+    // do not process a cluster watch
+    if (workloadKind === WatchedKubernetesObject.AllNamespaces) {
+      continue;
+    }
+
+    const watchHandlerOptions: IWatchHandlerOptions = {
+      namespace,
+      resourceWatched: workloadKind,
+      watchEndHandler: restartingWatchEndHandler,
+    };
+
+    createAndTrackWatch(trackedNamespaceWatches, namespace, workloadKind, watchHandlerOptions);
+  }
+}
+
+function setupWatchesForCluster() {
+  const namespace = 'all namespaces';
+  const resourceWatched = WatchedKubernetesObject.AllNamespaces;
+
+  const watchHandlerOptions: IWatchHandlerOptions = {
+    namespace,
+    resourceWatched,
+    watchEndHandler: restartingWatchEndHandler,
+  };
+
+  createAndTrackWatch(trackedNamespaceWatches, namespace, resourceWatched, watchHandlerOptions);
 }
 
 export function beginWatchingWorkloads() {
@@ -62,42 +148,7 @@ export function beginWatchingWorkloads() {
     return;
   }
 
-  const queryOptions = {};
-  k8sWatch.watch(`/api/v1/namespaces`,
-    queryOptions,
-    (eventType: string, namespace: V1Namespace) => {
-      try {
-        const namespaceName = extractNamespaceName(namespace);
-        if (isKubernetesInternalNamespace(namespaceName)) {
-          // disregard namespaces internal to kubernetes
-          logger.info({namespaceName}, 'ignoring blacklisted namespace');
-          return;
-        }
-
-        if (eventType === WatchEventType.Added) {
-          setupWatchesForNamespace(namespaceName);
-        } else if (eventType === WatchEventType.Deleted) {
-          deleteWatchesForNamespace(namespaceName);
-        }
-      } catch (err) {
-        logger.error({err, eventType, namespace}, 'error handling a namespace event');
-      }
-    },
-    watchEndHandler('all namespaces', 'all namespaces'),
-  );
-}
-
-function watchEndHandler(namespace: string, resourceWatched: string): (err: string) => void {
-  const logContext: ILooseObject = {namespace, resourceWatched};
-  return function(optionalError) {
-    const logMsg = 'watch ended';
-    if (optionalError) {
-      logContext.error = optionalError;
-      logger.error(logContext, logMsg);
-      return;
-    }
-    logger.info(logContext, logMsg);
-  };
+  setupWatchesForCluster();
 }
 
 export function extractNamespaceName(namespace: V1Namespace): string {
