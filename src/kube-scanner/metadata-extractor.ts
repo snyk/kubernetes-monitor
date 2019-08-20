@@ -1,4 +1,4 @@
-import { V1OwnerReference, V1Pod, V1ContainerStatus } from '@kubernetes/client-node';
+import { V1OwnerReference, V1Pod, V1Container, V1ContainerStatus } from '@kubernetes/client-node';
 import { IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
@@ -13,10 +13,20 @@ export function buildImageMetadata(
   workloadMeta: KubeObjectMetadata,
   containerStatuses: V1ContainerStatus[],
   ): IKubeImage[] {
-  const { kind, objectMeta, specMeta } = workloadMeta;
+  const { kind, objectMeta, specMeta, containers } = workloadMeta;
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
-  const images = containerStatuses.map(({ name: containerName, image, imageID }) => ({
+  const containerNameToSpec: {[key: string]: V1Container} = {};
+  for (const container of containers) {
+    containerNameToSpec[container.name] = container;
+  }
+
+  const containerNameToStatus: {[key: string]: V1ContainerStatus} = {};
+  for (const containerStatus of containerStatuses) {
+    containerNameToStatus[containerStatus.name] = containerStatus;
+  }
+
+  const images = containerStatuses.map(({ name: containerName }) => ({
       type: kind,
       name: name || 'unknown',
       namespace,
@@ -26,8 +36,8 @@ export function buildImageMetadata(
       specLabels: specMeta.labels || {},
       specAnnotations: specMeta.annotations || {},
       containerName,
-      imageName: image,
-      imageId: imageID,
+      imageName: containerNameToSpec[containerName].image,
+      imageId: containerNameToStatus[containerName].imageID,
       cluster: currentClusterName,
     } as IKubeImage),
   );
