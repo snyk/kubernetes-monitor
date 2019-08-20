@@ -71,7 +71,6 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
       case WatchEventType.Bookmark:
         break;
       case WatchEventType.Deleted:
-        logger.info({logId, podName: pod.metadata!.name}, 'DELETED event occurred for the Pod, skipping scanning');
         break;
       default:
         break;
