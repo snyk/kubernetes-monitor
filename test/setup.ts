@@ -130,6 +130,12 @@ export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> 
   console.log(`Applied ${pathToYamlDeployment}!`);
 }
 
+export async function createDeploymentFromImage(name: string, image: string, namespace: string) {
+  console.log(`Letting Kubernetes decide how to manage image ${image} with name ${name}`);
+  await exec(`./kubectl run ${name} --image=${image} -n ${namespace}`);
+  console.log(`Done Letting Kubernetes decide how to manage image ${image} with name ${name}`);
+}
+
 export async function deleteDeployment(deploymentName: string, namespace: string) {
   console.log(`Deleting deployment ${deploymentName} in namespace ${namespace}...`);
   await exec(`./kubectl delete deployment ${deploymentName} -n ${namespace}`);
@@ -255,6 +261,8 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
   await applyK8sYaml('./test/fixtures/alpine-pod.yaml');
   await applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml');
   await applyK8sYaml('./test/fixtures/redis-deployment.yaml');
+  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
+  await createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace);
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
   createTestYamlDeployment(testYaml, integrationId);
