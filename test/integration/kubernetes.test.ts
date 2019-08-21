@@ -74,10 +74,8 @@ async function validateHomebaseStoredData(
   validatorFn: WorkloadLocatorValidator, relativeUrl: string, remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
   // TODO: consider if we're OK to expose this publicly?
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
   while (remainingChecks > 0) {
-    const homebaseResponse = await needle('get', url, null);
-    const responseBody = homebaseResponse.body;
+    const responseBody = await getHomebaseResponseBody(relativeUrl);
     const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
     const result = validatorFn(workloads);
     if (result) {
@@ -87,6 +85,13 @@ async function validateHomebaseStoredData(
     remainingChecks--;
   }
   return false;
+}
+
+async function getHomebaseResponseBody(relativeUrl: string): Promise<any> {
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
+  const homebaseResponse = await needle('get', url, null);
+  const responseBody = homebaseResponse.body;
+  return responseBody;
 }
 
 tap.test('snyk-monitor sends data to homebase', async (t) => {
@@ -113,20 +118,33 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
 });
 
 tap.test('snyk-monitor sends correct data to homebase after adding another deployment', async (t) => {
-  t.plan(1);
+  t.plan(3);
+
+  const deploymentName = 'nginx-deployment';
+  const namespace = 'services';
+  const clusterName = 'Default cluster';
+  const deploymentType = WorkloadKind.Deployment;
+  const imageName = 'nginx';
 
   await setup.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
   console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx-deployment' &&
+      workloads.find((workload) => workload.name === deploymentName &&
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
   const homebaseTestResult = await validateHomebaseStoredData(
-    validatorFn, `api/v2/workloads/${integrationId}/Default cluster/services`);
+    validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+
+  const depGraphResult = await getHomebaseResponseBody(
+    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  t.ok('dependencyGraphResults' in depGraphResult,
+    'expected dependencyGraphResults field to exist in /dependency-graphs response');
+  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
+    'snyk-monitor sent expected data to homebase in the expected timeframe');
 });
 
 tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
