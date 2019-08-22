@@ -26,12 +26,6 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          volumeMounts:
-          - name: docker-socket-mount
-            mountPath: /var/run/docker.sock
-          - name: docker-config
-            readOnly: true
-            mountPath: "/root/.docker"
           env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -44,13 +38,5 @@ spec:
             value: {{ .Values.integrationApi }}
           - name: SNYK_CLUSTER_NAME
             value: {{ .Values.clusterName }}
-      volumes:
-        - name: docker-socket-mount
-          hostPath:
-            path: {{ .Values.dockerSocketHostPath }}
-        - name: docker-config
-          secret:
-            secretName: {{ .Values.monitorSecrets }}
-            items:
-              - key: dockercfg.json
-                path: config.json
+          securityContext:
+            privileged: true

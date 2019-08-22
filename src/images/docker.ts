@@ -7,5 +7,5 @@ export function pull(image: string, userArgs?: string[]): Promise<SpawnPromiseRe
     args.concat(userArgs);
   }
 
-  return exec('docker', 'pull', ...args);
+  return exec('podman', 'pull', ...args);
 }

@@ -1,22 +1,20 @@
-FROM node:dubnium-alpine
+FROM fedora:30
 
 MAINTAINER Snyk Ltd
 
 ENV NODE_ENV production
 
-# INSTALLING DOCKER, CAN BE REMOVED WHEN WE DON'T TRY TO `DOCKER PULL`
-ENV DOCKERVERSION=18.06.3-ce
-RUN apk --no-cache add --virtual curl-dep curl \
- && curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
- && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
-                -C /usr/local/bin docker/docker \
- && rm docker-${DOCKERVERSION}.tgz \
- && apk del curl-dep
+RUN yum -y install podman
+RUN dnf install -y nodejs
 
 WORKDIR /root
 
 # Add manifest files and install before adding anything else to take advantage of layer caching
 ADD package.json package-lock.json .snyk ./
+
+# Modify the registries file that tells Podman where to pull images from
+ADD registries.conf /etc/containers/registries.conf
+COPY storage.conf /etc/containers/storage.conf
 
 RUN npm install
 
@@ -25,5 +23,8 @@ ADD . .
 
 # Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
 RUN npm run prepare
+
+# Replace docker with podman
+ADD docker.js ./node_modules/snyk-docker-plugin/dist/docker.js
 
 ENTRYPOINT ["bin/start"]
