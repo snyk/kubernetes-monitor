@@ -46,14 +46,14 @@ export = class WorkloadWorker {
 
     logger.info({workloadName}, 'Deleting cached image');
     for (const scannedImage of scannedImages) {
-      const prefix = scannedImage.image.indexOf('gcr.io') === -1
-        ? 'docker.io/library'
-        : '';
-      const imageName = `${prefix}/${scannedImage.image}`;
-      try {
-        await remove(imageName);
-      } catch (error) {
-        logger.warning({error, imageName}, 'could not delete scanned image');
+      // intentionally empty prefix, for other registries
+      for (const prefixes of ['', 'docker.io/library/']) {
+        const imageName = `${prefixes}${scannedImage.image}`;
+        try {
+          await remove(imageName);
+        } catch (error) {
+          logger.info({error, imageName}, 'could not delete scanned image');
+        }
       }
     }
 
