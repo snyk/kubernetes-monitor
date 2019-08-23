@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "pretest": "./scripts/build-image.sh",
-    "test": "npm run lint && npm run test:unit && npm run test:integration",
+    "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration",
     "test:unit": "./tap test/unit -R spec",
     "test:integration": "./tap test/integration -Rdot --timeout=600",
     "test:coverage": "npm run test:unit -- --coverage",
