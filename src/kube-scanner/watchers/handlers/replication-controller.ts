@@ -1,5 +1,4 @@
 import { V1ReplicationController } from '@kubernetes/client-node';
-import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
@@ -9,8 +8,6 @@ export async function replicationControllerWatchHandler(
   if (eventType !== WatchEventType.Deleted) {
     return;
   }
-
-  const logId = uuidv4().substring(0, 8);
 
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
       !replicationController.spec.template.metadata || !replicationController.spec.template.spec) {
@@ -24,5 +21,5 @@ export async function replicationControllerWatchHandler(
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,
     ownerRefs: replicationController.metadata.ownerReferences,
-  }, logId);
+  });
 }

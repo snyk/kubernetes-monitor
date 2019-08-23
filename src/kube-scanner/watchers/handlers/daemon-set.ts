@@ -1,5 +1,4 @@
 import { V1DaemonSet } from '@kubernetes/client-node';
-import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
@@ -8,8 +7,6 @@ export async function daemonSetWatchHandler(eventType: string, daemonSet: V1Daem
   if (eventType !== WatchEventType.Deleted) {
     return;
   }
-
-  const logId = uuidv4().substring(0, 8);
 
   if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.metadata ||
       !daemonSet.spec.template.spec) {
@@ -23,5 +20,5 @@ export async function daemonSetWatchHandler(eventType: string, daemonSet: V1Daem
     specMeta: daemonSet.spec.template.metadata,
     containers: daemonSet.spec.template.spec.containers,
     ownerRefs: daemonSet.metadata.ownerReferences,
-  }, logId);
+  });
 }

@@ -1,5 +1,4 @@
 import { V1Deployment } from '@kubernetes/client-node';
-import * as uuidv4 from 'uuid/v4';
 import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
@@ -8,8 +7,6 @@ export async function deploymentWatchHandler(eventType: string, deployment: V1De
   if (eventType !== WatchEventType.Deleted) {
     return;
   }
-
-  const logId = uuidv4().substring(0, 8);
 
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
       !deployment.spec.template.spec) {
@@ -23,5 +20,5 @@ export async function deploymentWatchHandler(eventType: string, deployment: V1De
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,
     ownerRefs: deployment.metadata.ownerReferences,
-  }, logId);
+  });
 }

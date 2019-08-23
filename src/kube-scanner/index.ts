@@ -13,32 +13,32 @@ import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloa
 import { IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
 
 export = class WorkloadWorker {
-  private readonly logId: string;
+  private readonly workloadName: string;
 
-  constructor(logId: string) {
-    this.logId = logId;
+  constructor(workloadName: string) {
+    this.workloadName = workloadName;
   }
 
   public async process(workloadMetadata: IKubeImage[]) {
-    const logId = this.logId;
+    const workloadName = this.workloadName;
     const allImages = workloadMetadata.map((meta) => meta.imageName);
-    logger.info({logId, imageCount: allImages.length}, 'Queried workloads');
+    logger.info({workloadName, imageCount: allImages.length}, 'Queried workloads');
     const uniqueImages = [...new Set<string>(allImages)];
 
-    logger.info({logId, imageCount: uniqueImages.length}, 'Pulling unique images');
+    logger.info({workloadName, imageCount: uniqueImages.length}, 'Pulling unique images');
     const pulledImages = await pullImages(uniqueImages);
     if (pulledImages.length === 0) {
       logger.info({}, 'No images were pulled, halting scanner process.');
       return;
     }
 
-    logger.info({logId, imageCount: pulledImages.length}, 'Scanning pulled images');
+    logger.info({workloadName, imageCount: pulledImages.length}, 'Scanning pulled images');
     const scannedImages: ScanResult[] = await scanImages(pulledImages);
-    logger.info({logId, imageCount: scannedImages.length}, 'Successfully scanned images');
     if (scannedImages.length === 0) {
       logger.info({}, 'No images were scanned, halting scanner process.');
       return;
     }
+    logger.info({workloadName, imageCount: scannedImages.length}, 'Successfully scanned images');
 
     const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
     await sendDepGraph(...homebasePayloads);
@@ -46,12 +46,12 @@ export = class WorkloadWorker {
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.imageName));
 
-    logger.info({logId, imageCount: pulledImageMetadata.length}, 'Processed images');
+    logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'Processed images');
   }
 
   public async delete(localWorkloadLocator: ILocalWorkloadLocator) {
     const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
-    logger.info({logId: this.logId, workload: localWorkloadLocator},
+    logger.info({workloadName: this.workloadName, workload: localWorkloadLocator},
       'Removing workloads from homebase');
     await deleteHomebaseWorkload(deletePayload);
   }
