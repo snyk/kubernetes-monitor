@@ -11,6 +11,7 @@ import { scanImages, ScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
 import { IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
+import { remove } from '../images/docker';
 
 export = class WorkloadWorker {
   private readonly workloadName: string;
@@ -42,6 +43,19 @@ export = class WorkloadWorker {
 
     const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
     await sendDepGraph(...homebasePayloads);
+
+    logger.info({workloadName}, 'Deleting cached image');
+    for (const scannedImage of scannedImages) {
+      const prefix = scannedImage.image.indexOf('gcr.io') === -1
+        ? 'docker.io/library'
+        : '';
+      const imageName = `${prefix}/${scannedImage.image}`;
+      try {
+        await remove(imageName);
+      } catch (error) {
+        logger.warning({error, imageName}, 'could not delete scanned image');
+      }
+    }
 
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.imageName));

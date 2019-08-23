@@ -9,3 +9,12 @@ export function pull(image: string, userArgs?: string[]): Promise<SpawnPromiseRe
 
   return exec('podman', 'pull', ...args);
 }
+
+export function remove(image: string, userArgs?: string[]): Promise<SpawnPromiseResult> {
+  const args = [image];
+  if (userArgs) {
+    args.concat(userArgs);
+  }
+
+  return exec('podman', 'image', 'rm', ...args);
+}
