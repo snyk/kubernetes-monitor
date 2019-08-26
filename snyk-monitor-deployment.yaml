@@ -38,6 +38,18 @@ spec:
                 name: snyk-monitor
                 key: namespace
                 optional: true
+          - name: SNYK_INTEGRATION_API
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: integrationApi
+                optional: true
+          - name: SNYK_CLUSTER_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: clusterName
+                optional: true
       securityContext: {}
       volumes:
       - name: docker-socket-mount

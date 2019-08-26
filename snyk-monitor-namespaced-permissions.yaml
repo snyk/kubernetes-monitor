@@ -12,12 +12,14 @@ rules:
   - pods
   verbs:
   - list
+  - watch
 - apiGroups:
   - ""
   resources:
   - replicationcontrollers
   verbs:
   - get
+  - watch
 - apiGroups:
   - batch
   resources:
@@ -25,6 +27,7 @@ rules:
   - jobs
   verbs:
   - get
+  - watch
 - apiGroups:
   - apps
   resources:
@@ -34,6 +37,7 @@ rules:
   - statefulsets
   verbs:
   - get
+  - watch
 ---
 kind: ServiceAccount
 apiVersion: v1
@@ -65,4 +69,6 @@ metadata:
   namespace: snyk-monitor
 data:
   namespace: snyk-monitor
+  integrationApi: ""
+  clusterName: ""
 ---

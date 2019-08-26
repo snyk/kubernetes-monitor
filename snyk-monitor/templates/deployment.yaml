@@ -40,6 +40,10 @@ spec:
                 key: integrationId
           - name: SNYK_NAMESPACE
             value: {{ include "snyk-monitor.scope" . }}
+          - name: SNYK_INTEGRATION_API
+            value: {{ .Values.integrationApi }}
+          - name: SNYK_CLUSTER_NAME
+            value: {{ .Values.clusterName }}
       volumes:
         - name: docker-socket-mount
           hostPath:

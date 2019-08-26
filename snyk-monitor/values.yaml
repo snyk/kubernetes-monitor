@@ -11,11 +11,19 @@ monitorSecrets: snyk-monitor
 # Namespaced - creates a Role and RoleBinding with the ServiceAccount
 scope: Cluster
 
+# The endpoint that being used to transmit monitored information
+integrationApi: ""
+
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
   tag: latest
   pullPolicy: Always
+
+# The snyk-monitor requires knowing the cluster name so that it can organise
+# scanned workloads. The Kubernetes API does not provide an API to query this.
+# Set the name of the cluster, otherwise the snyk-monitor will set this to a default value.
+clusterName: ""
 
 # The path of the docker socket on the node. For PKS: /var/vcap/data/sys/run/docker/docker.sock
 dockerSocketHostPath: "/var/run/docker.sock"
