@@ -44,6 +44,13 @@ spec:
             value: {{ .Values.integrationApi }}
           - name: SNYK_CLUSTER_NAME
             value: {{ .Values.clusterName }}
+          resources:
+            requests:
+              cpu: '250m'
+              memory: '400Mi'
+            limits:
+              cpu: '1'
+              memory: '2Gi'
       volumes:
         - name: docker-socket-mount
           hostPath:

@@ -173,3 +173,15 @@ tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
     `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(homebaseDeleteTestResult, 'snyk-monitor sent deleted workload data to homebase in the expected timeframe');
 });
+
+tap.test(`snyk-monitor has resource limits`, async (t) => {
+  t.plan(5);
+  const snykMonitorDeployment = await setup.getDeloymentJson('snyk-monitor', 'snyk-monitor');
+  const monitorResources = snykMonitorDeployment.spec.template.spec.containers[0].resources;
+
+  t.ok(monitorResources !== undefined, 'snyk-monitor has resources');
+  t.ok(monitorResources.requests.cpu !== undefined, 'snyk-monitor has cpu resource request');
+  t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
+  t.ok(monitorResources.requests.cpu !== undefined, 'snyk-monitor has cpu resource request');
+  t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
+});
