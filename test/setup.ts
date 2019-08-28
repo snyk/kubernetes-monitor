@@ -142,6 +142,11 @@ export async function deleteDeployment(deploymentName: string, namespace: string
   console.log(`Deleted deployment ${deploymentName}!`);
 }
 
+export async function getDeloymentJson(deploymentName: string, namespace: string): Promise<any> {
+  const getDeploymentResult = await exec(`./kubectl get deployment ${deploymentName} -n ${namespace} -o json`);
+  return JSON.parse(getDeploymentResult.stdout);
+}
+
 function createTestYamlDeployment(newYamlPath: string, integrationId: string): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');

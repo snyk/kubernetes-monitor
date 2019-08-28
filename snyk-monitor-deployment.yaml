@@ -50,6 +50,13 @@ spec:
                 name: snyk-monitor
                 key: clusterName
                 optional: true
+        resources:
+          requests:
+            cpu: '250m'
+            memory: '400Mi'
+          limits:
+            cpu: '1'
+            memory: '2Gi'
       securityContext: {}
       volumes:
       - name: docker-socket-mount
