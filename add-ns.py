@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import yaml
 import sys
@@ -17,5 +17,5 @@ for manifest in yaml.load_all(sys.stdin):
             for subject in manifest['subjects']:
                 subject['namespace'] = sys.argv[1]
         
-        print '---'
-        print yaml.dump(manifest)
+        print('---')
+        print(yaml.dump(manifest))
