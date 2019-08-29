@@ -5,5 +5,5 @@ docker_build("snyk/kubernetes-monitor", ".",
   ]
 )
 
-k8s_yaml(local("helm template snyk-monitor"))
+k8s_yaml(local("helm template snyk-monitor | ./add-ns.py snyk-monitor"))
 watch_file("snyk-monitor")
