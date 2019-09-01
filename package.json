@@ -63,6 +63,7 @@
     "url": "https://github.com/snyk/kubernetes-monitor.git"
   },
   "release": {
+    "branch": "staging",
     "verifyConditions": [
       "@semantic-release/github"
     ],

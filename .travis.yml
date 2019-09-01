@@ -20,13 +20,6 @@ install:
 jobs:
   include:
 ######## PR TO STAGING ########
-##### <TEMPORARY> ######
-    # trigger a github release
-    - stage: publish-to-github
-      if: branch = staging AND type = pull_request
-      script: npx semantic-release -b staging
-      name: Publish to Github
-##### </TEMPORARY> ######
     # PR tests for staging branch
     - stage: Test-PR-staging
       if: branch = staging AND type = pull_request
@@ -41,7 +34,7 @@ jobs:
     # trigger a github release
     - stage: publish-to-github
       if: branch = staging AND type = push
-      script: npx semantic-release -b staging
+      script: npx semantic-release
       name: Publish to Github
     # building the product on staging branch after merging
     - stage: Build
@@ -60,9 +53,17 @@ jobs:
       if: branch = master AND type = push
       script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker pull snyk/kubernetes-monitor:test-approved && docker tag snyk/kubernetes-monitor:test-approved snyk/kubernetes-monitor:latest && docker push snyk/kubernetes-monitor:latest && ./scripts/slack-notify-push.sh latest
       name: publish the kubernetes-monitor (npm, container, helm)
+######################## TEMPORARY EXPERIMENTS ########################
+    - stage: publish-to-github
+      if: branch = ci_experiments AND type = push
+      script: npx semantic-release --branch ci_experiments
+      name: Publish to Github
+    - stage: derp
+      if: branch = ci_experiments AND type = push
+      script: cat ./package.json
+      name: derpi-derp
 branches:
   only:
    - master
    - staging
-env:
-  - 
+   - ci_experiments
