@@ -3,6 +3,7 @@
   "description": "Snyk kubernetes Monitioring Container",
   "main": "dist/index.js",
   "scripts": {
+    "pretest": "./scripts/build-image.sh",
     "test": "npm run lint && npm run test:unit && npm run test:integration",
     "test:unit": "./tap test/unit -R spec",
     "test:integration": "./tap test/integration -Rdot --timeout=600",
@@ -61,6 +62,7 @@
     "url": "https://github.com/snyk/kubernetes-monitor.git"
   },
   "release": {
+    "branch": "staging",
     "verifyConditions": [
       "@semantic-release/github"
     ],
