@@ -23,7 +23,7 @@ jobs:
 ##### <TEMPORARY> ######
     # trigger a github release
     - stage: publish-to-github
-      if: branch = staging AND type = push
+      if: branch = staging AND type = pull_request
       script: npx semantic-release -b staging
       name: Publish to Github
 ##### </TEMPORARY> ######
