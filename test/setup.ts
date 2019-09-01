@@ -98,13 +98,7 @@ async function exportKubeConfig(clusterName = 'kind'): Promise<void> {
   console.log('Exported K8s config!');
 }
 
-async function buildDockerImage(imageNameAndTag = 'snyk-k8s-monitor:test'): Promise<void> {
-  console.log('Building kubernetes-monitor Docker image...');
-  await exec(`docker build -t ${imageNameAndTag} --no-cache .`);
-  console.log('Built Docker image!');
-}
-
-async function loadImageInCluster(imageNameAndTag = 'snyk-k8s-monitor:test'): Promise<void> {
+async function loadImageInCluster(imageNameAndTag): Promise<void> {
   console.log(`Loading image ${imageNameAndTag} in cluster...`);
   await exec(`./kind load docker-image ${imageNameAndTag}`);
   console.log(`Loaded image ${imageNameAndTag}!`);
@@ -147,12 +141,12 @@ export async function getDeloymentJson(deploymentName: string, namespace: string
   return JSON.parse(getDeploymentResult.stdout);
 }
 
-function createTestYamlDeployment(newYamlPath: string, integrationId: string): void {
+function createTestYamlDeployment(newYamlPath: string, integrationId: string, imageNameAndTag: string): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
   const deployment = parse(originalDeploymentYaml);
 
-  deployment.spec.template.spec.containers[0].image = 'snyk-k8s-monitor:test';
+  deployment.spec.template.spec.containers[0].image = imageNameAndTag;
   deployment.spec.template.spec.containers[0].imagePullPolicy = 'Never';
 
   // This is important due to an odd bug when running on Travis.
@@ -241,6 +235,12 @@ async function cleanUpMonitorSetup(): Promise<void> {
 }
 
 Test.prototype.deployMonitor = async (): Promise<string> => {
+  let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
+  if (imageNameAndTag === undefined || imageNameAndTag === '') {
+    // the default, determined by ./script/build-image.sh
+    imageNameAndTag = 'snyk-k8s-monitor:local';
+  }
+
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
 
@@ -250,8 +250,7 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
   await createKindCluster();
   await exportKubeConfig();
 
-  await buildDockerImage();
-  await loadImageInCluster();
+  await loadImageInCluster(imageNameAndTag);
 
   const namespace = 'snyk-monitor';
   await createNamespace(namespace);
@@ -270,7 +269,7 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
   await createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace);
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId);
+  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);
 
   await applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await applyK8sYaml('./snyk-monitor-test-deployment.yaml');
