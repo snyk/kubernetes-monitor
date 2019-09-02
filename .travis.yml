@@ -37,7 +37,7 @@ jobs:
               IMAGE_NAME_CANDIDATE="snyk/kubernetes-monitor:${NEW_VERSION}-candidate" &&
               ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
               docker push ${IMAGE_NAME_CANDIDATE} &&
-              ./scripts/slack-notify-push.sh IMAGE_NAME_CANDIDATE &&
+              ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
               KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
               IMAGE_NAME_APPROVED="snyk/kubernetes-monitor:${NEW_VERSION}-approved" &&
               docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
@@ -70,7 +70,7 @@ jobs:
               IMAGE_NAME_CANDIDATE="snyk/kubernetes-monitor:${NEW_VERSION}-candidate" &&
               ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
               docker push ${IMAGE_NAME_CANDIDATE} &&
-              ./scripts/slack-notify-push.sh IMAGE_NAME_CANDIDATE &&
+              ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
               KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
               IMAGE_NAME_APPROVED="snyk/kubernetes-monitor:${NEW_VERSION}-approved" &&
               docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
