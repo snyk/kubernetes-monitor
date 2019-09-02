@@ -77,8 +77,17 @@ jobs:
               docker push ${IMAGE_NAME_APPROVED} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED}
       name: Test and Build
+    - stage: test-and-build
+      if: branch = ci_experiments2 AND type = push
+      script: echo ********************************* &&
+              echo travis commit ${TRAVIS_COMMIT} &&
+              echo message ${TRAVIS_COMMIT_MESSAGE} &&
+              echo range ${TRAVIS_COMMIT_RANGE} &&
+              echo *********************************
+      name: Test and Build
 branches:
   only:
    - master
    - staging
    - ci_experiments
+   - ci_experiments2
