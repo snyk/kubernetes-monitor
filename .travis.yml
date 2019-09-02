@@ -19,52 +19,64 @@ install:
   - npm install
 jobs:
   include:
-######## PR TO STAGING ########
+######################## PR TO STAGING ########################
     # PR tests for staging branch
     - stage: Test-PR-staging
       if: branch = staging AND type = pull_request
       script: npm run test
       name: kubernetes-monitor PR tests
-######## MERGE TO STAGING ########
-    # merge tests before building the product on staging branch
-    - stage: Test-Merge-staging
+######################## MERGE TO STAGING ########################
+    - stage: test-and-build
       if: branch = staging AND type = push
-      script: npm run test # TODO: only check linting, unittest
-      name: kubernetes-monitor merge initial tests
-    # trigger a github release
-    - stage: publish-to-github
-      if: branch = staging AND type = push
-      script: npx semantic-release
-      name: Publish to Github
-    # building the product on staging branch after merging
-    - stage: Build
-      if: branch = staging AND type = push
-      # we will need to change the tag to test-candidate, then use the image, then re-tag to test-approved
-      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker build -t snyk/kubernetes-monitor:test-approved --no-cache . && docker push snyk/kubernetes-monitor:test-approved && ./scripts/slack-notify-push.sh test-approved
-      name: build the kubernetes-monitor image
-      # TODO: run integration tests with the image we just built, then mark it as test-passed
-######## PR TO MASTER ########
+      script: npm run lint &&
+              npm run build &&
+              npm run test:unit &&
+              docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+              npx semantic-release &&
+              NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
+              IMAGE_NAME_CANDIDATE="snyk/kubernetes-monitor:${NEW_VERSION}-candidate" &&
+              ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+              docker push ${IMAGE_NAME_CANDIDATE} &&
+              ./scripts/slack-notify-push.sh IMAGE_NAME_CANDIDATE &&
+              KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
+              IMAGE_NAME_APPROVED="snyk/kubernetes-monitor:${NEW_VERSION}-approved" &&
+              docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
+              docker push ${IMAGE_NAME_APPROVED} &&
+              ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED}
+      name: Test and Build
+######################## PR TO MASTER ########################
     - stage: pre-publish
       if: branch = master AND type = pull_request AND head_branch = staging
       script: ./scripts/slack-notify-pr.sh
       name: pre-publish notification
-######## MERGE TO MASTER ########
+######################## MERGE TO MASTER ########################
     - stage: Publish
       if: branch = master AND type = push
-      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} && docker pull snyk/kubernetes-monitor:test-approved && docker tag snyk/kubernetes-monitor:test-approved snyk/kubernetes-monitor:latest && docker push snyk/kubernetes-monitor:latest && ./scripts/slack-notify-push.sh latest
+      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+              docker pull snyk/kubernetes-monitor:test-approved &&
+              docker tag snyk/kubernetes-monitor:test-approved snyk/kubernetes-monitor:latest &&
+              docker push snyk/kubernetes-monitor:latest &&
+              ./scripts/slack-notify-push.sh latest
       name: publish the kubernetes-monitor (npm, container, helm)
 ######################## TEMPORARY EXPERIMENTS ########################
-    - stage: ALLTHETHINGS
+    - stage: test-and-build
       if: branch = ci_experiments AND type = push
-      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+      script: npm run lint &&
+              npm run build &&
+              npm run test:unit &&
+              docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
               npx semantic-release --branch ci_experiments &&
-              EGG_VER=`cat ./package.json | jq -r '.version'` &&
-              EGG_NAME="snyk/kubernetes-monitor:${EGG_VER}-candidate" &&
-              ./scripts/build-image.sh ${EGG_NAME} &&
-              KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${EGG_NAME} npm run test:integration &&
-              docker tag ${EGG_NAME} "snyk/kubernetes-monitor:${EGG_VER}-approved" &&
-              docker push "snyk/kubernetes-monitor:${EGG_VER}-approved"
-      name: All the things!
+              NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
+              IMAGE_NAME_CANDIDATE="snyk/kubernetes-monitor:${NEW_VERSION}-candidate" &&
+              ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+              docker push ${IMAGE_NAME_CANDIDATE} &&
+              ./scripts/slack-notify-push.sh IMAGE_NAME_CANDIDATE &&
+              KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
+              IMAGE_NAME_APPROVED="snyk/kubernetes-monitor:${NEW_VERSION}-approved" &&
+              docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
+              docker push ${IMAGE_NAME_APPROVED} &&
+              ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED}
+      name: Test and Build
 branches:
   only:
    - master
