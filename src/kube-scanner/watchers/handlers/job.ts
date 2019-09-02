@@ -1,14 +1,9 @@
 import { V1Job } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
-import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
 
-export async function jobWatchHandler(eventType: string, job: V1Job) {
-  if (eventType !== WatchEventType.Deleted) {
-    return;
-  }
-
+export async function jobWatchHandler(job: V1Job) {
   const logId = uuidv4().substring(0, 8);
 
   if (!job.metadata || !job.spec || !job.spec.template.metadata || !job.spec.template.spec) {

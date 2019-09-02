@@ -1,14 +1,9 @@
 import { V1Deployment } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
-import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
 
-export async function deploymentWatchHandler(eventType: string, deployment: V1Deployment) {
-  if (eventType !== WatchEventType.Deleted) {
-    return;
-  }
-
+export async function deploymentWatchHandler(deployment: V1Deployment) {
   const logId = uuidv4().substring(0, 8);
 
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||

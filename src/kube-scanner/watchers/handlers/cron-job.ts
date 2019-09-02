@@ -1,14 +1,9 @@
 import { V1beta1CronJob } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
-import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
 
-export async function cronJobWatchHandler(eventType: string, cronJob: V1beta1CronJob) {
-  if (eventType !== WatchEventType.Deleted) {
-    return;
-  }
-
+export async function cronJobWatchHandler(cronJob: V1beta1CronJob) {
   const logId = uuidv4().substring(0, 8);
 
   if (!cronJob.metadata || !cronJob.spec || !cronJob.spec.jobTemplate.spec ||

@@ -1,14 +1,9 @@
 import { V1ReplicaSet } from '@kubernetes/client-node';
 import * as uuidv4 from 'uuid/v4';
-import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
 
-export async function replicaSetWatchHandler(eventType: string, replicaSet: V1ReplicaSet) {
-  if (eventType !== WatchEventType.Deleted) {
-    return;
-  }
-
+export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet) {
   const logId = uuidv4().substring(0, 8);
 
   if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
