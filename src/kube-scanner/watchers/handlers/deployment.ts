@@ -1,14 +1,9 @@
 import { V1Deployment } from '@kubernetes/client-node';
-import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
-export async function deploymentWatchHandler(eventType: string, deployment: V1Deployment) {
-  if (eventType !== WatchEventType.Deleted) {
-    return;
-  }
-
+export async function deploymentWatchHandler(deployment: V1Deployment) {
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
       !deployment.spec.template.spec) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!

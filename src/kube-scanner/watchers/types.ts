@@ -1,11 +1,3 @@
-export enum WatchEventType {
-  Added = 'ADDED',
-  Modified = 'MODIFIED',
-  Deleted = 'DELETED',
-  Bookmark = 'BOOKMARK',
-  Error = 'ERROR',
-}
-
 export enum PodPhase {
   // The pod has been accepted by the Kubernetes system, but one or more of the container images has not been created.
   Pending = 'Pending',
@@ -17,8 +9,4 @@ export enum PodPhase {
   Failed = 'Failed',
   // For some reason the state of the pod could not be obtained.
   Unknown = 'Unknown',
-}
-
-export interface ILooseObject {
-  [key: string]: any;
 }
