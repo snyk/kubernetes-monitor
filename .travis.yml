@@ -34,12 +34,12 @@ jobs:
               docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
               npx semantic-release &&
               NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-              IMAGE_NAME_CANDIDATE="snyk/kubernetes-monitor:${NEW_VERSION}-candidate" &&
+              IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${NEW_VERSION}-candidate &&
               ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
               docker push ${IMAGE_NAME_CANDIDATE} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
               KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
-              IMAGE_NAME_APPROVED="snyk/kubernetes-monitor:${NEW_VERSION}-approved" &&
+              IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${NEW_VERSION}-approved &&
               docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
               docker push ${IMAGE_NAME_APPROVED} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED}
@@ -67,12 +67,12 @@ jobs:
               docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
               npx semantic-release --branch ci_experiments &&
               NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-              IMAGE_NAME_CANDIDATE="snyk/kubernetes-monitor:${NEW_VERSION}-candidate" &&
+              IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${NEW_VERSION}-candidate &&
               ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
               docker push ${IMAGE_NAME_CANDIDATE} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
               KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
-              IMAGE_NAME_APPROVED="snyk/kubernetes-monitor:${NEW_VERSION}-approved" &&
+              IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${NEW_VERSION}-approved &&
               docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
               docker push ${IMAGE_NAME_APPROVED} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED}
