@@ -42,7 +42,8 @@ jobs:
               IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${NEW_VERSION}-approved &&
               docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
               docker push ${IMAGE_NAME_APPROVED} &&
-              ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED}
+              ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED} ||
+              ./scripts/slack-notify-failure.sh staging
       name: Test and Build
 ######################## PR TO MASTER ########################
     - stage: pre-publish
@@ -63,7 +64,8 @@ jobs:
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
               docker tag ${IMAGE_NAME_APPROVED} snyk/kubernetes-monitor:latest &&
               docker push ${IMAGE_NAME_PUBLISHED} &&
-              ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest
+              ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest ||
+              ./scripts/slack-notify-failure.sh master
       name: publish the kubernetes-monitor (npm, container, helm)
 branches:
   only:
