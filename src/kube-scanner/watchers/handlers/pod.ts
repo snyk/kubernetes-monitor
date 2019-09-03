@@ -1,6 +1,5 @@
 import { V1Pod } from '@kubernetes/client-node';
 import async = require('async');
-import * as uuidv4 from 'uuid/v4';
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
 import WorkloadWorker = require('../../../kube-scanner');
@@ -8,6 +7,7 @@ import { IKubeImage } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase, WatchEventType } from '../types';
 import state = require('../../../state');
+import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 async function queueWorker(task, callback) {
   const {workloadWorker, workloadMetadata, imageKeys} = task;
@@ -49,17 +49,18 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
     return;
   }
 
-  const logId = uuidv4().substring(0, 8);
+  const podName = pod.metadata && pod.metadata.name ? pod.metadata.name : FALSY_WORKLOAD_NAME_MARKER;
 
   try {
     const workloadMetadata = await buildMetadataForWorkload(pod);
 
     if (workloadMetadata === undefined || workloadMetadata.length === 0) {
-      logger.warn({logId, podName: pod.metadata!.name}, 'Could not process Pod. The workload is possibly unsupported');
+      logger.warn({podName}, 'Could not process Pod. The workload is possibly unsupported');
       return;
     }
 
-    const workloadWorker = new WorkloadWorker(logId);
+    const workloadName = workloadMetadata[0].name;
+    const workloadWorker = new WorkloadWorker(workloadName);
 
     switch (eventType) {
       case WatchEventType.Added:
@@ -76,7 +77,7 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
         break;
     }
   } catch (error) {
-    logger.error({error, logId, podName: pod.metadata!.name}, 'Could not build image metadata for pod');
+    logger.error({error, podName}, 'Could not build image metadata for pod');
   }
 }
 
