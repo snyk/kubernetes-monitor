@@ -38,6 +38,8 @@ tap.test('deploy snyk-monitor', async (t) => {
     try {
       // attempt to clean up ...
       await tearDown();
+    } catch (teardownError) {
+      // ignore cleanup errors
     } finally {
       // ... but make sure the test suite doesn't proceed if the setup failed
       process.exit(-1);
