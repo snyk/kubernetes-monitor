@@ -40,7 +40,8 @@ jobs:
       name: Test and Build
     - stage: tag-and-push
       if: branch = staging AND type = push
-      script: npx semantic-release &&
+      script: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+              npx semantic-release &&
               NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
               ./scripts/approve-image.sh $NEW_VERSION ||
               ( ./scripts/slack-notify-failure.sh "staging-release" && false )
