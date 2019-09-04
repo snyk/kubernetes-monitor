@@ -20,7 +20,6 @@ install:
 jobs:
   include:
 ######################## PR TO STAGING ########################
-    # PR tests for staging branch
     - stage: Test-PR-staging
       if: branch = staging AND type = pull_request
       script: npm run test
@@ -32,19 +31,20 @@ jobs:
               npm run build &&
               npm run test:unit &&
               docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-              npx semantic-release &&
-              NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-              IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${NEW_VERSION}-candidate &&
+              IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:staging-candidate &&
               ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
               docker push ${IMAGE_NAME_CANDIDATE} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
-              KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration &&
-              IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${NEW_VERSION}-approved &&
-              docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED} &&
-              docker push ${IMAGE_NAME_APPROVED} &&
-              ./scripts/slack-notify-push.sh ${IMAGE_NAME_APPROVED} ||
-              ./scripts/slack-notify-failure.sh staging
+              KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration ||
+              ( ./scripts/slack-notify-failure.sh "staging-test" && false )
       name: Test and Build
+    - stage: tag-and-push
+      if: branch = staging AND type = push
+      script: npx semantic-release &&
+              NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
+              ./scripts/approve-image.sh $NEW_VERSION ||
+              ( ./scripts/slack-notify-failure.sh "staging-release" && false )
+      name: Tag and Push
 ######################## PR TO MASTER ########################
     - stage: pre-publish
       if: branch = master AND type = pull_request AND head_branch = staging
@@ -65,7 +65,7 @@ jobs:
               docker tag ${IMAGE_NAME_APPROVED} snyk/kubernetes-monitor:latest &&
               docker push ${IMAGE_NAME_PUBLISHED} &&
               ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest ||
-              ./scripts/slack-notify-failure.sh master
+              ( ./scripts/slack-notify-failure.sh master && false )
       name: publish the kubernetes-monitor (npm, container, helm)
 branches:
   only:
