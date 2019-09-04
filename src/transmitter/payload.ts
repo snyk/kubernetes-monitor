@@ -1,10 +1,10 @@
 import config = require('../common/config');
 import { currentClusterName } from '../kube-scanner/cluster';
-import { ScanResult } from '../kube-scanner/image-scanner';
+import { IScanResult } from '../kube-scanner/image-scanner';
 import { IDeleteWorkloadPayload, IDepGraphPayload, IKubeImage, ILocalWorkloadLocator, IImageLocator } from './types';
 
 export function constructHomebaseWorkloadPayloads(
-    scannedImages: ScanResult[],
+    scannedImages: IScanResult[],
     workloadMetadata: IKubeImage[],
 ): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
