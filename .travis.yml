@@ -64,7 +64,7 @@ jobs:
               docker push ${IMAGE_NAME_PUBLISHED} &&
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
               docker tag ${IMAGE_NAME_APPROVED} snyk/kubernetes-monitor:latest &&
-              docker push ${IMAGE_NAME_PUBLISHED} &&
+              docker push snyk/kubernetes-monitor:latest &&
               ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest ||
               ( ./scripts/slack-notify-failure.sh master && false )
       name: publish the kubernetes-monitor (npm, container, helm)
