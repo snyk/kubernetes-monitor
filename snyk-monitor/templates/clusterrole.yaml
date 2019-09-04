@@ -14,6 +14,7 @@ rules:
   resources:
   - pods
   verbs:
+  - get
   - list
   - watch
 - apiGroups:
@@ -21,6 +22,8 @@ rules:
   resources:
   - namespaces
   verbs:
+  - get
+  - list
   - watch
 - apiGroups:
   - ""
@@ -28,6 +31,7 @@ rules:
   - replicationcontrollers
   verbs:
   - get
+  - list
   - watch
 - apiGroups:
   - batch
@@ -36,6 +40,7 @@ rules:
   - jobs
   verbs:
   - get
+  - list
   - watch
 - apiGroups:
   - apps
@@ -46,5 +51,6 @@ rules:
   - statefulsets
   verbs:
   - get
+  - list
   - watch
 {{- end }}
