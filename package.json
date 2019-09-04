@@ -37,7 +37,7 @@
     "child-process-promise": "^2.2.1",
     "compression": "^1.7.3",
     "express": "^4.16.4",
-    "kubernetes-client": "^8.1.2",
+    "kubernetes-client": "^8.3.4",
     "lru-cache": "^5.1.1",
     "needle": "^2.4.0",
     "response-time": "^2.3.2",
