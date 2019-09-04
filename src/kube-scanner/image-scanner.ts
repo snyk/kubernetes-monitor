@@ -1,7 +1,7 @@
 import * as plugin from 'snyk-docker-plugin';
 import logger = require('../common/logger');
 
-export interface ScanResult {
+export interface IScanResult {
   image: string;
   imageWithTag: string;
   pluginResult: any;
@@ -20,8 +20,8 @@ function getImageTag(imageWithTag: string): string {
   return '';
 }
 
-export async function scanImages(images: string[]): Promise<ScanResult[]> {
-  const scannedImages: ScanResult[] = [];
+export async function scanImages(images: string[]): Promise<IScanResult[]> {
+  const scannedImages: IScanResult[] = [];
 
   for (const image of images) {
     try {
