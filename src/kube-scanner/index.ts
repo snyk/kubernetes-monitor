@@ -7,7 +7,7 @@
  */
 import logger = require('../common/logger');
 import { pullImages } from '../images';
-import { scanImages, ScanResult } from './image-scanner';
+import { scanImages, IScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
 import { IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
@@ -33,7 +33,7 @@ export = class WorkloadWorker {
     }
 
     logger.info({workloadName, imageCount: pulledImages.length}, 'Scanning pulled images');
-    const scannedImages: ScanResult[] = await scanImages(pulledImages);
+    const scannedImages: IScanResult[] = await scanImages(pulledImages);
     logger.info({workloadName, imageCount: scannedImages.length}, 'Successfully scanned images');
     if (scannedImages.length === 0) {
       logger.info({}, 'No images were scanned, halting scanner process.');
