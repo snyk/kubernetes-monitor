@@ -5,7 +5,7 @@ import logger = require('../../../common/logger');
 import WorkloadWorker = require('../../../kube-scanner');
 import { IKubeImage } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
-import { PodPhase, WatchEventType } from '../types';
+import { PodPhase } from '../types';
 import state = require('../../../state');
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
@@ -43,9 +43,9 @@ async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: 
   }
 }
 
-export async function podWatchHandler(eventType: string, pod: V1Pod) {
+export async function podWatchHandler(pod: V1Pod) {
   // This tones down the number of scans whenever a Pod is about to be scheduled by K8s
-  if (eventType !== WatchEventType.Deleted && !isPodReady(pod)) {
+  if (!isPodReady(pod)) {
     return;
   }
 
@@ -61,21 +61,7 @@ export async function podWatchHandler(eventType: string, pod: V1Pod) {
 
     const workloadName = workloadMetadata[0].name;
     const workloadWorker = new WorkloadWorker(workloadName);
-
-    switch (eventType) {
-      case WatchEventType.Added:
-      case WatchEventType.Modified:
-        await handleReadyPod(workloadWorker, workloadMetadata);
-        break;
-      case WatchEventType.Error:
-        break;
-      case WatchEventType.Bookmark:
-        break;
-      case WatchEventType.Deleted:
-        break;
-      default:
-        break;
-    }
+    await handleReadyPod(workloadWorker, workloadMetadata);
   } catch (error) {
     logger.error({error, podName}, 'Could not build image metadata for pod');
   }

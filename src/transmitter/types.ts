@@ -17,7 +17,7 @@ export interface IWorkloadMetadata extends IWorkloadLocator {
   uid: string;
 }
 
-export interface IImageLocator extends IWorkloadMetadata {
+export interface IImageLocator extends IWorkloadLocator {
   imageId: string;
 }
 

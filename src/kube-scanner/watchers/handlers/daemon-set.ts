@@ -1,14 +1,9 @@
 import { V1DaemonSet } from '@kubernetes/client-node';
-import { WatchEventType } from '../types';
 import { deleteWorkload } from './index';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
-export async function daemonSetWatchHandler(eventType: string, daemonSet: V1DaemonSet) {
-  if (eventType !== WatchEventType.Deleted) {
-    return;
-  }
-
+export async function daemonSetWatchHandler(daemonSet: V1DaemonSet) {
   if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.metadata ||
       !daemonSet.spec.template.spec) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
