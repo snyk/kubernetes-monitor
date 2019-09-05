@@ -41,7 +41,7 @@
     "needle": "^2.4.0",
     "response-time": "^2.3.2",
     "snyk-config": "^2.2.0",
-    "snyk-docker-plugin": "^1.25.0",
+    "snyk-docker-plugin": "^1.30.1",
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
     "ws": "^7.0.0",
