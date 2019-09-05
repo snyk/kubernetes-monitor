@@ -10,7 +10,7 @@ import { pullImages } from '../images';
 import { scanImages, IScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
-import { IDepGraphPayload, IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
+import { IDepGraphPayload, IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 
 export = class WorkloadWorker {
   private readonly name: string;
@@ -19,7 +19,7 @@ export = class WorkloadWorker {
     this.name = name;
   }
 
-  public async process(workloadMetadata: IKubeImage[]) {
+  public async process(workloadMetadata: IWorkload[]) {
     const workloadName = this.name;
     const allImages = workloadMetadata.map((meta) => meta.imageName);
     logger.info({workloadName, imageCount: allImages.length}, 'Queried workloads');

@@ -18,7 +18,7 @@ tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is miss
     },
   ];
 
-  const workloadMetadata: transmitterTypes.IKubeImage[] = [
+  const workloadMetadata: transmitterTypes.IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',
@@ -48,7 +48,7 @@ tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
     },
   ];
 
-  const workloadMetadata: transmitterTypes.IKubeImage[] = [
+  const workloadMetadata: transmitterTypes.IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',
