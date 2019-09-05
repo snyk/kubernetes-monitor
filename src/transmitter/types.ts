@@ -32,15 +32,15 @@ export interface IDeleteWorkloadPayload {
   agentId: string;
 }
 
-export interface IKubeImage {
+export interface IWorkload {
   type: string;
   name: string;
   namespace: string;
   labels: StringMap | undefined;
-  annotations: StringMap  | undefined;
+  annotations: StringMap | undefined;
   uid: string;
-  specLabels: StringMap  | undefined;
-  specAnnotations: StringMap  | undefined;
+  specLabels: StringMap | undefined;
+  specAnnotations: StringMap | undefined;
   containerName: string;
   imageName: string;
   imageId: string;
