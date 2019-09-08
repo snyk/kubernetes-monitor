@@ -36,7 +36,7 @@ tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is miss
   ];
 
   t.throws(() => payload.constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata),
-  'extractNamespaceName throws on undefined name');
+    'constructHomebaseWorkloadPayloads throws when workloadMetadata is missing items from scannedImages');
 });
 
 tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
