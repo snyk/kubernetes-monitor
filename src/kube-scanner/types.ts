@@ -18,6 +18,7 @@ export interface KubeObjectMetadata {
   specMeta: V1ObjectMeta;
   containers: V1Container[];
   ownerRefs: V1OwnerReference[] | undefined;
+  revision?: number;
 }
 
 export interface IK8sClients {

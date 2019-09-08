@@ -32,6 +32,7 @@ tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is miss
       imageName: 'myImage',
       imageId: 'does this matter?',
       cluster: 'grapefruit',
+      revision: undefined,
     },
   ];
 
@@ -62,6 +63,7 @@ tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
       imageName: 'myImage:tag',
       imageId: 'does this matter?',
       cluster: 'grapefruit',
+      revision: 1,
     },
   ];
 

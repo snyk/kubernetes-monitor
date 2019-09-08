@@ -13,7 +13,7 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
   const deployment = deploymentResult.body;
 
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
-      !deployment.spec.template.spec) {
+      !deployment.spec.template.spec || !deployment.status) {
     // TODO(ivanstanev): add logging to know when/if it happens!
     return undefined;
   }
@@ -24,6 +24,7 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,
     ownerRefs: deployment.metadata.ownerReferences,
+    revision: deployment.status.observedGeneration,
   };
 };
 
@@ -33,7 +34,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
   const replicaSet = replicaSetResult.body;
 
   if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
-      !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec) {
+      !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec || !replicaSet.status) {
     // TODO(ivanstanev): add logging to know when/if it happens!
     return undefined;
   }
@@ -44,6 +45,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     specMeta: replicaSet.spec.template.metadata,
     containers: replicaSet.spec.template.spec.containers,
     ownerRefs: replicaSet.metadata.ownerReferences,
+    revision: replicaSet.status.observedGeneration,
   };
 };
 
@@ -53,7 +55,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
   const statefulSet = statefulSetResult.body;
 
   if (!statefulSet.metadata || !statefulSet.spec || !statefulSet.spec.template.metadata ||
-      !statefulSet.spec.template.spec) {
+      !statefulSet.spec.template.spec || !statefulSet.status) {
     // TODO(ivanstanev): add logging to know when/if it happens!
     return undefined;
   }
@@ -64,6 +66,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
     specMeta: statefulSet.spec.template.metadata,
     containers: statefulSet.spec.template.spec.containers,
     ownerRefs: statefulSet.metadata.ownerReferences,
+    revision: statefulSet.status.observedGeneration,
   };
 };
 
@@ -73,7 +76,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
   const daemonSet = daemonSetResult.body;
 
   if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.spec ||
-      !daemonSet.spec.template.metadata) {
+      !daemonSet.spec.template.metadata || !daemonSet.status) {
     // TODO(ivanstanev): add logging to know when/if it happens!
     return undefined;
   }
@@ -84,6 +87,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
     specMeta: daemonSet.spec.template.metadata,
     containers: daemonSet.spec.template.spec.containers,
     ownerRefs: daemonSet.metadata.ownerReferences,
+    revision: daemonSet.status.observedGeneration,
   };
 };
 
@@ -135,7 +139,8 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
   const replicationController = replicationControllerResult.body;
 
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
-      !replicationController.spec.template.metadata || !replicationController.spec.template.spec) {
+      !replicationController.spec.template.metadata || !replicationController.spec.template.spec ||
+      !replicationController.status) {
     // TODO(ivanstanev): add logging to know when/if it happens!
     return undefined;
   }
@@ -146,6 +151,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,
     ownerRefs: replicationController.metadata.ownerReferences,
+    revision: replicationController.status.observedGeneration,
   };
 };
 

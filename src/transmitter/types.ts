@@ -39,6 +39,7 @@ export interface IWorkload {
   labels: StringMap | undefined;
   annotations: StringMap | undefined;
   uid: string;
+  revision: number | undefined;
   specLabels: StringMap | undefined;
   specAnnotations: StringMap | undefined;
   containerName: string;

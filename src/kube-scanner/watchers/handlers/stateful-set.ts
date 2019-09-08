@@ -5,7 +5,7 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 export async function statefulSetWatchHandler(statefulSet: V1StatefulSet) {
   if (!statefulSet.metadata || !statefulSet.spec || !statefulSet.spec.template.metadata ||
-      !statefulSet.spec.template.spec) {
+      !statefulSet.spec.template.spec || !statefulSet.status) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
@@ -18,5 +18,6 @@ export async function statefulSetWatchHandler(statefulSet: V1StatefulSet) {
     specMeta: statefulSet.spec.template.metadata,
     containers: statefulSet.spec.template.spec.containers,
     ownerRefs: statefulSet.metadata.ownerReferences,
+    revision: statefulSet.status.observedGeneration,
   }, workloadName);
 }

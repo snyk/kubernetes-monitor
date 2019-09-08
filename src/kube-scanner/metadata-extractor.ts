@@ -13,7 +13,7 @@ export function buildImageMetadata(
   workloadMeta: KubeObjectMetadata,
   containerStatuses: V1ContainerStatus[],
   ): IWorkload[] {
-  const { kind, objectMeta, specMeta, containers } = workloadMeta;
+  const { kind, objectMeta, specMeta, containers, revision } = workloadMeta;
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
   const containerNameToSpec: {[key: string]: V1Container} = {};
@@ -39,6 +39,7 @@ export function buildImageMetadata(
       imageName: containerNameToSpec[containerName].image,
       imageId: containerNameToStatus[containerName].imageID,
       cluster: currentClusterName,
+      revision,
     } as IWorkload),
   );
   return images;
