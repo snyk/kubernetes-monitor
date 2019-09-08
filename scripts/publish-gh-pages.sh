@@ -18,7 +18,7 @@ then
 fi
 
 echo overriding new yaml / chart files from master branch
-git checkout origin/chore/publish_gh_pages -- snyk-monitor snyk-monitor-cluster-permissions.yaml snyk-monitor-deployment.yaml snyk-monitor-namespaced-permissions.yaml
+git checkout origin/master -- snyk-monitor snyk-monitor-cluster-permissions.yaml snyk-monitor-deployment.yaml snyk-monitor-namespaced-permissions.yaml
 
 echo overriding tag placeholders with latest semantic version
 sed -i "s/{{IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING}}/${NEW_TAG}/g" ./snyk-monitor/values.yaml
