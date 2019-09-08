@@ -16,6 +16,8 @@ node_js:
 before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 install:
+  - git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  - git fetch --unshallow --tags
   - npm install
 jobs:
   include:
@@ -65,7 +67,8 @@ jobs:
               ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
               docker tag ${IMAGE_NAME_APPROVED} snyk/kubernetes-monitor:latest &&
               docker push snyk/kubernetes-monitor:latest &&
-              ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest ||
+              ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest &&
+              ./scripts/publish-gh-pages.sh ${LATEST_TAG} ||
               ( ./scripts/slack-notify-failure.sh master && false )
       name: publish the kubernetes-monitor (npm, container, helm)
 branches:
