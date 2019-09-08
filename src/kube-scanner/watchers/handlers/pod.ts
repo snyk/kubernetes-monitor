@@ -3,7 +3,7 @@ import async = require('async');
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
 import WorkloadWorker = require('../../../kube-scanner');
-import { IKubeImage } from '../../../transmitter/types';
+import { IWorkload } from '../../../transmitter/types';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
 import state = require('../../../state');
@@ -25,8 +25,8 @@ workloadsToScanQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload in the pod handler 1');
 });
 
-async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IKubeImage[]) {
-  const imagesToScan: IKubeImage[] = [];
+async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]) {
+  const imagesToScan: IWorkload[] = [];
   const imageKeys: string[] = [];
   for (const image of workloadMetadata) {
     const imageKey = `${image.namespace}/${image.type}/${image.name}/${image.imageId}`;

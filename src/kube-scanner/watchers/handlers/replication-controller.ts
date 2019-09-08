@@ -5,7 +5,8 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 export async function replicationControllerWatchHandler(replicationController: V1ReplicationController) {
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
-      !replicationController.spec.template.metadata || !replicationController.spec.template.spec) {
+      !replicationController.spec.template.metadata || !replicationController.spec.template.spec ||
+      !replicationController.status) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
@@ -18,5 +19,6 @@ export async function replicationControllerWatchHandler(replicationController: V
     specMeta: replicationController.spec.template.metadata,
     containers: replicationController.spec.template.spec.containers,
     ownerRefs: replicationController.metadata.ownerReferences,
+    revision: replicationController.status.observedGeneration,
   }, workloadName);
 }

@@ -1,5 +1,5 @@
 import { V1OwnerReference, V1Pod, V1Container, V1ContainerStatus } from '@kubernetes/client-node';
-import { IKubeImage, ILocalWorkloadLocator } from '../transmitter/types';
+import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { KubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
@@ -12,8 +12,8 @@ const loopingThreshold = 20;
 export function buildImageMetadata(
   workloadMeta: KubeObjectMetadata,
   containerStatuses: V1ContainerStatus[],
-  ): IKubeImage[] {
-  const { kind, objectMeta, specMeta, containers } = workloadMeta;
+  ): IWorkload[] {
+  const { kind, objectMeta, specMeta, containers, revision } = workloadMeta;
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
   const containerNameToSpec: {[key: string]: V1Container} = {};
@@ -39,7 +39,8 @@ export function buildImageMetadata(
       imageName: containerNameToSpec[containerName].image,
       imageId: containerNameToStatus[containerName].imageID,
       cluster: currentClusterName,
-    } as IKubeImage),
+      revision,
+    } as IWorkload),
   );
   return images;
 }
@@ -88,7 +89,7 @@ export function buildWorkloadMetadata(kubernetesMetadata: KubeObjectMetadata): I
   };
 }
 
-export async function buildMetadataForWorkload(pod: V1Pod): Promise<IKubeImage[] | undefined> {
+export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] | undefined> {
   const isAssociatedWithParent = isPodAssociatedWithParent(pod);
 
   if (!pod.metadata || pod.metadata.namespace === undefined || !pod.spec) {
