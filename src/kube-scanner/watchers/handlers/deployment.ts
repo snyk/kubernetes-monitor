@@ -5,7 +5,7 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 export async function deploymentWatchHandler(deployment: V1Deployment) {
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
-      !deployment.spec.template.spec) {
+      !deployment.spec.template.spec || !deployment.status) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
@@ -18,5 +18,6 @@ export async function deploymentWatchHandler(deployment: V1Deployment) {
     specMeta: deployment.spec.template.metadata,
     containers: deployment.spec.template.spec.containers,
     ownerRefs: deployment.metadata.ownerReferences,
+    revision: deployment.status.observedGeneration,
   }, workloadName);
 }

@@ -18,7 +18,7 @@ tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is miss
     },
   ];
 
-  const workloadMetadata: transmitterTypes.IKubeImage[] = [
+  const workloadMetadata: transmitterTypes.IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',
@@ -32,11 +32,12 @@ tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is miss
       imageName: 'myImage',
       imageId: 'does this matter?',
       cluster: 'grapefruit',
+      revision: undefined,
     },
   ];
 
   t.throws(() => payload.constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata),
-  'extractNamespaceName throws on undefined name');
+    'constructHomebaseWorkloadPayloads throws when workloadMetadata is missing items from scannedImages');
 });
 
 tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
@@ -48,7 +49,7 @@ tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
     },
   ];
 
-  const workloadMetadata: transmitterTypes.IKubeImage[] = [
+  const workloadMetadata: transmitterTypes.IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',
@@ -62,6 +63,7 @@ tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
       imageName: 'myImage:tag',
       imageId: 'does this matter?',
       cluster: 'grapefruit',
+      revision: 1,
     },
   ];
 

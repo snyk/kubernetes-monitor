@@ -1,16 +1,16 @@
 import config = require('../common/config');
 import { currentClusterName } from '../kube-scanner/cluster';
 import { IScanResult } from '../kube-scanner/image-scanner';
-import { IDeleteWorkloadPayload, IDepGraphPayload, IKubeImage, ILocalWorkloadLocator, IImageLocator } from './types';
+import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkload, ILocalWorkloadLocator, IImageLocator } from './types';
 
 export function constructHomebaseWorkloadPayloads(
     scannedImages: IScanResult[],
-    workloadMetadata: IKubeImage[],
+    workloadMetadata: IWorkload[],
 ): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
-    const kubeImage: IKubeImage = workloadMetadata.find((meta) => meta.imageName === scannedImage.imageWithTag)!;
+    const kubeWorkload: IWorkload = workloadMetadata.find((meta) => meta.imageName === scannedImage.imageWithTag)!;
 
-    const { cluster, namespace, type, name } = kubeImage;
+    const { cluster, namespace, type, name } = kubeWorkload;
 
     const imageLocator: IImageLocator = {
       userLocator: config.INTEGRATION_ID,
