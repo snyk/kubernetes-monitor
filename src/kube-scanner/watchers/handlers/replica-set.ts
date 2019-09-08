@@ -5,7 +5,7 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet) {
   if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
-      !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec) {
+      !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec || !replicaSet.status) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
@@ -18,5 +18,6 @@ export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet) {
     specMeta: replicaSet.spec.template.metadata,
     containers: replicaSet.spec.template.spec.containers,
     ownerRefs: replicaSet.metadata.ownerReferences,
+    revision: replicaSet.status.observedGeneration,
   }, workloadName);
 }
