@@ -44,7 +44,7 @@
     "snyk-docker-plugin": "^1.25.0",
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
-    "ws": "^7.0.0",
+    "ws": "^7.1.2",
     "yaml": "^1.6.0"
   },
   "devDependencies": {
