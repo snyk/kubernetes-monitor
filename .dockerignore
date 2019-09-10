@@ -10,6 +10,7 @@ node_modules/
 coverage/
 .nyc_output/
 .idea/
+.circleci/
 npm-debug.log
 newrelic_agent.log
 
