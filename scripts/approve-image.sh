@@ -8,7 +8,7 @@ if [ $1 == "null" ]; then
   echo Semantic-Release did not create a new version, not pushing a new approved image
   ./scripts/slack-notify-success-no-release.sh
 else
-  IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:staging-candidate
+  IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:staging-candidate-${CIRCLE_SHA1}
   IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${1}-approved
 
   docker pull ${IMAGE_NAME_CANDIDATE}
