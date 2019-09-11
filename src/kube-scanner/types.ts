@@ -12,6 +12,16 @@ export enum WorkloadKind {
   Pod = 'Pod',
 }
 
+export interface ISkopeoTargets {
+  source: string;
+  destination: string;
+}
+
+/**
+ * https://github.com/containers/skopeo
+ */
+export type SkopeoRepositoryType = 'docker' | 'docker-archive' | 'dir' | 'oci';
+
 export interface KubeObjectMetadata {
   kind: string;
   objectMeta: V1ObjectMeta;

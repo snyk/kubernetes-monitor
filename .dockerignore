@@ -4,9 +4,11 @@
 .git*
 Dockerfile
 node_modules
+dist
 
 config.local.json
 node_modules/
+dist/
 coverage/
 .nyc_output/
 .idea/
