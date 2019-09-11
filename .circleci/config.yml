@@ -37,7 +37,7 @@ jobs:
             npm run build &&
             npm run test:unit &&
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:staging-candidate &&
+            IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:staging-candidate-${CIRCLE_SHA1} &&
             ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
             docker push ${IMAGE_NAME_CANDIDATE} &&
             ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
