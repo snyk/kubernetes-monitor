@@ -84,3 +84,15 @@ data:
   integrationApi: ""
   clusterName: ""
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: snyk-monitor
+  namespace: snyk-monitor
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---

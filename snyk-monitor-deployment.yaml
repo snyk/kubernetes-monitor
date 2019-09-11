@@ -26,6 +26,8 @@ spec:
         - name: docker-config
           readOnly: true
           mountPath: "/root/.docker"
+        - name: temporary-storage
+          mountPath: "/snyk-monitor"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -69,4 +71,7 @@ spec:
           items:
             - key: dockercfg.json
               path: config.json
+      - name: temporary-storage
+        persistentVolumeClaim:
+          claimName: snyk-monitor
       serviceAccountName: snyk-monitor
