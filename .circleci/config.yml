@@ -55,6 +55,10 @@ jobs:
           command: |
             npm install &&
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+            unset CIRCLE_PULL_REQUEST &&
+            unset CI_PULL_REQUEST &&
+            unset CI_PULL_REQUESTS &&
+            unset CIRCLE_PULL_REQUESTS &&
             npx semantic-release &&
             NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
             ./scripts/approve-image.sh $NEW_VERSION ||
