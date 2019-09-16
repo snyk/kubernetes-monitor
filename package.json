@@ -40,7 +40,7 @@
     "lru-cache": "^5.1.1",
     "needle": "^2.4.0",
     "response-time": "^2.3.2",
-    "snyk-config": "^2.2.0",
+    "snyk-config": "^2.2.3",
     "snyk-docker-plugin": "^1.25.0",
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
