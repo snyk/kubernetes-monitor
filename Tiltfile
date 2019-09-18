@@ -6,6 +6,7 @@ docker_build("snyk/kubernetes-monitor", ".",
   entrypoint="bin/start-tilt"
 )
 
+allow_k8s_contexts(['minikube', 'kubernetes-admin@kind'])
 k8s_yaml(local("helm template snyk-monitor | ./add-ns.py snyk-monitor"))
 k8s_resource('snyk-monitor', port_forwards='9229:9229')
 watch_file("snyk-monitor")
