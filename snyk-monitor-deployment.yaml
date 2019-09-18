@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:{{IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING}}
+      - image: snyk/kubernetes-monitor:IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
