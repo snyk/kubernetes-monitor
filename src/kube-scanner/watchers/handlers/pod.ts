@@ -3,7 +3,9 @@ import async = require('async');
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
 import WorkloadWorker = require('../../../kube-scanner');
+import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
+import { constructHomebaseWorkloadMetadataPayload } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
 import state = require('../../../state');
@@ -59,7 +61,11 @@ export async function podWatchHandler(pod: V1Pod) {
       return;
     }
 
-    const workloadName = workloadMetadata[0].name;
+    // every element contains the workload information, so we can get it from the first one
+    const workloadMember = workloadMetadata[0];
+    const workloadMetadataPayload = constructHomebaseWorkloadMetadataPayload(workloadMember);
+    sendWorkloadMetadata(workloadMetadataPayload);
+    const workloadName = workloadMember.name;
     const workloadWorker = new WorkloadWorker(workloadName);
     await handleReadyPod(workloadWorker, workloadMetadata);
   } catch (error) {
