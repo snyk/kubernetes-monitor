@@ -11,10 +11,12 @@ export interface IWorkloadLocator extends ILocalWorkloadLocator {
   cluster: string;
 }
 
-export interface IWorkloadMetadata extends IWorkloadLocator {
+export interface IWorkloadMetadata {
   labels: StringMap | undefined;
+  specLabels: StringMap | undefined;
   annotations: StringMap | undefined;
-  uid: string;
+  specAnnotations: StringMap | undefined;
+  revision: number | undefined;
 }
 
 export interface IImageLocator extends IWorkloadLocator {
