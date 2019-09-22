@@ -5,7 +5,7 @@ import setup = require('../setup'); // Must be located before 'tap' import
 // tslint:disable-next-line: ordered-imports
 import * as tap from 'tap';
 import * as config from '../../src/common/config';
-import { IWorkloadLocator } from '../../src/transmitter/types';
+import { IWorkloadLocator, IWorkloadMetadata } from '../../src/transmitter/types';
 import { getKindConfigPath } from '../helpers/kind';
 import { WorkloadKind } from '../../src/kube-scanner/types';
 
@@ -14,6 +14,7 @@ const toneDownFactor = 5;
 const maxPodChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
 
 type WorkloadLocatorValidator = (workloads: IWorkloadLocator[] | undefined) => boolean;
+type WorkloadMetadataValidator = (workloadInfo: IWorkloadMetadata | undefined) => boolean;
 
 async function tearDown() {
   console.log('Begin removing the snyk-monitor...');
@@ -75,11 +76,26 @@ tap.test('snyk-monitor container started', async (t) => {
 async function validateHomebaseStoredData(
   validatorFn: WorkloadLocatorValidator, relativeUrl: string, remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
-  // TODO: consider if we're OK to expose this publicly?
   while (remainingChecks > 0) {
     const responseBody = await getHomebaseResponseBody(relativeUrl);
     const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
     const result = validatorFn(workloads);
+    if (result) {
+      return true;
+    }
+    await sleep(1000 * toneDownFactor);
+    remainingChecks--;
+  }
+  return false;
+}
+
+async function validateHomebaseStoredMetadata(
+  validatorFn: WorkloadMetadataValidator, relativeUrl: string, remainingChecks: number = maxPodChecks,
+): Promise<boolean> {
+  while (remainingChecks > 0) {
+    const responseBody = await getHomebaseResponseBody(relativeUrl);
+    const workloadInfo: IWorkloadMetadata | undefined = responseBody.workloadInfo;
+    const result = validatorFn(workloadInfo);
     if (result) {
       return true;
     }
@@ -97,7 +113,7 @@ async function getHomebaseResponseBody(relativeUrl: string): Promise<any> {
 }
 
 tap.test('snyk-monitor sends data to homebase', async (t) => {
-  t.plan(1);
+  t.plan(2);
 
   console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
 
@@ -113,10 +129,18 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
+  const metaValidator: WorkloadMetadataValidator = (workloadInfo) => {
+    return workloadInfo !== undefined && 'revision' in workloadInfo && 'labels' in workloadInfo &&
+      'specLabels' in workloadInfo && 'annotations' in workloadInfo && 'specAnnotations' in workloadInfo;
+  };
+
   // We don't want to spam Homebase with requests; do it infrequently
-  const homebaseTestResult = await validateHomebaseStoredData(
+  const homebaseDepGraphTestResult = await validateHomebaseStoredData(
     validatorFn, `api/v2/workloads/${integrationId}/Default cluster/services`);
-  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+  t.ok(homebaseDepGraphTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+  const homebaseWorkloadMetadataResult = await validateHomebaseStoredMetadata(metaValidator,
+    `api/v1/workload/${integrationId}/Default cluster/services/Deployment/redis`);
+  t.ok(homebaseWorkloadMetadataResult, 'snyk-monitor sent expected metadata in the expected timeframe');
 });
 
 tap.test('snyk-monitor sends correct data to homebase after adding another deployment', async (t) => {

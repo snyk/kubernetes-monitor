@@ -29,6 +29,12 @@ export interface IDepGraphPayload {
   dependencyGraph?: any;
 }
 
+export interface IWorkloadMetadataPayload {
+  workloadLocator: IWorkloadLocator;
+  agentId: string;
+  workloadMetadata: IWorkloadMetadata;
+}
+
 export interface IDeleteWorkloadPayload {
   workloadLocator: IWorkloadLocator;
   agentId: string;
