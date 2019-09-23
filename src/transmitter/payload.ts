@@ -12,7 +12,7 @@ import {
   IWorkloadLocator,
 } from './types';
 
-export function constructHomebaseWorkloadPayloads(
+export function constructHomebaseDepGraphPayloads(
     scannedImages: IScanResult[],
     workloadMetadata: IWorkload[],
 ): IDepGraphPayload[] {

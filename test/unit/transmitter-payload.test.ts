@@ -4,7 +4,7 @@ import imageScanner = require('../../src/kube-scanner/image-scanner');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
 
-tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is missing items', async (t) => {
+tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is missing items', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
     {
       image: 'myImage',
@@ -36,11 +36,11 @@ tap.test('constructHomebaseWorkloadPayloads breaks when workloadMetadata is miss
     },
   ];
 
-  t.throws(() => payload.constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata),
-    'constructHomebaseWorkloadPayloads throws when workloadMetadata is missing items from scannedImages');
+  t.throws(() => payload.constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata),
+    'constructHomebaseDepGraphPayloads throws when workloadMetadata is missing items from scannedImages');
 });
 
-tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
+tap.test('constructHomebaseDepGraphPayloads happy flow', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
     {
       image: 'myImage',
@@ -67,7 +67,7 @@ tap.test('constructHomebaseWorkloadPayloads happy flow', async (t) => {
     },
   ];
 
-  const payloads = payload.constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
+  const payloads = payload.constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
 
   t.equals(payloads.length, 1, 'one payload to send to Homebase');
   t.equals(payloads[0].dependencyGraph, JSON.stringify('whatever1'), 'dependency graph present in payload');
