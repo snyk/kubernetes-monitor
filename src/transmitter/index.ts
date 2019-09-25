@@ -1,7 +1,7 @@
 import needle = require('needle');
 import * as config from '../common/config';
 import logger = require('../common/logger');
-import { IDeleteWorkloadPayload, IDepGraphPayload } from './types';
+import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload } from './types';
 
 const homebaseUrl = config.INTEGRATION_API || config.DEFAULT_HOMEBASE_URL;
 
@@ -25,6 +25,22 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
       logger.error({error}, 'Could not send the dependency scan result to Homebase');
     }
   }
+}
+
+export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload) {
+    try {
+      const result = await needle('post', `${homebaseUrl}/api/v1/workload`, payload, {
+          json: true,
+          compressed: true,
+        },
+      );
+
+      if (!isSuccessStatusCode(result.statusCode)) {
+        throw new Error(`${result.statusCode} ${result.statusMessage}`);
+      }
+    } catch (error) {
+      logger.error({error}, 'Could not send workload metadata to Homebase');
+    }
 }
 
 export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload) {

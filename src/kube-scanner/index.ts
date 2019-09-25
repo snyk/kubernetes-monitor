@@ -9,7 +9,7 @@ import logger = require('../common/logger');
 import { pullImages } from '../images';
 import { scanImages, IScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
-import { constructHomebaseDeleteWorkloadPayload, constructHomebaseWorkloadPayloads } from '../transmitter/payload';
+import { constructHomebaseDeleteWorkloadPayload, constructHomebaseDepGraphPayloads } from '../transmitter/payload';
 import { IDepGraphPayload, IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 
 export = class WorkloadWorker {
@@ -40,8 +40,8 @@ export = class WorkloadWorker {
       return;
     }
 
-    const homebasePayloads: IDepGraphPayload[] = constructHomebaseWorkloadPayloads(scannedImages, workloadMetadata);
-    await sendDepGraph(...homebasePayloads);
+    const depGraphPayloads: IDepGraphPayload[] = constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
+    await sendDepGraph(...depGraphPayloads);
 
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.imageName));
