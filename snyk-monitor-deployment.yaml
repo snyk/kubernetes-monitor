@@ -26,6 +26,8 @@ spec:
         - name: docker-config
           readOnly: true
           mountPath: "/root/.docker"
+        - name: temporary-storage
+          mountPath: "/snyk-monitor"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -50,6 +52,12 @@ spec:
                 name: snyk-monitor
                 key: clusterName
                 optional: true
+          - name: SNYK_STATIC_ANALYSIS
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: staticAnalysis
+                optional: true
         resources:
           requests:
             cpu: '250m'
@@ -69,4 +77,7 @@ spec:
           items:
             - key: dockercfg.json
               path: config.json
+      - name: temporary-storage
+        emptyDir:
+          sizeLimit: 20Gi
       serviceAccountName: snyk-monitor
