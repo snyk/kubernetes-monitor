@@ -30,7 +30,7 @@
     "@types/node": "^10.12.5",
     "@types/raven": "^2.5.1",
     "@types/request": "^2.48.1",
-    "@types/response-time": "^2.3.3",
+    "@types/response-time": "^2.3.4",
     "async": "^2.6.2",
     "body-parser": "^1.18.3",
     "bunyan": "^1.8.12",
