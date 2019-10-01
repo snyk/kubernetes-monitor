@@ -12,6 +12,25 @@ export enum WorkloadKind {
   Pod = 'Pod',
 }
 
+/**
+ * https://github.com/containers/skopeo
+ */
+export enum SkopeoRepositoryType {
+  DockerArchive = 'docker-archive',
+  OciArchive = 'oci',
+  ImageRegistry = 'docker',
+  Directory = 'dir', // Note, skopeo marks this as a non-standard format
+}
+
+export enum StaticAnalysisImageType {
+  DockerArchive = 'docker-archive',
+}
+
+export interface IStaticAnalysisOptions {
+  imagePath: string;
+  imageType: StaticAnalysisImageType;
+}
+
 export interface KubeObjectMetadata {
   kind: string;
   objectMeta: V1ObjectMeta;
