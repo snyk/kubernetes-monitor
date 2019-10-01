@@ -6,7 +6,7 @@
  * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
  */
 import logger = require('../common/logger');
-import { pullImages } from '../images';
+import { pullImages, removePulledImages } from '../images';
 import { scanImages, IScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseDepGraphPayloads } from '../transmitter/payload';
@@ -32,8 +32,27 @@ export = class WorkloadWorker {
       return;
     }
 
-    logger.info({workloadName, imageCount: pulledImages.length}, 'Scanning pulled images');
+    try {
+      await this.scanImagesAndSendResults(workloadName, pulledImages, workloadMetadata);
+    } finally {
+      await removePulledImages(pulledImages);
+    }
+  }
+
+  public async delete(localWorkloadLocator: ILocalWorkloadLocator) {
+    const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
+    logger.info({workloadName: this.name, workload: localWorkloadLocator},
+      'Removing workloads from homebase');
+    await deleteHomebaseWorkload(deletePayload);
+  }
+
+  private async scanImagesAndSendResults(
+    workloadName: string,
+    pulledImages: string[],
+    workloadMetadata: IWorkload[],
+  ): Promise<void> {
     const scannedImages: IScanResult[] = await scanImages(pulledImages);
+
     logger.info({workloadName, imageCount: scannedImages.length}, 'Successfully scanned images');
     if (scannedImages.length === 0) {
       logger.info({}, 'No images were scanned, halting scanner process.');
@@ -47,12 +66,5 @@ export = class WorkloadWorker {
       pulledImages.includes(meta.imageName));
 
     logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'Processed images');
-  }
-
-  public async delete(localWorkloadLocator: ILocalWorkloadLocator) {
-    const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
-    logger.info({workloadName: this.name, workload: localWorkloadLocator},
-      'Removing workloads from homebase');
-    await deleteHomebaseWorkload(deletePayload);
   }
 };
