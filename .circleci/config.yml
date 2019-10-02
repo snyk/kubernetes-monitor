@@ -73,8 +73,8 @@ jobs:
           name: DEPLOY DEV
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-            LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-            ./scripts/slack-notify-deploy.sh $LATEST_TAG-approved dev &&
+            LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
+            ./scripts/slack-notify-deploy.sh $LATEST_TAG dev &&
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
                               \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
