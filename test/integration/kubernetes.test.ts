@@ -30,7 +30,8 @@ tap.test('deploy snyk-monitor', async (t) => {
   t.plan(1);
 
   try {
-    integrationId = await tap.deployMonitor();
+    const isStaticAnalysis = process.env.STATIC_ANALYSIS === 'true';
+    integrationId = await tap.deployMonitor(isStaticAnalysis);
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}!`);
     t.pass('successfully deployed the snyk-monitor');
   } catch (err) {
