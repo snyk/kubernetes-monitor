@@ -16,8 +16,8 @@ export async function daemonSetWatchHandler(daemonSet: V1DaemonSet) {
     kind: WorkloadKind.DaemonSet,
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
-    containers: daemonSet.spec.template.spec.containers,
     ownerRefs: daemonSet.metadata.ownerReferences,
     revision: daemonSet.status.observedGeneration,
+    podSpec: daemonSet.spec.template.spec,
   }, workloadName);
 }

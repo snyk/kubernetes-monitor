@@ -16,8 +16,8 @@ export async function statefulSetWatchHandler(statefulSet: V1StatefulSet) {
     kind: WorkloadKind.StatefulSet,
     objectMeta: statefulSet.metadata,
     specMeta: statefulSet.spec.template.metadata,
-    containers: statefulSet.spec.template.spec.containers,
     ownerRefs: statefulSet.metadata.ownerReferences,
     revision: statefulSet.status.observedGeneration,
+    podSpec: statefulSet.spec.template.spec,
   }, workloadName);
 }
