@@ -1,5 +1,5 @@
 import { AppsV1Api, BatchV1Api, BatchV1beta1Api, CoreV1Api, KubeConfig,
-  V1Container, V1ObjectMeta, V1OwnerReference } from '@kubernetes/client-node';
+  V1ObjectMeta, V1OwnerReference, V1PodSpec } from '@kubernetes/client-node';
 
 export enum WorkloadKind {
   Deployment = 'Deployment',
@@ -35,7 +35,7 @@ export interface KubeObjectMetadata {
   kind: string;
   objectMeta: V1ObjectMeta;
   specMeta: V1ObjectMeta;
-  containers: V1Container[];
+  podSpec: V1PodSpec;
   ownerRefs: V1OwnerReference[] | undefined;
   revision?: number;
 }
