@@ -22,13 +22,13 @@ export = class WorkloadWorker {
   public async process(workloadMetadata: IWorkload[]) {
     const workloadName = this.name;
     const allImages = workloadMetadata.map((meta) => meta.imageName);
-    logger.info({workloadName, imageCount: allImages.length}, 'Queried workloads');
+    logger.info({workloadName, imageCount: allImages.length}, 'queried workloads');
     const uniqueImages = [...new Set<string>(allImages)];
 
-    logger.info({workloadName, imageCount: uniqueImages.length}, 'Pulling unique images');
+    logger.info({workloadName, imageCount: uniqueImages.length}, 'pulling unique images');
     const pulledImages = await pullImages(uniqueImages);
     if (pulledImages.length === 0) {
-      logger.info({}, 'No images were pulled, halting scanner process.');
+      logger.info({}, 'no images were pulled, halting scanner process.');
       return;
     }
 
@@ -42,7 +42,7 @@ export = class WorkloadWorker {
   public async delete(localWorkloadLocator: ILocalWorkloadLocator) {
     const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
     logger.info({workloadName: this.name, workload: localWorkloadLocator},
-      'Removing workloads from homebase');
+      'removing workloads from homebase');
     await deleteHomebaseWorkload(deletePayload);
   }
 
@@ -53,9 +53,9 @@ export = class WorkloadWorker {
   ): Promise<void> {
     const scannedImages: IScanResult[] = await scanImages(pulledImages);
 
-    logger.info({workloadName, imageCount: scannedImages.length}, 'Successfully scanned images');
+    logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
     if (scannedImages.length === 0) {
-      logger.info({}, 'No images were scanned, halting scanner process.');
+      logger.info({}, 'no images were scanned, halting scanner process.');
       return;
     }
 
@@ -65,6 +65,6 @@ export = class WorkloadWorker {
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
       pulledImages.includes(meta.imageName));
 
-    logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'Processed images');
+    logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'processed images');
   }
 };

@@ -57,7 +57,7 @@ export async function podWatchHandler(pod: V1Pod) {
     const workloadMetadata = await buildMetadataForWorkload(pod);
 
     if (workloadMetadata === undefined || workloadMetadata.length === 0) {
-      logger.warn({podName}, 'Could not process Pod. The workload is possibly unsupported');
+      logger.warn({podName}, 'could not process pod, the workload is possibly unsupported');
       return;
     }
 
@@ -69,7 +69,7 @@ export async function podWatchHandler(pod: V1Pod) {
     const workloadWorker = new WorkloadWorker(workloadName);
     await handleReadyPod(workloadWorker, workloadMetadata);
   } catch (error) {
-    logger.error({error, podName}, 'Could not build image metadata for pod');
+    logger.error({error, podName}, 'could not build image metadata for pod');
   }
 }
 
