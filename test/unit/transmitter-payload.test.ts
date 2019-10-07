@@ -3,6 +3,7 @@ import * as tap from 'tap';
 import imageScanner = require('../../src/kube-scanner/image-scanner');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
+const podSpecFixture = require('../fixtures/pod-spec.json');
 
 tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is missing items', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
@@ -33,6 +34,7 @@ tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is miss
       imageId: 'does this matter?',
       cluster: 'grapefruit',
       revision: undefined,
+      podSpec: podSpecFixture,
     },
   ];
 
@@ -64,6 +66,7 @@ tap.test('constructHomebaseDepGraphPayloads happy flow', async (t) => {
       imageId: 'does this matter?',
       cluster: 'grapefruit',
       revision: 1,
+      podSpec: podSpecFixture,
     },
   ];
 
@@ -92,6 +95,7 @@ tap.test('constructHomebaseWorkloadMetadataPayload happy flow', async (t) => {
     imageId: 'does this matter?',
     cluster: 'grapefruit',
     revision: 1,
+    podSpec: podSpecFixture,
   };
 
   const workloadMetadataPayload = payload.constructHomebaseWorkloadMetadataPayload(workloadWithImages);
@@ -101,6 +105,11 @@ tap.test('constructHomebaseWorkloadMetadataPayload happy flow', async (t) => {
   t.equals(workloadMetadataPayload.workloadLocator.name, 'workloadName', 'workload name present in payload');
   t.equals(workloadMetadataPayload.workloadLocator.type, 'type', 'workload type present in payload');
   t.equals(workloadMetadataPayload.workloadMetadata.revision, 1, 'revision present in metadata');
+  t.ok('podSpec' in workloadMetadataPayload.workloadMetadata, 'podSpec present in metadata');
+  t.equals(workloadMetadataPayload.workloadMetadata.podSpec.containers[0].resources!.limits!.memory!, '2Gi',
+   'memory limit present in metadata');
+  t.equals(workloadMetadataPayload.workloadMetadata.podSpec.serviceAccountName, 'snyk-monitor',
+   'service account name present in metadata');
   t.ok('annotations' in workloadMetadataPayload.workloadMetadata, 'annotations present in metadata');
   t.ok('specAnnotations' in workloadMetadataPayload.workloadMetadata, 'specAnnotations present in metadata');
   t.ok('labels' in workloadMetadataPayload.workloadMetadata, 'labels present in metadata');

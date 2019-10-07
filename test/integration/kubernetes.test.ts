@@ -87,7 +87,8 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
 
   const metaValidator: WorkloadMetadataValidator = (workloadInfo) => {
     return workloadInfo !== undefined && 'revision' in workloadInfo && 'labels' in workloadInfo &&
-      'specLabels' in workloadInfo && 'annotations' in workloadInfo && 'specAnnotations' in workloadInfo;
+      'specLabels' in workloadInfo && 'annotations' in workloadInfo && 'specAnnotations' in workloadInfo &&
+      'podSpec' in workloadInfo;
   };
 
   // We don't want to spam Homebase with requests; do it infrequently
