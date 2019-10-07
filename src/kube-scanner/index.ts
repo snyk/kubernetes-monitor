@@ -53,11 +53,12 @@ export = class WorkloadWorker {
   ): Promise<void> {
     const scannedImages: IScanResult[] = await scanImages(pulledImages);
 
-    logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
     if (scannedImages.length === 0) {
       logger.info({}, 'no images were scanned, halting scanner process.');
       return;
     }
+
+    logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
 
     const depGraphPayloads: IDepGraphPayload[] = constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
     await sendDepGraph(...depGraphPayloads);
