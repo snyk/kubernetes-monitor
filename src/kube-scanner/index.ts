@@ -28,7 +28,7 @@ export = class WorkloadWorker {
     logger.info({workloadName, imageCount: uniqueImages.length}, 'pulling unique images');
     const pulledImages = await pullImages(uniqueImages);
     if (pulledImages.length === 0) {
-      logger.info({}, 'no images were pulled, halting scanner process.');
+      logger.info({workloadName}, 'no images were pulled, halting scanner process.');
       return;
     }
 
@@ -54,7 +54,7 @@ export = class WorkloadWorker {
     const scannedImages: IScanResult[] = await scanImages(pulledImages);
 
     if (scannedImages.length === 0) {
-      logger.info({}, 'no images were scanned, halting scanner process.');
+      logger.info({workloadName}, 'no images were scanned, halting scanner process.');
       return;
     }
 
