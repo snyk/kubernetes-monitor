@@ -14,7 +14,7 @@ RUN cd $GOPATH/src/github.com/containers/skopeo \
 #---------------------------------------------------------------------
 FROM node:dubnium-alpine
 
-MAINTAINER Snyk Ltd
+LABEL maintainer="Snyk Ltd"
 
 ENV NODE_ENV production
 
