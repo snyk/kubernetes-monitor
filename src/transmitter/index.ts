@@ -22,7 +22,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
         throw new Error(`${result.statusCode} ${result.statusMessage}`);
       }
     } catch (error) {
-      logger.error({error}, 'Could not send the dependency scan result to Homebase');
+      logger.error({error}, 'could not send the dependency scan result to Homebase');
     }
   }
 }
@@ -39,7 +39,7 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload) {
         throw new Error(`${result.statusCode} ${result.statusMessage}`);
       }
     } catch (error) {
-      logger.error({error}, 'Could not send workload metadata to Homebase');
+      logger.error({error}, 'could not send workload metadata to Homebase');
     }
 }
 
@@ -52,7 +52,7 @@ export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload) {
     );
 
     if (result.statusCode === 404) {
-      const msg = 'Attempted to delete a workload Homebase could not find. Maybe we\'re still building it?';
+      const msg = 'attempted to delete a workload Homebase could not find, maybe we are still building it?';
       logger.info({payload}, msg);
       return;
     }
@@ -61,6 +61,6 @@ export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload) {
       throw new Error(`${result.statusCode} ${result.statusMessage}`);
     }
   } catch (error) {
-    logger.error({error, payload}, 'Could not send workload to delete to Homebase');
+    logger.error({error, payload}, 'could not send workload to delete to Homebase');
   }
 }

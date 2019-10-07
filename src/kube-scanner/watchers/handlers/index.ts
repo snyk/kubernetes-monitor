@@ -124,6 +124,6 @@ export async function deleteWorkload(kubernetesMetadata: KubeObjectMetadata, wor
     await workloadWorker.delete(localWorkloadLocator);
   } catch (error) {
     logger.error({error, resourceType: kubernetesMetadata.kind, resourceName: kubernetesMetadata.objectMeta.name},
-      'Could not delete workload');
+      'could not delete workload');
   }
 }

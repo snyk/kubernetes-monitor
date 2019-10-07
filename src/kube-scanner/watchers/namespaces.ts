@@ -21,7 +21,7 @@ function setupWatchesForNamespace(namespace: string) {
     return;
   }
 
-  logger.info({namespace}, 'Setting up namespace watch');
+  logger.info({namespace}, 'setting up namespace watch');
 
   for (const workloadKind of Object.values(WorkloadKind)) {
     try {

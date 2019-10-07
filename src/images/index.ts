@@ -18,7 +18,7 @@ export async function pullImages(images: string[]): Promise<string[]> {
       }
       pulledImages.push(image);
     } catch (error) {
-      logger.error({error, image}, 'Failed to pull image');
+      logger.error({error, image}, 'failed to pull image');
     }
   }
 
@@ -35,7 +35,7 @@ export async function removePulledImages(images: string[]) {
       const destination = getDestinationForImage(image);
       await new Promise((resolve) => unlink(destination, resolve));
     } catch (error) {
-      logger.warn({error, image}, 'Failed to delete pulled image');
+      logger.warn({error, image}, 'failed to delete pulled image');
     }
   }
 }
