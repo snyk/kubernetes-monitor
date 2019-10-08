@@ -13,7 +13,7 @@ import { getKindConfigPath } from './helpers/kind';
 // Used when polling the monitor for certain data.
 // For example, checking every second that the monitor is running,
 // or checking that the monitor has stored data in Homebase.
-export const KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS = 120;
+export const KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS = 600;
 
 async function getLatestStableK8sRelease(): Promise<string> {
   const k8sRelease = await needle('get',
