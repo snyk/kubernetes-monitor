@@ -7,5 +7,7 @@ const config = require('snyk-config')(__dirname + '/../..', {
 config.AGENT_ID = uuidv4();
 config.INTEGRATION_ID = config.INTEGRATION_ID.trim();
 config.CLUSTER_NAME = config.CLUSTER_NAME || 'Default cluster';
+config.IMAGE_STORAGE_ROOT = '/snyk-monitor';
+config.STATIC_ANALYSIS = config.STATIC_ANALYSIS || false;
 
 export = config;

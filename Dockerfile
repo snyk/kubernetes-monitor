@@ -1,6 +1,20 @@
+#---------------------------------------------------------------------
+# STAGE 1: Build skopeo inside a temporary container
+#---------------------------------------------------------------------
+FROM golang:1.13.1-alpine3.10 AS skopeo-build
+
+RUN apk --no-cache add git make gcc musl-dev ostree-dev go-md2man
+RUN git clone --depth 1 -b 'v0.1.39' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+RUN cd $GOPATH/src/github.com/containers/skopeo \
+  && make binary-local-static DISABLE_CGO=1 \
+  && make install
+
+#---------------------------------------------------------------------
+# STAGE 2: Build the kubernetes-monitor
+#---------------------------------------------------------------------
 FROM node:dubnium-alpine
 
-MAINTAINER Snyk Ltd
+LABEL maintainer="Snyk Ltd"
 
 ENV NODE_ENV production
 
@@ -12,6 +26,10 @@ RUN apk --no-cache add --virtual curl-dep curl \
                 -C /usr/local/bin docker/docker \
  && rm docker-${DOCKERVERSION}.tgz \
  && apk del curl-dep
+
+COPY --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
+COPY --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
+COPY --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
 WORKDIR /root
 
