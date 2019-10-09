@@ -75,4 +75,5 @@ data:
   namespace: snyk-monitor
   integrationApi: ""
   clusterName: ""
+  staticAnalysis: "false"
 ---
