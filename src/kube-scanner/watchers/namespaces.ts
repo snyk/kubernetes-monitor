@@ -1,6 +1,7 @@
 import { makeInformer, ADD } from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
 import config = require('../../common/config');
+import { isStaticAnalysisEnabled } from '../../common/features';
 import logger = require('../../common/logger');
 import { WorkloadKind } from '../types';
 import { setupInformer } from './handlers';
@@ -20,7 +21,7 @@ function setupWatchesForNamespace(namespace: string) {
     return;
   }
 
-  logger.info({namespace}, 'Setting up namespace watch');
+  logger.info({namespace}, 'setting up namespace watch');
 
   for (const workloadKind of Object.values(WorkloadKind)) {
     try {
@@ -56,6 +57,9 @@ function setupWatchesForCluster() {
 }
 
 export function beginWatchingWorkloads() {
+  logger.info({isStaticAnalysisEnabled: isStaticAnalysisEnabled()},
+    'static analysis check');
+
   if (config.NAMESPACE) {
     logger.info({namespace: config.NAMESPACE}, 'kubernetes-monitor restricted to specific namespace');
     setupWatchesForNamespace(config.NAMESPACE);

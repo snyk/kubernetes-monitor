@@ -27,11 +27,17 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
+          {{- if ne .Values.featureFlags.staticAnalysis true }}
           - name: docker-socket-mount
             mountPath: /var/run/docker.sock
+          {{- end }}
           - name: docker-config
             readOnly: true
             mountPath: "/root/.docker"
+          {{- if eq .Values.featureFlags.staticAnalysis true }}
+          - name: temporary-storage
+            mountPath: "/snyk-monitor"
+          {{- end }}
           env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -44,6 +50,8 @@ spec:
             value: {{ .Values.integrationApi }}
           - name: SNYK_CLUSTER_NAME
             value: {{ .Values.clusterName }}
+          - name: SNYK_STATIC_ANALYSIS
+            value: {{ quote .Values.featureFlags.staticAnalysis }}
           resources:
             requests:
               cpu: '250m'
@@ -52,12 +60,19 @@ spec:
               cpu: '1'
               memory: '2Gi'
       volumes:
+        {{- if ne .Values.featureFlags.staticAnalysis true }}
         - name: docker-socket-mount
           hostPath:
             path: {{ .Values.dockerSocketHostPath }}
+        {{- end }}
         - name: docker-config
           secret:
             secretName: {{ .Values.monitorSecrets }}
             items:
               - key: dockercfg.json
                 path: config.json
+        {{- if eq .Values.featureFlags.staticAnalysis true }}
+        - name: temporary-storage
+          emptyDir:
+            sizeLimit: 20Gi
+        {{- end }}

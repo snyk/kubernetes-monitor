@@ -13,7 +13,7 @@ import { getKindConfigPath } from './helpers/kind';
 // Used when polling the monitor for certain data.
 // For example, checking every second that the monitor is running,
 // or checking that the monitor has stored data in Homebase.
-export const KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS = 120;
+export const KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS = 600;
 
 async function getLatestStableK8sRelease(): Promise<string> {
   const k8sRelease = await needle('get',
@@ -141,7 +141,12 @@ export async function getDeloymentJson(deploymentName: string, namespace: string
   return JSON.parse(getDeploymentResult.stdout);
 }
 
-function createTestYamlDeployment(newYamlPath: string, integrationId: string, imageNameAndTag: string): void {
+function createTestYamlDeployment(
+  newYamlPath: string,
+  integrationId: string,
+  imageNameAndTag: string,
+  staticAnalysis: boolean,
+): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
   const deployment = parse(originalDeploymentYaml);
@@ -166,6 +171,19 @@ function createTestYamlDeployment(newYamlPath: string, integrationId: string, im
     name: 'SNYK_INTEGRATION_API',
     value: 'https://homebase.dev.snyk.io',
   };
+
+  if (staticAnalysis === true) {
+    deployment.spec.template.spec.containers[0].env[4] = {
+      name: 'SNYK_STATIC_ANALYSIS',
+      value: 'true',
+    };
+
+    // Skip mounting the Docker socket by filtering out that mount.
+    const volumeMountsWithoutDockerSocketMount =
+      deployment.spec.template.spec.containers[0].volumeMounts.filter((mount) =>
+        mount.name !== 'docker-socket-mount');
+    deployment.spec.template.spec.containers[0].volumeMounts = volumeMountsWithoutDockerSocketMount;
+  }
 
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created test deployment!');
@@ -234,7 +252,7 @@ async function cleanUpMonitorSetup(): Promise<void> {
   }
 }
 
-Test.prototype.deployMonitor = async (): Promise<string> => {
+Test.prototype.deployMonitor = async (staticAnalysis: boolean): Promise<string> => {
   let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
   if (imageNameAndTag === undefined || imageNameAndTag === '') {
     // the default, determined by ./script/build-image.sh
@@ -247,7 +265,11 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
   await downloadKubectl(k8sRelease, osDistro);
   await downloadKind(osDistro);
 
-  await createKindCluster();
+  const kindClusterName = 'kind';
+  const kindConfigPath = staticAnalysis === true
+    ? '' // The config currently mounts the Docker socket; skip this for static scanning.
+    : './test/fixtures/cluster-config.yaml';
+  await createKindCluster(kindClusterName, kindConfigPath);
   await exportKubeConfig();
 
   await loadImageInCluster(imageNameAndTag);
@@ -261,6 +283,8 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
 
   const servicesNamespace = 'services';
   await createNamespace(servicesNamespace);
+  // Small hack to prevent timing problems in CircleCI...
+  await sleep(5000);
 
   await applyK8sYaml('./test/fixtures/alpine-pod.yaml');
   await applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml');
@@ -269,7 +293,7 @@ Test.prototype.deployMonitor = async (): Promise<string> => {
   await createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace);
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);
+  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, staticAnalysis);
 
   await applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await applyK8sYaml('./snyk-monitor-test-deployment.yaml');

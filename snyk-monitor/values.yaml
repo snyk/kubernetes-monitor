@@ -27,3 +27,6 @@ clusterName: ""
 
 # The path of the docker socket on the node. For PKS: /var/vcap/data/sys/run/docker/docker.sock
 dockerSocketHostPath: "/var/run/docker.sock"
+
+featureFlags:
+  staticAnalysis: false
