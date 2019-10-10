@@ -1,7 +1,7 @@
 # snyk/kubernetes-monitor-chart #
 
 ## Summary ##
-A Helm chart for the Snyk Monitor
+A Helm chart for the Snyk monitor
 
 ## Prerequisites ##
 
@@ -19,7 +19,7 @@ Notice our namespace is called _snyk-monitor_ and it is used for the following c
 
 The Snyk monitor relies on using your Snyk Integration ID, and using a `dockercfg` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually a copy of the `dockercfg` resides in `$HOME/.docker/config.json`.
 
-Both of these items must be provided by a k8s secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
+Both of these items must be provided by a Kubernetes secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
 
 1. Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should look like this:
 
@@ -40,7 +40,7 @@ abcd1234-abcd-1234-abcd-1234abcd1234
 ```
 The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in the next step.
 
-3. Finally, create the secret in k8s by running the following command:
+3. Finally, create the secret in Kubernetes by running the following command:
 ```shell
 kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
 ```
