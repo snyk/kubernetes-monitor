@@ -5,7 +5,8 @@ A Helm chart for the Snyk monitor
 
 ## Prerequisites ##
 
-*Note that at present the monitor works only if using Docker as the container runtime.*
+*Note that by default the monitor uses Docker to scan your cluster and requires Docker to be your container runtime.*
+*Alternatively, you can enable static analysis, which removes the reliance on Docker completely and works with any container runtime.*
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
 
@@ -68,4 +69,15 @@ Replace the value of `clusterName` with the name of your cluster.
 For Helm 3, you may run the following:
 ```shell
 helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
+```
+
+## Enabling static analysis ##
+
+Static analysis works with any container runtime and does not rely on Docker to scan the images in your cluster.
+It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 20 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
+The Docker socket is _not_ mounted when static analysis is enabled.
+
+To enable static analysis, set the `featureFlags.staticAnalysis` value to `true`:
+```shell
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster" --set featureFlags.staticAnalysis=true
 ```
