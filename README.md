@@ -74,12 +74,3 @@ Finally, to launch the Snyk monitor in your cluster, run the following:
 ```shell
 kubectl apply -f snyk-monitor-deployment.yaml
 ```
-
-## Using a local Docker image for testing ##
-
-If you would like to use a locally-built image, then modify the following lines in `snyk-monitor-deployment.yaml` like this:
-```yaml
-      containers:
-      - image: <your-local-image-name:tag>
-        imagePullPolicy: Never
-```
