@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.7.0
+      - image: snyk/kubernetes-monitor:1.8.0
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log

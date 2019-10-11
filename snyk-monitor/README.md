@@ -1,11 +1,12 @@
 # snyk/kubernetes-monitor-chart #
 
 ## Summary ##
-A Helm chart for the Snyk Monitor
+A Helm chart for the Snyk monitor
 
 ## Prerequisites ##
 
-*Note that at present the monitor works only if using Docker as the container runtime.*
+*Note that by default the monitor uses Docker to scan your cluster and requires Docker to be your container runtime.*
+*Alternatively, you can enable static analysis, which removes the reliance on Docker completely and works with any container runtime.*
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
 
@@ -19,7 +20,7 @@ Notice our namespace is called _snyk-monitor_ and it is used for the following c
 
 The Snyk monitor relies on using your Snyk Integration ID, and using a `dockercfg` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually a copy of the `dockercfg` resides in `$HOME/.docker/config.json`.
 
-Both of these items must be provided by a k8s secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
+Both of these items must be provided by a Kubernetes secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
 
 1. Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should look like this:
 
@@ -40,7 +41,7 @@ abcd1234-abcd-1234-abcd-1234abcd1234
 ```
 The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in the next step.
 
-3. Finally, create the secret in k8s by running the following command:
+3. Finally, create the secret in Kubernetes by running the following command:
 ```shell
 kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
 ```
@@ -68,4 +69,15 @@ Replace the value of `clusterName` with the name of your cluster.
 For Helm 3, you may run the following:
 ```shell
 helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
+```
+
+## Enabling static analysis ##
+
+Static analysis works with any container runtime and does not rely on Docker to scan the images in your cluster.
+It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 20 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
+The Docker socket is _not_ mounted when static analysis is enabled.
+
+To enable static analysis, set the `featureFlags.staticAnalysis` value to `true`:
+```shell
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster" --set featureFlags.staticAnalysis=true
 ```
