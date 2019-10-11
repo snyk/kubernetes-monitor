@@ -119,7 +119,7 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
   console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
-    return workloads !== undefined && workloads.length === 4 &&
+    return workloads !== undefined && workloads.length === 5 &&
       workloads.find((workload) => workload.name === 'alpine' &&
         workload.type === WorkloadKind.Pod) !== undefined &&
       workloads.find((workload) => workload.name === 'nginx' &&
@@ -127,6 +127,8 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
       workloads.find((workload) => workload.name === 'redis' &&
         workload.type === WorkloadKind.Deployment) !== undefined &&
       workloads.find((workload) => workload.name === 'alpine-from-sha' &&
+        workload.type === WorkloadKind.Deployment) !== undefined &&
+      workloads.find((workload) => workload.name === 'centos' &&
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 

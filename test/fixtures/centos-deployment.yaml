@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centos
+  namespace: services
+  labels:
+    app.kubernetes.io/name: centos
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: centos
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: centos
+    spec:
+      containers:
+      - image: centos:7
+        imagePullPolicy: Always
+        name: centos
+      securityContext: {}
