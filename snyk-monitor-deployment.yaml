@@ -79,5 +79,5 @@ spec:
               path: config.json
       - name: temporary-storage
         emptyDir:
-          sizeLimit: 20Gi
+          sizeLimit: 50Gi
       serviceAccountName: snyk-monitor
