@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.8.0
+      - image: snyk/kubernetes-monitor:1.8.1
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -79,5 +79,5 @@ spec:
               path: config.json
       - name: temporary-storage
         emptyDir:
-          sizeLimit: 20Gi
+          sizeLimit: 50Gi
       serviceAccountName: snyk-monitor
