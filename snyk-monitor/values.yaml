@@ -30,3 +30,7 @@ dockerSocketHostPath: "/var/run/docker.sock"
 
 featureFlags:
   staticAnalysis: false
+
+# The snyk-monitor requires disk storage to temporarily pull container images and to scan them for vulnerabilities.
+# This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. The snyk-monitor mounts an emptyDir for storage.
+temporaryStorageSize: 50Gi

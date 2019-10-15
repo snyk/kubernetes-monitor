@@ -74,5 +74,5 @@ spec:
         {{- if eq .Values.featureFlags.staticAnalysis true }}
         - name: temporary-storage
           emptyDir:
-            sizeLimit: 20Gi
+            sizeLimit: {{ .Values.temporaryStorageSize }}
         {{- end }}
