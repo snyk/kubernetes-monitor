@@ -5,7 +5,6 @@ import needle = require('needle');
 import { platform } from 'os';
 import { resolve as pathResolve } from 'path';
 import * as sleep from 'sleep-promise';
-import { Test } from 'tap';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
 import { getKindConfigPath } from './helpers/kind';
@@ -234,7 +233,7 @@ async function deleteKindCluster(clusterName = 'kind'): Promise<void> {
   console.log(`Deleted cluster ${clusterName}!`);
 }
 
-async function cleanUpMonitorSetup(): Promise<void> {
+export async function removeMonitor(): Promise<void> {
   try {
     await deleteKindCluster();
   } catch (error) {
@@ -252,7 +251,39 @@ async function cleanUpMonitorSetup(): Promise<void> {
   }
 }
 
-Test.prototype.deployMonitor = async (staticAnalysis: boolean): Promise<string> => {
+export async function deployMonitor(staticAnalysis: boolean): Promise<string> {
+  console.log('Begin deploying the snyk-monitor...');
+
+  try {
+    return await createMonitorDeployment(staticAnalysis);
+  } catch (err) {
+    console.error(err);
+    try {
+      await removeMonitor();
+    } catch (error) {
+      // ignore cleanup errors
+    } finally {
+      // ... but make sure the test suite doesn't proceed if the setup failed
+      process.exit(-1);
+    }
+
+    throw err;
+  }
+}
+
+export async function createSampleDeployments(): Promise<void> {
+  const servicesNamespace = 'services';
+  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
+  await Promise.all([
+    applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
+    applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
+    applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
+    applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
+    createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
+  ]);
+}
+
+async function createMonitorDeployment(staticAnalysis: boolean): Promise<string> {
   let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
   if (imageNameAndTag === undefined || imageNameAndTag === '') {
     // the default, determined by ./script/build-image.sh
@@ -286,13 +317,6 @@ Test.prototype.deployMonitor = async (staticAnalysis: boolean): Promise<string> 
   // Small hack to prevent timing problems in CircleCI...
   await sleep(5000);
 
-  await applyK8sYaml('./test/fixtures/alpine-pod.yaml');
-  await applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml');
-  await applyK8sYaml('./test/fixtures/redis-deployment.yaml');
-  await applyK8sYaml('./test/fixtures/centos-deployment.yaml');
-  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
-  await createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace);
-
   const testYaml = 'snyk-monitor-test-deployment.yaml';
   createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, staticAnalysis);
 
@@ -301,13 +325,14 @@ Test.prototype.deployMonitor = async (staticAnalysis: boolean): Promise<string> 
 
   try {
     await waitForMonitorToBeReady();
+    console.log(
+      `Deployed the snyk-monitor with integration ID ${integrationId}!`,
+    );
   } catch (error) {
     console.log(error.message);
-    await cleanUpMonitorSetup();
+    await removeMonitor();
     throw error;
   }
 
   return integrationId;
-};
-
-Test.prototype.removeMonitor = cleanUpMonitorSetup;
+}

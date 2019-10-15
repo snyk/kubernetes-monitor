@@ -1,12 +1,76 @@
 version: 2
+
+default_machine_config: &default_machine_config
+  machine:
+    enabled: true
+    docker_layer_caching: true
+  working_directory: ~/kubernetes-monitor
+
+default_container_config: &default_container_config
+  docker:
+    - image: circleci/node:10
+  working_directory: ~/kubernetes-monitor
+
+staging_branch_only_filter: &staging_branch_only_filter
+  filters:
+    branches:
+      only:
+        - staging
+
+main_branches_filter: &main_branches_filter
+  filters:
+    branches:
+      ignore:
+        - staging
+        - master
+
 jobs:
+######################## PACKAGE MANAGER REGRESSION TESTS ########################
+  package_manager_test_apk:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: APK Test
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            npm run test:apk ||
+            (./scripts/slack-notify-failure.sh "APK regression test" && false)
+
+  package_manager_test_apt:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: APT Test
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            npm run test:apt ||
+            (./scripts/slack-notify-failure.sh "APT regression test" && false)
+
+  package_manager_test_rpm:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: RPM Test
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            npm run test:rpm ||
+            (./scripts/slack-notify-failure.sh "RPM regression test" && false)
 
 ######################## PR TO STAGING ########################
   test_discardable:
-    machine:
-      enabled: true
-      docker_layer_caching: true
-    working_directory: ~/kubernetes-monitor
+    <<: *default_machine_config
     steps:
       - checkout
       - run:
@@ -20,10 +84,7 @@ jobs:
 
 ######################## MERGE TO STAGING ########################
   test_and_build:
-    machine:
-      enabled: true
-      docker_layer_caching: true
-    working_directory: ~/kubernetes-monitor
+    <<: *default_machine_config
     steps:
       - checkout
       - run:
@@ -44,9 +105,7 @@ jobs:
             KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration ||
             ( ./scripts/slack-notify-failure.sh "staging-test" && false )
   tag_and_push:
-    working_directory: ~/kubernetes-monitor
-    docker:
-      - image: circleci/node:10
+    <<: *default_container_config
     steps:
       - checkout
       - setup_remote_docker
@@ -64,9 +123,7 @@ jobs:
             ./scripts/approve-image.sh $NEW_VERSION ||
             ( ./scripts/slack-notify-failure.sh "staging-release" && false )
   deploy_dev:
-    working_directory: ~/kubernetes-monitor
-    docker:
-      - image: circleci/node:10
+    <<: *default_container_config
     steps:
       - checkout
       - run:
@@ -82,9 +139,7 @@ jobs:
 
 ######################## PR TO MASTER ########################
   prepublish:
-    working_directory: ~/kubernetes-monitor
-    docker:
-      - image: circleci/node:10
+    <<: *default_container_config
     steps:
       - checkout
       - run:
@@ -94,9 +149,7 @@ jobs:
 
 ######################## MERGE TO MASTER ########################
   publish:
-    working_directory: ~/kubernetes-monitor
-    docker:
-      - image: circleci/node:10
+    <<: *default_container_config
     steps:
       - checkout
       - setup_remote_docker
@@ -119,9 +172,7 @@ jobs:
             ( ./scripts/slack-notify-failure.sh master && false )
 
   deploy_prod:
-    working_directory: ~/kubernetes-monitor
-    docker:
-      - image: circleci/node:10
+    <<: *default_container_config
     steps:
       - checkout
       - run:
@@ -141,32 +192,32 @@ workflows:
   PR_TO_STAGING:
     jobs:
       - test_discardable:
-          filters:
-            branches:
-              ignore:
-                - staging
-                - master
+          <<: *main_branches_filter
+      - package_manager_test_apk:
+          <<: *main_branches_filter
+      - package_manager_test_apt:
+          <<: *main_branches_filter
+      - package_manager_test_rpm:
+          <<: *main_branches_filter
+
   MERGE_TO_STAGING:
     jobs:
       - test_and_build:
-          filters:
-            branches:
-              only:
-                - staging
+          <<: *staging_branch_only_filter
       - tag_and_push:
           requires:
             - test_and_build
-          filters:
-            branches:
-              only:
-                - staging
+          <<: *staging_branch_only_filter
       - deploy_dev:
           requires:
             - tag_and_push
-          filters:
-            branches:
-              only:
-                - staging
+          <<: *staging_branch_only_filter
+      - package_manager_test_apk:
+          <<: *staging_branch_only_filter
+      - package_manager_test_apt:
+          <<: *staging_branch_only_filter
+      - package_manager_test_rpm:
+          <<: *staging_branch_only_filter
 
 # reserved for the "pre publish "
   # PR_TO_MASTER:
