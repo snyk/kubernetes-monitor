@@ -1,24 +1,22 @@
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
-import needle = require('needle');
 import sleep = require('sleep-promise');
-import setup = require('../setup'); // Must be located before 'tap' import
-// tslint:disable-next-line: ordered-imports
+import setup = require('../setup');
 import * as tap from 'tap';
 import * as config from '../../src/common/config';
-import { IWorkloadLocator, IWorkloadMetadata } from '../../src/transmitter/types';
 import { getKindConfigPath } from '../helpers/kind';
 import { WorkloadKind } from '../../src/kube-scanner/types';
+import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
+import {
+  validateHomebaseStoredData,
+  validateHomebaseStoredMetadata,
+  getHomebaseResponseBody,
+} from '../helpers/homebase';
 
 let integrationId: string;
-const toneDownFactor = 5;
-const maxPodChecks = setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
-
-type WorkloadLocatorValidator = (workloads: IWorkloadLocator[] | undefined) => boolean;
-type WorkloadMetadataValidator = (workloadInfo: IWorkloadMetadata | undefined) => boolean;
 
 async function tearDown() {
   console.log('Begin removing the snyk-monitor...');
-  await tap.removeMonitor();
+  await setup.removeMonitor();
   console.log('Removed the snyk-monitor!');
 }
 
@@ -26,27 +24,21 @@ tap.tearDown(tearDown);
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
-  console.log('Begin deploying the snyk-monitor...');
   t.plan(1);
 
-  try {
-    const isStaticAnalysis = process.env.STATIC_ANALYSIS === 'true';
-    integrationId = await tap.deployMonitor(isStaticAnalysis);
-    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}!`);
-    t.pass('successfully deployed the snyk-monitor');
-  } catch (err) {
-    console.error(err);
-    t.fail('failed setting up the snyk-monitor');
-    try {
-      // attempt to clean up ...
-      await tearDown();
-    } catch (teardownError) {
-      // ignore cleanup errors
-    } finally {
-      // ... but make sure the test suite doesn't proceed if the setup failed
-      process.exit(-1);
-    }
-  }
+  const isStaticAnalysis = process.env.STATIC_ANALYSIS === 'true';
+  integrationId = await setup.deployMonitor(isStaticAnalysis);
+
+  t.pass('successfully deployed the snyk-monitor');
+});
+
+// Next we apply some sample workloads
+tap.test('deploy sample workloads', async (t) => {
+  t.plan(1);
+
+  await setup.createSampleDeployments();
+
+  t.pass('successfully deployed sample workloads');
 });
 
 tap.test('snyk-monitor container started', async (t) => {
@@ -73,45 +65,6 @@ tap.test('snyk-monitor container started', async (t) => {
   t.notEqual(monitorPod!.status!.phase, 'Failed', 'Snyk monitor container didn\'t fail');
   console.log('Done -- snyk-monitor exists!');
 });
-
-async function validateHomebaseStoredData(
-  validatorFn: WorkloadLocatorValidator, relativeUrl: string, remainingChecks: number = maxPodChecks,
-): Promise<boolean> {
-  while (remainingChecks > 0) {
-    const responseBody = await getHomebaseResponseBody(relativeUrl);
-    const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
-    const result = validatorFn(workloads);
-    if (result) {
-      return true;
-    }
-    await sleep(1000 * toneDownFactor);
-    remainingChecks--;
-  }
-  return false;
-}
-
-async function validateHomebaseStoredMetadata(
-  validatorFn: WorkloadMetadataValidator, relativeUrl: string, remainingChecks: number = maxPodChecks,
-): Promise<boolean> {
-  while (remainingChecks > 0) {
-    const responseBody = await getHomebaseResponseBody(relativeUrl);
-    const workloadInfo: IWorkloadMetadata | undefined = responseBody.workloadInfo;
-    const result = validatorFn(workloadInfo);
-    if (result) {
-      return true;
-    }
-    await sleep(1000 * toneDownFactor);
-    remainingChecks--;
-  }
-  return false;
-}
-
-async function getHomebaseResponseBody(relativeUrl: string): Promise<any> {
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
-  const homebaseResponse = await needle('get', url, null);
-  const responseBody = homebaseResponse.body;
-  return responseBody;
-}
 
 tap.test('snyk-monitor sends data to homebase', async (t) => {
   t.plan(2);
