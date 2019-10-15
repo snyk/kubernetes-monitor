@@ -74,7 +74,7 @@ helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --n
 ## Enabling static analysis ##
 
 Static analysis works with any container runtime and does not rely on Docker to scan the images in your cluster.
-It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 20 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
+It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 50 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
 The Docker socket is _not_ mounted when static analysis is enabled.
 
 To enable static analysis, set the `featureFlags.staticAnalysis` value to `true`:

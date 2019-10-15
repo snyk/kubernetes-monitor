@@ -79,6 +79,6 @@ kubectl apply -f snyk-monitor-deployment.yaml
 ## Enabling static analysis ##
 
 Static analysis works with any container runtime and does not rely on Docker to scan the images in your cluster.
-It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 20 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
+It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 50 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
 
 To enable static analysis, modify one of the permissions files (`snyk-monitor-namespaced-permissions.yaml` for the Namespaced deployment or `snyk-monitor-cluster-permissions.yaml` for the Cluster-scoped deployment) and set the string value of `staticAnalysis` to `"true"`.
