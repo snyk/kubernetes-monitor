@@ -1,0 +1,4 @@
+{
+  "centos7": "centos:7",
+  "ibmcom-grafana": "ibmcom/grafana:5.2.0-f4"
+}
