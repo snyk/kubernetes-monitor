@@ -42,19 +42,21 @@ git commit -m "${COMMIT_MESSAGE}"
 git push --quiet --set-upstream origin-pages gh-pages
 
 # Wait up to 10 minutes for the new GH pages
-echo waiting for the new release to appear in github
-attempts=60
+echo "waiting for the new release to appear in github"
+attempts=6
 sleep_time=10
 for (( i=0; i<${attempts}; i++ )); do
   # Notice we must use "|| :" at the end of grep because when it doesn't find a match
   # it returns an exit code 1, which trips this script (it has "set -e").
-  count=$(curl -s https://snyk.github.io/kubernetes-monitor/snyk-monitor/values.yaml | grep --line-buffered -c "tag: ${NEW_TAG}" || :)
+  curl_response=$(curl -s --connect-timeout 10 --max-time 10 https://snyk.github.io/kubernetes-monitor/snyk-monitor/values.yaml)
+  count=$(echo "$curl_response" | grep --line-buffered -c "tag: ${NEW_TAG}" || :)
   if [[ "$count" == "1" ]]; then
-    attempts=${i}
+    echo "ok, tag is updated, made $(( $i + 1 )) attempt(s)"
     break
   fi
+  echo "attempt ${i}: did not find the expected tag ${NEW_TAG}, here is what curl returned"
+  echo "$curl_response"
   sleep $sleep_time
 done
-echo it took github $(( $attempts * $sleep_time )) seconds to update the github pages
 
 ./scripts/slack-notify-push.sh "gh-pages"
