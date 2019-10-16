@@ -46,7 +46,9 @@ echo waiting for the new release to appear in github
 attempts=60
 sleep_time=10
 for (( i=0; i<${attempts}; i++ )); do
-  count=$(curl -s https://snyk.github.io/kubernetes-monitor/snyk-monitor/values.yaml | grep --line-buffered -c "tag: ${NEW_TAG}")
+  # Notice we must use "|| :" at the end of grep because when it doesn't find a match
+  # it returns an exit code 1, which trips this script (it has "set -e").
+  count=$(curl -s https://snyk.github.io/kubernetes-monitor/snyk-monitor/values.yaml | grep --line-buffered -c "tag: ${NEW_TAG}" || :)
   if [[ "$count" == "1" ]]; then
     attempts=${i}
     break
