@@ -40,4 +40,19 @@ git add ./README.md
 COMMIT_MESSAGE='fix: :egg: Automatic Publish '${NEW_TAG}' :egg:'
 git commit -m "${COMMIT_MESSAGE}"
 git push --quiet --set-upstream origin-pages gh-pages
+
+# Wait up to 10 minutes for the new GH pages
+echo waiting for the new release to appear in github
+attempts=60
+sleep_time=10
+for (( i=0; i<${attempts}; i++ )); do
+  count=$(curl -s https://snyk.github.io/kubernetes-monitor/snyk-monitor/values.yaml | grep --line-buffered -c "tag: ${NEW_TAG}")
+  if [[ "$count" == "1" ]]; then
+    attempts=${i}
+    break
+  fi
+  sleep $sleep_time
+done
+echo it took github $(( $attempts * $sleep_time )) seconds to update the github pages
+
 ./scripts/slack-notify-push.sh "gh-pages"
