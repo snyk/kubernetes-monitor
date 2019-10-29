@@ -13,11 +13,11 @@ export function buildImageMetadata(
   workloadMeta: KubeObjectMetadata,
   containerStatuses: V1ContainerStatus[],
   ): IWorkload[] {
-  const { kind, objectMeta, specMeta, containers, revision } = workloadMeta;
+  const { kind, objectMeta, specMeta, revision, podSpec } = workloadMeta;
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
   const containerNameToSpec: {[key: string]: V1Container} = {};
-  for (const container of containers) {
+  for (const container of podSpec.containers) {
     containerNameToSpec[container.name] = container;
   }
 
@@ -40,6 +40,7 @@ export function buildImageMetadata(
       imageId: containerNameToStatus[containerName].imageID,
       cluster: currentClusterName,
       revision,
+      podSpec,
     } as IWorkload),
   );
   return images;
@@ -113,7 +114,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
       // do not have the "template" property.
       specMeta: pod.metadata,
       ownerRefs: [],
-      containers: pod.spec.containers,
+      podSpec: pod.spec,
     },
     pod.status.containerStatuses,
     );

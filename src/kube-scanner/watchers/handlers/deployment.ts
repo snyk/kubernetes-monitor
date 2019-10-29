@@ -16,8 +16,8 @@ export async function deploymentWatchHandler(deployment: V1Deployment) {
     kind: WorkloadKind.Deployment,
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
-    containers: deployment.spec.template.spec.containers,
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
+    podSpec: deployment.spec.template.spec,
   }, workloadName);
 }
