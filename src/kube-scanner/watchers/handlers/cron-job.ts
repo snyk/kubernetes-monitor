@@ -16,7 +16,7 @@ export async function cronJobWatchHandler(cronJob: V1beta1CronJob) {
     kind: WorkloadKind.CronJob,
     objectMeta: cronJob.metadata,
     specMeta: cronJob.spec.jobTemplate.metadata,
-    containers: cronJob.spec.jobTemplate.spec.template.spec.containers,
     ownerRefs: cronJob.metadata.ownerReferences,
+    podSpec: cronJob.spec.jobTemplate.spec.template.spec,
   }, workloadName);
 }

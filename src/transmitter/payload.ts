@@ -58,6 +58,7 @@ export function constructHomebaseWorkloadMetadataPayload(workload: IWorkload): I
     annotations: workload.annotations,
     specAnnotations: workload.specAnnotations,
     revision: workload.revision,
+    podSpec: workload.podSpec,
   };
   return { workloadLocator, agentId: config.AGENT_ID, workloadMetadata };
 }

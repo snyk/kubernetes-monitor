@@ -15,7 +15,7 @@ export async function jobWatchHandler(job: V1Job) {
     kind: WorkloadKind.Job,
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
-    containers: job.spec.template.spec.containers,
     ownerRefs: job.metadata.ownerReferences,
+    podSpec: job.spec.template.spec,
   }, workloadName);
 }

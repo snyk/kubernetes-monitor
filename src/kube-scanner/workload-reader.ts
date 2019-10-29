@@ -22,9 +22,9 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     kind: WorkloadKind.Deployment,
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
-    containers: deployment.spec.template.spec.containers,
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
+    podSpec: deployment.spec.template.spec,
   };
 };
 
@@ -43,9 +43,9 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     kind: WorkloadKind.ReplicaSet,
     objectMeta: replicaSet.metadata,
     specMeta: replicaSet.spec.template.metadata,
-    containers: replicaSet.spec.template.spec.containers,
     ownerRefs: replicaSet.metadata.ownerReferences,
     revision: replicaSet.status.observedGeneration,
+    podSpec: replicaSet.spec.template.spec,
   };
 };
 
@@ -64,9 +64,9 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
     kind: WorkloadKind.StatefulSet,
     objectMeta: statefulSet.metadata,
     specMeta: statefulSet.spec.template.metadata,
-    containers: statefulSet.spec.template.spec.containers,
     ownerRefs: statefulSet.metadata.ownerReferences,
     revision: statefulSet.status.observedGeneration,
+    podSpec: statefulSet.spec.template.spec,
   };
 };
 
@@ -85,9 +85,9 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
     kind: WorkloadKind.DaemonSet,
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
-    containers: daemonSet.spec.template.spec.containers,
     ownerRefs: daemonSet.metadata.ownerReferences,
     revision: daemonSet.status.observedGeneration,
+    podSpec: daemonSet.spec.template.spec,
   };
 };
 
@@ -105,8 +105,8 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     kind: WorkloadKind.Job,
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
-    containers: job.spec.template.spec.containers,
     ownerRefs: job.metadata.ownerReferences,
+    podSpec: job.spec.template.spec,
   };
 };
 
@@ -128,8 +128,8 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     kind: WorkloadKind.CronJob,
     objectMeta: cronJob.metadata,
     specMeta: cronJob.spec.jobTemplate.metadata,
-    containers: cronJob.spec.jobTemplate.spec.template.spec.containers,
     ownerRefs: cronJob.metadata.ownerReferences,
+    podSpec: cronJob.spec.jobTemplate.spec.template.spec,
   };
 };
 
@@ -149,9 +149,9 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
     kind: WorkloadKind.ReplicationController,
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
-    containers: replicationController.spec.template.spec.containers,
     ownerRefs: replicationController.metadata.ownerReferences,
     revision: replicationController.status.observedGeneration,
+    podSpec: replicationController.spec.template.spec,
   };
 };
 

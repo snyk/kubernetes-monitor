@@ -16,8 +16,8 @@ export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet) {
     kind: WorkloadKind.ReplicaSet,
     objectMeta: replicaSet.metadata,
     specMeta: replicaSet.spec.template.metadata,
-    containers: replicaSet.spec.template.spec.containers,
     ownerRefs: replicaSet.metadata.ownerReferences,
     revision: replicaSet.status.observedGeneration,
+    podSpec: replicaSet.spec.template.spec,
   }, workloadName);
 }

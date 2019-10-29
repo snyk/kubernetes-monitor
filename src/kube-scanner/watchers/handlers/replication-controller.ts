@@ -17,8 +17,8 @@ export async function replicationControllerWatchHandler(replicationController: V
     kind: WorkloadKind.ReplicationController,
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
-    containers: replicationController.spec.template.spec.containers,
     ownerRefs: replicationController.metadata.ownerReferences,
     revision: replicationController.status.observedGeneration,
+    podSpec: replicationController.spec.template.spec,
   }, workloadName);
 }

@@ -1,3 +1,5 @@
+import { V1PodSpec } from '@kubernetes/client-node';
+
 interface StringMap { [key: string]: string; }
 
 export interface ILocalWorkloadLocator {
@@ -17,6 +19,7 @@ export interface IWorkloadMetadata {
   annotations: StringMap | undefined;
   specAnnotations: StringMap | undefined;
   revision: number | undefined;
+  podSpec: V1PodSpec;
 }
 
 export interface IImageLocator extends IWorkloadLocator {
@@ -54,4 +57,5 @@ export interface IWorkload {
   imageName: string;
   imageId: string;
   cluster: string;
+  podSpec: V1PodSpec;
 }
