@@ -3,9 +3,18 @@ import { SpawnPromiseResult } from 'child-process-promise';
 import { exec } from '../cli/process';
 import config = require('../common/config');
 
+function getUniqueIdentifier(): string {
+  const [seconds, nanoseconds] = process.hrtime();
+  return `${seconds}_${nanoseconds}`;
+}
+
 export function getDestinationForImage(image: string): string {
   const normalisedImageName = image.replace(/\W/g, '_');
-  return `${config.IMAGE_STORAGE_ROOT}/${normalisedImageName}.tar`;
+  // If two workloads contain the same image and if the snyk-monitor attempts to pull the two images at the same time,
+  // this can result in a problem where both actions try to work with the same file resulting in a nasty crash.
+  // This is why we try to make the name of the temporary file unique for every workload analysis.
+  const uniqueIdentifier = getUniqueIdentifier();
+  return `${config.IMAGE_STORAGE_ROOT}/${normalisedImageName}_${uniqueIdentifier}.tar`;
 }
 
 function prefixRespository(target: string, type: SkopeoRepositoryType) {
@@ -21,12 +30,10 @@ function prefixRespository(target: string, type: SkopeoRepositoryType) {
 
 export function pull(
   image: string,
+  destination: string,
 ): Promise<SpawnPromiseResult> {
-  const source = image;
-  const destination = getDestinationForImage(image);
-
   return exec('skopeo', 'copy',
-    prefixRespository(source, SkopeoRepositoryType.ImageRegistry),
+    prefixRespository(image, SkopeoRepositoryType.ImageRegistry),
     prefixRespository(destination, SkopeoRepositoryType.DockerArchive),
   );
 }
