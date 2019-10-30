@@ -3,9 +3,6 @@
     "name": "kubernetes-monitor",
     "level": "info"
   },
-  "MONITOR": {
-    "INITIAL_REFRESH_MS": 1000
-  },
   "IMAGES_SCANNED_CACHE": {
     "MAX_SIZE": 10000,
     "MAX_AGE_MS": 86400000
