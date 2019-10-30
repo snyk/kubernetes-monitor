@@ -5,9 +5,6 @@ Container to monitor Kubernetes clusters' security
 
 ## Prerequisites ##
 
-*Note that by default the monitor uses Docker to scan your cluster and requires Docker to be your container runtime.*
-*Alternatively, you can enable static analysis, which allows the use of any container runtime.*
-
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
 
 As with any Kubernetes deployment, the `kubernetes-monitor` runs within a single namespace.
@@ -75,10 +72,3 @@ Finally, to launch the Snyk monitor in your cluster, run the following:
 ```shell
 kubectl apply -f snyk-monitor-deployment.yaml
 ```
-
-## Enabling static analysis ##
-
-Static analysis works with any container runtime and does not rely on Docker to scan the images in your cluster.
-It works by pulling the image, unpacking it and inspecting the files directly. For this process it needs temporary storage, so the Snyk monitor uses 50 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
-
-To enable static analysis, modify one of the permissions files (`snyk-monitor-namespaced-permissions.yaml` for the Namespaced deployment or `snyk-monitor-cluster-permissions.yaml` for the Cluster-scoped deployment) and set the string value of `staticAnalysis` to `"true"`.

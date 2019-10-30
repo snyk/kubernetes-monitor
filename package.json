@@ -6,7 +6,7 @@
     "pretest": "./scripts/build-image.sh",
     "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration",
     "test:unit": "./tap test/unit -R spec",
-    "test:integration": "./tap test/integration -Rdot --timeout=600 && STATIC_ANALYSIS=true ./tap test/integration -Rdot --timeout=1200",
+    "test:integration": "./tap test/integration -Rdot --timeout=1200",
     "test:coverage": "npm run test:unit -- --coverage",
     "test:watch": "tsc-watch --onSuccess 'npm run test:unit'",
     "test:apk": "./scripts/build-image.sh && PACKAGE_MANAGER=apk ./tap test/package-manager/regression.test.ts -Rdot --timeout=7200",
