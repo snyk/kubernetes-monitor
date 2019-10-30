@@ -1,8 +1,8 @@
 import * as plugin from 'snyk-docker-plugin';
 import logger = require('../common/logger');
-import { getDestinationForImage } from '../images';
 import { IStaticAnalysisOptions, StaticAnalysisImageType } from './types';
 import { isStaticAnalysisEnabled } from '../common/features';
+import { IPullableImage } from '../images/types';
 
 export interface IScanResult {
   image: string;
@@ -23,44 +23,50 @@ function getImageTag(imageWithTag: string): string {
   return '';
 }
 
-function constructStaticAnalysisOptions(image: string): { staticAnalysisOptions: IStaticAnalysisOptions } {
+function constructStaticAnalysisOptions(
+  fileSystemPath: string | undefined,
+): { staticAnalysisOptions: IStaticAnalysisOptions } {
+  if (!fileSystemPath) {
+    throw new Error('Missing path for image for static analysis');
+  }
+
   return {
     staticAnalysisOptions: {
-      imagePath: getDestinationForImage(image),
+      imagePath: fileSystemPath,
       imageType: StaticAnalysisImageType.DockerArchive,
     },
   };
 }
 
-export async function scanImages(images: string[]): Promise<IScanResult[]> {
+export async function scanImages(images: IPullableImage[]): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
   const dockerfile = undefined;
 
-  for (const image of images) {
+  for (const {imageName, fileSystemPath} of images) {
     try {
       const options = isStaticAnalysisEnabled()
-        ? constructStaticAnalysisOptions(image)
+        ? constructStaticAnalysisOptions(fileSystemPath)
         : undefined;
 
-      const result = await plugin.inspect(image, dockerfile, options);
+      const result = await plugin.inspect(imageName, dockerfile, options);
 
       if (!result || !result.package || !result.package.dependencies) {
         throw Error('Unexpected empty result from docker-plugin');
       }
 
       result.imageMetadata = {
-        image: removeTagFromImage(image),
-        imageTag: getImageTag(image),
+        image: removeTagFromImage(imageName),
+        imageTag: getImageTag(imageName),
       };
 
       scannedImages.push({
-        image: removeTagFromImage(image),
-        imageWithTag: image,
+        image: removeTagFromImage(imageName),
+        imageWithTag: imageName,
         pluginResult: result,
       });
     } catch (error) {
-      logger.warn({error, image}, 'failed to scan image');
+      logger.warn({error, image: imageName}, 'failed to scan image');
     }
   }
 
