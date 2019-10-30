@@ -8,5 +8,6 @@ export function monitor() {
     beginWatchingWorkloads();
   } catch (error) {
     logger.error({error}, 'an error occurred while monitoring the cluster');
+    process.exit(1);
   }
 }
