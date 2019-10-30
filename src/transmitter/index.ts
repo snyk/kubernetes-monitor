@@ -22,7 +22,8 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
         throw new Error(`${result.statusCode} ${result.statusMessage}`);
       }
     } catch (error) {
-      logger.error({error}, 'could not send the dependency scan result to Homebase');
+      const { dependencyGraph, ...payloadWithoutDepGraph } = payload;
+      logger.error({error, payload: payloadWithoutDepGraph}, 'could not send the dependency scan result to Homebase');
     }
   }
 }
@@ -39,7 +40,7 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload) {
         throw new Error(`${result.statusCode} ${result.statusMessage}`);
       }
     } catch (error) {
-      logger.error({error}, 'could not send workload metadata to Homebase');
+      logger.error({error, payload: payload.workloadLocator}, 'could not send workload metadata to Homebase');
     }
 }
 
