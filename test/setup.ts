@@ -74,7 +74,6 @@ function getIntegrationId(): string {
 // available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
 async function createKindCluster(
     clusterName = 'kind',
-    configPath = './test/fixtures/cluster-config.yaml',
     kindImageTag = 'latest',
 ): Promise<void> {
   console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
@@ -85,7 +84,7 @@ async function createKindCluster(
     // which does not necessarily have the "latest" tag
     kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
   }
-  await exec(`./kind create cluster --config="${configPath}" --name="${clusterName}" ${kindImageArgument}`);
+  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
   console.log(`Created cluster ${clusterName}!`);
 }
 
@@ -144,7 +143,6 @@ function createTestYamlDeployment(
   newYamlPath: string,
   integrationId: string,
   imageNameAndTag: string,
-  staticAnalysis: boolean,
 ): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
@@ -170,19 +168,6 @@ function createTestYamlDeployment(
     name: 'SNYK_INTEGRATION_API',
     value: 'https://homebase.dev.snyk.io',
   };
-
-  if (staticAnalysis === true) {
-    deployment.spec.template.spec.containers[0].env[4] = {
-      name: 'SNYK_STATIC_ANALYSIS',
-      value: 'true',
-    };
-
-    // Skip mounting the Docker socket by filtering out that mount.
-    const volumeMountsWithoutDockerSocketMount =
-      deployment.spec.template.spec.containers[0].volumeMounts.filter((mount) =>
-        mount.name !== 'docker-socket-mount');
-    deployment.spec.template.spec.containers[0].volumeMounts = volumeMountsWithoutDockerSocketMount;
-  }
 
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created test deployment!');
@@ -251,11 +236,11 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-export async function deployMonitor(staticAnalysis: boolean): Promise<string> {
+export async function deployMonitor(): Promise<string> {
   console.log('Begin deploying the snyk-monitor...');
 
   try {
-    return await createMonitorDeployment(staticAnalysis);
+    return await createMonitorDeployment();
   } catch (err) {
     console.error(err);
     try {
@@ -283,7 +268,7 @@ export async function createSampleDeployments(): Promise<void> {
   ]);
 }
 
-async function createMonitorDeployment(staticAnalysis: boolean): Promise<string> {
+async function createMonitorDeployment(): Promise<string> {
   let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
   if (imageNameAndTag === undefined || imageNameAndTag === '') {
     // the default, determined by ./script/build-image.sh
@@ -297,10 +282,7 @@ async function createMonitorDeployment(staticAnalysis: boolean): Promise<string>
   await downloadKind(osDistro);
 
   const kindClusterName = 'kind';
-  const kindConfigPath = staticAnalysis === true
-    ? '' // The config currently mounts the Docker socket; skip this for static scanning.
-    : './test/fixtures/cluster-config.yaml';
-  await createKindCluster(kindClusterName, kindConfigPath);
+  await createKindCluster(kindClusterName);
   await exportKubeConfig();
 
   await loadImageInCluster(imageNameAndTag);
@@ -318,7 +300,7 @@ async function createMonitorDeployment(staticAnalysis: boolean): Promise<string>
   await sleep(5000);
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, staticAnalysis);
+  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);
 
   await applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await applyK8sYaml('./snyk-monitor-test-deployment.yaml');

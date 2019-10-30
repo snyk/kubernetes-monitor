@@ -83,5 +83,4 @@ data:
   namespace: ""
   integrationApi: ""
   clusterName: ""
-  staticAnalysis: "false"
 ---
