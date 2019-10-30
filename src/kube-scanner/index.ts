@@ -1,16 +1,10 @@
-/***
- * consider using https://www.npmjs.com/package/kubernetes-client
- * currently it's better to not use this lib since version 9.0 is about to be
- * released and merged with oficial @kubernetes/client-node.
- * IMPORTANT:
- * see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#-strong-api-overview-strong-
- */
 import logger = require('../common/logger');
-import { pullImages, removePulledImages } from '../images';
+import { pullImages, removePulledImages, getImagesWithFileSystemPath } from '../images';
 import { scanImages, IScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseDepGraphPayloads } from '../transmitter/payload';
 import { IDepGraphPayload, IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
+import { IPullableImage } from '../images/types';
 
 export = class WorkloadWorker {
   private readonly name: string;
@@ -26,7 +20,8 @@ export = class WorkloadWorker {
     const uniqueImages = [...new Set<string>(allImages)];
 
     logger.info({workloadName, imageCount: uniqueImages.length}, 'pulling unique images');
-    const pulledImages = await pullImages(uniqueImages);
+    const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
+    const pulledImages = await pullImages(imagesWithFileSystemPath);
     if (pulledImages.length === 0) {
       logger.info({workloadName}, 'no images were pulled, halting scanner process.');
       return;
@@ -48,7 +43,7 @@ export = class WorkloadWorker {
 
   private async scanImagesAndSendResults(
     workloadName: string,
-    pulledImages: string[],
+    pulledImages: IPullableImage[],
     workloadMetadata: IWorkload[],
   ): Promise<void> {
     const scannedImages: IScanResult[] = await scanImages(pulledImages);
@@ -63,8 +58,10 @@ export = class WorkloadWorker {
     const depGraphPayloads: IDepGraphPayload[] = constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
     await sendDepGraph(...depGraphPayloads);
 
+    const pulledImagesNames = pulledImages.map((image) => image.imageName);
     const pulledImageMetadata = workloadMetadata.filter((meta) =>
-      pulledImages.includes(meta.imageName));
+      pulledImagesNames.includes(meta.imageName),
+    );
 
     logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'processed images');
   }

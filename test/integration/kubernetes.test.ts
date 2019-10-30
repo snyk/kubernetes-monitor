@@ -1,8 +1,6 @@
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
-import sleep = require('sleep-promise');
 import setup = require('../setup');
 import * as tap from 'tap';
-import * as config from '../../src/common/config';
 import { getKindConfigPath } from '../helpers/kind';
 import { WorkloadKind } from '../../src/kube-scanner/types';
 import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
@@ -50,9 +48,6 @@ tap.test('snyk-monitor container started', async (t) => {
   kubeConfig.loadFromFile(kindConfigPath);
   const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
   console.log('Loaded KinD config!');
-
-  // wait to let the container go through a cycle
-  await sleep(config.MONITOR.INITIAL_REFRESH_MS);
 
   console.log('Querying the snyk-monitor...');
   const response = await k8sApi.listNamespacedPod('snyk-monitor');
