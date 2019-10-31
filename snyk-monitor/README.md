@@ -1,9 +1,10 @@
 # snyk/kubernetes-monitor-chart #
 
 ## Summary ##
+
 A Helm chart for the Snyk monitor
 
-## Prerequisites ##
+## Installing ##
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
 

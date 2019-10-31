@@ -1,9 +1,15 @@
 # snyk/kubernetes-monitor #
 
 ## Summary ##
+
 Container to monitor Kubernetes clusters' security
 
 ## Prerequisites ##
+
+* 50 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
+* External internet access from the Kubernetes cluster.
+
+## Installing ##
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
 
