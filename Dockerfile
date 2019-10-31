@@ -36,6 +36,9 @@ COPY --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 RUN apk --no-cache add db
 COPY --from=rpmdb-build /go/src/github.com/snyk/go-rpmdb/rpmdb /usr/bin/rpmdb
 
+RUN apk update
+RUN apk upgrade
+
 WORKDIR /root
 
 # Add manifest files and install before adding anything else to take advantage of layer caching
