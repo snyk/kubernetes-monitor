@@ -165,9 +165,6 @@ jobs:
             docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
             docker push ${IMAGE_NAME_PUBLISHED} &&
             ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
-            docker tag ${IMAGE_NAME_APPROVED} snyk/kubernetes-monitor:latest &&
-            docker push snyk/kubernetes-monitor:latest &&
-            ./scripts/slack-notify-push.sh snyk/kubernetes-monitor:latest &&
             ./scripts/publish-gh-pages.sh ${LATEST_TAG} ||
             ( ./scripts/slack-notify-failure.sh master && false )
 
