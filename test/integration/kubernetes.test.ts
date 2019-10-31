@@ -24,8 +24,7 @@ tap.tearDown(tearDown);
 tap.test('deploy snyk-monitor', async (t) => {
   t.plan(1);
 
-  const isStaticAnalysis = process.env.STATIC_ANALYSIS === 'true';
-  integrationId = await setup.deployMonitor(isStaticAnalysis);
+  integrationId = await setup.deployMonitor();
 
   t.pass('successfully deployed the snyk-monitor');
 });

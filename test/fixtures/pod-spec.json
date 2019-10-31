@@ -20,10 +20,6 @@
         {
           "name": "SNYK_CLUSTER_NAME",
           "value": "Production cluster"
-        },
-        {
-          "name": "SNYK_STATIC_ANALYSIS",
-          "value": "true"
         }
       ],
       "image": "snyk/kubernetes-monitor:1.8.5",

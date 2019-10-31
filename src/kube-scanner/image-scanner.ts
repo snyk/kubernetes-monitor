@@ -1,7 +1,6 @@
 import * as plugin from 'snyk-docker-plugin';
 import logger = require('../common/logger');
 import { IStaticAnalysisOptions, StaticAnalysisImageType } from './types';
-import { isStaticAnalysisEnabled } from '../common/features';
 import { IPullableImage } from '../images/types';
 
 export interface IScanResult {
@@ -45,9 +44,7 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
 
   for (const {imageName, fileSystemPath} of images) {
     try {
-      const options = isStaticAnalysisEnabled()
-        ? constructStaticAnalysisOptions(fileSystemPath)
-        : undefined;
+      const options = constructStaticAnalysisOptions(fileSystemPath);
 
       const result = await plugin.inspect(imageName, dockerfile, options);
 

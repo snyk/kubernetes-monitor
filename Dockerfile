@@ -29,15 +29,6 @@ LABEL maintainer="Snyk Ltd"
 
 ENV NODE_ENV production
 
-# INSTALLING DOCKER, CAN BE REMOVED WHEN WE DON'T TRY TO `DOCKER PULL`
-ENV DOCKERVERSION=18.06.3-ce
-RUN apk --no-cache add --virtual curl-dep curl \
- && curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz \
- && tar xzvf docker-${DOCKERVERSION}.tgz --strip 1 \
-                -C /usr/local/bin docker/docker \
- && rm docker-${DOCKERVERSION}.tgz \
- && apk del curl-dep
-
 COPY --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
 COPY --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
 COPY --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
