@@ -15,14 +15,12 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.9.1
+      - image: snyk/kubernetes-monitor:1.10.0
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
-        - name: docker-socket-mount
-          mountPath: /var/run/docker.sock
         - name: docker-config
           readOnly: true
           mountPath: "/root/.docker"
@@ -52,12 +50,6 @@ spec:
                 name: snyk-monitor
                 key: clusterName
                 optional: true
-          - name: SNYK_STATIC_ANALYSIS
-            valueFrom:
-              configMapKeyRef:
-                name: snyk-monitor
-                key: staticAnalysis
-                optional: true
         resources:
           requests:
             cpu: '250m'
@@ -67,9 +59,6 @@ spec:
             memory: '2Gi'
       securityContext: {}
       volumes:
-      - name: docker-socket-mount
-        hostPath:
-          path: /var/run/docker.sock
       - name: docker-config
         secret:
           secretName: snyk-monitor
