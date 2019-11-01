@@ -29,29 +29,25 @@ LABEL maintainer="Snyk Ltd"
 
 ENV NODE_ENV production
 
+COPY --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
+COPY --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
+COPY --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
+
+RUN apk --no-cache add db
+COPY --from=rpmdb-build /go/src/github.com/snyk/go-rpmdb/rpmdb /usr/bin/rpmdb
+
 RUN apk update
 RUN apk upgrade
-RUN apk --no-cache add db
 
-RUN addgroup -S -g 10001 snyk
-RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
-
-WORKDIR /srv/app
-USER snyk:snyk
-
-COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
-COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
-COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
-
-COPY --chown=snyk:snyk --from=rpmdb-build /go/src/github.com/snyk/go-rpmdb/rpmdb /usr/bin/rpmdb
+WORKDIR /root
 
 # Add manifest files and install before adding anything else to take advantage of layer caching
-ADD --chown=snyk:snyk package.json package-lock.json .snyk ./
+ADD package.json package-lock.json .snyk ./
 
 RUN npm install
 
 # add the rest of the app files
-ADD --chown=snyk:snyk . .
+ADD . .
 
 # Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
 RUN npm run prepare
