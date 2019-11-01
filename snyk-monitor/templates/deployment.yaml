@@ -29,7 +29,7 @@ spec:
           volumeMounts:
           - name: docker-config
             readOnly: true
-            mountPath: "/root/.docker"
+            mountPath: "/srv/app/.docker"
           - name: temporary-storage
             mountPath: "/snyk-monitor"
           env:
