@@ -51,6 +51,9 @@ spec:
             limits:
               cpu: '1'
               memory: '2Gi'
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
       volumes:
         - name: docker-config
           secret:
