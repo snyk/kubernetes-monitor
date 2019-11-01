@@ -13,11 +13,12 @@
     "test:apt": "./scripts/build-image.sh && PACKAGE_MANAGER=apt ./tap test/package-manager/regression.test.ts -Rdot --timeout=7200",
     "test:rpm": "./scripts/build-image.sh && PACKAGE_MANAGER=rpm ./tap test/package-manager/regression.test.ts -Rdot --timeout=7200",
     "start": "bin/start",
-    "prepare": "npm run build",
+    "prepare": "npm run snyk-protect && npm run build",
     "build": "npx typescript",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
-    "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'"
+    "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'",
+    "snyk-protect": "snyk protect"
   },
   "author": "snyk.io",
   "license": "private",
@@ -48,7 +49,8 @@
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
     "ws": "^7.0.0",
-    "yaml": "^1.6.0"
+    "yaml": "^1.6.0",
+    "snyk": "^1.240.3"
   },
   "devDependencies": {
     "sleep-promise": "^8.0.1",
@@ -77,5 +79,6 @@
     "fail": [
       "@semantic-release/github"
     ]
-  }
+  },
+  "snyk": true
 }
