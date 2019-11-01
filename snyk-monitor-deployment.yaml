@@ -60,6 +60,13 @@ spec:
         securityContext:
             runAsUser: 10001
             runAsGroup: 10001
+            privileged: false
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
       securityContext: {}
       volumes:
       - name: docker-config
