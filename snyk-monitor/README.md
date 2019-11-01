@@ -33,6 +33,12 @@ Both of these items must be provided by a Kubernetes secret. The secret must be 
 }
 ```
 
+If access to private registries is not needed, the `dockercfg.json` file contents should look like this:
+
+```json
+{}
+```
+
 2. Locate your Snyk Integration ID from the Snyk Integrations page (navigate to https://app.snyk.io/org/YOUR-ORGANIZATION-NAME/manage/integrations/kubernetes) and copy it. The Snyk Integration ID looks similar to the following:
 ```
 abcd1234-abcd-1234-abcd-1234abcd1234
