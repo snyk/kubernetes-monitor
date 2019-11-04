@@ -51,6 +51,10 @@ spec:
             limits:
               cpu: '1'
               memory: '2Gi'
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
       volumes:
         - name: docker-config
           secret:
