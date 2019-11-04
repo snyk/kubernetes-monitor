@@ -2,6 +2,7 @@ import * as plugin from 'snyk-docker-plugin';
 import logger = require('../common/logger');
 import { IStaticAnalysisOptions, StaticAnalysisImageType } from './types';
 import { IPullableImage } from '../images/types';
+import config = require('../common/config');
 
 export interface IScanResult {
   image: string;
@@ -33,6 +34,7 @@ function constructStaticAnalysisOptions(
     staticAnalysisOptions: {
       imagePath: fileSystemPath,
       imageType: StaticAnalysisImageType.DockerArchive,
+      tmpDirPath: config.IMAGE_STORAGE_ROOT,
     },
   };
 }
