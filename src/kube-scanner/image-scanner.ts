@@ -24,12 +24,8 @@ function getImageTag(imageWithTag: string): string {
 }
 
 function constructStaticAnalysisOptions(
-  fileSystemPath: string | undefined,
+  fileSystemPath: string,
 ): { staticAnalysisOptions: IStaticAnalysisOptions } {
-  if (!fileSystemPath) {
-    throw new Error('Missing path for image for static analysis');
-  }
-
   return {
     staticAnalysisOptions: {
       imagePath: fileSystemPath,
