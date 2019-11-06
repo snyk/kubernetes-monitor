@@ -9,7 +9,7 @@ import {
   validateHomebaseStoredMetadata,
   getHomebaseResponseBody,
 } from '../helpers/homebase';
-import { validateSecureConfiguration } from '../helpers/deployment';
+import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
 
 let integrationId: string;
 
@@ -178,4 +178,5 @@ tap.test('snyk-monitor secure configuration is as expected', async (t) => {
   const deployment = response.body;
 
   validateSecureConfiguration(t, deployment);
+  validateVolumeMounts(t, deployment);
 });
