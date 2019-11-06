@@ -15,6 +15,7 @@ import {
 export function constructHomebaseDepGraphPayloads(
     scannedImages: IScanResult[],
     workloadMetadata: IWorkload[],
+    k8sClientVersion: string,
 ): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
     // We know that .find() won't return undefined
@@ -34,8 +35,15 @@ export function constructHomebaseDepGraphPayloads(
 
     return {
       imageLocator,
-      agentId: config.AGENT_ID,
+      agentId: config.AGENT_ID, // TODO: make sure we send it only as part of the metadata
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
+      metadata: {
+        agentId: config.AGENT_ID,
+        version: config.MONITOR_VERSION,
+        namespace: config.NAMESPACE,
+        kubernetesDistribution: 'kubernetes',
+        kubernetesApiVersion: k8sClientVersion,
+      }
     } as IDepGraphPayload;
   });
 

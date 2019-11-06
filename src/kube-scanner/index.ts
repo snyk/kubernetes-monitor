@@ -5,6 +5,7 @@ import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
 import { constructHomebaseDeleteWorkloadPayload, constructHomebaseDepGraphPayloads } from '../transmitter/payload';
 import { IDepGraphPayload, IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { IPullableImage } from '../images/types';
+import { k8sApi } from "./cluster";
 
 export = class WorkloadWorker {
   private readonly name: string;
@@ -55,7 +56,8 @@ export = class WorkloadWorker {
 
     logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
 
-    const depGraphPayloads: IDepGraphPayload[] = constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
+    const k8sClientVersion: string = await k8sApi.getK8sClientVersion();
+    const depGraphPayloads: IDepGraphPayload[] = constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata, k8sClientVersion);
     await sendDepGraph(...depGraphPayloads);
 
     const pulledImagesNames = pulledImages.map((image) => image.imageName);

@@ -26,10 +26,19 @@ export interface IImageLocator extends IWorkloadLocator {
   imageId: string;
 }
 
+export interface IKubernetesMonitorMetadata {
+  agentId: string;
+  version?: string;
+  namespace?: string;
+  kubernetesDistribution: string;
+  kubernetesApiVersion?: string;
+}
+
 export interface IDepGraphPayload {
   imageLocator: IImageLocator;
-  agentId: string;
+  agentId: string; // TODO: make sure we send it only as part of the metadata
   dependencyGraph?: any;
+  metadata: IKubernetesMonitorMetadata;
 }
 
 export interface IWorkloadMetadataPayload {
