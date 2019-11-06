@@ -40,3 +40,51 @@ export function validateSecureConfiguration(test: tap, deployment: V1Deployment)
   );
 }
 
+export function validateVolumeMounts(test: tap, deployment: V1Deployment) {
+  if (
+    !deployment.spec ||
+    !deployment.spec.template.spec ||
+    !deployment.spec.template.spec.containers ||
+    deployment.spec.template.spec.containers.length === 0 ||
+    !deployment.spec.template.spec.containers[0].volumeMounts
+  ) {
+    test.fail('bad container spec or missing volumeMounts');
+    return;
+  }
+
+  const volumeMounts = deployment.spec.template.spec.containers[0].volumeMounts;
+
+  const temporaryStorageMount = volumeMounts.find(
+    (mount) => mount.name === 'temporary-storage',
+  );
+  if (!temporaryStorageMount) {
+    test.fail('missing deployment mount "temporary-storage"');
+    return;
+  }
+
+  test.same(
+    temporaryStorageMount.mountPath,
+    '/var/tmp',
+    'deployment file mounts temporary storage at the expected path',
+  );
+
+  const dockerConfigMount = volumeMounts.find(
+    (mount) => mount.name === 'docker-config',
+  );
+  if (!dockerConfigMount) {
+    test.fail('missing deployment mount "docker-config"');
+    return;
+  }
+
+  test.same(
+    dockerConfigMount.readOnly,
+    true,
+    'docker-config is a read-only mount',
+  );
+
+  test.same(
+    dockerConfigMount.mountPath,
+    '/root/.docker',
+    'docker-config mount path is as expected',
+  );
+}
