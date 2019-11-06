@@ -33,5 +33,10 @@ export function validateSecureConfiguration(test: tap, deployment: V1Deployment)
       'CAP_SYS_ADMIN not added',
     );
   }
+
+  test.ok(
+    securityContext.readOnlyRootFilesystem === true,
+    'readOnlyRootFilesystem is set',
+  );
 }
 
