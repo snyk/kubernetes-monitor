@@ -29,6 +29,7 @@ export enum StaticAnalysisImageType {
 export interface IStaticAnalysisOptions {
   imagePath: string;
   imageType: StaticAnalysisImageType;
+  tmpDirPath: string;
 }
 
 export interface KubeObjectMetadata {
