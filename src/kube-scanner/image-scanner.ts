@@ -10,11 +10,17 @@ export interface IScanResult {
   pluginResult: any;
 }
 
-function removeTagFromImage(imageWithTag: string): string {
+/**
+ * Exported for testing
+ */
+export function removeTagFromImage(imageWithTag: string): string {
   return imageWithTag.split('@')[0].split(':')[0];
 }
 
-function getImageTag(imageWithTag: string): string {
+/**
+ * Exported for testing
+ */
+export function getImageTag(imageWithTag: string): string {
   const imageParts: string[] = imageWithTag.split(':');
   if (imageParts.length === 2) { // image@sha256:hash or image:tag
     return imageParts[1];
@@ -23,7 +29,10 @@ function getImageTag(imageWithTag: string): string {
   return '';
 }
 
-function constructStaticAnalysisOptions(
+/**
+ * Exported for testing
+ */
+export function constructStaticAnalysisOptions(
   fileSystemPath: string,
 ): { staticAnalysisOptions: IStaticAnalysisOptions } {
   return {
