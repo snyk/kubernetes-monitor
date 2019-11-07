@@ -1,4 +1,4 @@
-import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import setup = require('../setup');
 import * as tap from 'tap';
 import { getKindConfigPath } from '../helpers/kind';
@@ -9,6 +9,7 @@ import {
   validateHomebaseStoredMetadata,
   getHomebaseResponseBody,
 } from '../helpers/homebase';
+import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
 
 let integrationId: string;
 
@@ -161,4 +162,21 @@ tap.test(`snyk-monitor has resource limits`, async (t) => {
   t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
   t.ok(monitorResources.requests.cpu !== undefined, 'snyk-monitor has cpu resource request');
   t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
+});
+
+tap.test('snyk-monitor secure configuration is as expected', async (t) => {
+  const kindConfigPath = await getKindConfigPath();
+  const kubeConfig = new KubeConfig();
+  kubeConfig.loadFromFile(kindConfigPath);
+
+  const k8sApi = kubeConfig.makeApiClient(AppsV1Api);
+
+  const response = await k8sApi.readNamespacedDeployment(
+    'snyk-monitor',
+    'snyk-monitor',
+  );
+  const deployment = response.body;
+
+  validateSecureConfiguration(t, deployment);
+  validateVolumeMounts(t, deployment);
 });
