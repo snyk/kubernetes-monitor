@@ -90,6 +90,12 @@ export function buildWorkloadMetadata(kubernetesMetadata: KubeObjectMetadata): I
   };
 }
 
+export function isPodAssociatedWithParent(pod: V1Pod): boolean {
+  return pod.metadata !== undefined && pod.metadata.ownerReferences !== undefined
+    ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
+    : false;
+}
+
 export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] | undefined> {
   const isAssociatedWithParent = isPodAssociatedWithParent(pod);
 
@@ -126,10 +132,4 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
   return podOwner === undefined
     ? undefined
     : buildImageMetadata(podOwner, pod.status.containerStatuses);
-}
-
-export function isPodAssociatedWithParent(pod: V1Pod): boolean {
-  return pod.metadata !== undefined && pod.metadata.ownerReferences !== undefined
-    ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
-    : false;
 }

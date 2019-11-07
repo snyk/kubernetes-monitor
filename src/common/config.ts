@@ -1,6 +1,7 @@
 import * as uuidv4 from 'uuid/v4';
+import * as configFactory from 'snyk-config';
 
-const config = require('snyk-config')(__dirname + '/../..', {
+const config = configFactory(__dirname + '/../..', {
   secretConfig: process.env.CONFIG_SECRET_FILE,
 });
 

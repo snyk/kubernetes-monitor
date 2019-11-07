@@ -11,6 +11,20 @@ import { PodPhase } from '../types';
 import state = require('../../../state');
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
+function deleteFailedKeysFromState(keys) {
+  try {
+    for (const key of keys) {
+      try {
+        state.imagesAlreadyScanned.del(key);
+      } catch (delError) {
+        logger.error({delError, key}, 'failed deleting a key of an unsuccessfully scanned image');
+      }
+    }
+  } catch (delError) {
+    logger.error({delError, keys}, 'failed deleting all keys of an unsuccessfully scanned workload');
+  }
+}
+
 async function queueWorker(task, callback) {
   const {workloadWorker, workloadMetadata, imageKeys} = task;
   try {
@@ -45,6 +59,13 @@ async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: 
   }
 }
 
+export function isPodReady(pod: V1Pod) {
+  return pod.status !== undefined && pod.status.phase === PodPhase.Running &&
+    pod.status.containerStatuses !== undefined && pod.status.containerStatuses.some((container) =>
+      container.state !== undefined &&
+      (container.state.running !== undefined || container.state.waiting !== undefined));
+}
+
 export async function podWatchHandler(pod: V1Pod) {
   // This tones down the number of scans whenever a Pod is about to be scheduled by K8s
   if (!isPodReady(pod)) {
@@ -70,26 +91,5 @@ export async function podWatchHandler(pod: V1Pod) {
     await handleReadyPod(workloadWorker, workloadMetadata);
   } catch (error) {
     logger.error({error, podName}, 'could not build image metadata for pod');
-  }
-}
-
-export function isPodReady(pod: V1Pod) {
-  return pod.status !== undefined && pod.status.phase === PodPhase.Running &&
-    pod.status.containerStatuses !== undefined && pod.status.containerStatuses.some((container) =>
-      container.state !== undefined &&
-      (container.state.running !== undefined || container.state.waiting !== undefined));
-}
-
-function deleteFailedKeysFromState(keys) {
-  try {
-    for (const key of keys) {
-      try {
-        state.imagesAlreadyScanned.del(key);
-      } catch (delError) {
-        logger.error({delError, key}, 'failed deleting a key of an unsuccessfully scanned image');
-      }
-    }
-  } catch (delError) {
-    logger.error({delError, keys}, 'failed deleting all keys of an unsuccessfully scanned workload');
   }
 }
