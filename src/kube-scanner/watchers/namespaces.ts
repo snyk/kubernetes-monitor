@@ -33,6 +33,23 @@ function setupWatchesForNamespace(namespace: string) {
   watchedNamespaces.add(namespace);
 }
 
+export function extractNamespaceName(namespace: V1Namespace): string {
+  if (namespace && namespace.metadata && namespace.metadata.name) {
+    return namespace.metadata.name;
+  }
+  throw new Error('Namespace missing metadata.name');
+}
+
+export function isKubernetesInternalNamespace(namespace: string): boolean {
+  const kubernetesInternalNamespaces = [
+    'kube-node-lease',
+    'kube-public',
+    'kube-system',
+  ];
+
+  return kubernetesInternalNamespaces.includes(namespace);
+}
+
 function setupWatchesForCluster() {
   const informer = makeInformer(kubeConfig, '/api/v1/namespaces', () => k8sApi.coreClient.listNamespace());
 
@@ -65,19 +82,3 @@ export function beginWatchingWorkloads() {
   setupWatchesForCluster();
 }
 
-export function extractNamespaceName(namespace: V1Namespace): string {
-  if (namespace && namespace.metadata && namespace.metadata.name) {
-    return namespace.metadata.name;
-  }
-  throw new Error('Namespace missing metadata.name');
-}
-
-export function isKubernetesInternalNamespace(namespace: string): boolean {
-  const kubernetesInternalNamespaces = [
-    'kube-node-lease',
-    'kube-public',
-    'kube-system',
-  ];
-
-  return kubernetesInternalNamespaces.includes(namespace);
-}

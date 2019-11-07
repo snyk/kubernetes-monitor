@@ -3,7 +3,7 @@ import * as tap from 'tap';
 import imageScanner = require('../../src/kube-scanner/image-scanner');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
-const podSpecFixture = require('../fixtures/pod-spec.json');
+import podSpecFixture = require('../fixtures/pod-spec.json');
 
 tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is missing items', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
