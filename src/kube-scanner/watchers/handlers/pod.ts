@@ -10,6 +10,8 @@ import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
 import state = require('../../../state');
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { WorkloadKind } from '../../types';
+import { deleteWorkload } from './workload';
 
 function deleteFailedKeysFromState(keys) {
   try {
@@ -92,4 +94,20 @@ export async function podWatchHandler(pod: V1Pod) {
   } catch (error) {
     logger.error({error, podName}, 'could not build image metadata for pod');
   }
+}
+
+export async function podDeletedHandler(pod: V1Pod) {
+  if (!pod.metadata || !pod.spec) {
+    return;
+  }
+
+  const workloadName = pod.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
+
+  await deleteWorkload({
+    kind: WorkloadKind.Pod,
+    objectMeta: pod.metadata,
+    specMeta: pod.metadata,
+    ownerRefs: pod.metadata.ownerReferences,
+    podSpec: pod.spec,
+  }, workloadName);
 }

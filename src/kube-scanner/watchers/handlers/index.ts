@@ -1,7 +1,7 @@
 import { makeInformer, ADD, DELETE, UPDATE, KubernetesObject } from '@kubernetes/client-node';
 import logger = require('../../../common/logger');
 import { WorkloadKind } from '../../types';
-import { podWatchHandler } from './pod';
+import { podWatchHandler, podDeletedHandler } from './pod';
 import { cronJobWatchHandler } from './cron-job';
 import { daemonSetWatchHandler } from './daemon-set';
 import { deploymentWatchHandler } from './deployment';
@@ -36,6 +36,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     handlers: {
       [ADD]: podWatchHandler,
       [UPDATE]: podWatchHandler,
+      [DELETE]: podDeletedHandler,
     },
     listFactory: (namespace) => () => k8sApi.coreClient.listNamespacedPod(namespace),
   },
