@@ -11,8 +11,7 @@
     "prettier/@typescript-eslint"
   ],
   "rules": {
-    "@typescript-eslint/interface-name-prefix": "warn",
-
+    "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/ban-ts-ignore": "error",
     "@typescript-eslint/no-unnecessary-type-assertion": "error",
