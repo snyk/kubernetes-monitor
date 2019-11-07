@@ -176,6 +176,10 @@ export function getWorkloadReader(workloadType: string): IWorkloadReaderFunc {
 
 export function getSupportedWorkload(ownerRefs: V1OwnerReference[] | undefined): V1OwnerReference | undefined {
   return ownerRefs !== undefined
-    ? ownerRefs.find((owner) => SupportedWorkloadTypes.includes(owner.kind))
+    ? ownerRefs.find(
+        (owner) =>
+          SupportedWorkloadTypes.includes(owner.kind) &&
+          owner.controller === true,
+      )
     : undefined;
 }

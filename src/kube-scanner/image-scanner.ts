@@ -2,6 +2,7 @@ import * as plugin from 'snyk-docker-plugin';
 import logger = require('../common/logger');
 import { IStaticAnalysisOptions, StaticAnalysisImageType } from './types';
 import { IPullableImage } from '../images/types';
+import config = require('../common/config');
 
 export interface IScanResult {
   image: string;
@@ -9,11 +10,17 @@ export interface IScanResult {
   pluginResult: any;
 }
 
-function removeTagFromImage(imageWithTag: string): string {
+/**
+ * Exported for testing
+ */
+export function removeTagFromImage(imageWithTag: string): string {
   return imageWithTag.split('@')[0].split(':')[0];
 }
 
-function getImageTag(imageWithTag: string): string {
+/**
+ * Exported for testing
+ */
+export function getImageTag(imageWithTag: string): string {
   const imageParts: string[] = imageWithTag.split(':');
   if (imageParts.length === 2) { // image@sha256:hash or image:tag
     return imageParts[1];
@@ -22,17 +29,17 @@ function getImageTag(imageWithTag: string): string {
   return '';
 }
 
-function constructStaticAnalysisOptions(
-  fileSystemPath: string | undefined,
+/**
+ * Exported for testing
+ */
+export function constructStaticAnalysisOptions(
+  fileSystemPath: string,
 ): { staticAnalysisOptions: IStaticAnalysisOptions } {
-  if (!fileSystemPath) {
-    throw new Error('Missing path for image for static analysis');
-  }
-
   return {
     staticAnalysisOptions: {
       imagePath: fileSystemPath,
       imageType: StaticAnalysisImageType.DockerArchive,
+      tmpDirPath: config.IMAGE_STORAGE_ROOT,
     },
   };
 }

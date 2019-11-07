@@ -31,7 +31,7 @@ spec:
             readOnly: true
             mountPath: "/root/.docker"
           - name: temporary-storage
-            mountPath: "/snyk-monitor"
+            mountPath: "/var/tmp"
           env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -51,6 +51,11 @@ spec:
             limits:
               cpu: '1'
               memory: '2Gi'
+          securityContext:
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
       volumes:
         - name: docker-config
           secret:
