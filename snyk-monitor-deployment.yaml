@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.12.0
+      - image: snyk/kubernetes-monitor:1.13.2
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -25,7 +25,7 @@ spec:
           readOnly: true
           mountPath: "/root/.docker"
         - name: temporary-storage
-          mountPath: "/snyk-monitor"
+          mountPath: "/var/tmp"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -57,7 +57,11 @@ spec:
           limits:
             cpu: '1'
             memory: '2Gi'
-      securityContext: {}
+        securityContext:
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
       volumes:
       - name: docker-config
         secret:
