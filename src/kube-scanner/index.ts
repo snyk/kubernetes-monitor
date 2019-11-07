@@ -13,7 +13,7 @@ export = class WorkloadWorker {
     this.name = name;
   }
 
-  public async process(workloadMetadata: IWorkload[]) {
+  public async process(workloadMetadata: IWorkload[]): Promise<void> {
     const workloadName = this.name;
     const allImages = workloadMetadata.map((meta) => meta.imageName);
     logger.info({workloadName, imageCount: allImages.length}, 'queried workloads');
@@ -34,7 +34,7 @@ export = class WorkloadWorker {
     }
   }
 
-  public async delete(localWorkloadLocator: ILocalWorkloadLocator) {
+  public async delete(localWorkloadLocator: ILocalWorkloadLocator): Promise<void> {
     const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
     logger.info({workloadName: this.name, workload: localWorkloadLocator},
       'removing workloads from homebase');

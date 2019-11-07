@@ -2,7 +2,7 @@ import logger = require('./common/logger');
 import { currentClusterName } from './kube-scanner/cluster';
 import { beginWatchingWorkloads } from './kube-scanner/watchers/namespaces';
 
-export function monitor() {
+export function monitor(): void {
   try {
     logger.info({cluster: currentClusterName}, 'starting to monitor');
     beginWatchingWorkloads();

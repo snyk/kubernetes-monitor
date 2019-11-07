@@ -17,7 +17,7 @@ export function getDestinationForImage(image: string): string {
   return `${config.IMAGE_STORAGE_ROOT}/${normalisedImageName}_${uniqueIdentifier}.tar`;
 }
 
-function prefixRespository(target: string, type: SkopeoRepositoryType) {
+function prefixRespository(target: string, type: SkopeoRepositoryType): string {
   switch (type) {
     case SkopeoRepositoryType.ImageRegistry:
       return `${type}://${target}`;
