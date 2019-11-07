@@ -18,7 +18,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]) {
         },
       );
 
-      if (!isSuccessStatusCode(result.statusCode!)) {
+      if (!isSuccessStatusCode(result.statusCode)) {
         throw new Error(`${result.statusCode} ${result.statusMessage}`);
       }
     } catch (error) {

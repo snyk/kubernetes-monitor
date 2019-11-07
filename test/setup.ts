@@ -30,6 +30,7 @@ async function downloadKubectl(k8sRelease: string, osDistro: string): Promise<vo
     console.log('Downloading kubectl...');
 
     const bodyData = null;
+    // eslint-disable-next-line @typescript-eslint/camelcase
     const requestOptions = { follow_max: 2 };
     await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
       `${k8sRelease}/bin/${osDistro}/amd64/kubectl`,
@@ -51,6 +52,7 @@ async function downloadKind(osDistro: string): Promise<void> {
     console.log('Downloading KinD...');
 
     const bodyData = null;
+    // eslint-disable-next-line @typescript-eslint/camelcase
     const requestOptions = { follow_max: 2 };
     await needle('get',
       `https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-${osDistro}-amd64`,
@@ -236,38 +238,6 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-export async function deployMonitor(): Promise<string> {
-  console.log('Begin deploying the snyk-monitor...');
-
-  try {
-    return await createMonitorDeployment();
-  } catch (err) {
-    console.error(err);
-    try {
-      await removeMonitor();
-    } catch (error) {
-      // ignore cleanup errors
-    } finally {
-      // ... but make sure the test suite doesn't proceed if the setup failed
-      process.exit(-1);
-    }
-
-    throw err;
-  }
-}
-
-export async function createSampleDeployments(): Promise<void> {
-  const servicesNamespace = 'services';
-  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
-  await Promise.all([
-    applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
-    applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
-    applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
-    applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
-    createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
-  ]);
-}
-
 async function createMonitorDeployment(): Promise<string> {
   let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
   if (imageNameAndTag === undefined || imageNameAndTag === '') {
@@ -318,3 +288,36 @@ async function createMonitorDeployment(): Promise<string> {
 
   return integrationId;
 }
+
+export async function deployMonitor(): Promise<string> {
+  console.log('Begin deploying the snyk-monitor...');
+
+  try {
+    return await createMonitorDeployment();
+  } catch (err) {
+    console.error(err);
+    try {
+      await removeMonitor();
+    } catch (error) {
+      // ignore cleanup errors
+    } finally {
+      // ... but make sure the test suite doesn't proceed if the setup failed
+      process.exit(-1);
+    }
+
+    throw err;
+  }
+}
+
+export async function createSampleDeployments(): Promise<void> {
+  const servicesNamespace = 'services';
+  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
+  await Promise.all([
+    applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
+    applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
+    applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
+    applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
+    createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
+  ]);
+}
+

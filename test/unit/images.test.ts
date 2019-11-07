@@ -1,7 +1,7 @@
 import * as tap from 'tap';
 import { getImagesWithFileSystemPath, pullImages } from '../../src/images';
 import { IPullableImage } from '../../src/images/types';
-const config = require('../../src/common/config');
+import config = require('../../src/common/config');
 
 tap.test('getImagesWithFileSystemPath()', async (t) => {
   const noImages: string[] = [];
@@ -18,7 +18,7 @@ tap.test('getImagesWithFileSystemPath()', async (t) => {
     'nginx:latest',
     'correctly returns an image without a file system path',
   );
-  const fileSystemPath = resultWithExpectedPath.fileSystemPath!;
+  const fileSystemPath = resultWithExpectedPath.fileSystemPath;
   t.ok(fileSystemPath, 'file system path exists on the result');
   t.ok(fileSystemPath.endsWith('.tar'), 'file system path ends in .tar');
 
