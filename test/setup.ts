@@ -174,7 +174,7 @@ function createTestYamlDeployment(
   // Inject the baseUrl of homebase that snyk-monitor container use to send metadata
   deployment.spec.template.spec.containers[0].env[2] = {
     name: 'SNYK_INTEGRATION_API',
-    value: 'https://homebase.dev.snyk.io',
+    value: 'https://kubernetes-upstream.dev.snyk.io',
   };
 
   writeFileSync(newYamlPath, stringify(deployment));
