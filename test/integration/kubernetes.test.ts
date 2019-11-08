@@ -1,4 +1,4 @@
-import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig, AppsV1Api, BatchV1Api, Watch, V1Job } from '@kubernetes/client-node';
 import setup = require('../setup');
 import * as tap from 'tap';
 import { getKindConfigPath } from '../helpers/kind';
@@ -10,6 +10,7 @@ import {
   getHomebaseResponseBody,
 } from '../helpers/homebase';
 import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
+import * as sleep from 'sleep-promise';
 
 let integrationId: string;
 
@@ -213,4 +214,55 @@ tap.test('notify upstream of deleted pods that have no OwnerReference', async (t
     validationResult,
     'snyk-monitor sends deleted workloads to upstream for pods without OwnerReference',
   );
+});
+
+tap.test('job does not get processed', async (t) => {
+  const clusterName = 'Default cluster';
+  const namespace = 'services';
+
+  const kindConfigPath = await getKindConfigPath();
+  const kubeConfig = new KubeConfig();
+  kubeConfig.loadFromFile(kindConfigPath);
+  const k8sApi = kubeConfig.makeApiClient(BatchV1Api);
+
+  await setup.applyK8sYaml('./test/fixtures/hello-world-job.yaml');
+
+  await Promise.race([
+    sleep(60 * 1000), // Ensure this doesn't take longer than a minute
+    new Promise((resolve) => {
+      const watch = new Watch(kubeConfig).watch(
+        `/apis/batch/v1/watch/namespaces/${namespace}/jobs`,
+        {},
+        (_phase: string, job: V1Job) => {
+          if (!job || !job.status || !job.status.completionTime) {
+            return;
+          }
+
+          k8sApi.deleteNamespacedJob('hello-world-job', namespace);
+          resolve(watch.abort());
+        },
+        () => {},
+      );
+    }),
+  ]).catch((error) => {
+    t.fail(error);
+  });
+
+  console.log('Validating that job is not present in upstream...');
+
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return (
+      workloads !== undefined &&
+      workloads.find(
+        (workload) => workload.name === 'hello-world-job' && workload.type === WorkloadKind.Job,
+      ) !== undefined
+    );
+  };
+  const validationResult = await validateHomebaseStoredData(
+    validatorFn,
+    `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
+    12, // one minute
+  );
+
+  t.false(validationResult, 'the job did not appear in the upstream');
 });

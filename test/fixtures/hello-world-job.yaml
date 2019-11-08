@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hello-world-job
+  namespace: services
+spec:
+  template:
+    metadata:
+      name: hello-world-job
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: hello-world
+          image: ubuntu:latest
+          command:
+            - "true"
