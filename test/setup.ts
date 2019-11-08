@@ -250,6 +250,7 @@ async function createMonitorDeployment(): Promise<string> {
     // the default, determined by ./script/build-image.sh
     imageNameAndTag = 'snyk/kubernetes-monitor:local';
   }
+  console.log(`Using image ${imageNameAndTag}`);
 
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();

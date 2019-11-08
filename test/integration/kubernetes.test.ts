@@ -22,6 +22,14 @@ async function tearDown() {
 
 tap.tearDown(tearDown);
 
+tap.test('start with clean environment', async () => {
+  try {
+    await tearDown();
+  } catch (error) {
+    console.log(`could not start with a clean environment: ${error.message}`);
+  }
+})
+
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
   t.plan(1);
