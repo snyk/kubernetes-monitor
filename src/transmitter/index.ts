@@ -3,7 +3,7 @@ import * as config from '../common/config';
 import logger = require('../common/logger');
 import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload } from './types';
 
-const homebaseUrl = config.INTEGRATION_API || config.DEFAULT_HOMEBASE_URL;
+const homebaseUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
 function isSuccessStatusCode(statusCode: number | undefined): boolean {
   return statusCode !== undefined && statusCode > 100 && statusCode < 400;
