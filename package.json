@@ -14,10 +14,10 @@
     "test:rpm": "./scripts/build-image.sh && PACKAGE_MANAGER=rpm ./tap test/package-manager/regression.test.ts -Rdot --timeout=7200",
     "start": "bin/start",
     "prepare": "npm run build",
-    "build": "npx typescript",
+    "build": "tsc",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
-    "lint": "tslint --format stylish '{src,test}/!(fixtures)/**/*.ts'"
+    "lint": "eslint 'src/**/*.ts' && (cd test && eslint '**/*.ts')"
   },
   "author": "snyk.io",
   "license": "private",
@@ -47,17 +47,20 @@
     "snyk-docker-plugin": "1.34.0",
     "source-map-support": "^0.5.9",
     "tslib": "^1.9.3",
+    "typescript": "^3.7.2",
     "ws": "^7.0.0",
     "yaml": "^1.6.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
     "sleep-promise": "^8.0.1",
     "supertest": "^3.3.0",
     "tap": "github:snyk/node-tap#alternative-runtimes",
     "ts-node": "^8.1.0",
-    "tsc-watch": "^1.0.30",
-    "tslint": "^5.11.0",
-    "typescript": "^3.5.3"
+    "tsc-watch": "^1.0.30"
   },
   "repository": {
     "type": "git",

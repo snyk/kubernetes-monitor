@@ -12,6 +12,15 @@ const toneDownFactor = 5;
 const maxPodChecks =
   setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
 
+export async function getHomebaseResponseBody(
+  relativeUrl: string,
+): Promise<any> {
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
+  const homebaseResponse = await needle('get', url, null);
+  const responseBody = homebaseResponse.body;
+  return responseBody;
+}
+
 export async function validateHomebaseStoredData(
   validatorFn: WorkloadLocatorValidator,
   relativeUrl: string,
@@ -47,13 +56,4 @@ export async function validateHomebaseStoredMetadata(
     remainingChecks--;
   }
   return false;
-}
-
-export async function getHomebaseResponseBody(
-  relativeUrl: string,
-): Promise<any> {
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
-  const homebaseResponse = await needle('get', url, null);
-  const responseBody = homebaseResponse.body;
-  return responseBody;
 }
