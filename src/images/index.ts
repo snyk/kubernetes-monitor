@@ -23,7 +23,7 @@ export function getImagesWithFileSystemPath(images: string[]): IPullableImage[] 
   return images.map((image) => ({ imageName: image, fileSystemPath: getDestinationForImage(image) }));
 }
 
-export async function removePulledImages(images: IPullableImage[]) {
+export async function removePulledImages(images: IPullableImage[]): Promise<void> {
   for (const {imageName, fileSystemPath} of images) {
     try {
       await new Promise((resolve) => unlink(fileSystemPath, resolve));
