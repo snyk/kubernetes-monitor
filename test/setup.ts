@@ -263,6 +263,8 @@ async function createMonitorDeployment(): Promise<string> {
     // the default, determined by ./script/build-image.sh
     'snyk/kubernetes-monitor:local',
   );
+  const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
+  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
 
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
@@ -281,12 +283,33 @@ async function createMonitorDeployment(): Promise<string> {
 
   const secretName = 'snyk-monitor';
   const integrationId = getIntegrationId();
-  await createSecret(secretName, namespace, { 'dockercfg.json': '{}', 'integrationId': integrationId });
+  await createSecret(secretName, namespace, {
+    'dockercfg.json': gcrDockercfg,
+    integrationId,
+  });
 
   const servicesNamespace = 'services';
   await createNamespace(servicesNamespace);
   // Small hack to prevent timing problems in CircleCI...
   await sleep(5000);
+
+  // Create imagePullSecrets for pulling private images from gcr.io.
+  // This is needed for deploying gcr.io images in KinD (this is _not_ used by snyk-monitor).
+  const gcrSecretName = 'gcr-io';
+  const gcrKubectlSecretsKeyPrefix = '--';
+  const gcrSecretType = 'docker-registry';
+  await createSecret(
+    gcrSecretName,
+    servicesNamespace,
+    {
+      'docker-server': 'https://gcr.io',
+      'docker-username': '_json_key',
+      'docker-email': 'egg@snyk.io',
+      'docker-password': gcrToken,
+    },
+    gcrKubectlSecretsKeyPrefix,
+    gcrSecretType,
+  );
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
   createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);
