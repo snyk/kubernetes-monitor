@@ -110,12 +110,25 @@ async function createNamespace(namespace: string): Promise<void> {
   console.log(`Created namespace ${namespace}!`);
 }
 
-async function createSecret(secretName: string, namespace: string, secrets: { [key: string]: string }): Promise<void> {
+async function createSecret(
+  secretName: string,
+  namespace: string,
+  secrets: { [key: string]: string },
+  secretsKeyPrefix = '--from-literal=',
+  secretType = 'generic',
+): Promise<void> {
   console.log(`Creating secret ${secretName} in namespace ${namespace}...`);
   const secretsAsKubectlArgument = Object.keys(secrets)
-    .reduce((prev, key) => `${prev} --from-literal=${key}="${secrets[key]}"`, '');
-  await exec(`./kubectl create secret generic ${secretName} -n ${namespace} ${secretsAsKubectlArgument}`);
+    .reduce((prev, key) => `${prev} ${secretsKeyPrefix}${key}='${secrets[key]}'`, '');
+  await exec(`./kubectl create secret ${secretType} ${secretName} -n ${namespace} ${secretsAsKubectlArgument}`);
   console.log(`Created secret ${secretName}!`);
+}
+
+function getEnvVariableOrDefault(envVarName: string, defaultValue: string): string {
+  const value = process.env[envVarName];
+  return value === undefined || value === ''
+    ? defaultValue
+    : value;
 }
 
 export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
@@ -245,11 +258,11 @@ export async function removeMonitor(): Promise<void> {
 }
 
 async function createMonitorDeployment(): Promise<string> {
-  let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
-  if (imageNameAndTag === undefined || imageNameAndTag === '') {
+  const imageNameAndTag = getEnvVariableOrDefault(
+    'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
     // the default, determined by ./script/build-image.sh
-    imageNameAndTag = 'snyk/kubernetes-monitor:local';
-  }
+    'snyk/kubernetes-monitor:local',
+  );
 
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
