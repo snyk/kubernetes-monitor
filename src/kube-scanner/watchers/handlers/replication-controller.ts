@@ -1,9 +1,9 @@
 import { V1ReplicationController } from '@kubernetes/client-node';
-import { deleteWorkload } from './index';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
-export async function replicationControllerWatchHandler(replicationController: V1ReplicationController) {
+export async function replicationControllerWatchHandler(replicationController: V1ReplicationController): Promise<void> {
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
       !replicationController.spec.template.metadata || !replicationController.spec.template.spec ||
       !replicationController.status) {

@@ -14,7 +14,7 @@ import { kubeConfig, k8sApi } from '../cluster';
  */
 const watchedNamespaces = new Set<string>();
 
-function setupWatchesForNamespace(namespace: string) {
+function setupWatchesForNamespace(namespace: string): void {
   if (watchedNamespaces.has(namespace)) {
     logger.info({namespace}, 'already set up namespace watch, skipping');
     return;
@@ -50,7 +50,7 @@ export function isKubernetesInternalNamespace(namespace: string): boolean {
   return kubernetesInternalNamespaces.includes(namespace);
 }
 
-function setupWatchesForCluster() {
+function setupWatchesForCluster(): void {
   const informer = makeInformer(kubeConfig, '/api/v1/namespaces', () => k8sApi.coreClient.listNamespace());
 
   informer.on(ADD, (namespace: V1Namespace) => {
@@ -72,7 +72,7 @@ function setupWatchesForCluster() {
   informer.start();
 }
 
-export function beginWatchingWorkloads() {
+export function beginWatchingWorkloads(): void {
   if (config.NAMESPACE) {
     logger.info({namespace: config.NAMESPACE}, 'kubernetes-monitor restricted to specific namespace');
     setupWatchesForNamespace(config.NAMESPACE);

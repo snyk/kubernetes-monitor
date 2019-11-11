@@ -10,8 +10,10 @@ import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
 import state = require('../../../state');
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { WorkloadKind } from '../../types';
+import { deleteWorkload } from './workload';
 
-function deleteFailedKeysFromState(keys) {
+function deleteFailedKeysFromState(keys): void {
   try {
     for (const key of keys) {
       try {
@@ -25,7 +27,7 @@ function deleteFailedKeysFromState(keys) {
   }
 }
 
-async function queueWorker(task, callback) {
+async function queueWorker(task, callback): Promise<void> {
   const {workloadWorker, workloadMetadata, imageKeys} = task;
   try {
     await workloadWorker.process(workloadMetadata);
@@ -41,7 +43,7 @@ workloadsToScanQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload in the pod handler 1');
 });
 
-async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]) {
+async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]): Promise<void> {
   const imagesToScan: IWorkload[] = [];
   const imageKeys: string[] = [];
   for (const image of workloadMetadata) {
@@ -59,14 +61,14 @@ async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: 
   }
 }
 
-export function isPodReady(pod: V1Pod) {
+export function isPodReady(pod: V1Pod): boolean {
   return pod.status !== undefined && pod.status.phase === PodPhase.Running &&
     pod.status.containerStatuses !== undefined && pod.status.containerStatuses.some((container) =>
       container.state !== undefined &&
       (container.state.running !== undefined || container.state.waiting !== undefined));
 }
 
-export async function podWatchHandler(pod: V1Pod) {
+export async function podWatchHandler(pod: V1Pod): Promise<void> {
   // This tones down the number of scans whenever a Pod is about to be scheduled by K8s
   if (!isPodReady(pod)) {
     return;
@@ -92,4 +94,20 @@ export async function podWatchHandler(pod: V1Pod) {
   } catch (error) {
     logger.error({error, podName}, 'could not build image metadata for pod');
   }
+}
+
+export async function podDeletedHandler(pod: V1Pod): Promise<void> {
+  if (!pod.metadata || !pod.spec) {
+    return;
+  }
+
+  const workloadName = pod.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
+
+  await deleteWorkload({
+    kind: WorkloadKind.Pod,
+    objectMeta: pod.metadata,
+    specMeta: pod.metadata,
+    ownerRefs: pod.metadata.ownerReferences,
+    podSpec: pod.spec,
+  }, workloadName);
 }

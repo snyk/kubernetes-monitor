@@ -17,6 +17,8 @@ export function constructHomebaseDepGraphPayloads(
     workloadMetadata: IWorkload[],
 ): IDepGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
+    // We know that .find() won't return undefined
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const kubeWorkload: IWorkload = workloadMetadata.find((meta) => meta.imageName === scannedImage.imageWithTag)!;
 
     const { cluster, namespace, type, name } = kubeWorkload;

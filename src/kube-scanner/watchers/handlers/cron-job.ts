@@ -1,9 +1,9 @@
 import { V1beta1CronJob } from '@kubernetes/client-node';
-import { deleteWorkload } from './index';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
-export async function cronJobWatchHandler(cronJob: V1beta1CronJob) {
+export async function cronJobWatchHandler(cronJob: V1beta1CronJob): Promise<void> {
   if (!cronJob.metadata || !cronJob.spec || !cronJob.spec.jobTemplate.spec ||
       !cronJob.spec.jobTemplate.metadata || !cronJob.spec.jobTemplate.spec.template.spec) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!

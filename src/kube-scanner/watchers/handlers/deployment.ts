@@ -1,9 +1,9 @@
 import { V1Deployment } from '@kubernetes/client-node';
-import { deleteWorkload } from './index';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
-export async function deploymentWatchHandler(deployment: V1Deployment) {
+export async function deploymentWatchHandler(deployment: V1Deployment): Promise<void> {
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
       !deployment.spec.template.spec || !deployment.status) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!

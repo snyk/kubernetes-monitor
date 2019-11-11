@@ -1,9 +1,9 @@
 import { V1ReplicaSet } from '@kubernetes/client-node';
-import { deleteWorkload } from './index';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
-export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet) {
+export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet): Promise<void> {
   if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
       !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec || !replicaSet.status) {
     // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
