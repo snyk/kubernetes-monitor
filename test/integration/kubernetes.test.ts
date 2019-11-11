@@ -180,3 +180,37 @@ tap.test('snyk-monitor secure configuration is as expected', async (t) => {
   validateSecureConfiguration(t, deployment);
   validateVolumeMounts(t, deployment);
 });
+
+/**
+ * The snyk-monitor should detect that a Pod which doesn't have
+ * a parent (OwnerReference) is deleted and should notify upstream.
+ *
+ * This is the only special case of a workload, where the Pod
+ * itself is the workload (because it was created on its own).
+ */
+tap.test('notify upstream of deleted pods that have no OwnerReference', async (t) => {
+  const clusterName = 'Default cluster';
+
+  const podName = 'alpine';
+  const namespace = 'services';
+
+  await setup.deletePod(podName, namespace);
+
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return (
+      workloads !== undefined &&
+      workloads.find(
+        (workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
+      ) === undefined
+    );
+  };
+
+  const validationResult = await validateHomebaseStoredData(
+    validatorFn,
+    `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
+  );
+  t.ok(
+    validationResult,
+    'snyk-monitor sends deleted workloads to upstream for pods without OwnerReference',
+  );
+});

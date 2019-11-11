@@ -1,5 +1,5 @@
 import { V1ReplicaSet } from '@kubernetes/client-node';
-import { deleteWorkload } from './index';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
