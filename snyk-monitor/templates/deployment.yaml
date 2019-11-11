@@ -44,6 +44,8 @@ spec:
             value: {{ .Values.integrationApi }}
           - name: SNYK_CLUSTER_NAME
             value: {{ .Values.clusterName }}
+          - name: SNYK_MONITOR_VERSION
+            value: {{ .Values.image.tag }}
           resources:
             requests:
               cpu: '250m'
