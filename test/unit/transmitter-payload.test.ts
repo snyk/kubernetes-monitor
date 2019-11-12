@@ -1,13 +1,13 @@
 import * as tap from 'tap';
 
-import imageScanner = require('../../src/kube-scanner/image-scanner');
+import kubeScannerTypes = require('../../src/kube-scanner/types');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
 import podSpecFixture = require('../fixtures/pod-spec.json');
 import config = require('../../src/common/config');
 
 tap.test('constructDepGraph breaks when workloadMetadata is missing items', async (t) => {
-  const scannedImages: imageScanner.IScanResult[] = [
+  const scannedImages: kubeScannerTypes.IScanResult[] = [
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
@@ -44,7 +44,7 @@ tap.test('constructDepGraph breaks when workloadMetadata is missing items', asyn
 });
 
 tap.test('constructDepGraph happy flow', async (t) => {
-  const scannedImages: imageScanner.IScanResult[] = [
+  const scannedImages: kubeScannerTypes.IScanResult[] = [
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
