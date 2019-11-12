@@ -23,7 +23,7 @@ spec:
         volumeMounts:
         - name: docker-config
           readOnly: true
-          mountPath: "/root/.docker"
+          mountPath: "/srv/app/.docker"
         - name: temporary-storage
           mountPath: "/var/tmp"
         env:
@@ -60,6 +60,11 @@ spec:
             cpu: '1'
             memory: '2Gi'
         securityContext:
+          runAsUser: 10001
+          runAsGroup: 10001
+          privileged: false
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
             drop:
@@ -68,7 +73,6 @@ spec:
       - name: docker-config
         secret:
           secretName: snyk-monitor
-          defaultMode: 256
           items:
             - key: dockercfg.json
               path: config.json
