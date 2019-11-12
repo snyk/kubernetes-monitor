@@ -1,6 +1,6 @@
 import { SkopeoRepositoryType } from '../kube-scanner/types';
 import { SpawnPromiseResult } from 'child-process-promise';
-import { exec } from '../cli/process';
+import { exec } from '../common/process';
 import config = require('../common/config');
 
 function getUniqueIdentifier(): string {
