@@ -110,12 +110,25 @@ async function createNamespace(namespace: string): Promise<void> {
   console.log(`Created namespace ${namespace}!`);
 }
 
-async function createSecret(secretName: string, namespace: string, secrets: { [key: string]: string }): Promise<void> {
+async function createSecret(
+  secretName: string,
+  namespace: string,
+  secrets: { [key: string]: string },
+  secretsKeyPrefix = '--from-literal=',
+  secretType = 'generic',
+): Promise<void> {
   console.log(`Creating secret ${secretName} in namespace ${namespace}...`);
   const secretsAsKubectlArgument = Object.keys(secrets)
-    .reduce((prev, key) => `${prev} --from-literal=${key}="${secrets[key]}"`, '');
-  await exec(`./kubectl create secret generic ${secretName} -n ${namespace} ${secretsAsKubectlArgument}`);
+    .reduce((prev, key) => `${prev} ${secretsKeyPrefix}${key}='${secrets[key]}'`, '');
+  await exec(`./kubectl create secret ${secretType} ${secretName} -n ${namespace} ${secretsAsKubectlArgument}`);
   console.log(`Created secret ${secretName}!`);
+}
+
+function getEnvVariableOrDefault(envVarName: string, defaultValue: string): string {
+  const value = process.env[envVarName];
+  return value === undefined || value === ''
+    ? defaultValue
+    : value;
 }
 
 export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
@@ -245,11 +258,13 @@ export async function removeMonitor(): Promise<void> {
 }
 
 async function createMonitorDeployment(): Promise<string> {
-  let imageNameAndTag = process.env['KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG'];
-  if (imageNameAndTag === undefined || imageNameAndTag === '') {
+  const imageNameAndTag = getEnvVariableOrDefault(
+    'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
     // the default, determined by ./script/build-image.sh
-    imageNameAndTag = 'snyk/kubernetes-monitor:local';
-  }
+    'snyk/kubernetes-monitor:local',
+  );
+  const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
+  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
 
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
@@ -268,12 +283,33 @@ async function createMonitorDeployment(): Promise<string> {
 
   const secretName = 'snyk-monitor';
   const integrationId = getIntegrationId();
-  await createSecret(secretName, namespace, { 'dockercfg.json': '{}', 'integrationId': integrationId });
+  await createSecret(secretName, namespace, {
+    'dockercfg.json': gcrDockercfg,
+    integrationId,
+  });
 
   const servicesNamespace = 'services';
   await createNamespace(servicesNamespace);
   // Small hack to prevent timing problems in CircleCI...
   await sleep(5000);
+
+  // Create imagePullSecrets for pulling private images from gcr.io.
+  // This is needed for deploying gcr.io images in KinD (this is _not_ used by snyk-monitor).
+  const gcrSecretName = 'gcr-io';
+  const gcrKubectlSecretsKeyPrefix = '--';
+  const gcrSecretType = 'docker-registry';
+  await createSecret(
+    gcrSecretName,
+    servicesNamespace,
+    {
+      'docker-server': 'https://gcr.io',
+      'docker-username': '_json_key',
+      'docker-email': 'egg@snyk.io',
+      'docker-password': gcrToken,
+    },
+    gcrKubectlSecretsKeyPrefix,
+    gcrSecretType,
+  );
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
   createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);

@@ -1,5 +1,5 @@
 
-import lruCache = require('lru-cache');
+import * as lruCache from 'lru-cache';
 import config = require('./common/config');
 
 const lruCacheOptions = {
@@ -12,7 +12,7 @@ const lruCacheOptions = {
 }
 
 const state = {
-  imagesAlreadyScanned: new lruCache(lruCacheOptions),
+  imagesAlreadyScanned: new lruCache<string, string>(lruCacheOptions),
 };
 
 export = state;

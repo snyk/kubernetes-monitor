@@ -21,6 +21,14 @@ async function tearDown() {
 
 tap.tearDown(tearDown);
 
+tap.test('start with clean environment', async () => {
+  try {
+    await tearDown();
+  } catch (error) {
+    console.log(`could not start with a clean environment: ${error.message}`);
+  }
+})
+
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
   t.plan(1);
@@ -123,6 +131,36 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
   t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
     'snyk-monitor sent expected data to homebase in the expected timeframe');
+});
+
+tap.test('snyk-monitor pulls images from private registries and sends data to homebase', async (t) => {
+  t.plan(3);
+
+  const deploymentName = 'debian-gcr-io';
+  const namespace = 'services';
+  const clusterName = 'Default cluster';
+  const deploymentType = WorkloadKind.Deployment;
+  const imageName = 'gcr.io/snyk-k8s-fixtures/debian';
+
+  await setup.applyK8sYaml('./test/fixtures/private-registries/debian-deployment-gcr-io.yaml');
+  console.log(`Begin polling upstream for the expected private registry workload with integration ID ${integrationId}...`);
+
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return workloads !== undefined &&
+      workloads.find((workload) => workload.name === deploymentName &&
+        workload.type === WorkloadKind.Deployment) !== undefined;
+  };
+
+  const homebaseTestResult = await validateHomebaseStoredData(
+    validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
+  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
+
+  const depGraphResult = await getHomebaseResponseBody(
+    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  t.ok('dependencyGraphResults' in depGraphResult,
+    'expected dependencyGraphResults field to exist in /dependency-graphs response');
+  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
+    'snyk-monitor sent expected data to upstream in the expected timeframe');
 });
 
 tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
