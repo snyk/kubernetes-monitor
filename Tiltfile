@@ -1,7 +1,7 @@
 docker_build("snyk/kubernetes-monitor", ".",
   live_update=[
     fall_back_on(["package.json", "package-lock.json"]),
-    sync('.', '/root'),
+    sync('.', '/srv/app'),
   ],
   entrypoint="bin/start-tilt"
 )
@@ -22,5 +22,5 @@ k8s_resource('snyk-monitor', port_forwards='9229:9229')
 #      "address": "127.0.0.1",
 #      "port": 9229,
 #      "localRoot": "${workspaceFolder}",
-#      "remoteRoot": "/root"
+#      "remoteRoot": "/srv/app"
 #    }
