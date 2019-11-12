@@ -10,6 +10,7 @@ import {
   IWorkloadMetadataPayload,
   IWorkloadMetadata,
   IWorkloadLocator,
+  IKubernetesMonitorMetadata,
 } from './types';
 
 export function constructHomebaseDepGraphPayloads(
@@ -32,10 +33,17 @@ export function constructHomebaseDepGraphPayloads(
       name,
     };
 
+    const monitorMetadata: IKubernetesMonitorMetadata = {
+      agentId: config.AGENT_ID,
+      namespace: config.NAMESPACE,
+      version: config.MONITOR_VERSION,
+    };
+
     return {
       imageLocator,
       agentId: config.AGENT_ID,
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
+      metadata: monitorMetadata,
     } as IDepGraphPayload;
   });
 

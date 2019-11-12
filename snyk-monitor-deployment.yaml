@@ -50,6 +50,8 @@ spec:
                 name: snyk-monitor
                 key: clusterName
                 optional: true
+          - name: SNYK_MONITOR_VERSION
+            value: IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
         resources:
           requests:
             cpu: '250m'
