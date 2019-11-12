@@ -4,6 +4,7 @@ import imageScanner = require('../../src/kube-scanner/image-scanner');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
 import podSpecFixture = require('../fixtures/pod-spec.json');
+import config = require('../../src/common/config');
 
 tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is missing items', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
@@ -70,14 +71,37 @@ tap.test('constructHomebaseDepGraphPayloads happy flow', async (t) => {
     },
   ];
 
+  // These values are populated at runtime (injected by the deployment) so we have to mock them
+  // to make sure the function uses them to construct the payload (otherwise they are undefined).
+  const backups = {
+    namespace: config.NAMESPACE,
+    version: config.MONITOR_VERSION,
+  };
+  config.NAMESPACE = 'b7';
+  config.MONITOR_VERSION = '1.2.3';
+
   const payloads = payload.constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
 
   t.equals(payloads.length, 1, 'one payload to send to Homebase');
-  t.equals(payloads[0].dependencyGraph, JSON.stringify('whatever1'), 'dependency graph present in payload');
-  t.equals(payloads[0].imageLocator.cluster, 'grapefruit', 'cluster present in payload');
-  t.equals(payloads[0].imageLocator.imageId, 'myImage', 'image ID present in payload');
-  t.equals(payloads[0].imageLocator.name, 'workloadName', 'workload name present in payload');
-  t.equals(payloads[0].imageLocator.type, 'type', 'workload type present in payload');
+  const firstPayload = payloads[0];
+  t.equals(firstPayload.dependencyGraph, JSON.stringify('whatever1'), 'dependency graph present in payload');
+  t.equals(firstPayload.imageLocator.cluster, 'grapefruit', 'cluster present in payload');
+  t.equals(firstPayload.imageLocator.imageId, 'myImage', 'image ID present in payload');
+  t.equals(firstPayload.imageLocator.name, 'workloadName', 'workload name present in payload');
+  t.equals(firstPayload.imageLocator.type, 'type', 'workload type present in payload');
+
+  t.deepEqual(
+    firstPayload.metadata,
+    {
+      agentId: config.AGENT_ID,
+      namespace: 'b7',
+      version: '1.2.3'
+    },
+    'metadata is correctly returned in payload'
+  );
+
+  config.NAMESPACE = backups.namespace;
+  config.MONITOR_VERSION = backups.version;
 });
 
 tap.test('constructHomebaseWorkloadMetadataPayload happy flow', async (t) => {

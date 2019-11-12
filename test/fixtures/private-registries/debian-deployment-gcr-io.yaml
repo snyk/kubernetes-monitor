@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debian-gcr-io
+  namespace: services
+spec:
+  selector:
+    matchLabels:
+      app: debian-gcr-io
+  template:
+    metadata:
+      labels:
+        app: debian-gcr-io
+    spec:
+      imagePullSecrets:
+        - name: gcr-io
+      containers:
+      - name: debian-gcr-io
+        image: gcr.io/snyk-k8s-fixtures/debian:10
+        imagePullPolicy: Always
+        securityContext: {}
+        command: ["true"]
