@@ -1,14 +1,9 @@
 import * as plugin from 'snyk-docker-plugin';
-import logger = require('../common/logger');
-import { IStaticAnalysisOptions, StaticAnalysisImageType } from './types';
-import { IPullableImage } from '../images/types';
-import config = require('../common/config');
-
-export interface IScanResult {
-  image: string;
-  imageWithTag: string;
-  pluginResult: any;
-}
+import logger = require('../../common/logger');
+import { IStaticAnalysisOptions, StaticAnalysisImageType } from '../types';
+import { IPullableImage } from '../../images/types';
+import config = require('../../common/config');
+import { IScanResult } from '../types';
 
 /**
  * Exported for testing

@@ -41,6 +41,12 @@ export interface KubeObjectMetadata {
   revision?: number;
 }
 
+export interface IScanResult {
+  image: string;
+  imageWithTag: string;
+  pluginResult: any;
+}
+
 export interface IK8sClients {
   readonly appsClient: AppsV1Api;
   readonly coreClient: CoreV1Api;
