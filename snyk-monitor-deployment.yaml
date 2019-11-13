@@ -46,7 +46,7 @@ spec:
                 optional: true
           - name: SNYK_CLUSTER_NAME
             valueFrom:
-              configMapKeyRef:
+              secretKeyRef:
                 name: snyk-monitor
                 key: clusterName
                 optional: true

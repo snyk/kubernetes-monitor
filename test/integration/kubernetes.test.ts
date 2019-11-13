@@ -8,7 +8,7 @@ import {
   validateHomebaseStoredMetadata,
   getHomebaseResponseBody,
 } from '../helpers/homebase';
-import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
+import { validateSecureConfiguration, validateVolumeMounts, validateEnvironmentVariables } from '../helpers/deployment';
 import * as kubectl from '../helpers/kubectl';
 
 let integrationId: string;
@@ -208,6 +208,7 @@ tap.test('snyk-monitor secure configuration is as expected', async (t) => {
 
   validateSecureConfiguration(t, deployment);
   validateVolumeMounts(t, deployment);
+  validateEnvironmentVariables(t, deployment);
 });
 
 /**

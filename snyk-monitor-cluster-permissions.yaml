@@ -82,5 +82,4 @@ metadata:
 data:
   namespace: ""
   integrationApi: ""
-  clusterName: ""
 ---

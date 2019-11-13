@@ -20,11 +20,6 @@ image:
   tag: IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
   pullPolicy: Always
 
-# The snyk-monitor requires knowing the cluster name so that it can organise
-# scanned workloads. The Kubernetes API does not provide an API to query this.
-# Set the name of the cluster, otherwise the snyk-monitor will set this to a default value.
-clusterName: ""
-
 # The snyk-monitor requires disk storage to temporarily pull container images and to scan them for vulnerabilities.
 # This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. The snyk-monitor mounts an emptyDir for storage.
 temporaryStorageSize: 50Gi

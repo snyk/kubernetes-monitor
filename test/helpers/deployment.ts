@@ -94,3 +94,33 @@ export function validateVolumeMounts(test: tap, deployment: V1Deployment) {
     'docker-config mount path is as expected',
   );
 }
+
+export function validateEnvironmentVariables(test: tap, deployment: V1Deployment) {
+  if (
+    !deployment.spec ||
+    !deployment.spec.template.spec ||
+    !deployment.spec.template.spec.containers ||
+    deployment.spec.template.spec.containers.length === 0 ||
+    !deployment.spec.template.spec.containers[0].env
+  ) {
+    test.fail('bad container spec or missing env');
+    return;
+  }
+
+  const env = deployment.spec.template.spec.containers[0].env;
+
+  const integrationId = env.find((env) => env.name === 'SNYK_INTEGRATION_ID');
+  test.ok(integrationId, 'integration ID env var exists');
+
+  const namespace = env.find((env) => env.name === 'SNYK_NAMESPACE');
+  test.ok(namespace, 'namespace env var exists');
+
+  const integrationApi = env.find((env) => env.name === 'SNYK_INTEGRATION_API');
+  test.ok(integrationApi, 'integration API env var exists');
+
+  const clusterName = env.find((env) => env.name === 'SNYK_CLUSTER_NAME');
+  test.ok(clusterName, 'cluster name env var exists');
+
+  const monitorVersion = env.find((env) => env.name === 'SNYK_MONITOR_VERSION');
+  test.ok(monitorVersion, 'monitor version env var exists');
+}

@@ -43,7 +43,11 @@ spec:
           - name: SNYK_INTEGRATION_API
             value: {{ .Values.integrationApi }}
           - name: SNYK_CLUSTER_NAME
-            value: {{ .Values.clusterName }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.monitorSecrets }}
+                key: clusterName
+                optional: true
           - name: SNYK_MONITOR_VERSION
             value: {{ .Values.image.tag }}
           resources:
