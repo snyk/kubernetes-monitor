@@ -1,4 +1,3 @@
-import setup = require('../setup');
 import * as tap from 'tap';
 import { IWorkloadLocator } from '../../src/transmitter/types';
 import { WorkloadKind } from '../../src/kube-scanner/types';
@@ -6,6 +5,7 @@ import { readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 import { validateHomebaseStoredData } from '../helpers/homebase';
+import kubectl = require('../helpers/kubectl');
 
 function getFixturePath(fixturePath: string): string {
   return join(__dirname, '../fixtures/package-manager', fixturePath);
@@ -67,7 +67,7 @@ export async function testPackageManagerWorkloads(
     const tmpYamlPath = resolve(tmpdir(), `${deploymentName}.yaml`);
     createDeploymentFile(tmpYamlPath, deploymentName, imageName);
 
-    return setup
+    return kubectl
       .applyK8sYaml(tmpYamlPath)
       .then(() => {
         unlinkSync(tmpYamlPath);
