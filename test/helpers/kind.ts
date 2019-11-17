@@ -69,5 +69,5 @@ export async function exportKubeConfig(clusterName = 'kind'): Promise<void> {
 export async function loadImageInCluster(imageNameAndTag): Promise<void> {
   console.log(`Loading image ${imageNameAndTag} in cluster...`);
   await exec(`./kind load docker-image ${imageNameAndTag}`);
-  console.log(`Loaded image ${imageNameAndTag}!`);
+  console.log(`Loaded image ${imageNameAndTag}`);
 }
