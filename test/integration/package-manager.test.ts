@@ -8,6 +8,9 @@ import kubectl = require('../helpers/kubectl');
 import { deployMonitor, removeMonitor } from '../setup';
 import * as fixtureReader from './fixture-reader';
 
+import { IWorkloadLocator } from '../../src/transmitter/types';
+import { WorkloadKind } from '../../src/kube-scanner/types';
+
 let integrationId: string;
 
 // PACKAGE_MANAGER is set in package.json as part of the package manager tests.
@@ -32,6 +35,19 @@ tap.test('deploy snyk-monitor', async (t) => {
 
   t.pass('successfully deployed the snyk-monitor');
 });
+
+function validatorFactory(workloadName: string) {
+  return function _validator(workloads: IWorkloadLocator[] | undefined) {
+    return (
+      workloads !== undefined &&
+      workloads.find(
+        (workload) =>
+          workload.name === workloadName &&
+          workload.type === WorkloadKind.Deployment,
+      ) !== undefined
+    );
+  };
+}
 
 tap.test(
   `static analysis package manager test with ${packageManager} package manager`,
@@ -58,7 +74,7 @@ tap.test(
         .then(() => {
           unlinkSync(tmpYamlPath);
           return validateHomebaseStoredData(
-            fixtureReader.validatorFactory(deploymentName),
+            validatorFactory(deploymentName),
             `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
             // Wait for up to ~16 minutes for this workload.
             // We are starting a lot of them in parallel so they may take a while to scan.
