@@ -7,7 +7,7 @@ import { resolve as pathResolve } from 'path';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
-import { getKindConfigPath } from './helpers/kind';
+import * as kind from './helpers/kind';
 import * as kubectl from './helpers/kubectl';
 
 // Used when polling the monitor for certain data.
@@ -24,63 +24,10 @@ async function getLatestStableK8sRelease(): Promise<string> {
   return k8sRelease;
 }
 
-async function downloadKind(osDistro: string): Promise<void> {
-  try {
-    accessSync(pathResolve(process.cwd(), 'kind'), constants.R_OK);
-  } catch (error) {
-    console.log('Downloading KinD...');
-
-    const bodyData = null;
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    const requestOptions = { follow_max: 2 };
-    await needle('get',
-      `https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-${osDistro}-amd64`,
-      bodyData,
-      requestOptions,
-    ).then((response) => {
-      writeFileSync('kind', response.body);
-      chmodSync('kind', 0o755); // rwxr-xr-x
-    });
-
-    console.log('KinD downloaded!');
-  }
-}
-
 function getIntegrationId(): string {
   const integrationId = uuidv4();
   console.log(`Generated new integration ID ${integrationId}`);
   return integrationId;
-}
-
-// available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
-async function createKindCluster(
-    clusterName = 'kind',
-    kindImageTag = 'latest',
-): Promise<void> {
-  console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
-
-  let kindImageArgument = '';
-  if (kindImageTag !== 'latest') {
-    // not specifying the "--image" argument tells Kind to pick the latest image
-    // which does not necessarily have the "latest" tag
-    kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
-  }
-  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
-  console.log(`Created cluster ${clusterName}!`);
-}
-
-async function exportKubeConfig(clusterName = 'kind'): Promise<void> {
-  console.log('Exporting K8s config...');
-  const kindResponse = await exec(`./kind get kubeconfig-path --name="${clusterName}"`);
-  const configPath = kindResponse.stdout.replace(/[\n\t\r]/g, '');
-  process.env.KUBECONFIG = configPath;
-  console.log('Exported K8s config!');
-}
-
-async function loadImageInCluster(imageNameAndTag): Promise<void> {
-  console.log(`Loading image ${imageNameAndTag} in cluster...`);
-  await exec(`./kind load docker-image ${imageNameAndTag}`);
-  console.log(`Loaded image ${imageNameAndTag}!`);
 }
 
 function getEnvVariableOrDefault(envVarName: string, defaultValue: string): string {
@@ -125,7 +72,7 @@ function createTestYamlDeployment(
 }
 
 async function isMonitorInReadyState(): Promise<boolean> {
-  const kindConfigPath = await getKindConfigPath();
+  const kindConfigPath = await kind.getKindConfigPath();
   const kubeConfig = new KubeConfig();
   kubeConfig.loadFromFile(kindConfigPath);
   const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
@@ -163,15 +110,9 @@ async function waitForMonitorToBeReady(): Promise<void> {
   }
 }
 
-async function deleteKindCluster(clusterName = 'kind'): Promise<void> {
-  console.log(`Deleting cluster ${clusterName}...`);
-  await exec(`./kind delete cluster --name=${clusterName}`);
-  console.log(`Deleted cluster ${clusterName}!`);
-}
-
 export async function removeMonitor(): Promise<void> {
   try {
-    await deleteKindCluster();
+    await kind.deleteKindCluster();
   } catch (error) {
     console.log(`Could not delete kind cluster: ${error.message}`);
   }
@@ -200,13 +141,13 @@ async function createMonitorDeployment(): Promise<string> {
   const osDistro = platform();
 
   await kubectl.downloadKubectl(k8sRelease, osDistro);
-  await downloadKind(osDistro);
+  await kind.downloadKind(osDistro);
 
   const kindClusterName = 'kind';
-  await createKindCluster(kindClusterName);
-  await exportKubeConfig();
+  await kind.createKindCluster(kindClusterName);
+  await kind.exportKubeConfig();
 
-  await loadImageInCluster(imageNameAndTag);
+  await kind.loadImageInCluster(imageNameAndTag);
 
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
