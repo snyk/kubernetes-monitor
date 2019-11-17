@@ -10,6 +10,7 @@ import {
   getHomebaseResponseBody,
 } from '../helpers/homebase';
 import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
+import * as kubectl from '../helpers/kubectl';
 
 let integrationId: string;
 
@@ -112,7 +113,7 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
   const deploymentType = WorkloadKind.Deployment;
   const imageName = 'nginx';
 
-  await setup.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
+  await kubectl.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
   console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
@@ -142,7 +143,7 @@ tap.test('snyk-monitor pulls images from private registries and sends data to ho
   const deploymentType = WorkloadKind.Deployment;
   const imageName = 'gcr.io/snyk-k8s-fixtures/debian';
 
-  await setup.applyK8sYaml('./test/fixtures/private-registries/debian-deployment-gcr-io.yaml');
+  await kubectl.applyK8sYaml('./test/fixtures/private-registries/debian-deployment-gcr-io.yaml');
   console.log(`Begin polling upstream for the expected private registry workload with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
@@ -177,7 +178,7 @@ tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
 
   const deploymentName = 'nginx-deployment';
   const namespace = 'services';
-  await setup.deleteDeployment(deploymentName, namespace);
+  await kubectl.deleteDeployment(deploymentName, namespace);
 
   // Finally, remove the workload and ensure that the snyk-monitor notifies Homebase
   const deleteValidatorFn: WorkloadLocatorValidator = (workloads) => {
@@ -192,7 +193,7 @@ tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
 
 tap.test(`snyk-monitor has resource limits`, async (t) => {
   t.plan(5);
-  const snykMonitorDeployment = await setup.getDeloymentJson('snyk-monitor', 'snyk-monitor');
+  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', 'snyk-monitor');
   const monitorResources = snykMonitorDeployment.spec.template.spec.containers[0].resources;
 
   t.ok(monitorResources !== undefined, 'snyk-monitor has resources');
@@ -232,7 +233,7 @@ tap.test('notify upstream of deleted pods that have no OwnerReference', async (t
   const podName = 'alpine';
   const namespace = 'services';
 
-  await setup.deletePod(podName, namespace);
+  await kubectl.deletePod(podName, namespace);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return (
