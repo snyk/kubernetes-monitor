@@ -1,9 +1,7 @@
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
-import { exec } from 'child-process-promise';
-import { accessSync, chmodSync, constants, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { readFileSync, unlinkSync, writeFileSync } from 'fs';
 import needle = require('needle');
 import { platform } from 'os';
-import { resolve as pathResolve } from 'path';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
