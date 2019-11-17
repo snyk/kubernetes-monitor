@@ -21,14 +21,14 @@ export async function downloadKubectl(k8sRelease: string, osDistro: string): Pro
       chmodSync('kubectl', 0o755); // rwxr-xr-x
     });
 
-    console.log('kubectl downloaded!');
+    console.log('kubectl downloaded');
   }
 }
 
 export async function createNamespace(namespace: string): Promise<void> {
   console.log(`Creating namespace ${namespace}...`);
   await exec(`./kubectl create namespace ${namespace}`);
-  console.log(`Created namespace ${namespace}!`);
+  console.log(`Created namespace ${namespace}`);
 }
 
 export async function createSecret(
@@ -42,13 +42,13 @@ export async function createSecret(
   const secretsAsKubectlArgument = Object.keys(secrets)
     .reduce((prev, key) => `${prev} ${secretsKeyPrefix}${key}='${secrets[key]}'`, '');
   await exec(`./kubectl create secret ${secretType} ${secretName} -n ${namespace} ${secretsAsKubectlArgument}`);
-  console.log(`Created secret ${secretName}!`);
+  console.log(`Created secret ${secretName}`);
 }
 
 export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
   console.log(`Applying ${pathToYamlDeployment}...`);
   await exec(`./kubectl apply -f ${pathToYamlDeployment}`);
-  console.log(`Applied ${pathToYamlDeployment}!`);
+  console.log(`Applied ${pathToYamlDeployment}`);
 }
 
 export async function createDeploymentFromImage(name: string, image: string, namespace: string) {
@@ -60,13 +60,13 @@ export async function createDeploymentFromImage(name: string, image: string, nam
 export async function deleteDeployment(deploymentName: string, namespace: string) {
   console.log(`Deleting deployment ${deploymentName} in namespace ${namespace}...`);
   await exec(`./kubectl delete deployment ${deploymentName} -n ${namespace}`);
-  console.log(`Deleted deployment ${deploymentName}!`);
+  console.log(`Deleted deployment ${deploymentName}`);
 }
 
 export async function deletePod(podName: string, namespace: string) {
   console.log(`Deleting pod ${podName} in namespace ${namespace}...`);
   await exec(`./kubectl delete pod ${podName} -n ${namespace}`);
-  console.log(`Deleted pod ${podName}!`);
+  console.log(`Deleted pod ${podName}`);
 }
 
 export async function getDeploymentJson(deploymentName: string, namespace: string): Promise<any> {

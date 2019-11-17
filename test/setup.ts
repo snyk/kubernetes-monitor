@@ -66,7 +66,7 @@ function createTestYamlDeployment(
   };
 
   writeFileSync(newYamlPath, stringify(deployment));
-  console.log('Created test deployment!');
+  console.log('Created test deployment');
 }
 
 async function isMonitorInReadyState(): Promise<boolean> {
@@ -189,7 +189,7 @@ async function createMonitorDeployment(): Promise<string> {
   try {
     await waitForMonitorToBeReady();
     console.log(
-      `Deployed the snyk-monitor with integration ID ${integrationId}!`,
+      `Deployed the snyk-monitor with integration ID ${integrationId}`,
     );
   } catch (error) {
     console.log(error.message);
