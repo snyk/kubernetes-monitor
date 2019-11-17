@@ -216,15 +216,6 @@ workflows:
       - package_manager_test_rpm:
           <<: *staging_branch_only_filter
 
-# reserved for the "pre publish "
-  # PR_TO_MASTER:
-  #   jobs:
-  #     - prepublish:
-  #         filters:
-  #           branches:
-  #             only:
-  #               - master
-
   MERGE_TO_MASTER:
     jobs:
       - publish:
