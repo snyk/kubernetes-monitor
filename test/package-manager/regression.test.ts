@@ -9,9 +9,7 @@ let integrationId: string;
  */
 const packageManager = process.env.PACKAGE_MANAGER;
 if (!packageManager) {
-  throw new Error(
-    'Missing package manager, have you set the PACKAGE_MANAGER environment varuable?',
-  );
+  throw new Error('Missing PACKAGE_MANAGER environment variable');
 }
 
 async function tearDown() {
