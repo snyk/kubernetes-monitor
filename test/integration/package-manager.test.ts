@@ -38,48 +38,40 @@ tap.test('deploy snyk-monitor', async (t) => {
 tap.test(
   `static analysis package manager test with ${packageManager} package manager`,
   async (t) => {
-    await testPackageManagerWorkloads(t, integrationId, packageManager);
+    const workloads = fixtureReader.getWorkloadsToTest(packageManager);
+    const namespace = 'services';
+    const clusterName = 'Default cluster';
+
+    const workloadKeys = Object.keys(workloads);
+    t.plan(workloadKeys.length);
+
+    // For every workload, create a promise that:
+    // - creates a temporary deployment file for this workload (with the appropriate name and image)
+    // - apply the deployment
+    // - clean up the temporary file, then await for the monitor to detect the workload and report to Homebase
+    const promisesToAwait = Object.keys(workloads).map((deploymentName) => {
+      const imageName = workloads[deploymentName];
+
+      const tmpYamlPath = resolve(tmpdir(), `${deploymentName}.yaml`);
+      fixtureReader.createDeploymentFile(tmpYamlPath, deploymentName, imageName);
+
+      return kubectl
+        .applyK8sYaml(tmpYamlPath)
+        .then(() => {
+          unlinkSync(tmpYamlPath);
+          return validateHomebaseStoredData(
+            fixtureReader.validatorFactory(deploymentName),
+            `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
+            // Wait for up to ~16 minutes for this workload.
+            // We are starting a lot of them in parallel so they may take a while to scan.
+            200,
+          );
+        })
+        .then((homebaseResult) => {
+          t.ok(homebaseResult, `Deployed ${deploymentName} successfully`);
+        });
+    });
+
+    await Promise.all(promisesToAwait);
   },
 );
-
-async function testPackageManagerWorkloads(
-  test: tap,
-  integrationId: string,
-  packageManager: string,
-): Promise<void> {
-  const workloads = fixtureReader.getWorkloadsToTest(packageManager);
-  const namespace = 'services';
-  const clusterName = 'Default cluster';
-
-  const workloadKeys = Object.keys(workloads);
-  test.plan(workloadKeys.length);
-
-  // For every workload, create a promise that:
-  // - creates a temporary deployment file for this workload (with the appropriate name and image)
-  // - apply the deployment
-  // - clean up the temporary file, then await for the monitor to detect the workload and report to Homebase
-  const promisesToAwait = Object.keys(workloads).map((deploymentName) => {
-    const imageName = workloads[deploymentName];
-
-    const tmpYamlPath = resolve(tmpdir(), `${deploymentName}.yaml`);
-    fixtureReader.createDeploymentFile(tmpYamlPath, deploymentName, imageName);
-
-    return kubectl
-      .applyK8sYaml(tmpYamlPath)
-      .then(() => {
-        unlinkSync(tmpYamlPath);
-        return validateHomebaseStoredData(
-          fixtureReader.validatorFactory(deploymentName),
-          `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
-          // Wait for up to ~16 minutes for this workload.
-          // We are starting a lot of them in parallel so they may take a while to scan.
-          200,
-        );
-      })
-      .then((homebaseResult) => {
-        test.ok(homebaseResult, `Deployed ${deploymentName} successfully`);
-      });
-  });
-
-  await Promise.all(promisesToAwait);
-}
