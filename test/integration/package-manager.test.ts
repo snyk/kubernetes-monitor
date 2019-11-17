@@ -10,9 +10,7 @@ import * as fixtureReader from './fixture-reader';
 
 let integrationId: string;
 
-/**
- * This one is set in package.json as part of the package manager tests.
- */
+// PACKAGE_MANAGER is set in package.json as part of the package manager tests.
 const packageManager = process.env.PACKAGE_MANAGER;
 if (!packageManager) {
   throw new Error('Missing PACKAGE_MANAGER environment variable');
