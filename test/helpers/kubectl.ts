@@ -69,7 +69,7 @@ export async function deletePod(podName: string, namespace: string) {
   console.log(`Deleted pod ${podName}!`);
 }
 
-export async function getDeloymentJson(deploymentName: string, namespace: string): Promise<any> {
+export async function getDeploymentJson(deploymentName: string, namespace: string): Promise<any> {
   const getDeploymentResult = await exec(`./kubectl get deployment ${deploymentName} -n ${namespace} -o json`);
   return JSON.parse(getDeploymentResult.stdout);
 }
