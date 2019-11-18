@@ -43,7 +43,7 @@ workloadsToScanQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload in the pod handler 1');
 });
 
-async function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]): Promise<void> {
+function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]): void {
   const imagesToScan: IWorkload[] = [];
   const imageKeys: string[] = [];
   for (const image of workloadMetadata) {
@@ -90,7 +90,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     sendWorkloadMetadata(workloadMetadataPayload);
     const workloadName = workloadMember.name;
     const workloadWorker = new WorkloadWorker(workloadName);
-    await handleReadyPod(workloadWorker, workloadMetadata);
+    handleReadyPod(workloadWorker, workloadMetadata);
   } catch (error) {
     logger.error({error, podName}, 'could not build image metadata for pod');
   }
