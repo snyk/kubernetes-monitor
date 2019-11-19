@@ -87,7 +87,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
     const workloadMetadataPayload = constructHomebaseWorkloadMetadataPayload(workloadMember);
-    sendWorkloadMetadata(workloadMetadataPayload);
+    await sendWorkloadMetadata(workloadMetadataPayload);
     const workloadName = workloadMember.name;
     const workloadWorker = new WorkloadWorker(workloadName);
     handleReadyPod(workloadWorker, workloadMetadata);

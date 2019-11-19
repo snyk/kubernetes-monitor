@@ -32,6 +32,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<voi
 
 export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): Promise<void> {
     try {
+      logger.info({workloadLocator: payload.workloadLocator}, 'attempting to send workload metadata upstream')
       const result = await needle('post', `${homebaseUrl}/api/v1/workload`, payload, {
           json: true,
           compressed: true,
@@ -40,9 +41,11 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): P
 
       if (!isSuccessStatusCode(result.statusCode)) {
         throw new Error(`${result.statusCode} ${result.statusMessage}`);
+      } else {
+        logger.info({workloadLocator: payload.workloadLocator}, 'workload metadata sent upstream successfully')
       }
     } catch (error) {
-      logger.error({error, payload: payload.workloadLocator}, 'could not send workload metadata to Homebase');
+      logger.error({error, workloadLocator: payload.workloadLocator}, 'could not send workload metadata to Homebase');
     }
 }
 
