@@ -31,7 +31,7 @@ ENV NODE_ENV production
 
 RUN apk update
 RUN apk upgrade
-RUN apk --no-cache add db
+RUN apk --no-cache add db dumb-init
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
@@ -56,4 +56,4 @@ ADD --chown=snyk:snyk . .
 # Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
 RUN npm run prepare
 
-ENTRYPOINT ["bin/start"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "bin/start"]
