@@ -6,7 +6,7 @@ import transmitterTypes = require('../../src/transmitter/types');
 import podSpecFixture = require('../fixtures/pod-spec.json');
 import config = require('../../src/common/config');
 
-tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is missing items', async (t) => {
+tap.test('constructDepGraph breaks when workloadMetadata is missing items', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
     {
       image: 'myImage',
@@ -39,11 +39,11 @@ tap.test('constructHomebaseDepGraphPayloads breaks when workloadMetadata is miss
     },
   ];
 
-  t.throws(() => payload.constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata),
-    'constructHomebaseDepGraphPayloads throws when workloadMetadata is missing items from scannedImages');
+  t.throws(() => payload.constructDepGraph(scannedImages, workloadMetadata),
+    'constructDepGraph throws when workloadMetadata is missing items from scannedImages');
 });
 
-tap.test('constructHomebaseDepGraphPayloads happy flow', async (t) => {
+tap.test('constructDepGraph happy flow', async (t) => {
   const scannedImages: imageScanner.IScanResult[] = [
     {
       image: 'myImage',
@@ -80,7 +80,7 @@ tap.test('constructHomebaseDepGraphPayloads happy flow', async (t) => {
   config.NAMESPACE = 'b7';
   config.MONITOR_VERSION = '1.2.3';
 
-  const payloads = payload.constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
+  const payloads = payload.constructDepGraph(scannedImages, workloadMetadata);
 
   t.equals(payloads.length, 1, 'one payload to send to Homebase');
   const firstPayload = payloads[0];
