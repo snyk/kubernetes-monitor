@@ -3,7 +3,7 @@ import * as config from '../common/config';
 import logger = require('../common/logger');
 import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload } from './types';
 
-const homebaseUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
+const upstreamUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
 function isSuccessStatusCode(statusCode: number | undefined): boolean {
   return statusCode !== undefined && statusCode > 100 && statusCode < 400;
@@ -12,7 +12,7 @@ function isSuccessStatusCode(statusCode: number | undefined): boolean {
 export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<void> {
   for (const payload of payloads) {
     try {
-      const result = await needle('post', `${homebaseUrl}/api/v1/dependency-graph`, payload, {
+      const result = await needle('post', `${upstreamUrl}/api/v1/dependency-graph`, payload, {
           json: true,
           compressed: true,
         },
@@ -33,7 +33,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<voi
 export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): Promise<void> {
     try {
       logger.info({workloadLocator: payload.workloadLocator}, 'attempting to send workload metadata upstream')
-      const result = await needle('post', `${homebaseUrl}/api/v1/workload`, payload, {
+      const result = await needle('post', `${upstreamUrl}/api/v1/workload`, payload, {
           json: true,
           compressed: true,
         },
@@ -51,7 +51,7 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): P
 
 export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload): Promise<void> {
   try {
-    const result = await needle('delete', `${homebaseUrl}/api/v1/workload`, payload, {
+    const result = await needle('delete', `${upstreamUrl}/api/v1/workload`, payload, {
         json: true,
         compressed: true,
       },
