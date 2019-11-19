@@ -204,6 +204,9 @@ workflows:
       - tag_and_push:
           requires:
             - test_and_build
+            - package_manager_test_apk
+            - package_manager_test_apt
+            - package_manager_test_rpm
           <<: *staging_branch_only_filter
       - deploy_dev:
           requires:
