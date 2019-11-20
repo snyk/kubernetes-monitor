@@ -201,19 +201,22 @@ workflows:
     jobs:
       - test_and_build:
           <<: *staging_branch_only_filter
-      - tag_and_push:
-          requires:
-            - test_and_build
-          <<: *staging_branch_only_filter
-      - deploy_dev:
-          requires:
-            - tag_and_push
-          <<: *staging_branch_only_filter
       - package_manager_test_apk:
           <<: *staging_branch_only_filter
       - package_manager_test_apt:
           <<: *staging_branch_only_filter
       - package_manager_test_rpm:
+          <<: *staging_branch_only_filter
+      - tag_and_push:
+          requires:
+            - test_and_build
+            - package_manager_test_apk
+            - package_manager_test_apt
+            - package_manager_test_rpm
+          <<: *staging_branch_only_filter
+      - deploy_dev:
+          requires:
+            - tag_and_push
           <<: *staging_branch_only_filter
 
   MERGE_TO_MASTER:

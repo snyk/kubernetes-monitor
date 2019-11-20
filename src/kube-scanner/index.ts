@@ -2,7 +2,7 @@ import logger = require('../common/logger');
 import { pullImages, removePulledImages, getImagesWithFileSystemPath } from '../images';
 import { scanImages, IScanResult } from './image-scanner';
 import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
-import { constructHomebaseDeleteWorkloadPayload, constructHomebaseDepGraphPayloads } from '../transmitter/payload';
+import { constructHomebaseDeleteWorkloadPayload, constructDepGraph } from '../transmitter/payload';
 import { IDepGraphPayload, IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { IPullableImage } from '../images/types';
 
@@ -55,7 +55,7 @@ export = class WorkloadWorker {
 
     logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
 
-    const depGraphPayloads: IDepGraphPayload[] = constructHomebaseDepGraphPayloads(scannedImages, workloadMetadata);
+    const depGraphPayloads: IDepGraphPayload[] = constructDepGraph(scannedImages, workloadMetadata);
     await sendDepGraph(...depGraphPayloads);
 
     const pulledImagesNames = pulledImages.map((image) => image.imageName);

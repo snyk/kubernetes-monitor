@@ -13,7 +13,7 @@ import {
   IKubernetesMonitorMetadata,
 } from './types';
 
-export function constructHomebaseDepGraphPayloads(
+export function constructDepGraph(
     scannedImages: IScanResult[],
     workloadMetadata: IWorkload[],
 ): IDepGraphPayload[] {
