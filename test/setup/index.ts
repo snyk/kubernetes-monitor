@@ -5,8 +5,8 @@ import { platform } from 'os';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
-import * as kind from './helpers/kind';
-import * as kubectl from './helpers/kubectl';
+import * as kind from './platforms/kind';
+import * as kubectl from '../helpers/kubectl';
 
 // Used when polling the monitor for certain data.
 // For example, checking every second that the monitor is running,
@@ -70,9 +70,8 @@ function createTestYamlDeployment(
 }
 
 async function isMonitorInReadyState(): Promise<boolean> {
-  const kindConfigPath = await kind.getKindConfigPath();
   const kubeConfig = new KubeConfig();
-  kubeConfig.loadFromFile(kindConfigPath);
+  kubeConfig.loadFromDefault();
   const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
 
   // First make sure our monitor Pod exists (is deployed).
@@ -110,7 +109,7 @@ async function waitForMonitorToBeReady(): Promise<void> {
 
 export async function removeMonitor(): Promise<void> {
   try {
-    await kind.deleteKindCluster();
+    await kind.deleteCluster();
   } catch (error) {
     console.log(`Could not delete kind cluster: ${error.message}`);
   }
@@ -126,12 +125,7 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-async function createMonitorDeployment(): Promise<string> {
-  const imageNameAndTag = getEnvVariableOrDefault(
-    'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
-    // the default, determined by ./script/build-image.sh
-    'snyk/kubernetes-monitor:local',
-  );
+async function createMonitorDeployment(imageNameAndTag: string): Promise<string> {
   const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
   const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
 
@@ -139,13 +133,6 @@ async function createMonitorDeployment(): Promise<string> {
   const osDistro = platform();
 
   await kubectl.downloadKubectl(k8sRelease, osDistro);
-  await kind.downloadKind(osDistro);
-
-  const kindClusterName = 'kind';
-  await kind.createKindCluster(kindClusterName);
-  await kind.exportKubeConfig();
-
-  await kind.loadImageInCluster(imageNameAndTag);
 
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
@@ -204,7 +191,14 @@ export async function deployMonitor(): Promise<string> {
   console.log('Begin deploying the snyk-monitor...');
 
   try {
-    return await createMonitorDeployment();
+    const imageNameAndTag = getEnvVariableOrDefault(
+      'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
+      // the default, determined by ./script/build-image.sh
+      'snyk/kubernetes-monitor:local',
+    );
+
+    await kind.createCluster(imageNameAndTag);
+    return await createMonitorDeployment(imageNameAndTag);
   } catch (err) {
     console.error(err);
     try {

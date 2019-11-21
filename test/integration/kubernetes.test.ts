@@ -1,7 +1,6 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import setup = require('../setup');
 import * as tap from 'tap';
-import { getKindConfigPath } from '../helpers/kind';
 import { WorkloadKind } from '../../src/kube-scanner/types';
 import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
 import {
@@ -52,9 +51,8 @@ tap.test('snyk-monitor container started', async (t) => {
   t.plan(4);
 
   console.log('Getting KinD config...');
-  const kindConfigPath = await getKindConfigPath();
   const kubeConfig = new KubeConfig();
-  kubeConfig.loadFromFile(kindConfigPath);
+  kubeConfig.loadFromDefault();
   const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
   console.log('Loaded KinD config!');
 
@@ -204,10 +202,8 @@ tap.test(`snyk-monitor has resource limits`, async (t) => {
 });
 
 tap.test('snyk-monitor secure configuration is as expected', async (t) => {
-  const kindConfigPath = await getKindConfigPath();
   const kubeConfig = new KubeConfig();
-  kubeConfig.loadFromFile(kindConfigPath);
-
+  kubeConfig.loadFromDefault();
   const k8sApi = kubeConfig.makeApiClient(AppsV1Api);
 
   const response = await k8sApi.readNamespacedDeployment(
