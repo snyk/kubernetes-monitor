@@ -132,9 +132,7 @@ async function createMonitorDeployment(imageNameAndTag: string): Promise<string>
 
   try {
     await waiters.waitForMonitorToBeReady();
-    console.log(
-      `Deployed the snyk-monitor with integration ID ${integrationId}`,
-    );
+    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
   } catch (error) {
     console.log(error.message);
     await removeMonitor();
