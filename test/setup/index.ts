@@ -1,4 +1,3 @@
-import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import { readFileSync, unlinkSync, writeFileSync } from 'fs';
 import needle = require('needle');
 import { platform } from 'os';
@@ -7,11 +6,7 @@ import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
 import * as kind from './platforms/kind';
 import * as kubectl from '../helpers/kubectl';
-
-// Used when polling the monitor for certain data.
-// For example, checking every second that the monitor is running,
-// or checking that the monitor has stored data in Homebase.
-export const KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS = 600;
+import * as waiters from './waiters';
 
 async function getLatestStableK8sRelease(): Promise<string> {
   const k8sRelease = await needle('get',
@@ -67,44 +62,6 @@ function createTestYamlDeployment(
 
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created test deployment');
-}
-
-async function isMonitorInReadyState(): Promise<boolean> {
-  const kubeConfig = new KubeConfig();
-  kubeConfig.loadFromDefault();
-  const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
-
-  // First make sure our monitor Pod exists (is deployed).
-  const podsResponse = await k8sApi.listNamespacedPod('snyk-monitor');
-  if (podsResponse.body.items.length === 0) {
-    return false;
-  }
-
-  const monitorPod = podsResponse.body.items.find((pod) => pod.metadata !== undefined &&
-    pod.metadata.name !== undefined && pod.metadata.name.includes('snyk-monitor'));
-  if (monitorPod === undefined) {
-    return false;
-  }
-
-  return monitorPod.status !== undefined && monitorPod.status.phase === 'Running';
-}
-
-async function waitForMonitorToBeReady(): Promise<void> {
-  // Attempt to check if the monitor is Running.
-  let podStartChecks = KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS;
-
-  while (podStartChecks-- > 0) {
-    const isMonitorReady = await isMonitorInReadyState();
-    if (isMonitorReady) {
-      break;
-    }
-
-    await sleep(1000);
-  }
-
-  if (podStartChecks <= 0) {
-    throw Error('The snyk-monitor did not become ready in the expected time');
-  }
 }
 
 export async function removeMonitor(): Promise<void> {
@@ -174,7 +131,7 @@ async function createMonitorDeployment(imageNameAndTag: string): Promise<string>
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
 
   try {
-    await waitForMonitorToBeReady();
+    await waiters.waitForMonitorToBeReady();
     console.log(
       `Deployed the snyk-monitor with integration ID ${integrationId}`,
     );
