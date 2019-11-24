@@ -31,19 +31,13 @@ tap.test('start with clean environment', async () => {
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
-  t.plan(1);
-
   integrationId = await setup.deployMonitor();
-
   t.pass('successfully deployed the snyk-monitor');
 });
 
 // Next we apply some sample workloads
 tap.test('deploy sample workloads', async (t) => {
-  t.plan(1);
-
   await setup.createSampleDeployments();
-
   t.pass('successfully deployed sample workloads');
 });
 
