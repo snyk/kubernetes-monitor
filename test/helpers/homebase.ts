@@ -1,6 +1,5 @@
 import needle = require('needle');
 import sleep = require('sleep-promise');
-import setup = require('../setup');
 import {
   IWorkloadLocator,
   IWorkloadMetadata,
@@ -9,8 +8,7 @@ import { WorkloadLocatorValidator, WorkloadMetadataValidator } from './types';
 import config = require('../../src/common/config');
 
 const toneDownFactor = 5;
-const maxPodChecks =
-  setup.KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS / toneDownFactor;
+const maxPodChecks = 600 / toneDownFactor;
 
 export async function getHomebaseResponseBody(
   relativeUrl: string,

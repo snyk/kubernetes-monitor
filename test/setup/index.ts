@@ -1,17 +1,12 @@
-import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import { readFileSync, unlinkSync, writeFileSync } from 'fs';
 import needle = require('needle');
 import { platform } from 'os';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
-import * as kind from './helpers/kind';
-import * as kubectl from './helpers/kubectl';
-
-// Used when polling the monitor for certain data.
-// For example, checking every second that the monitor is running,
-// or checking that the monitor has stored data in Homebase.
-export const KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS = 600;
+import platforms from './platforms';
+import * as kubectl from '../helpers/kubectl';
+import * as waiters from './waiters';
 
 async function getLatestStableK8sRelease(): Promise<string> {
   const k8sRelease = await needle('get',
@@ -69,48 +64,9 @@ function createTestYamlDeployment(
   console.log('Created test deployment');
 }
 
-async function isMonitorInReadyState(): Promise<boolean> {
-  const kindConfigPath = await kind.getKindConfigPath();
-  const kubeConfig = new KubeConfig();
-  kubeConfig.loadFromFile(kindConfigPath);
-  const k8sApi = kubeConfig.makeApiClient(CoreV1Api);
-
-  // First make sure our monitor Pod exists (is deployed).
-  const podsResponse = await k8sApi.listNamespacedPod('snyk-monitor');
-  if (podsResponse.body.items.length === 0) {
-    return false;
-  }
-
-  const monitorPod = podsResponse.body.items.find((pod) => pod.metadata !== undefined &&
-    pod.metadata.name !== undefined && pod.metadata.name.includes('snyk-monitor'));
-  if (monitorPod === undefined) {
-    return false;
-  }
-
-  return monitorPod.status !== undefined && monitorPod.status.phase === 'Running';
-}
-
-async function waitForMonitorToBeReady(): Promise<void> {
-  // Attempt to check if the monitor is Running.
-  let podStartChecks = KUBERNETES_MONITOR_MAX_WAIT_TIME_SECONDS;
-
-  while (podStartChecks-- > 0) {
-    const isMonitorReady = await isMonitorInReadyState();
-    if (isMonitorReady) {
-      break;
-    }
-
-    await sleep(1000);
-  }
-
-  if (podStartChecks <= 0) {
-    throw Error('The snyk-monitor did not become ready in the expected time');
-  }
-}
-
 export async function removeMonitor(): Promise<void> {
   try {
-    await kind.deleteKindCluster();
+    await platforms.kind.delete();
   } catch (error) {
     console.log(`Could not delete kind cluster: ${error.message}`);
   }
@@ -126,32 +82,20 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-async function createMonitorDeployment(): Promise<string> {
-  const imageNameAndTag = getEnvVariableOrDefault(
-    'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
-    // the default, determined by ./script/build-image.sh
-    'snyk/kubernetes-monitor:local',
-  );
-  const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
-  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
-
+async function createEnvironment(imageNameAndTag: string): Promise<void> {
+  await platforms.kind.create(imageNameAndTag);
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
-
   await kubectl.downloadKubectl(k8sRelease, osDistro);
-  await kind.downloadKind(osDistro);
+}
 
-  const kindClusterName = 'kind';
-  await kind.createKindCluster(kindClusterName);
-  await kind.exportKubeConfig();
-
-  await kind.loadImageInCluster(imageNameAndTag);
-
+async function installKubernetesMonitor(imageNameAndTag: string): Promise<string> {
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
 
   const secretName = 'snyk-monitor';
   const integrationId = getIntegrationId();
+  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
   await kubectl.createSecret(secretName, namespace, {
     'dockercfg.json': gcrDockercfg,
     integrationId,
@@ -167,6 +111,7 @@ async function createMonitorDeployment(): Promise<string> {
   const gcrSecretName = 'gcr-io';
   const gcrKubectlSecretsKeyPrefix = '--';
   const gcrSecretType = 'docker-registry';
+  const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
   await kubectl.createSecret(
     gcrSecretName,
     servicesNamespace,
@@ -186,17 +131,6 @@ async function createMonitorDeployment(): Promise<string> {
   await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
 
-  try {
-    await waitForMonitorToBeReady();
-    console.log(
-      `Deployed the snyk-monitor with integration ID ${integrationId}`,
-    );
-  } catch (error) {
-    console.log(error.message);
-    await removeMonitor();
-    throw error;
-  }
-
   return integrationId;
 }
 
@@ -204,7 +138,19 @@ export async function deployMonitor(): Promise<string> {
   console.log('Begin deploying the snyk-monitor...');
 
   try {
-    return await createMonitorDeployment();
+    const imageNameAndTag = getEnvVariableOrDefault(
+      'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
+      // the default, determined by ./script/build-image.sh
+      'snyk/kubernetes-monitor:local',
+    );
+
+    // this bit is probably where we act upon the decision of which platform we'll use
+    await createEnvironment(imageNameAndTag);
+
+    const integrationId = await installKubernetesMonitor(imageNameAndTag);
+    await waiters.waitForMonitorToBeReady();
+    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
+    return integrationId;
   } catch (err) {
     console.error(err);
     try {
