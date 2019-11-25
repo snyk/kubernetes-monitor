@@ -82,20 +82,20 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-async function createMonitorDeployment(imageNameAndTag: string): Promise<string> {
-  const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
-  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
-
+async function createEnvironment(imageNameAndTag: string): Promise<void> {
+  await kind.createCluster(imageNameAndTag);
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
-
   await kubectl.downloadKubectl(k8sRelease, osDistro);
+}
 
+async function installKubernetesMonitor(imageNameAndTag: string): Promise<string> {
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
 
   const secretName = 'snyk-monitor';
   const integrationId = getIntegrationId();
+  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
   await kubectl.createSecret(secretName, namespace, {
     'dockercfg.json': gcrDockercfg,
     integrationId,
@@ -111,6 +111,7 @@ async function createMonitorDeployment(imageNameAndTag: string): Promise<string>
   const gcrSecretName = 'gcr-io';
   const gcrKubectlSecretsKeyPrefix = '--';
   const gcrSecretType = 'docker-registry';
+  const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
   await kubectl.createSecret(
     gcrSecretName,
     servicesNamespace,
@@ -130,15 +131,6 @@ async function createMonitorDeployment(imageNameAndTag: string): Promise<string>
   await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
 
-  try {
-    await waiters.waitForMonitorToBeReady();
-    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
-  } catch (error) {
-    console.log(error.message);
-    await removeMonitor();
-    throw error;
-  }
-
   return integrationId;
 }
 
@@ -152,8 +144,11 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
-    await kind.createCluster(imageNameAndTag);
-    return await createMonitorDeployment(imageNameAndTag);
+    await createEnvironment(imageNameAndTag);
+    const integrationId = await installKubernetesMonitor(imageNameAndTag);
+    await waiters.waitForMonitorToBeReady();
+    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
+    return integrationId;
   } catch (err) {
     console.error(err);
     try {
