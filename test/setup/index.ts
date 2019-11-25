@@ -4,7 +4,7 @@ import { platform } from 'os';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
-import * as kind from './platforms/kind';
+import platforms from './platforms';
 import * as kubectl from '../helpers/kubectl';
 import * as waiters from './waiters';
 
@@ -66,7 +66,7 @@ function createTestYamlDeployment(
 
 export async function removeMonitor(): Promise<void> {
   try {
-    await kind.deleteCluster();
+    await platforms.kind.delete();
   } catch (error) {
     console.log(`Could not delete kind cluster: ${error.message}`);
   }
@@ -83,7 +83,7 @@ export async function removeMonitor(): Promise<void> {
 }
 
 async function createEnvironment(imageNameAndTag: string): Promise<void> {
-  await kind.createCluster(imageNameAndTag);
+  await platforms.kind.create(imageNameAndTag);
   const k8sRelease = await getLatestStableK8sRelease();
   const osDistro = platform();
   await kubectl.downloadKubectl(k8sRelease, osDistro);
@@ -144,7 +144,9 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
+    // this bit is probably where we act upon the decision of which platform we'll use
     await createEnvironment(imageNameAndTag);
+
     const integrationId = await installKubernetesMonitor(imageNameAndTag);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
