@@ -72,22 +72,8 @@ export async function removeMonitor(): Promise<void> {
 }
 
 async function createEnvironment(imageNameAndTag: string): Promise<void> {
-  await platforms.kind.create(imageNameAndTag);
   await kubectl.downloadKubectl();
-}
-
-async function installKubernetesMonitor(imageNameAndTag: string): Promise<string> {
-  const namespace = 'snyk-monitor';
-  await kubectl.createNamespace(namespace);
-
-  const secretName = 'snyk-monitor';
-  const integrationId = getIntegrationId();
-  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
-  await kubectl.createSecret(secretName, namespace, {
-    'dockercfg.json': gcrDockercfg,
-    integrationId,
-  });
-
+  await platforms.kind.create(imageNameAndTag);
   const servicesNamespace = 'services';
   await kubectl.createNamespace(servicesNamespace);
   // Small hack to prevent timing problems in CircleCI...
@@ -111,6 +97,19 @@ async function installKubernetesMonitor(imageNameAndTag: string): Promise<string
     gcrKubectlSecretsKeyPrefix,
     gcrSecretType,
   );
+}
+
+async function installKubernetesMonitor(imageNameAndTag: string): Promise<string> {
+  const namespace = 'snyk-monitor';
+  await kubectl.createNamespace(namespace);
+
+  const secretName = 'snyk-monitor';
+  const integrationId = getIntegrationId();
+  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
+  await kubectl.createSecret(secretName, namespace, {
+    'dockercfg.json': gcrDockercfg,
+    integrationId,
+  });
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
   createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);
