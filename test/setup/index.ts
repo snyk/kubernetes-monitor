@@ -1,21 +1,10 @@
 import { readFileSync, unlinkSync, writeFileSync } from 'fs';
-import needle = require('needle');
-import { platform } from 'os';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
 import platforms from './platforms';
 import * as kubectl from '../helpers/kubectl';
 import * as waiters from './waiters';
-
-async function getLatestStableK8sRelease(): Promise<string> {
-  const k8sRelease = await needle('get',
-    'https://storage.googleapis.com/kubernetes-release/release/stable.txt',
-    null,
-  ).then((response) => response.body.replace(/[\n\t\r]/g, '').trim());
-  console.log(`The latest stable K8s release is ${k8sRelease}`);
-  return k8sRelease;
-}
 
 function getIntegrationId(): string {
   const integrationId = uuidv4();
@@ -84,9 +73,7 @@ export async function removeMonitor(): Promise<void> {
 
 async function createEnvironment(imageNameAndTag: string): Promise<void> {
   await platforms.kind.create(imageNameAndTag);
-  const k8sRelease = await getLatestStableK8sRelease();
-  const osDistro = platform();
-  await kubectl.downloadKubectl(k8sRelease, osDistro);
+  await kubectl.downloadKubectl();
 }
 
 async function installKubernetesMonitor(imageNameAndTag: string): Promise<string> {
@@ -146,7 +133,6 @@ export async function deployMonitor(): Promise<string> {
 
     // this bit is probably where we act upon the decision of which platform we'll use
     await createEnvironment(imageNameAndTag);
-
     const integrationId = await installKubernetesMonitor(imageNameAndTag);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
