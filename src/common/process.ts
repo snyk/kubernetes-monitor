@@ -1,5 +1,5 @@
 import { spawn, SpawnPromiseResult } from 'child-process-promise';
-import logger = require('../common/logger');
+import logger = require('./logger');
 
 export function exec(bin: string, ...args: string[]):
     Promise<SpawnPromiseResult> {
