@@ -1,17 +1,20 @@
 import { exec } from 'child-process-promise';
 import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
+import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 
-export async function downloadKubectl(k8sRelease: string, osDistro: string): Promise<void> {
+export async function downloadKubectl(): Promise<void> {
   try {
     accessSync(resolve(process.cwd(), 'kubectl'), constants.R_OK);
   } catch (error) {
     console.log('Downloading kubectl...');
 
-    const bodyData = null;
     // eslint-disable-next-line @typescript-eslint/camelcase
     const requestOptions = { follow_max: 2 };
+    const k8sRelease = await getLatestStableK8sRelease();
+    const osDistro = platform();
+    const bodyData = null;
     await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
       `${k8sRelease}/bin/${osDistro}/amd64/kubectl`,
       bodyData,
@@ -72,4 +75,13 @@ export async function deletePod(podName: string, namespace: string) {
 export async function getDeploymentJson(deploymentName: string, namespace: string): Promise<any> {
   const getDeploymentResult = await exec(`./kubectl get deployment ${deploymentName} -n ${namespace} -o json`);
   return JSON.parse(getDeploymentResult.stdout);
+}
+
+async function getLatestStableK8sRelease(): Promise<string> {
+  const k8sRelease = await needle('get',
+    'https://storage.googleapis.com/kubernetes-release/release/stable.txt',
+    null,
+  ).then((response) => response.body.replace(/[\n\t\r]/g, '').trim());
+  console.log(`The latest stable K8s release is ${k8sRelease}`);
+  return k8sRelease;
 }
