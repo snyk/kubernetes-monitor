@@ -37,8 +37,11 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
             nvm install v10 &&
             npm install &&
-            npm run test:apk ||
-            (./scripts/slack-notify-failure.sh "APK regression test" && false)
+            npm run test:apk
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "apk-tests"
+          when: on_fail
 
   package_manager_test_apt:
     <<: *default_machine_config
@@ -51,9 +54,11 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
             nvm install v10 &&
             npm install &&
-            npm run test:apt ||
-            (./scripts/slack-notify-failure.sh "APT regression test" && false)
-
+            npm run test:apt
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "apt-tests"
+          when: on_fail
   package_manager_test_rpm:
     <<: *default_machine_config
     steps:
@@ -65,8 +70,11 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
             nvm install v10 &&
             npm install &&
-            npm run test:rpm ||
-            (./scripts/slack-notify-failure.sh "RPM regression test" && false)
+            npm run test:rpm
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "rpm-tests"
+          when: on_fail
 
 ######################## PR TO STAGING ########################
   test_discardable:
@@ -102,8 +110,11 @@ jobs:
             ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
             docker push ${IMAGE_NAME_CANDIDATE} &&
             ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
-            KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration ||
-            ( ./scripts/slack-notify-failure.sh "staging-test" && false )
+            KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "staging-test"
+          when: on_fail
   tag_and_push:
     <<: *default_container_config
     steps:
@@ -120,8 +131,11 @@ jobs:
             unset CIRCLE_PULL_REQUESTS &&
             npx semantic-release &&
             NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-            ./scripts/approve-image.sh $NEW_VERSION ||
-            ( ./scripts/slack-notify-failure.sh "staging-release" && false )
+            ./scripts/approve-image.sh $NEW_VERSION
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "staging-release"
+          when: on_fail
   deploy_dev:
     <<: *default_container_config
     steps:
@@ -136,6 +150,10 @@ jobs:
                 -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
                               \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
                 https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "deploy-dev"
+          when: on_fail
 
 ######################## PR TO MASTER ########################
   prepublish:
@@ -165,8 +183,11 @@ jobs:
             docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
             docker push ${IMAGE_NAME_PUBLISHED} &&
             ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
-            ./scripts/publish-gh-pages.sh ${LATEST_TAG} ||
-            ( ./scripts/slack-notify-failure.sh master && false )
+            ./scripts/publish-gh-pages.sh ${LATEST_TAG}
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "master"
+          when: on_fail
 
   deploy_prod:
     <<: *default_container_config
@@ -181,6 +202,10 @@ jobs:
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{}" \
                 https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
+      - run:
+          name: Notify Slack on failure
+          command: ./scripts/slack-notify-failure.sh "deploy-prod"
+          when: on_fail
 
 #######################################################################
 
