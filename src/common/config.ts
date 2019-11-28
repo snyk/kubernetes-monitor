@@ -1,7 +1,7 @@
 import * as uuidv4 from 'uuid/v4';
-import * as configFactory from 'snyk-config';
+import { loadConfig } from 'snyk-config';
 
-const config = configFactory(__dirname + '/../..', {
+const config: Record<string, any> = loadConfig(__dirname + '/../..', {
   secretConfig: process.env.CONFIG_SECRET_FILE,
 });
 
