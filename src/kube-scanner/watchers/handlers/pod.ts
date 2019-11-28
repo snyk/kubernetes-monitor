@@ -27,7 +27,7 @@ function deleteFailedKeysFromState(keys): void {
   }
 }
 
-async function queueWorker(task, callback): Promise<void> {
+async function queueWorkerWorkloadScan(task, callback): Promise<void> {
   const {workloadWorker, workloadMetadata, imageKeys} = task;
   try {
     await workloadWorker.process(workloadMetadata);
@@ -37,7 +37,7 @@ async function queueWorker(task, callback): Promise<void> {
   }
 }
 
-const workloadsToScanQueue = async.queue(queueWorker, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
+const workloadsToScanQueue = async.queue(queueWorkerWorkloadScan, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
 
 workloadsToScanQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload in the pod handler 1');
