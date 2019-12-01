@@ -74,6 +74,8 @@ export async function removeMonitor(): Promise<void> {
 async function createEnvironment(imageNameAndTag: string): Promise<void> {
   await kubectl.downloadKubectl();
   await platforms.kind.create(imageNameAndTag);
+
+  // TODO: we probably want to use k8s-api for that, not kubectl
   const servicesNamespace = 'services';
   await kubectl.createNamespace(servicesNamespace);
   // Small hack to prevent timing problems in CircleCI...
