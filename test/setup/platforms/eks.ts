@@ -8,6 +8,6 @@ export async function deleteCluster(clusterName = 'kind'): Promise<void> {
   throw new Error('Not implemented');
 }
 
-async function exportKubeConfig(clusterName): Promise<void> {
+export async function exportKubeConfig(clusterName): Promise<void> {
   throw new Error('Not implemented');
 }
