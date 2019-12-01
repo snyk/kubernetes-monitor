@@ -27,7 +27,7 @@ function deleteFailedKeysFromState(keys): void {
   }
 }
 
-async function queueWorker(task, callback): Promise<void> {
+async function queueWorkerWorkloadScan(task, callback): Promise<void> {
   const {workloadWorker, workloadMetadata, imageKeys} = task;
   try {
     await workloadWorker.process(workloadMetadata);
@@ -37,10 +37,21 @@ async function queueWorker(task, callback): Promise<void> {
   }
 }
 
-const workloadsToScanQueue = async.queue(queueWorker, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
+const workloadsToScanQueue = async.queue(queueWorkerWorkloadScan, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
+
+async function queueWorkerMetadataSender(task, callback): Promise<void> {
+  const {workloadMetadataPayload} = task;
+  await sendWorkloadMetadata(workloadMetadataPayload);
+}
+
+const metadataToSendQueue = async.queue(queueWorkerMetadataSender, config.METADATA_TO_SEND_QUEUE_WORKER_COUNT);
 
 workloadsToScanQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload in the pod handler 1');
+});
+
+metadataToSendQueue.error(function(err, task) {
+  logger.error({err, task}, 'error processing a workload metadata send task');
 });
 
 function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]): void {
@@ -87,7 +98,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
     const workloadMetadataPayload = constructHomebaseWorkloadMetadataPayload(workloadMember);
-    await sendWorkloadMetadata(workloadMetadataPayload);
+    metadataToSendQueue.push({workloadMetadataPayload});
     const workloadName = workloadMember.name;
     const workloadWorker = new WorkloadWorker(workloadName);
     handleReadyPod(workloadWorker, workloadMetadata);
