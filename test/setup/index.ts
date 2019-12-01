@@ -129,9 +129,15 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
+    const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
+    const createCluster = process.env['CREATE_CLUSTER'] === 'true';
+    console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
+
     await kubectl.downloadKubectl();
-    // this bit is probably where we act upon the decision of which platform we'll use
-    await platforms.kind.create(imageNameAndTag);
+    if (createCluster) {
+      await platforms[testPlatform].create(imageNameAndTag);
+    }
+    await platforms[testPlatform].config('kind');
     await createEnvironment();
     const integrationId = await installKubernetesMonitor(imageNameAndTag);
     await waiters.waitForMonitorToBeReady();
