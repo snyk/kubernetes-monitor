@@ -9,7 +9,7 @@ export async function createCluster(imageNameAndTag: string): Promise<void> {
   await download(osDistro);
   const clusterName = 'kind';
   await createKindCluster(clusterName);
-  await exportKubeConfig(clusterName);
+  await exportKubeConfig(clusterName); // Don't worry, removing this soon!
   await loadImageInCluster(imageNameAndTag);
 }
 
@@ -17,6 +17,14 @@ export async function deleteCluster(clusterName = 'kind'): Promise<void> {
   console.log(`Deleting cluster ${clusterName}...`);
   await exec(`./kind delete cluster --name=${clusterName}`);
   console.log(`Deleted cluster ${clusterName}!`);
+}
+
+export async function exportKubeConfig(clusterName): Promise<void> {
+  console.log('Exporting K8s config...');
+  const kindResponse = await exec(`./kind get kubeconfig-path --name="${clusterName}"`);
+  const configPath = kindResponse.stdout.replace(/[\n\t\r]/g, '');
+  process.env.KUBECONFIG = configPath;
+  console.log('Exported K8s config!');
 }
 
 async function download(osDistro: string): Promise<void> {
@@ -53,14 +61,6 @@ async function createKindCluster(clusterName, kindImageTag = 'latest'): Promise<
   }
   await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
   console.log(`Created cluster ${clusterName}!`);
-}
-
-async function exportKubeConfig(clusterName): Promise<void> {
-  console.log('Exporting K8s config...');
-  const kindResponse = await exec(`./kind get kubeconfig-path --name="${clusterName}"`);
-  const configPath = kindResponse.stdout.replace(/[\n\t\r]/g, '');
-  process.env.KUBECONFIG = configPath;
-  console.log('Exported K8s config!');
 }
 
 async function loadImageInCluster(imageNameAndTag): Promise<void> {
