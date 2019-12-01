@@ -1,13 +1,13 @@
 export async function createCluster(imageNameAndTag: string): Promise<void> {
-  exportKubeConfig('TODO');
+  exportKubeConfig();
   throw new Error('Not implemented');
   // process.env.KUBECONFIG = 'path-to-/kubeconfig-aws';
 }
 
-export async function deleteCluster(clusterName = 'kind'): Promise<void> {
+export async function deleteCluster(): Promise<void> {
   throw new Error('Not implemented');
 }
 
-export async function exportKubeConfig(clusterName): Promise<void> {
+export async function exportKubeConfig(): Promise<void> {
   throw new Error('Not implemented');
 }
