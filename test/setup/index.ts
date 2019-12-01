@@ -71,10 +71,7 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-async function createEnvironment(imageNameAndTag: string): Promise<void> {
-  await kubectl.downloadKubectl();
-  await platforms.kind.create(imageNameAndTag);
-
+async function createEnvironment(): Promise<void> {
   // TODO: we probably want to use k8s-api for that, not kubectl
   const servicesNamespace = 'services';
   await kubectl.createNamespace(servicesNamespace);
@@ -132,8 +129,10 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
+    await kubectl.downloadKubectl();
     // this bit is probably where we act upon the decision of which platform we'll use
-    await createEnvironment(imageNameAndTag);
+    await platforms.kind.create(imageNameAndTag);
+    await createEnvironment();
     const integrationId = await installKubernetesMonitor(imageNameAndTag);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
