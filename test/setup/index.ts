@@ -137,7 +137,7 @@ export async function deployMonitor(): Promise<string> {
     if (createCluster) {
       await platforms[testPlatform].create(imageNameAndTag);
     }
-    await platforms[testPlatform].config('kind');
+    await platforms[testPlatform].config();
     await createEnvironment();
     const integrationId = await installKubernetesMonitor(imageNameAndTag);
     await waiters.waitForMonitorToBeReady();

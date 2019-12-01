@@ -4,22 +4,22 @@ import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 
+const clusterName = 'kind';
+
 export async function createCluster(imageNameAndTag: string): Promise<void> {
   const osDistro = platform();
   await download(osDistro);
-  const clusterName = 'kind';
   await createKindCluster(clusterName);
-  await exportKubeConfig(clusterName); // Don't worry, removing this soon!
   await loadImageInCluster(imageNameAndTag);
 }
 
-export async function deleteCluster(clusterName = 'kind'): Promise<void> {
+export async function deleteCluster(): Promise<void> {
   console.log(`Deleting cluster ${clusterName}...`);
   await exec(`./kind delete cluster --name=${clusterName}`);
   console.log(`Deleted cluster ${clusterName}!`);
 }
 
-export async function exportKubeConfig(clusterName): Promise<void> {
+export async function exportKubeConfig(): Promise<void> {
   console.log('Exporting K8s config...');
   const kindResponse = await exec(`./kind get kubeconfig-path --name="${clusterName}"`);
   const configPath = kindResponse.stdout.replace(/[\n\t\r]/g, '');
