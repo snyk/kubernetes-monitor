@@ -71,9 +71,8 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
-async function createEnvironment(imageNameAndTag: string): Promise<void> {
-  await kubectl.downloadKubectl();
-  await platforms.kind.create(imageNameAndTag);
+async function createEnvironment(): Promise<void> {
+  // TODO: we probably want to use k8s-api for that, not kubectl
   const servicesNamespace = 'services';
   await kubectl.createNamespace(servicesNamespace);
   // Small hack to prevent timing problems in CircleCI...
@@ -130,8 +129,16 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
-    // this bit is probably where we act upon the decision of which platform we'll use
-    await createEnvironment(imageNameAndTag);
+    const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
+    const createCluster = process.env['CREATE_CLUSTER'] === 'true';
+    console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
+
+    await kubectl.downloadKubectl();
+    if (createCluster) {
+      await platforms[testPlatform].create(imageNameAndTag);
+    }
+    await platforms[testPlatform].config();
+    await createEnvironment();
     const integrationId = await installKubernetesMonitor(imageNameAndTag);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
