@@ -1,7 +1,7 @@
 import { V1OwnerReference, V1Pod, V1Container, V1ContainerStatus } from '@kubernetes/client-node';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
-import { KubeObjectMetadata } from './types';
+import { IKubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
 import logger = require('../common/logger');
 
@@ -10,7 +10,7 @@ const loopingThreshold = 20;
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
 export function buildImageMetadata(
-  workloadMeta: KubeObjectMetadata,
+  workloadMeta: IKubeObjectMetadata,
   containerStatuses: V1ContainerStatus[],
   ): IWorkload[] {
   const { kind, objectMeta, specMeta, revision, podSpec } = workloadMeta;
@@ -49,9 +49,9 @@ export function buildImageMetadata(
 async function findParentWorkload(
   ownerRefs: V1OwnerReference[] | undefined,
   namespace: string,
-): Promise<KubeObjectMetadata | undefined> {
+): Promise<IKubeObjectMetadata | undefined> {
   let ownerReferences = ownerRefs;
-  let parentMetadata: KubeObjectMetadata | undefined;
+  let parentMetadata: IKubeObjectMetadata | undefined;
 
   for (let i = 0; i < loopingThreshold; i++) {
     // We are interested only in a subset of all workloads.
@@ -76,7 +76,7 @@ async function findParentWorkload(
   return undefined;
 }
 
-export function buildWorkloadMetadata(kubernetesMetadata: KubeObjectMetadata): ILocalWorkloadLocator {
+export function buildWorkloadMetadata(kubernetesMetadata: IKubeObjectMetadata): ILocalWorkloadLocator {
   if (!kubernetesMetadata.objectMeta ||
     kubernetesMetadata.objectMeta.namespace === undefined ||
     kubernetesMetadata.objectMeta.name === undefined) {
@@ -126,7 +126,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
     );
   }
 
-  const podOwner: KubeObjectMetadata | undefined = await findParentWorkload(
+  const podOwner: IKubeObjectMetadata | undefined = await findParentWorkload(
     pod.metadata.ownerReferences, pod.metadata.namespace);
 
   return podOwner === undefined
