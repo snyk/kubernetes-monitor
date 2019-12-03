@@ -1,9 +1,9 @@
-import { KubeObjectMetadata } from '../../types';
+import { IKubeObjectMetadata } from '../../types';
 import { buildWorkloadMetadata } from '../../metadata-extractor';
 import WorkloadWorker = require('../..');
 import logger = require('../../../common/logger');
 
-export async function deleteWorkload(kubernetesMetadata: KubeObjectMetadata, workloadName: string): Promise<void> {
+export async function deleteWorkload(kubernetesMetadata: IKubeObjectMetadata, workloadName: string): Promise<void> {
   try {
     if (kubernetesMetadata.ownerRefs !== undefined && kubernetesMetadata.ownerRefs.length > 0) {
       return;
