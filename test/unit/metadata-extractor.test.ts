@@ -2,7 +2,7 @@ import * as tap from 'tap';
 
 import { V1OwnerReference, V1Pod } from '@kubernetes/client-node';
 
-import metadataExtractor = require('../../src/kube-scanner/metadata-extractor');
+import * as metadataExtractor from '../../src/kube-scanner/metadata-extractor';
 
 tap.test('isPodAssociatedWithParent', async (t) => {
   const mockPodWithoutMetadata = {};
