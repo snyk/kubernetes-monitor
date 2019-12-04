@@ -1,11 +1,11 @@
 import { V1OwnerReference } from '@kubernetes/client-node';
 import { k8sApi } from './cluster';
-import { KubeObjectMetadata, WorkloadKind } from './types';
+import { IKubeObjectMetadata, WorkloadKind } from './types';
 
 type IWorkloadReaderFunc = (
   workloadName: string,
   namespace: string,
-) => Promise<KubeObjectMetadata | undefined>;
+) => Promise<IKubeObjectMetadata | undefined>;
 
 const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const deploymentResult = await k8sApi.appsClient.readNamespacedDeployment(
