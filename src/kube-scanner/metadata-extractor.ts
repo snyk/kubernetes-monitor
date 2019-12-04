@@ -26,7 +26,12 @@ export function buildImageMetadata(
     containerNameToStatus[containerStatus.name] = containerStatus;
   }
 
-  const images = containerStatuses.map(({ name: containerName }) => ({
+  const images: IWorkload[] = [];
+  for (const containerStatus of containerStatuses) {
+    if (!(containerStatus.name in containerNameToSpec)) {
+      continue
+    }
+    images.push({
       type: kind,
       name: name || 'unknown',
       namespace,
@@ -35,14 +40,15 @@ export function buildImageMetadata(
       uid,
       specLabels: specMeta.labels || {},
       specAnnotations: specMeta.annotations || {},
-      containerName,
-      imageName: containerNameToSpec[containerName].image,
-      imageId: containerNameToStatus[containerName].imageID,
+      containerName: containerStatus.name,
+      imageName: containerNameToSpec[containerStatus.name].image,
+      imageId: containerNameToStatus[containerStatus.name].imageID,
       cluster: currentClusterName,
       revision,
       podSpec,
-    } as IWorkload),
-  );
+    } as IWorkload);
+  }
+
   return images;
 }
 
