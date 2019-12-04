@@ -29,7 +29,7 @@ export function buildImageMetadata(
   const images: IWorkload[] = [];
   for (const containerStatus of containerStatuses) {
     if (!(containerStatus.name in containerNameToSpec)) {
-      continue
+      continue;
     }
     images.push({
       type: kind,
