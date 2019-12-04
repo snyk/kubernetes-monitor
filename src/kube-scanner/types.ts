@@ -32,7 +32,7 @@ export interface IStaticAnalysisOptions {
   tmpDirPath: string;
 }
 
-export interface KubeObjectMetadata {
+export interface IKubeObjectMetadata {
   kind: string;
   objectMeta: V1ObjectMeta;
   specMeta: V1ObjectMeta;
