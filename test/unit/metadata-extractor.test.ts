@@ -72,8 +72,26 @@ tap.test('buildImageMetadata', async (t) => {
     podSpec: deploymentObject.spec!.template.spec!,
   }
 
-  t.throws(() => metadataExtractor.buildImageMetadata(
+  const imageMetadataResult = metadataExtractor.buildImageMetadata(
     deploymentWeirdWrapper,
     podObject.status!.containerStatuses!,
-  ), 'buildImageMetadata can\'t handle discrepancies between spec and status');
+  );
+
+  t.ok(Array.isArray(imageMetadataResult), 'returns an array');
+  t.equals(
+    imageMetadataResult.length,
+    1,
+    'the size of the container status array that also appears in the spec',
+  );
+  t.equals(imageMetadataResult[0].type, 'Deployment', 'with the workload type of the parent');
+  t.equals(
+    imageMetadataResult[0].imageId,
+    'docker-pullable://eu.gcr.io/cookie/hello-world@sha256:1ac413b2756364b7b856c64d557fdedb97a4ba44ca16fc656e08881650848fe2',
+    'the image ID of the first container'
+  );
+  t.equals(
+    imageMetadataResult[0].imageName,
+    'eu.gcr.io/cookie/hello-world:1.20191125.132107-4664980',
+    'the image name of the first container'
+  );
 });
