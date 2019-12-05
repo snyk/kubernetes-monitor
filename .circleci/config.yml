@@ -33,13 +33,13 @@ jobs:
       - run:
           name: APK Test
           command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10
+            npm install
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG}
             npm run test:apk
       - run:
           name: Notify Slack on failure
@@ -58,13 +58,13 @@ jobs:
       - run:
           name: APT Test
           command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10
+            npm install
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG}
             npm run test:apt
       - run:
           name: Notify Slack on failure
@@ -83,13 +83,13 @@ jobs:
       - run:
           name: RPM Test
           command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10
+            npm install
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG}
             npm run test:rpm
       - run:
           name: Notify Slack on failure
@@ -108,10 +108,10 @@ jobs:
       - run:
           name: BUILD IMAGE
           command: |
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+            ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE}
             docker push ${IMAGE_NAME_CANDIDATE}
       - run:
           name: Notify Slack on failure
@@ -130,12 +130,12 @@ jobs:
       - run:
           name: UNIT TESTS
           command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            npm run lint &&
-            npm run build &&
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10
+            npm install
+            npm run lint
+            npm run build
             npm run test:unit
       - run:
           name: Notify Slack on failure
@@ -154,14 +154,14 @@ jobs:
       - run:
           name: INTEGRATION TESTS
           command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10
+            npm install
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG}
             npm run test:integration
       - run:
           name: Notify Slack on failure
@@ -182,14 +182,14 @@ jobs:
       - run:
           name: TAG AND PUSH
           command: |
-            npm install &&
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            unset CIRCLE_PULL_REQUEST &&
-            unset CI_PULL_REQUEST &&
-            unset CI_PULL_REQUESTS &&
-            unset CIRCLE_PULL_REQUESTS &&
-            npx semantic-release &&
-            NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
+            npm install
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            unset CIRCLE_PULL_REQUEST
+            unset CI_PULL_REQUEST
+            unset CI_PULL_REQUESTS
+            unset CIRCLE_PULL_REQUESTS
+            npx semantic-release
+            NEW_VERSION=`cat ./package.json | jq -r '.version'`
             ./scripts/approve-image.sh $NEW_VERSION
       - run:
           name: Notify Slack on failure
@@ -202,9 +202,9 @@ jobs:
       - run:
           name: DEPLOY DEV
           command: |
-            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-            LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
-            ./scripts/slack-notify-deploy.sh $LATEST_TAG dev &&
+            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+            LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved
+            ./scripts/slack-notify-deploy.sh $LATEST_TAG dev
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
                               \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
@@ -233,15 +233,15 @@ jobs:
       - run:
           name: PUBLISH
           command: |
-            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-            LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-            IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved &&
-            IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG} &&
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            docker pull ${IMAGE_NAME_APPROVED} &&
-            docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
-            docker push ${IMAGE_NAME_PUBLISHED} &&
-            ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
+            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+            LATEST_TAG=${LATEST_TAG_WITH_V:1}
+            IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
+            IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            docker pull ${IMAGE_NAME_APPROVED}
+            docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED}
+            docker push ${IMAGE_NAME_PUBLISHED}
+            ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED}
             ./scripts/publish-gh-pages.sh ${LATEST_TAG}
       - run:
           name: Notify Slack on failure
@@ -255,9 +255,9 @@ jobs:
       - run:
           name: DEPLOY PROD
           command: |
-            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-            LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-            ./scripts/slack-notify-deploy.sh $LATEST_TAG prod &&
+            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+            LATEST_TAG=${LATEST_TAG_WITH_V:1}
+            ./scripts/slack-notify-deploy.sh $LATEST_TAG prod
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{}" \
                 https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
