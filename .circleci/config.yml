@@ -25,7 +25,7 @@ main_branches_filter: &main_branches_filter
         - master
 
 jobs:
-######################## PACKAGE MANAGER REGRESSION TESTS ########################
+######################## PR OR MERGE TO STAGING ########################
   package_manager_test_apk:
     <<: *default_machine_config
     steps:
@@ -37,10 +37,18 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
             nvm install v10 &&
             npm install &&
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
             npm run test:apk
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "apk-tests"
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-apk-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
           when: on_fail
 
   package_manager_test_apt:
@@ -54,11 +62,20 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
             nvm install v10 &&
             npm install &&
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
             npm run test:apt
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "apt-tests"
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-apt-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
           when: on_fail
+
   package_manager_test_rpm:
     <<: *default_machine_config
     steps:
@@ -70,33 +87,48 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
             nvm install v10 &&
             npm install &&
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
             npm run test:rpm
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "rpm-tests"
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-rpm-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
           when: on_fail
 
-######################## PR TO STAGING ########################
-  test_discardable:
+  build_image:
     <<: *default_machine_config
     steps:
       - checkout
       - run:
-          name: TEST DISCARDABLE
+          name: BUILD IMAGE
           command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            npm test
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+            IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+            ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+            docker push ${IMAGE_NAME_CANDIDATE}
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-build-image-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
+          when: on_fail
 
-######################## MERGE TO STAGING ########################
-  test_and_build:
+  unit_tests:
     <<: *default_machine_config
     steps:
       - checkout
       - run:
-          name: TEST AND BUILD
+          name: UNIT TESTS
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
@@ -104,17 +136,44 @@ jobs:
             npm install &&
             npm run lint &&
             npm run build &&
-            npm run test:unit &&
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:staging-candidate-${CIRCLE_SHA1} &&
-            ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
-            docker push ${IMAGE_NAME_CANDIDATE} &&
-            ./scripts/slack-notify-push.sh ${IMAGE_NAME_CANDIDATE} &&
-            KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=${IMAGE_NAME_CANDIDATE} npm run test:integration
+            npm run test:unit
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "staging-test"
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-unit-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
           when: on_fail
+
+  integration_tests:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: INTEGRATION TESTS
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
+            npm run test:integration
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-integration-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
+          when: on_fail
+
+######################## MERGE TO STAGING ########################
   tag_and_push:
     <<: *default_container_config
     steps:
@@ -213,28 +272,54 @@ workflows:
   version: 2
   PR_TO_STAGING:
     jobs:
-      - test_discardable:
+      - build_image:
+          <<: *main_branches_filter
+      - unit_tests:
+          <<: *main_branches_filter
+      - integration_tests:
+          requires:
+            - build_image
           <<: *main_branches_filter
       - package_manager_test_apk:
+          requires:
+            - build_image
           <<: *main_branches_filter
       - package_manager_test_apt:
+          requires:
+            - build_image
           <<: *main_branches_filter
       - package_manager_test_rpm:
+          requires:
+            - build_image
           <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
-      - test_and_build:
+      - build_image:
+          <<: *staging_branch_only_filter
+      - unit_tests:
+          <<: *staging_branch_only_filter
+      - integration_tests:
+          requires:
+            - build_image
           <<: *staging_branch_only_filter
       - package_manager_test_apk:
+          requires:
+            - build_image
           <<: *staging_branch_only_filter
       - package_manager_test_apt:
+          requires:
+            - build_image
           <<: *staging_branch_only_filter
       - package_manager_test_rpm:
+          requires:
+            - build_image
           <<: *staging_branch_only_filter
       - tag_and_push:
           requires:
-            - test_and_build
+            - build_image
+            - unit_tests
+            - integration_tests
             - package_manager_test_apk
             - package_manager_test_apt
             - package_manager_test_rpm
