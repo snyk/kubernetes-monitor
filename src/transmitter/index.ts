@@ -7,10 +7,6 @@ import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload, IRe
 
 const upstreamUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
-function isSuccessStatusCode(statusCode: number | undefined): boolean {
-  return statusCode !== undefined && statusCode > 100 && statusCode < 400;
-}
-
 export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<void> {
   for (const payload of payloads) {
     // Intentionally removing dependencyGraph as it would be too big to log
@@ -60,6 +56,10 @@ export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload): P
   } catch (error) {
     logger.error({error, payload}, 'could not send workload to delete to Homebase');
   }
+}
+
+function isSuccessStatusCode(statusCode: number | undefined): boolean {
+  return statusCode !== undefined && statusCode > 100 && statusCode < 400;
 }
 
 async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object): Promise<IResponseWithAttempts> {
