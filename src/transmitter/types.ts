@@ -1,4 +1,5 @@
 import { V1PodSpec } from '@kubernetes/client-node';
+import { NeedleResponse } from 'needle';
 
 interface StringMap { [key: string]: string; }
 
@@ -65,4 +66,9 @@ export interface IWorkload {
   imageId: string;
   cluster: string;
   podSpec: V1PodSpec;
+}
+
+export interface IResponseWithAttempts {
+  response: NeedleResponse;
+  attempt: number;
 }
