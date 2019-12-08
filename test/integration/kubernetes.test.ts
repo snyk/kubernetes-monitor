@@ -37,7 +37,15 @@ tap.test('deploy snyk-monitor', async (t) => {
 
 // Next we apply some sample workloads
 tap.test('deploy sample workloads', async (t) => {
-  await setup.createSampleDeployments();
+  const servicesNamespace = 'services';
+  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
+  await Promise.all([
+    kubectl.applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
+    kubectl.createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
+  ]);
   t.pass('successfully deployed sample workloads');
 });
 
