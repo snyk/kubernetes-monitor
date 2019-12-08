@@ -6,11 +6,10 @@ import * as needle from 'needle';
 
 const clusterName = 'kind';
 
-export async function createCluster(imageNameAndTag: string): Promise<void> {
+export async function createCluster(): Promise<void> {
   const osDistro = platform();
   await download(osDistro);
   await createKindCluster(clusterName);
-  await loadImageInCluster(imageNameAndTag);
 }
 
 export async function deleteCluster(): Promise<void> {
@@ -25,6 +24,18 @@ export async function exportKubeConfig(): Promise<void> {
   const configPath = kindResponse.stdout.replace(/[\n\t\r]/g, '');
   process.env.KUBECONFIG = configPath;
   console.log('Exported K8s config!');
+}
+
+export async function loadImageInCluster(imageNameAndTag: string): Promise<string> {
+  console.log(`Loading image ${imageNameAndTag} in KinD cluster...`);
+  await exec(`./kind load docker-image ${imageNameAndTag}`);
+  console.log(`Loaded image ${imageNameAndTag}`);
+  return imageNameAndTag;
+}
+
+export async function clean(): Promise<void> {
+  // just delete the cluster instead
+  throw new Error('Not implemented');
 }
 
 async function download(osDistro: string): Promise<void> {
@@ -61,10 +72,4 @@ async function createKindCluster(clusterName, kindImageTag = 'latest'): Promise<
   }
   await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
   console.log(`Created cluster ${clusterName}!`);
-}
-
-async function loadImageInCluster(imageNameAndTag): Promise<void> {
-  console.log(`Loading image ${imageNameAndTag} in cluster...`);
-  await exec(`./kind load docker-image ${imageNameAndTag}`);
-  console.log(`Loaded image ${imageNameAndTag}`);
 }

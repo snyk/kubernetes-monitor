@@ -6,6 +6,9 @@ import platforms from './platforms';
 import * as kubectl from '../helpers/kubectl';
 import * as waiters from './waiters';
 
+const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
+const createCluster = process.env['CREATE_CLUSTER'] === 'true';
+
 function getIntegrationId(): string {
   const integrationId = uuidv4();
   console.log(`Generated new integration ID ${integrationId}`);
@@ -55,9 +58,13 @@ function createTestYamlDeployment(
 
 export async function removeMonitor(): Promise<void> {
   try {
-    await platforms.kind.delete();
+    if (createCluster) {
+      await platforms[testPlatform].delete();
+    } else {
+      await platforms[testPlatform].clean();
+    }
   } catch (error) {
-    console.log(`Could not delete kind cluster: ${error.message}`);
+    console.log(`Could not remove the Kubernetes-Monitor: ${error.message}`);
   }
 
   console.log('Removing KUBECONFIG environment variable...');
@@ -73,20 +80,20 @@ export async function removeMonitor(): Promise<void> {
 
 async function createEnvironment(): Promise<void> {
   // TODO: we probably want to use k8s-api for that, not kubectl
-  const servicesNamespace = 'services';
-  await kubectl.createNamespace(servicesNamespace);
+  await kubectl.createNamespace('services');
   // Small hack to prevent timing problems in CircleCI...
+  // TODO: should be replaced by actively waiting for the namespace to be created
   await sleep(5000);
+}
 
-  // Create imagePullSecrets for pulling private images from gcr.io.
-  // This is needed for deploying gcr.io images in KinD (this is _not_ used by snyk-monitor).
+async function createSecretForGcrIoAccess(): Promise<void> {
   const gcrSecretName = 'gcr-io';
   const gcrKubectlSecretsKeyPrefix = '--';
   const gcrSecretType = 'docker-registry';
   const gcrToken = getEnvVariableOrDefault('GCR_IO_SERVICE_ACCOUNT', '{}');
   await kubectl.createSecret(
     gcrSecretName,
-    servicesNamespace,
+    'services',
     {
       'docker-server': 'https://gcr.io',
       'docker-username': '_json_key',
@@ -129,17 +136,17 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
-    const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
-    const createCluster = process.env['CREATE_CLUSTER'] === 'true';
     console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
 
     await kubectl.downloadKubectl();
     if (createCluster) {
-      await platforms[testPlatform].create(imageNameAndTag);
+      await platforms[testPlatform].create();
     }
+    const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
     await platforms[testPlatform].config();
     await createEnvironment();
-    const integrationId = await installKubernetesMonitor(imageNameAndTag);
+    await createSecretForGcrIoAccess();
+    const integrationId = await installKubernetesMonitor(remoteImageName);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
@@ -156,16 +163,4 @@ export async function deployMonitor(): Promise<string> {
 
     throw err;
   }
-}
-
-export async function createSampleDeployments(): Promise<void> {
-  const servicesNamespace = 'services';
-  const someImageWithSha = 'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
-  await Promise.all([
-    kubectl.applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
-    kubectl.applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
-    kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
-    kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
-    kubectl.createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
-  ]);
 }
