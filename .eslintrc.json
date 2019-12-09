@@ -11,6 +11,7 @@
     "prettier/@typescript-eslint"
   ],
   "rules": {
+    "@typescript-eslint/semi": "error",
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/await-thenable": "error",

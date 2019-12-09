@@ -20,9 +20,9 @@ const eksSetup: IPlatformSetup = {
   create: eks.createCluster,
   delete: eks.deleteCluster,
   config: eks.exportKubeConfig,
-}
+};
 
 export default {
   kind: kindSetup,
   eks: eksSetup,
-}
+};
