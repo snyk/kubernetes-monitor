@@ -9,7 +9,7 @@ const lruCacheOptions = {
   // eventually we will report again for that image, if it's still relevant
   maxAge: config.IMAGES_SCANNED_CACHE.MAX_AGE_MS,
   updateAgeOnGet: false,
-}
+};
 
 const state = {
   imagesAlreadyScanned: new lruCache<string, string>(lruCacheOptions),

@@ -27,7 +27,7 @@ tap.test('start with clean environment', async () => {
   } catch (error) {
     console.log(`could not start with a clean environment: ${error.message}`);
   }
-})
+});
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
