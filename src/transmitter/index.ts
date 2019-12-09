@@ -17,7 +17,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<voi
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
-        logger.info({payload: payloadWithoutDepGraph, attempt}, 'dependency graph sent upstream successfully')
+        logger.info({payload: payloadWithoutDepGraph, attempt}, 'dependency graph sent upstream successfully');
       }
     } catch (error) {
       logger.error({error, payload: payloadWithoutDepGraph}, 'could not send the dependency scan result to Homebase');
@@ -27,13 +27,13 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<voi
 
 export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): Promise<void> {
     try {
-      logger.info({workloadLocator: payload.workloadLocator}, 'attempting to send workload metadata upstream')
+      logger.info({workloadLocator: payload.workloadLocator}, 'attempting to send workload metadata upstream');
 
       const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/workload`, payload);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
-        logger.info({workloadLocator: payload.workloadLocator, attempt}, 'workload metadata sent upstream successfully')
+        logger.info({workloadLocator: payload.workloadLocator, attempt}, 'workload metadata sent upstream successfully');
       }
     } catch (error) {
       logger.error({error, workloadLocator: payload.workloadLocator}, 'could not send workload metadata to Homebase');
@@ -51,7 +51,7 @@ export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload): P
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
     } else {
-      logger.info({workloadLocator: payload.workloadLocator, attempt}, 'workload deleted successfully')
+      logger.info({workloadLocator: payload.workloadLocator, attempt}, 'workload deleted successfully');
     }
   } catch (error) {
     logger.error({error, payload}, 'could not send workload to delete to Homebase');
@@ -66,7 +66,7 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
   const retry = {
     attempts: 3,
     intervalSeconds: 2,
-  }
+  };
   const options = {
     json: true,
     compressed: true,
