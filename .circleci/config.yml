@@ -214,16 +214,6 @@ jobs:
           command: ./scripts/slack-notify-failure.sh "deploy-dev"
           when: on_fail
 
-######################## PR TO MASTER ########################
-  prepublish:
-    <<: *default_container_config
-    steps:
-      - checkout
-      - run:
-          name: PREPUBLISH
-          command: |
-            ./scripts/slack-notify-pr.sh
-
 ######################## MERGE TO MASTER ########################
   publish:
     <<: *default_container_config
