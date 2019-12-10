@@ -70,7 +70,7 @@ tap.test('buildImageMetadata', async (t) => {
     specMeta: deploymentObject.spec!.template.metadata!,
     ownerRefs: deploymentObject.metadata!.ownerReferences,
     podSpec: deploymentObject.spec!.template.spec!,
-  }
+  };
 
   const imageMetadataResult = metadataExtractor.buildImageMetadata(
     deploymentWeirdWrapper,
