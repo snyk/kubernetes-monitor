@@ -188,7 +188,7 @@ jobs:
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
             export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
             docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
-            npm run test:integration:eks
+            .circleci/do-exclusively --branch staging npm run test:integration:eks
       - run:
           name: Notify Slack on failure
           command: |
