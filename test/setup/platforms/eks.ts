@@ -10,7 +10,7 @@ export async function deleteCluster(): Promise<void> {
 }
 
 export async function exportKubeConfig(): Promise<void> {
-  await exec('aws eks update-kubeconfig --name runtime-experiments --kubeconfig ./kubeconfig');
+  await exec('aws eks update-kubeconfig --name runtime-integration-test --kubeconfig ./kubeconfig');
   process.env.KUBECONFIG = './kubeconfig';
 }
 
