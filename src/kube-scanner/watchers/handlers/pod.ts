@@ -98,7 +98,14 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
     const workloadMetadataPayload = constructHomebaseWorkloadMetadataPayload(workloadMember);
-    metadataToSendQueue.push({workloadMetadataPayload});
+    const workloadLocator = workloadMetadataPayload.workloadLocator;
+    const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadLocator.name}`;
+    const workloadRevision = workloadMember.revision ? workloadMember.revision.toString() : ''; // this is actually the observed generation
+    if (state.workloadsAlreadyScanned.get(workloadKey) !== workloadRevision) { // either not exists or different
+      state.workloadsAlreadyScanned.set(workloadKey, workloadRevision); // empty string takes zero bytes and is !== undefined
+      metadataToSendQueue.push({workloadMetadataPayload});
+    }
+
     const workloadName = workloadMember.name;
     const workloadWorker = new WorkloadWorker(workloadName);
     handleReadyPod(workloadWorker, workloadMetadata);
