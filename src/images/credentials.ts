@@ -1,17 +1,19 @@
 import * as aws from 'aws-sdk';
 
+import logger = require('../common/logger');
+
 export async function getSourceCredentials(imageSource: string): Promise<string | undefined> {
   // TODO is this the best way we can determine the image's source?
   if (imageSource.indexOf('.ecr.') !== -1) {
-    return getEcrCredentials();
+    const ecrRegion = ecrRegionFromFullImageName(imageSource);
+    return getEcrCredentials(ecrRegion);
   }
   return undefined;
 }
 
-function getEcrCredentials(): Promise<string> {
+function getEcrCredentials(region: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    // TODO grab region... from...? ask users to provide it?
-    const ecr = new aws.ECR({region: 'us-east-2'});
+    const ecr = new aws.ECR({region});
     return ecr.getAuthorizationToken({}, (err, data) => {
       if (err) {
         return reject(err);
@@ -37,4 +39,30 @@ function getEcrCredentials(): Promise<string> {
       return resolve(userColonPassword);
     });
   });
+}
+
+export function ecrRegionFromFullImageName(imageFullName: string): string {
+  // should look like this
+  // aws_account_id.dkr.ecr.region.amazonaws.com/my-web-app:latest
+  // https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_on_EKS.html
+  try {
+    const [registry, repository] = imageFullName.split('/');
+    if (!repository) {
+      throw new Error('ECR image full name missing repository');
+    }
+
+    const parts = registry.split('.');
+    if (!(
+      parts.length === 6 &&
+      parts[1] === 'dkr' &&
+      parts[2] === 'ecr' &&
+      parts[4] === 'amazonaws'
+    )) {
+      throw new Error('ECR image full name in unexpected format');
+    }
+    return parts[3];
+  } catch (err) {
+    logger.error({err, imageFullName}, 'failed extracting ECR region from image full name');
+    throw err;
+  }
 }
