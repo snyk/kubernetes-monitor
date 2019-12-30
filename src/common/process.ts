@@ -16,6 +16,7 @@ export function exec(bin: string, ...args: string[]):
   return spawn(bin, args, { env, capture: [ 'stdout', 'stderr' ] })
     .catch((error) => {
       const message = (error && error.stderr) || 'Unknown reason';
+      // TODO: sanitise args for secrets
       logger.warn({message, bin, args}, 'could not spawn the process');
       throw error;
     });

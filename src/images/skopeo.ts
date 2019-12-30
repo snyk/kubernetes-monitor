@@ -2,6 +2,7 @@ import { SkopeoRepositoryType } from '../kube-scanner/types';
 import { SpawnPromiseResult } from 'child-process-promise';
 import { exec } from '../common/process';
 import config = require('../common/config');
+import * as credentials from './credentials';
 
 function getUniqueIdentifier(): string {
   const [seconds, nanoseconds] = process.hrtime();
@@ -28,12 +29,24 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
   }
 }
 
-export function pull(
+export async function pull(
   image: string,
   destination: string,
 ): Promise<SpawnPromiseResult> {
-  return exec('skopeo', 'copy',
+  const creds = await credentials.getSourceCredentials(image);
+  const credentialsParameters = getCredentialParameters(creds);
+
+  return exec('skopeo', 'copy', ...credentialsParameters,
     prefixRespository(image, SkopeoRepositoryType.ImageRegistry),
     prefixRespository(destination, SkopeoRepositoryType.DockerArchive),
   );
+}
+
+export function getCredentialParameters(credentials: string | undefined): Array<string> {
+  const credentialsParameters: Array<string> = [];
+  if (credentials) {
+    credentialsParameters.push('--src-creds');
+    credentialsParameters.push(credentials);
+  }
+  return credentialsParameters;
 }

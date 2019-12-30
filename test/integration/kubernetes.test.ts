@@ -164,6 +164,41 @@ tap.test('snyk-monitor pulls images from a private gcr.io registry and sends dat
     'snyk-monitor sent expected data to upstream in the expected timeframe');
 });
 
+tap.test('snyk-monitor pulls images from a private ECR and sends data to homebase', async (t) => {
+  if (process.env['TEST_PLATFORM'] !== 'eks') {
+    t.pass('Not testing private ECR images because we\'re not running in EKS');
+    return;
+  }
+
+  t.plan(3);
+
+  const deploymentName = 'debian-ecr';
+  const namespace = 'services';
+  const clusterName = 'Default cluster';
+  const deploymentType = WorkloadKind.Deployment;
+  const imageName = '291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/debian';
+
+  await kubectl.applyK8sYaml('./test/fixtures/private-registries/debian-deployment-ecr.yaml');
+  console.log(`Begin polling upstream for the expected private ECR image with integration ID ${integrationId}...`);
+
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return workloads !== undefined &&
+      workloads.find((workload) => workload.name === deploymentName &&
+        workload.type === WorkloadKind.Deployment) !== undefined;
+  };
+
+  const homebaseTestResult = await validateHomebaseStoredData(
+    validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
+  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
+
+  const depGraphResult = await getHomebaseResponseBody(
+    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  t.ok('dependencyGraphResults' in depGraphResult,
+    'expected dependencyGraphResults field to exist in /dependency-graphs response');
+  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
+    'snyk-monitor sent expected data to upstream in the expected timeframe');
+});
+
 tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
   // First ensure the deployment exists from the previous test
   const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
