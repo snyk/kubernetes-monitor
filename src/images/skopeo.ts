@@ -1,8 +1,10 @@
-import { SkopeoRepositoryType } from '../kube-scanner/types';
 import { SpawnPromiseResult } from 'child-process-promise';
+
 import { exec } from '../common/process';
-import config = require('../common/config');
+import * as config from'../common/config';
 import * as credentials from './credentials';
+import { SkopeoRepositoryType } from '../kube-scanner/types';
+
 
 function getUniqueIdentifier(): string {
   const [seconds, nanoseconds] = process.hrtime();
