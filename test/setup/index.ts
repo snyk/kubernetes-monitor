@@ -26,13 +26,14 @@ function createTestYamlDeployment(
   newYamlPath: string,
   integrationId: string,
   imageNameAndTag: string,
+  imagePullPolicy: string,
 ): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
   const deployment = parse(originalDeploymentYaml);
 
   deployment.spec.template.spec.containers[0].image = imageNameAndTag;
-  deployment.spec.template.spec.containers[0].imagePullPolicy = 'Never';
+  deployment.spec.template.spec.containers[0].imagePullPolicy = imagePullPolicy;
 
   // This is important due to an odd bug when running on Travis.
   // By adding the Google nameserver, the container can start resolving external hosts.
@@ -105,7 +106,10 @@ async function createSecretForGcrIoAccess(): Promise<void> {
   );
 }
 
-async function installKubernetesMonitor(imageNameAndTag: string): Promise<string> {
+async function installKubernetesMonitor(
+  imageNameAndTag: string,
+  imagePullPolicy: string,
+  ): Promise<string> {
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
 
@@ -118,7 +122,7 @@ async function installKubernetesMonitor(imageNameAndTag: string): Promise<string
   });
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag);
+  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, imagePullPolicy);
 
   await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
@@ -146,7 +150,11 @@ export async function deployMonitor(): Promise<string> {
     await platforms[testPlatform].config();
     await createEnvironment();
     await createSecretForGcrIoAccess();
-    const integrationId = await installKubernetesMonitor(remoteImageName);
+
+    // TODO: hack, rewrite this
+    const imagePullPolicy = testPlatform === 'kind' ? 'Never' : 'Always';
+
+    const integrationId = await installKubernetesMonitor(remoteImageName, imagePullPolicy);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
