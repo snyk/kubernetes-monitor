@@ -1,0 +1,68 @@
+import * as aws from 'aws-sdk';
+
+import logger = require('../common/logger');
+
+export async function getSourceCredentials(imageSource: string): Promise<string | undefined> {
+  // TODO is this the best way we can determine the image's source?
+  if (imageSource.indexOf('.ecr.') !== -1) {
+    const ecrRegion = ecrRegionFromFullImageName(imageSource);
+    return getEcrCredentials(ecrRegion);
+  }
+  return undefined;
+}
+
+function getEcrCredentials(region: string): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    const ecr = new aws.ECR({region});
+    return ecr.getAuthorizationToken({}, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+
+      if (!(
+        data &&
+        data.authorizationData &&
+        Array.isArray(data.authorizationData) &&
+        data.authorizationData.length > 0
+      )) {
+        return reject('unexpected data format from ecr.getAuthorizationToken');
+      }
+
+      const authorizationTokenBase64 = data.authorizationData[0].authorizationToken;
+
+      if (!authorizationTokenBase64) {
+        return reject('empty authorization token from ecr.getAuthorizationToken');
+      }
+
+      const buff = new Buffer(authorizationTokenBase64, 'base64');
+      const userColonPassword = buff.toString('utf-8');
+      return resolve(userColonPassword);
+    });
+  });
+}
+
+export function ecrRegionFromFullImageName(imageFullName: string): string {
+  // should look like this
+  // aws_account_id.dkr.ecr.region.amazonaws.com/my-web-app:latest
+  // https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_on_EKS.html
+  try {
+    const [registry, repository] = imageFullName.split('/');
+    if (!repository) {
+      throw new Error('ECR image full name missing repository');
+    }
+
+    const parts = registry.split('.');
+    if (!(
+      parts.length === 6 &&
+      parts[1] === 'dkr' &&
+      parts[2] === 'ecr' &&
+      parts[4] === 'amazonaws'
+    )) {
+      throw new Error('ECR image full name in unexpected format');
+    }
+    return parts[3];
+  } catch (err) {
+    logger.error({err, imageFullName}, 'failed extracting ECR region from image full name');
+    throw err;
+  }
+}

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debian-ecr
+  namespace: services
+spec:
+  selector:
+    matchLabels:
+      app: debian-ecr
+  template:
+    metadata:
+      labels:
+        app: debian-ecr
+    spec:
+      containers:
+      - name: debian-ecr
+        image: 291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/debian:10
+        imagePullPolicy: Always
+        securityContext: {}
+        command: ['sh', '-c', 'echo Hello from ECR alpine pod! && sleep 360000']
