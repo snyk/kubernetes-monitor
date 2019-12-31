@@ -1,10 +1,15 @@
 import { spawn, SpawnPromiseResult } from 'child-process-promise';
 import logger = require('./logger');
 
-export function exec(bin: string, ...args: string[]):
+export interface IProcessArgument {
+  body: string;
+  sanitise: boolean;
+}
+
+export function exec(bin: string, ...processArgs: IProcessArgument[]):
     Promise<SpawnPromiseResult> {
   if (process.env.DEBUG === 'true') {
-    args.push('--debug');
+    processArgs.push({body: '--debug', sanitise: false});
   }
 
   // Ensure we're not passing the whole environment to the shelled out process...
@@ -13,11 +18,12 @@ export function exec(bin: string, ...args: string[]):
     PATH: process.env.PATH,
   };
 
-  return spawn(bin, args, { env, capture: [ 'stdout', 'stderr' ] })
+  const allArguments = processArgs.map((arg) => arg.body);
+  return spawn(bin, allArguments, { env, capture: [ 'stdout', 'stderr' ] })
     .catch((error) => {
       const message = (error && error.stderr) || 'Unknown reason';
-      // TODO: sanitise args for secrets
-      logger.warn({message, bin, args}, 'could not spawn the process');
+      const loggableArguments = processArgs.filter((arg) => !arg.sanitise).map((arg) => arg.body);
+      logger.warn({message, bin, loggableArguments}, 'could not spawn the process');
       throw error;
     });
 }
