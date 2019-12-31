@@ -1,10 +1,9 @@
 import { SpawnPromiseResult } from 'child-process-promise';
 
-import { exec } from '../common/process';
+import * as processWrapper from '../common/process';
 import * as config from'../common/config';
 import * as credentials from './credentials';
 import { SkopeoRepositoryType } from '../kube-scanner/types';
-
 
 function getUniqueIdentifier(): string {
   const [seconds, nanoseconds] = process.hrtime();
@@ -38,17 +37,20 @@ export async function pull(
   const creds = await credentials.getSourceCredentials(image);
   const credentialsParameters = getCredentialParameters(creds);
 
-  return exec('skopeo', 'copy', ...credentialsParameters,
-    prefixRespository(image, SkopeoRepositoryType.ImageRegistry),
-    prefixRespository(destination, SkopeoRepositoryType.DockerArchive),
-  );
+  const args: Array<processWrapper.IProcessArgument> = [];
+  args.push({body: 'copy', sanitise: false});
+  args.push(...credentialsParameters);
+  args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
+  args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
+
+  return processWrapper.exec('skopeo', ...args);
 }
 
-export function getCredentialParameters(credentials: string | undefined): Array<string> {
-  const credentialsParameters: Array<string> = [];
+export function getCredentialParameters(credentials: string | undefined): Array<processWrapper.IProcessArgument> {
+  const credentialsParameters: Array<processWrapper.IProcessArgument> = [];
   if (credentials) {
-    credentialsParameters.push('--src-creds');
-    credentialsParameters.push(credentials);
+    credentialsParameters.push({body: '--src-creds', sanitise: true});
+    credentialsParameters.push({body: credentials, sanitise: true});
   }
   return credentialsParameters;
 }
