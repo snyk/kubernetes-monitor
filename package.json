@@ -31,6 +31,7 @@
     "@types/lru-cache": "^5.1.0",
     "@types/needle": "^2.0.4",
     "@types/node": "^10.12.5",
+    "@types/sinon": "^7.5.1",
     "async": "^2.6.2",
     "bunyan": "^1.8.12",
     "child-process-promise": "^2.2.1",
@@ -49,6 +50,7 @@
     "@typescript-eslint/parser": "^2.6.1",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
+    "sinon": "^8.0.1",
     "tap": "github:snyk/node-tap#alternative-runtimes",
     "ts-node": "^8.1.0",
     "tsc-watch": "^1.0.30"
