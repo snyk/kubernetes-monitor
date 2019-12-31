@@ -23,7 +23,7 @@ export function exec(bin: string, ...processArgs: IProcessArgument[]):
     .catch((error) => {
       const message = (error && error.stderr) || 'Unknown reason';
       const loggableArguments = processArgs.filter((arg) => !arg.sanitise).map((arg) => arg.body);
-      logger.warn({message, bin, loggableArguments}, 'could not spawn the process');
+      logger.warn({message, bin, loggableArguments}, 'child process failure');
       throw error;
     });
 }
