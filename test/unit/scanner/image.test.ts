@@ -3,7 +3,7 @@ import {
   constructStaticAnalysisOptions,
   getImageTag,
   removeTagFromImage,
-} from '../../../src/kube-scanner/image';
+} from '../../../src/scanner/image';
 
 test('constructStaticAnalysisOptions() tests', async (t) => {
   t.plan(1);

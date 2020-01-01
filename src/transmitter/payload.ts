@@ -1,6 +1,6 @@
 import config = require('../common/config');
-import { currentClusterName } from '../kube-scanner/cluster';
-import { IScanResult } from '../kube-scanner/types';
+import { currentClusterName } from '../scanner/cluster';
+import { IScanResult } from '../scanner/types';
 import {
   IDeleteWorkloadPayload,
   IDepGraphPayload,
