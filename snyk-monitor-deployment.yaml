@@ -1,3 +1,7 @@
+#
+# This file creates the deployment that runs the Kubernetes-Monitor
+#
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.20.0
+      - image: snyk/kubernetes-monitor:1.20.2
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -51,7 +55,7 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.20.0
+            value: 1.20.2
         resources:
           requests:
             cpu: '250m'
