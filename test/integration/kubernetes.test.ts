@@ -1,7 +1,7 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import setup = require('../setup');
 import * as tap from 'tap';
-import { WorkloadKind } from '../../src/scanner/types';
+import { WorkloadKind } from '../../src/supervisor/types';
 import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
 import {
   validateHomebaseStoredData,

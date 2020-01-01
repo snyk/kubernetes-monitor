@@ -1,5 +1,5 @@
 import config = require('../common/config');
-import { currentClusterName } from '../scanner/cluster';
+import { currentClusterName } from '../supervisor/cluster';
 import { IScanResult } from '../scanner/types';
 import {
   IDeleteWorkloadPayload,

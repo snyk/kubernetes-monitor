@@ -1,7 +1,7 @@
 import * as SourceMapSupport from 'source-map-support';
 import logger = require('./common/logger');
-import { currentClusterName } from './scanner/cluster';
-import { beginWatchingWorkloads } from './scanner/watchers';
+import { currentClusterName } from './supervisor/cluster';
+import { beginWatchingWorkloads } from './supervisor/watchers';
 
 process.on('uncaughtException', (err) => {
   try {
