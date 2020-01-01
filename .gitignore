@@ -47,3 +47,5 @@ config.local.json
 # test utilities
 kind
 kubectl
+kubeconfig-integration-test-kind
+snyk-monitor-test-deployment.yaml
