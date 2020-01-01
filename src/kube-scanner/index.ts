@@ -1,8 +1,8 @@
 import logger = require('../common/logger');
 import { pullImages, removePulledImages, getImagesWithFileSystemPath } from '../images';
 import { scanImages } from './image';
-import { deleteHomebaseWorkload, sendDepGraph } from '../transmitter';
-import { constructHomebaseDeleteWorkloadPayload, constructDepGraph } from '../transmitter/payload';
+import { deleteWorkload, sendDepGraph } from '../transmitter';
+import { constructDeleteWorkloadPayload, constructDepGraph } from '../transmitter/payload';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { IPullableImage } from '../images/types';
 
@@ -35,10 +35,10 @@ export = class WorkloadWorker {
   }
 
   public async delete(localWorkloadLocator: ILocalWorkloadLocator): Promise<void> {
-    const deletePayload = constructHomebaseDeleteWorkloadPayload(localWorkloadLocator);
+    const deletePayload = constructDeleteWorkloadPayload(localWorkloadLocator);
     logger.info({workloadName: this.name, workload: localWorkloadLocator},
-      'removing workloads from homebase');
-    await deleteHomebaseWorkload(deletePayload);
+      'removing workloads from upstream');
+    await deleteWorkload(deletePayload);
   }
 
   private async scanImagesAndSendResults(
