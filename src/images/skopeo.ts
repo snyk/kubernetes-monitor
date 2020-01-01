@@ -3,7 +3,7 @@ import { SpawnPromiseResult } from 'child-process-promise';
 import * as processWrapper from '../common/process';
 import * as config from'../common/config';
 import * as credentials from './credentials';
-import { SkopeoRepositoryType } from '../kube-scanner/types';
+import { SkopeoRepositoryType } from '../scanner/types';
 
 function getUniqueIdentifier(): string {
   const [seconds, nanoseconds] = process.hrtime();

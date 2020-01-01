@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import { SupportedWorkloadTypes, getSupportedWorkload } from '../../src/kube-scanner/workload-reader';
+import { SupportedWorkloadTypes, getSupportedWorkload } from '../../src/scanner/workload-reader';
 import { V1OwnerReference } from '@kubernetes/client-node';
 
 tap.test('SupportedWorkloadTypes', async (t) => {

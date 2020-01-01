@@ -2,7 +2,7 @@ import { V1Pod } from '@kubernetes/client-node';
 import async = require('async');
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
-import WorkloadWorker = require('../../../kube-scanner');
+import WorkloadWorker = require('../../../scanner');
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
 import { constructWorkloadMetadataPayload } from '../../../transmitter/payload';

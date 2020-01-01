@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import kubeScannerTypes = require('../../src/kube-scanner/types');
+import kubeScannerTypes = require('../../src/scanner/types');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
 import podSpecFixture = require('../fixtures/pod-spec.json');
