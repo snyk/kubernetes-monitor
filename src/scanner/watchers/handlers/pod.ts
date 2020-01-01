@@ -2,10 +2,10 @@ import { V1Pod } from '@kubernetes/client-node';
 import async = require('async');
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
-import WorkloadWorker = require('../../../kube-scanner');
+import WorkloadWorker = require('../../../scanner');
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
-import { constructHomebaseWorkloadMetadataPayload } from '../../../transmitter/payload';
+import { constructWorkloadMetadataPayload } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
 import state = require('../../../state');
@@ -97,7 +97,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
 
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
-    const workloadMetadataPayload = constructHomebaseWorkloadMetadataPayload(workloadMember);
+    const workloadMetadataPayload = constructWorkloadMetadataPayload(workloadMember);
     const workloadLocator = workloadMetadataPayload.workloadLocator;
     const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadLocator.name}`;
     const workloadRevision = workloadMember.revision ? workloadMember.revision.toString() : ''; // this is actually the observed generation

@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import kubeScannerTypes = require('../../src/kube-scanner/types');
+import kubeScannerTypes = require('../../src/scanner/types');
 import payload = require('../../src/transmitter/payload');
 import transmitterTypes = require('../../src/transmitter/types');
 import podSpecFixture = require('../fixtures/pod-spec.json');
@@ -82,7 +82,7 @@ tap.test('constructDepGraph happy flow', async (t) => {
 
   const payloads = payload.constructDepGraph(scannedImages, workloadMetadata);
 
-  t.equals(payloads.length, 1, 'one payload to send to Homebase');
+  t.equals(payloads.length, 1, 'one payload to send upstream');
   const firstPayload = payloads[0];
   t.equals(firstPayload.dependencyGraph, JSON.stringify('whatever1'), 'dependency graph present in payload');
   t.equals(firstPayload.imageLocator.cluster, 'grapefruit', 'cluster present in payload');
@@ -104,7 +104,7 @@ tap.test('constructDepGraph happy flow', async (t) => {
   config.MONITOR_VERSION = backups.version;
 });
 
-tap.test('constructHomebaseWorkloadMetadataPayload happy flow', async (t) => {
+tap.test('constructWorkloadMetadataPayload happy flow', async (t) => {
   const workloadWithImages: transmitterTypes.IWorkload = {
     type: 'type',
     name: 'workloadName',
@@ -122,7 +122,7 @@ tap.test('constructHomebaseWorkloadMetadataPayload happy flow', async (t) => {
     podSpec: podSpecFixture,
   };
 
-  const workloadMetadataPayload = payload.constructHomebaseWorkloadMetadataPayload(workloadWithImages);
+  const workloadMetadataPayload = payload.constructWorkloadMetadataPayload(workloadWithImages);
 
   t.equals(workloadMetadataPayload.workloadLocator.cluster, 'grapefruit', 'cluster present in payload');
   t.equals(workloadMetadataPayload.workloadLocator.namespace, 'spacename', 'image ID present in payload');

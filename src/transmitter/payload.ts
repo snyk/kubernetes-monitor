@@ -1,6 +1,6 @@
 import config = require('../common/config');
-import { currentClusterName } from '../kube-scanner/cluster';
-import { IScanResult } from '../kube-scanner/types';
+import { currentClusterName } from '../scanner/cluster';
+import { IScanResult } from '../scanner/types';
 import {
   IDeleteWorkloadPayload,
   IDepGraphPayload,
@@ -50,7 +50,7 @@ export function constructDepGraph(
   return results;
 }
 
-export function constructHomebaseWorkloadMetadataPayload(workload: IWorkload): IWorkloadMetadataPayload {
+export function constructWorkloadMetadataPayload(workload: IWorkload): IWorkloadMetadataPayload {
   if (!workload) {
     throw new Error('can\'t build workload metadata payload for undefined workload');
   }
@@ -73,7 +73,7 @@ export function constructHomebaseWorkloadMetadataPayload(workload: IWorkload): I
   return { workloadLocator, agentId: config.AGENT_ID, workloadMetadata };
 }
 
-export function constructHomebaseDeleteWorkloadPayload(
+export function constructDeleteWorkloadPayload(
   localWorkloadLocator: ILocalWorkloadLocator,
 ): IDeleteWorkloadPayload {
   return {
