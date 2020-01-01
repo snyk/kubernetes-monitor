@@ -363,8 +363,3 @@ workflows:
             branches:
               only:
                 - master
-
-general:
-  branches:
-    ignore:
-      - gh-pages
