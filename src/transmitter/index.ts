@@ -20,7 +20,7 @@ export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<voi
         logger.info({payload: payloadWithoutDepGraph, attempt}, 'dependency graph sent upstream successfully');
       }
     } catch (error) {
-      logger.error({error, payload: payloadWithoutDepGraph}, 'could not send the dependency scan result to Homebase');
+      logger.error({error, payload: payloadWithoutDepGraph}, 'could not send the dependency scan result upstream');
     }
   }
 }
@@ -36,15 +36,16 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): P
         logger.info({workloadLocator: payload.workloadLocator, attempt}, 'workload metadata sent upstream successfully');
       }
     } catch (error) {
-      logger.error({error, workloadLocator: payload.workloadLocator}, 'could not send workload metadata to Homebase');
+      logger.error({error, workloadLocator: payload.workloadLocator}, 'could not send workload metadata upstream');
     }
 }
 
-export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload): Promise<void> {
+export async function deleteWorkload(payload: IDeleteWorkloadPayload): Promise<void> {
   try {
     const {response, attempt} = await retryRequest('delete', `${upstreamUrl}/api/v1/workload`, payload);
     if (response.statusCode === 404) {
-      const msg = 'attempted to delete a workload Homebase could not find, maybe we are still building it?';
+      // TODO: maybe we're still building it?
+      const msg = 'attempted to delete a workload the Upstream service could not find';
       logger.info({payload}, msg);
       return;
     }
@@ -54,7 +55,7 @@ export async function deleteHomebaseWorkload(payload: IDeleteWorkloadPayload): P
       logger.info({workloadLocator: payload.workloadLocator, attempt}, 'workload deleted successfully');
     }
   } catch (error) {
-    logger.error({error, payload}, 'could not send workload to delete to Homebase');
+    logger.error({error, payload}, 'could not send delete a workload from the upstream');
   }
 }
 
