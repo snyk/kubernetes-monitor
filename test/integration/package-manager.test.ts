@@ -9,7 +9,7 @@ import { deployMonitor, removeMonitor } from '../setup';
 import * as fixtureReader from './fixture-reader';
 
 import { IWorkloadLocator } from '../../src/transmitter/types';
-import { WorkloadKind } from '../../src/scanner/types';
+import { WorkloadKind } from '../../src/supervisor/types';
 
 let integrationId: string;
 

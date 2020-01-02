@@ -3,9 +3,9 @@ import * as fs from 'fs';
 import * as YAML from 'yaml';
 
 import { V1OwnerReference, V1Pod, V1Deployment } from '@kubernetes/client-node';
-import * as scannerTypes from '../../src/scanner/types';
+import * as supervisorTypes from '../../src/supervisor/types';
 
-import * as metadataExtractor from '../../src/scanner/metadata-extractor';
+import * as metadataExtractor from '../../src/supervisor/metadata-extractor';
 
 tap.test('isPodAssociatedWithParent', async (t) => {
   const mockPodWithoutMetadata = {};
@@ -64,7 +64,7 @@ tap.test('buildImageMetadata', async (t) => {
   const podFixture = fs.readFileSync('./test/fixtures/sidecar-containers/pod.yaml', 'utf8');
   const podObject: V1Pod = YAML.parse(podFixture);
 
-  const deploymentWeirdWrapper: scannerTypes.IKubeObjectMetadata = {
+  const deploymentWeirdWrapper: supervisorTypes.IKubeObjectMetadata = {
     kind: 'Deployment',
     objectMeta: deploymentObject.metadata!,
     specMeta: deploymentObject.spec!.template.metadata!,
