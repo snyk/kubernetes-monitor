@@ -5,7 +5,7 @@
   "scripts": {
     "pretest": "./scripts/build-image.sh",
     "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration",
-    "test:unit": "tap test/unit -R spec",
+    "test:unit": "NODE_ENV=test tap test/unit -R spec",
     "test:integration": "TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts -R spec --timeout=1200",
     "test:integration:kind": "TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts -R spec --timeout=1200",
     "test:integration:eks": "TEST_PLATFORM=eks CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts -R spec --timeout=1200",
