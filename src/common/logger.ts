@@ -12,4 +12,8 @@ const logger: bunyan = bunyan.createLogger({
   },
 });
 
+if (process.env.NODE_ENV === 'test') {
+  logger.level(bunyan.FATAL + 1);
+}
+
 export = logger;
