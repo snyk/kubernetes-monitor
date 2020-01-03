@@ -6,7 +6,6 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 export async function daemonSetWatchHandler(daemonSet: V1DaemonSet): Promise<void> {
   if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.metadata ||
       !daemonSet.spec.template.spec || !daemonSet.status) {
-    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
 
