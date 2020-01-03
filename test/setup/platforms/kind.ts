@@ -20,8 +20,10 @@ export async function deleteCluster(): Promise<void> {
 
 export async function exportKubeConfig(): Promise<void> {
   console.log('Exporting K8s config...');
-  const kindResponse = await exec(`./kind get kubeconfig-path --name="${clusterName}"`);
-  const configPath = kindResponse.stdout.replace(/[\n\t\r]/g, '');
+  const kubeconfigResult = await exec('./kind get kubeconfig');
+  const kubeconfigContent = kubeconfigResult.stdout;
+  const configPath = './kubeconfig-integration-test-kind';
+  writeFileSync(configPath, kubeconfigContent);
   process.env.KUBECONFIG = configPath;
   console.log('Exported K8s config!');
 }
@@ -48,7 +50,7 @@ async function download(osDistro: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/camelcase
     const requestOptions = { follow_max: 2 };
     await needle('get',
-      `https://github.com/kubernetes-sigs/kind/releases/download/v0.3.0/kind-${osDistro}-amd64`,
+      `https://github.com/kubernetes-sigs/kind/releases/download/v0.6.1/kind-${osDistro}-amd64`,
       bodyData,
       requestOptions,
     ).then((response) => {

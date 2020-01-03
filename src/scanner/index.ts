@@ -34,6 +34,7 @@ export = class WorkloadWorker {
     }
   }
 
+  // TODO: should be extracted from here and moved to the supervisor
   public async delete(localWorkloadLocator: ILocalWorkloadLocator): Promise<void> {
     const deletePayload = constructDeleteWorkloadPayload(localWorkloadLocator);
     logger.info({workloadName: this.name, workload: localWorkloadLocator},
