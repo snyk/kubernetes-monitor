@@ -3,9 +3,9 @@ import * as fs from 'fs';
 import * as YAML from 'yaml';
 
 import { V1OwnerReference, V1Pod, V1Deployment } from '@kubernetes/client-node';
-import * as supervisorTypes from '../../src/supervisor/types';
+import * as supervisorTypes from '../../../src/supervisor/types';
 
-import * as metadataExtractor from '../../src/supervisor/metadata-extractor';
+import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
 
 tap.test('isPodAssociatedWithParent', async (t) => {
   const mockPodWithoutMetadata = {};
