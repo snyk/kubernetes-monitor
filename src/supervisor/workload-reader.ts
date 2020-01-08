@@ -1,4 +1,6 @@
 import { V1OwnerReference } from '@kubernetes/client-node';
+
+import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 
@@ -8,8 +10,8 @@ type IWorkloadReaderFunc = (
 ) => Promise<IKubeObjectMetadata | undefined>;
 
 const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const deploymentResult = await k8sApi.appsClient.readNamespacedDeployment(
-    workloadName, namespace);
+  const deploymentResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace));
   const deployment = deploymentResult.body;
 
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
@@ -29,8 +31,8 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 };
 
 const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const replicaSetResult = await k8sApi.appsClient.readNamespacedReplicaSet(
-    workloadName, namespace);
+  const replicaSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace));
   const replicaSet = replicaSetResult.body;
 
   if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
@@ -50,8 +52,8 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 };
 
 const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const statefulSetResult = await k8sApi.appsClient.readNamespacedStatefulSet(
-    workloadName, namespace);
+  const statefulSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.appsClient.readNamespacedStatefulSet(workloadName, namespace));
   const statefulSet = statefulSetResult.body;
 
   if (!statefulSet.metadata || !statefulSet.spec || !statefulSet.spec.template.metadata ||
@@ -71,8 +73,8 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
 };
 
 const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const daemonSetResult = await k8sApi.appsClient.readNamespacedDaemonSet(
-    workloadName, namespace);
+  const daemonSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.appsClient.readNamespacedDaemonSet(workloadName, namespace));
   const daemonSet = daemonSetResult.body;
 
   if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.spec ||
@@ -92,8 +94,8 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
 };
 
 const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const jobResult = await k8sApi.batchClient.readNamespacedJob(
-    workloadName, namespace);
+  const jobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.batchClient.readNamespacedJob(workloadName, namespace));
   const job = jobResult.body;
 
   if (!job.metadata || !job.spec || !job.spec.template.spec || !job.spec.template.metadata) {
@@ -114,8 +116,8 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
 // https://kubernetes.io/docs/concepts/overview/kubernetes-api/#api-versioning
 // CronJobs will appear in v2 API, but for now there' only v2alpha1, so it's a bad idea to use it.
 const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const cronJobResult = await k8sApi.batchUnstableClient.readNamespacedCronJob(
-    workloadName, namespace);
+  const cronJobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.batchUnstableClient.readNamespacedCronJob(workloadName, namespace));
   const cronJob = cronJobResult.body;
 
   if (!cronJob.metadata || !cronJob.spec || !cronJob.spec.jobTemplate.metadata ||
@@ -134,8 +136,8 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
 };
 
 const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const replicationControllerResult = await k8sApi.coreClient.readNamespacedReplicationController(
-    workloadName, namespace);
+  const replicationControllerResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.coreClient.readNamespacedReplicationController(workloadName, namespace));
   const replicationController = replicationControllerResult.body;
 
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
