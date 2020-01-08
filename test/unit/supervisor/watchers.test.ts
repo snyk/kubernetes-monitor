@@ -1,7 +1,7 @@
 import * as tap from 'tap';
 import { V1Namespace } from '@kubernetes/client-node';
 
-import watchers = require('../../src/supervisor/watchers');
+import watchers = require('../../../src/supervisor/watchers');
 
 tap.test('extractNamespaceName', async (t) => {
   const namespaceEmpty = {} as V1Namespace;
