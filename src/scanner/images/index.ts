@@ -1,4 +1,4 @@
-import logger = require('../common/logger');
+import logger = require('../../common/logger');
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
 import { unlink } from 'fs';
 import { IPullableImage } from './types';

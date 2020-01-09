@@ -1,7 +1,7 @@
 import * as tap from 'tap';
-import { getImagesWithFileSystemPath, pullImages } from '../../src/images';
-import { IPullableImage } from '../../src/images/types';
-import config = require('../../src/common/config');
+import { getImagesWithFileSystemPath, pullImages } from '../../../src/scanner/images';
+import { IPullableImage } from '../../../src/scanner/images/types';
+import config = require('../../../src/common/config');
 
 tap.test('getImagesWithFileSystemPath()', async (t) => {
   const noImages: string[] = [];

@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import * as credentials from '../../src/images/credentials';
+import * as credentials from '../../../src/scanner/images/credentials';
 
 tap.test('ecrRegionFromFullImageName()', async (t) => {
   const imageFullNameTemplate = 'aws_account_id.dkr.ecr.region.amazonaws.com/my-web-app:latest';
