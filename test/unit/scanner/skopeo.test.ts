@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import * as skopeo from '../../src/images/skopeo';
+import * as skopeo from '../../../src/scanner/images/skopeo';
 
 tap.test('getCredentialParameters()', async (t) => {
   const noCredentials = undefined;
