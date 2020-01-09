@@ -1,6 +1,6 @@
 import * as aws from 'aws-sdk';
 
-import logger = require('../common/logger');
+import logger = require('../../common/logger');
 
 export async function getSourceCredentials(imageSource: string): Promise<string | undefined> {
   // TODO is this the best way we can determine the image's source?

@@ -1,7 +1,7 @@
 import { SpawnPromiseResult } from 'child-process-promise';
 
-import * as processWrapper from '../common/process';
-import * as config from'../common/config';
+import * as processWrapper from '../../common/process';
+import * as config from '../../common/config';
 import * as credentials from './credentials';
 import { SkopeoRepositoryType } from './types';
 

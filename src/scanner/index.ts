@@ -1,10 +1,10 @@
 import logger = require('../common/logger');
-import { pullImages, removePulledImages, getImagesWithFileSystemPath } from '../images';
+import { pullImages, removePulledImages, getImagesWithFileSystemPath } from './images';
 import { scanImages } from './image';
 import { deleteWorkload, sendDepGraph } from '../transmitter';
 import { constructDeleteWorkloadPayload, constructDepGraph } from '../transmitter/payload';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
-import { IPullableImage } from '../images/types';
+import { IPullableImage } from './images/types';
 
 export = class WorkloadWorker {
   private readonly name: string;
