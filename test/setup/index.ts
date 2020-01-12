@@ -47,7 +47,7 @@ function createTestYamlDeployment(
     value: integrationId,
   };
 
-  // Inject the baseUrl of homebase that snyk-monitor container use to send metadata
+  // Inject the baseUrl of kubernetes-upstream that snyk-monitor container use to send metadata
   deployment.spec.template.spec.containers[0].env[2] = {
     name: 'SNYK_INTEGRATION_API',
     value: 'https://kubernetes-upstream.dev.snyk.io',

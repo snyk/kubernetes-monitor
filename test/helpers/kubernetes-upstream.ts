@@ -10,22 +10,22 @@ import config = require('../../src/common/config');
 const toneDownFactor = 5;
 const maxPodChecks = 600 / toneDownFactor;
 
-export async function getHomebaseResponseBody(
+export async function getUpstreamResponseBody(
   relativeUrl: string,
 ): Promise<any> {
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@homebase-int.dev.snyk.io/${relativeUrl}`;
-  const homebaseResponse = await needle('get', url, null);
-  const responseBody = homebaseResponse.body;
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@kubernetes-upstream-int.dev.snyk.io/${relativeUrl}`;
+  const upstreamResponse = await needle('get', url, null);
+  const responseBody = upstreamResponse.body;
   return responseBody;
 }
 
-export async function validateHomebaseStoredData(
+export async function validateUpstreamStoredData(
   validatorFn: WorkloadLocatorValidator,
   relativeUrl: string,
   remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
-    const responseBody = await getHomebaseResponseBody(relativeUrl);
+    const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
     const result = validatorFn(workloads);
     if (result) {
@@ -37,13 +37,13 @@ export async function validateHomebaseStoredData(
   return false;
 }
 
-export async function validateHomebaseStoredMetadata(
+export async function validateUpstreamStoredMetadata(
   validatorFn: WorkloadMetadataValidator,
   relativeUrl: string,
   remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
-    const responseBody = await getHomebaseResponseBody(relativeUrl);
+    const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloadInfo: IWorkloadMetadata | undefined =
       responseBody.workloadInfo;
     const result = validatorFn(workloadInfo);
