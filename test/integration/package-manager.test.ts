@@ -3,7 +3,7 @@ import * as tap from 'tap';
 import { unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { tmpdir } from 'os';
-import { validateHomebaseStoredData } from '../helpers/homebase';
+import { validateUpstreamStoredData } from '../helpers/kubernetes-upstream';
 import kubectl = require('../helpers/kubectl');
 import { deployMonitor, removeMonitor } from '../setup';
 import * as fixtureReader from './fixture-reader';
@@ -62,7 +62,7 @@ tap.test(
     // For every workload, create a promise that:
     // - creates a temporary deployment file for this workload (with the appropriate name and image)
     // - apply the deployment
-    // - clean up the temporary file, then await for the monitor to detect the workload and report to Homebase
+    // - clean up the temporary file, then await for the monitor to detect the workload and report to kubernetes-upstream
     const promisesToAwait = Object.keys(workloads).map((deploymentName) => {
       const imageName = workloads[deploymentName];
 
@@ -73,7 +73,7 @@ tap.test(
         .applyK8sYaml(tmpYamlPath)
         .then(() => {
           unlinkSync(tmpYamlPath);
-          return validateHomebaseStoredData(
+          return validateUpstreamStoredData(
             validatorFactory(deploymentName),
             `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
             // Wait for up to ~16 minutes for this workload.
@@ -81,8 +81,8 @@ tap.test(
             200,
           );
         })
-        .then((homebaseResult) => {
-          t.ok(homebaseResult, `Deployed ${deploymentName} successfully`);
+        .then((upstreamResult) => {
+          t.ok(upstreamResult, `Deployed ${deploymentName} successfully`);
         });
     });
 

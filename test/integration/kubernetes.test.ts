@@ -4,10 +4,10 @@ import * as tap from 'tap';
 import { WorkloadKind } from '../../src/supervisor/types';
 import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
 import {
-  validateHomebaseStoredData,
-  validateHomebaseStoredMetadata,
-  getHomebaseResponseBody,
-} from '../helpers/homebase';
+  validateUpstreamStoredData,
+  validateUpstreamStoredMetadata,
+  getUpstreamResponseBody,
+} from '../helpers/kubernetes-upstream';
 import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
 import * as kubectl from '../helpers/kubectl';
 
@@ -70,10 +70,10 @@ tap.test('snyk-monitor container started', async (t) => {
   console.log('Done -- snyk-monitor exists!');
 });
 
-tap.test('snyk-monitor sends data to homebase', async (t) => {
+tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
   t.plan(2);
 
-  console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
+  console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined && workloads.length === 5 &&
@@ -95,16 +95,16 @@ tap.test('snyk-monitor sends data to homebase', async (t) => {
       'podSpec' in workloadInfo;
   };
 
-  // We don't want to spam Homebase with requests; do it infrequently
-  const homebaseDepGraphTestResult = await validateHomebaseStoredData(
+  // We don't want to spam kubernetes-upstream with requests; do it infrequently
+  const depGraphTestResult = await validateUpstreamStoredData(
     validatorFn, `api/v2/workloads/${integrationId}/Default cluster/services`);
-  t.ok(homebaseDepGraphTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
-  const homebaseWorkloadMetadataResult = await validateHomebaseStoredMetadata(metaValidator,
+  t.ok(depGraphTestResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
+  const workloadMetadataResult = await validateUpstreamStoredMetadata(metaValidator,
     `api/v1/workload/${integrationId}/Default cluster/services/Deployment/redis`);
-  t.ok(homebaseWorkloadMetadataResult, 'snyk-monitor sent expected metadata in the expected timeframe');
+  t.ok(workloadMetadataResult, 'snyk-monitor sent expected metadata in the expected timeframe');
 });
 
-tap.test('snyk-monitor sends correct data to homebase after adding another deployment', async (t) => {
+tap.test('snyk-monitor sends correct data to kubernetes-upstream after adding another deployment', async (t) => {
   t.plan(3);
 
   const deploymentName = 'nginx-deployment';
@@ -114,7 +114,7 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
   const imageName = 'nginx';
 
   await kubectl.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
-  console.log(`Begin polling Homebase for the expected workloads with integration ID ${integrationId}...`);
+  console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
@@ -122,19 +122,19 @@ tap.test('snyk-monitor sends correct data to homebase after adding another deplo
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
-  const homebaseTestResult = await validateHomebaseStoredData(
+  const testResult = await validateUpstreamStoredData(
     validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
-  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+  t.ok(testResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
 
-  const depGraphResult = await getHomebaseResponseBody(
+  const depGraphResult = await getUpstreamResponseBody(
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
   t.ok('dependencyGraphResults' in depGraphResult,
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
   t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
-    'snyk-monitor sent expected data to homebase in the expected timeframe');
+    'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
 });
 
-tap.test('snyk-monitor pulls images from a private gcr.io registry and sends data to homebase', async (t) => {
+tap.test('snyk-monitor pulls images from a private gcr.io registry and sends data to kubernetes-upstream', async (t) => {
   t.plan(3);
 
   const deploymentName = 'debian-gcr-io';
@@ -152,11 +152,11 @@ tap.test('snyk-monitor pulls images from a private gcr.io registry and sends dat
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
-  const homebaseTestResult = await validateHomebaseStoredData(
+  const testResult = await validateUpstreamStoredData(
     validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
-  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
+  t.ok(testResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
 
-  const depGraphResult = await getHomebaseResponseBody(
+  const depGraphResult = await getUpstreamResponseBody(
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
   t.ok('dependencyGraphResults' in depGraphResult,
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
@@ -164,7 +164,7 @@ tap.test('snyk-monitor pulls images from a private gcr.io registry and sends dat
     'snyk-monitor sent expected data to upstream in the expected timeframe');
 });
 
-tap.test('snyk-monitor pulls images from a private ECR and sends data to homebase', async (t) => {
+tap.test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-upstream', async (t) => {
   if (process.env['TEST_PLATFORM'] !== 'eks') {
     t.pass('Not testing private ECR images because we\'re not running in EKS');
     return;
@@ -187,11 +187,11 @@ tap.test('snyk-monitor pulls images from a private ECR and sends data to homebas
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
-  const homebaseTestResult = await validateHomebaseStoredData(
+  const testResult = await validateUpstreamStoredData(
     validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
-  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
+  t.ok(testResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
 
-  const depGraphResult = await getHomebaseResponseBody(
+  const depGraphResult = await getUpstreamResponseBody(
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
   t.ok('dependencyGraphResults' in depGraphResult,
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
@@ -199,7 +199,7 @@ tap.test('snyk-monitor pulls images from a private ECR and sends data to homebas
     'snyk-monitor sent expected data to upstream in the expected timeframe');
 });
 
-tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
+tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t) => {
   // First ensure the deployment exists from the previous test
   const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
@@ -207,23 +207,23 @@ tap.test('snyk-monitor sends deleted workload to homebase', async (t) => {
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
-  const homebaseTestResult = await validateHomebaseStoredData(deploymentValidatorFn,
+  const testResult = await validateUpstreamStoredData(deploymentValidatorFn,
     `api/v2/workloads/${integrationId}/Default cluster/services`);
-  t.ok(homebaseTestResult, 'snyk-monitor sent expected data to homebase in the expected timeframe');
+  t.ok(testResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
 
   const deploymentName = 'nginx-deployment';
   const namespace = 'services';
   await kubectl.deleteDeployment(deploymentName, namespace);
 
-  // Finally, remove the workload and ensure that the snyk-monitor notifies Homebase
+  // Finally, remove the workload and ensure that the snyk-monitor notifies kubernetes-upstream
   const deleteValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined && workloads.every((workload) => workload.name !== 'nginx-deployment');
   };
 
   const clusterName = 'Default cluster';
-  const homebaseDeleteTestResult = await validateHomebaseStoredData(deleteValidatorFn,
+  const deleteTestResult = await validateUpstreamStoredData(deleteValidatorFn,
     `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
-  t.ok(homebaseDeleteTestResult, 'snyk-monitor sent deleted workload data to homebase in the expected timeframe');
+  t.ok(deleteTestResult, 'snyk-monitor sent deleted workload data to kubernetes-upstream in the expected timeframe');
 });
 
 tap.test(`snyk-monitor has resource limits`, async (t) => {
@@ -277,7 +277,7 @@ tap.test('notify upstream of deleted pods that have no OwnerReference', async (t
     );
   };
 
-  const validationResult = await validateHomebaseStoredData(
+  const validationResult = await validateUpstreamStoredData(
     validatorFn,
     `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
   );
