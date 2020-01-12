@@ -3,6 +3,7 @@ import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
+import * as sleep from 'sleep-promise';
 
 export async function downloadKubectl(): Promise<void> {
   try {
@@ -81,6 +82,18 @@ export async function deletePod(podName: string, namespace: string) {
 export async function getDeploymentJson(deploymentName: string, namespace: string): Promise<any> {
   const getDeploymentResult = await exec(`./kubectl get deployment ${deploymentName} -n ${namespace} -o json`);
   return JSON.parse(getDeploymentResult.stdout);
+}
+
+export async function waitForServiceAccount(name: string, namespace: string): Promise<void> {
+  // TODO: add some timeout
+  while (true) {
+    try {
+      await exec(`./kubectl get serviceaccount ${name} -n ${namespace}`);
+      break;
+    } catch (err) {
+      await sleep(500);
+    }
+  }
 }
 
 async function getLatestStableK8sRelease(): Promise<string> {
