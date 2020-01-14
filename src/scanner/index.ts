@@ -1,6 +1,5 @@
 import logger = require('../common/logger');
-import { pullImages, removePulledImages, getImagesWithFileSystemPath } from './images';
-import { scanImages } from './image';
+import { pullImages, removePulledImages, getImagesWithFileSystemPath, scanImages } from './images';
 import { deleteWorkload, sendDepGraph } from '../transmitter';
 import { constructDeleteWorkloadPayload, constructDepGraph } from '../transmitter/payload';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
