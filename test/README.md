@@ -11,7 +11,11 @@ Until this is fixed, one workaround is setting one's KUBECONFIG environment vari
 
 ## System Tests ##
 
-We don't have this kind of tests yet, but if we did, they would focus on the Kubeneretes-Monitor running as-is, just without its reliance on the Upstream service for validation (That is, assert outgoing requests, mock incoming responses).
+System tests are supposed to test the Kubernetes-Monitor as a stand-alone component with as little external dependencies as possible. They are also supposed to completely cover the core functionality, so mocking or ignoring the Kubernetes API is out of the question.
+The resulting infrastructure is comprised of a local KinD cluster (like our integration tests) but does not install the Kubernetes-Monitor inside it. Rather, it runs the Kubernetes-Monitor's code as part of the test, and configures it against the KinD cluster.
+This means we're not running in the real runtime environment we expect to run (a Kubernetes cluster), but it's much easier to test the Monitor's outgoing requests or even internal state if we choose to, instead of relying on the Upstream service's state and API.
+
+This test requires Skopeo for MacOS machines, but will install it for Linux machines that don't have it.
 
 ## Integration Tests ##
 
