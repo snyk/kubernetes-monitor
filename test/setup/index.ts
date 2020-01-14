@@ -168,7 +168,5 @@ export async function deployMonitor(): Promise<string> {
       // ... but make sure the test suite doesn't proceed if the setup failed
       process.exit(-1);
     }
-
-    throw err;
   }
 }
