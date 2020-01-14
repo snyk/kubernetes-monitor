@@ -8,6 +8,10 @@ export async function pullImages(images: IPullableImage[]): Promise<IPullableIma
 
   for (const image of images) {
     const {imageName, fileSystemPath} = image;
+    if (!fileSystemPath) {
+      continue;
+    }
+
     try {
       await skopeoCopy(imageName, fileSystemPath);
       pulledImages.push(image);
