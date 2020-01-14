@@ -5,16 +5,12 @@ import { IPullableImage } from '../images/types';
 import config = require('../../common/config');
 import { IScanResult } from '../types';
 
-/**
- * Exported for testing
- */
+// Exported for testing
 export function removeTagFromImage(imageWithTag: string): string {
   return imageWithTag.split('@')[0].split(':')[0];
 }
 
-/**
- * Exported for testing
- */
+// Exported for testing
 export function getImageTag(imageWithTag: string): string {
   const imageParts: string[] = imageWithTag.split(':');
   if (imageParts.length === 2) { // image@sha256:hash or image:tag
@@ -24,9 +20,7 @@ export function getImageTag(imageWithTag: string): string {
   return '';
 }
 
-/**
- * Exported for testing
- */
+// Exported for testing
 export function constructStaticAnalysisOptions(
   fileSystemPath: string,
 ): { staticAnalysisOptions: IStaticAnalysisOptions } {
