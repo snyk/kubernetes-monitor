@@ -22,8 +22,14 @@ tap.test('isEcrSource()', async (t) => {
   t.equals(sourceCredentialsForRandomImageName, false, 'unidentified image source is not ECR');
 
   const sourceCredentialsForInvalidEcrImage = credentials.isEcrSource('derka.ecr.derka');
-  t.equals(sourceCredentialsForInvalidEcrImage, true, 'image with .ecr. is considered ECR');
+  t.equals(sourceCredentialsForInvalidEcrImage, false, 'image just with .ecr. is not considered from ECR');
 
   const sourceCredentialsForEcrImage = credentials.isEcrSource('aws_account_id.dkr.ecr.region.amazonaws.com/my-web-app:latest');
-  t.equals(sourceCredentialsForEcrImage, true, 'image with .ecr. is considered ECR');
+  t.equals(sourceCredentialsForEcrImage, true, 'correct ECR template');
+
+  const sourceCredentialsForEcrImageWithRepo = credentials.isEcrSource('a291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/debian:10');
+  t.equals(sourceCredentialsForEcrImageWithRepo, true, 'correct ECR template');
+
+  const sourceCredentialsForEcrImageMixedCase = credentials.isEcrSource('aws_account_id.dKr.ecR.region.amazonAWS.cOm/my-web-app:latest');
+  t.equals(sourceCredentialsForEcrImageMixedCase, true, 'correct ECR template');
 });

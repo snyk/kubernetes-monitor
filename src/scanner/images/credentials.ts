@@ -11,8 +11,10 @@ export async function getSourceCredentials(imageSource: string): Promise<string 
 }
 
 export function isEcrSource(imageSource: string): boolean {
-  // TODO is this the best way we can determine the image's source?
-  return imageSource.indexOf('.ecr.') !== -1;
+  // this regex tests the image source against the template:
+  // <SOMETHING>.dkr.ecr.<SOMETHING>.amazonaws.com/<SOMETHING>
+  const ecrImageRegex = new RegExp('\.dkr\.ecr\..*\.amazonaws\.com\/', 'i');
+  return ecrImageRegex.test(imageSource);
 }
 
 function getEcrCredentials(region: string): Promise<string> {
