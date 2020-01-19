@@ -16,3 +16,14 @@ tap.test('ecrRegionFromFullImageName()', async (t) => {
   t.throws(() => {credentials.ecrRegionFromFullImageName('aws_account_id.dkr.ecr.amazonaws.com/my-web-app:latest');}, 'throws on badly formatted images');
   t.throws(() => {credentials.ecrRegionFromFullImageName('aws_account_id.dkr.ecr.region.amazonaws.com');}, 'throws on badly formatted images');
 });
+
+tap.test('isEcrSource()', async (t) => {
+  const sourceCredentialsForRandomImageName = credentials.isEcrSource('derka');
+  t.equals(sourceCredentialsForRandomImageName, false, 'unidentified image source is not ECR');
+
+  const sourceCredentialsForInvalidEcrImage = credentials.isEcrSource('derka.ecr.derka');
+  t.equals(sourceCredentialsForInvalidEcrImage, true, 'image with .ecr. is considered ECR');
+
+  const sourceCredentialsForEcrImage = credentials.isEcrSource('aws_account_id.dkr.ecr.region.amazonaws.com/my-web-app:latest');
+  t.equals(sourceCredentialsForEcrImage, true, 'image with .ecr. is considered ECR');
+});

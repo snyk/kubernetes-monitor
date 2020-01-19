@@ -3,12 +3,16 @@ import * as aws from 'aws-sdk';
 import logger = require('../../common/logger');
 
 export async function getSourceCredentials(imageSource: string): Promise<string | undefined> {
-  // TODO is this the best way we can determine the image's source?
-  if (imageSource.indexOf('.ecr.') !== -1) {
+  if (isEcrSource(imageSource)) {
     const ecrRegion = ecrRegionFromFullImageName(imageSource);
     return getEcrCredentials(ecrRegion);
   }
   return undefined;
+}
+
+export function isEcrSource(imageSource: string): boolean {
+  // TODO is this the best way we can determine the image's source?
+  return imageSource.indexOf('.ecr.') !== -1;
 }
 
 function getEcrCredentials(region: string): Promise<string> {
