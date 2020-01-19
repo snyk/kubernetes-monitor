@@ -146,6 +146,29 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+  
+  system_tests:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: SYSTEM TESTS
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            npm run build &&
+            npm run test:system
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-system-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
+          when: on_fail
 
   integration_tests:
     <<: *default_machine_config
@@ -292,6 +315,8 @@ workflows:
           <<: *main_branches_filter
       - unit_tests:
           <<: *main_branches_filter
+      - system_tests:
+          <<: *main_branches_filter
       - integration_tests:
           requires:
             - build_image
@@ -314,6 +339,8 @@ workflows:
       - build_image:
           <<: *staging_branch_only_filter
       - unit_tests:
+          <<: *staging_branch_only_filter
+      - system_tests:
           <<: *staging_branch_only_filter
       - integration_tests:
           requires:
@@ -339,6 +366,7 @@ workflows:
           requires:
             - build_image
             - unit_tests
+            - system_tests
             - integration_tests
             - package_manager_test_apk
             - package_manager_test_apt
