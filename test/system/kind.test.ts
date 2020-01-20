@@ -50,10 +50,12 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   // KinD
   await kind.createCluster();
   await kind.exportKubeConfig();
-  Promise.all([
+
+  await Promise.all([
     kubectl.createNamespace('snyk-monitor'),
     kubectl.createNamespace('services'),
   ]);
+
   // wait for default service account
   await kubectl.waitForServiceAccount('default', 'default');
 
