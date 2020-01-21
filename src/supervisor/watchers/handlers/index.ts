@@ -1,16 +1,17 @@
-import { makeInformer, ADD, DELETE, UPDATE, KubernetesObject } from '@kubernetes/client-node';
+import { makeInformer, ADD, DELETE, UPDATE, ERROR, KubernetesObject } from '@kubernetes/client-node';
 import logger = require('../../../common/logger');
 import { WorkloadKind } from '../../types';
-import { podWatchHandler, podDeletedHandler } from './pod';
-import { cronJobWatchHandler } from './cron-job';
-import { daemonSetWatchHandler } from './daemon-set';
-import { deploymentWatchHandler } from './deployment';
-import { jobWatchHandler } from './job';
-import { replicaSetWatchHandler } from './replica-set';
-import { replicationControllerWatchHandler } from './replication-controller';
-import { statefulSetWatchHandler } from './stateful-set';
 import { k8sApi, kubeConfig } from '../../cluster';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
+
+import { podWatchHandler, podDeletedHandler, podErrorHandler } from './pod';
+import { cronJobWatchHandler, cronJobErrorHandler } from './cron-job';
+import { daemonSetWatchHandler, daemonSetErrorHandler } from './daemon-set';
+import { deploymentWatchHandler, deploymentErrorHandler } from './deployment';
+import { jobWatchHandler, jobErrorHandler } from './job';
+import { replicaSetWatchHandler, replicaSetErrorHandler } from './replica-set';
+import { replicationControllerWatchHandler, replicationControllerErrorHandler } from './replication-controller';
+import { statefulSetWatchHandler, statefulSetErrorHandler } from './stateful-set';
 
 /**
  * This map is used in combination with the kubernetes-client Informer API
@@ -37,6 +38,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       [ADD]: podWatchHandler,
       [UPDATE]: podWatchHandler,
       [DELETE]: podDeletedHandler,
+      [ERROR]: podErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.coreClient.listNamespacedPod(namespace),
   },
@@ -44,6 +46,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/api/v1/watch/namespaces/{namespace}/replicationcontrollers',
     handlers: {
       [DELETE]: replicationControllerWatchHandler,
+      [ERROR]: replicationControllerErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.coreClient.listNamespacedReplicationController(namespace),
   },
@@ -51,6 +54,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJobWatchHandler,
+      [ERROR]: cronJobErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.batchUnstableClient.listNamespacedCronJob(namespace),
   },
@@ -58,6 +62,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
     handlers: {
       [DELETE]: jobWatchHandler,
+      [ERROR]: jobErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.batchClient.listNamespacedJob(namespace),
   },
@@ -65,6 +70,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/daemonsets',
     handlers: {
       [DELETE]: daemonSetWatchHandler,
+      [ERROR]: daemonSetErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.appsClient.listNamespacedDaemonSet(namespace),
   },
@@ -72,6 +78,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/deployments',
     handlers: {
       [DELETE]: deploymentWatchHandler,
+      [ERROR]: deploymentErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.appsClient.listNamespacedDeployment(namespace),
   },
@@ -79,6 +86,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/replicasets',
     handlers: {
       [DELETE]: replicaSetWatchHandler,
+      [ERROR]: replicaSetErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.appsClient.listNamespacedReplicaSet(namespace),
   },
@@ -86,6 +94,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/statefulsets',
     handlers: {
       [DELETE]: statefulSetWatchHandler,
+      [ERROR]: statefulSetErrorHandler,
     },
     listFactory: (namespace) => () => k8sApi.appsClient.listNamespacedStatefulSet(namespace),
   },

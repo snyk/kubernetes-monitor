@@ -1,4 +1,6 @@
 import { V1ReplicationController } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -21,4 +23,10 @@ export async function replicationControllerWatchHandler(replicationController: V
     revision: replicationController.status.observedGeneration,
     podSpec: replicationController.spec.template.spec,
   }, workloadName);
+}
+
+export async function replicationControllerErrorHandler(
+  replicationController: V1ReplicationController,
+  ): Promise<void> {
+  logger.error({replicationController, kind: 'replicationController'}, 'Informer error on replicationController');
 }

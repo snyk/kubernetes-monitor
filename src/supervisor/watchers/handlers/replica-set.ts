@@ -1,4 +1,6 @@
 import { V1ReplicaSet } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -20,4 +22,8 @@ export async function replicaSetWatchHandler(replicaSet: V1ReplicaSet): Promise<
     revision: replicaSet.status.observedGeneration,
     podSpec: replicaSet.spec.template.spec,
   }, workloadName);
+}
+
+export async function replicaSetErrorHandler(replicaSet: V1ReplicaSet): Promise<void> {
+  logger.error({replicaSet, kind: 'replicaSet'}, 'Informer error on replicaSet');
 }

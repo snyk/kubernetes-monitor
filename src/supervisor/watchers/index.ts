@@ -1,4 +1,4 @@
-import { makeInformer, ADD } from '@kubernetes/client-node';
+import { makeInformer, ADD, ERROR } from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
 import config = require('../../common/config');
 import logger = require('../../common/logger');
@@ -67,6 +67,10 @@ function setupWatchesForCluster(): void {
       logger.error({err, namespace}, 'error handling a namespace event');
       return;
     }
+  });
+
+  informer.on(ERROR, (namespace: V1Namespace) => {
+    logger.error({namespace, kind: 'namespace'}, 'Informer error on Namespace');
   });
 
   informer.start();

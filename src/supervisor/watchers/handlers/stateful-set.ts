@@ -1,4 +1,6 @@
 import { V1StatefulSet } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -20,4 +22,8 @@ export async function statefulSetWatchHandler(statefulSet: V1StatefulSet): Promi
     revision: statefulSet.status.observedGeneration,
     podSpec: statefulSet.spec.template.spec,
   }, workloadName);
+}
+
+export async function statefulSetErrorHandler(statefulSet: V1StatefulSet): Promise<void> {
+  logger.error({statefulSet, kind: 'statefulSet'}, 'Informer error on statefulSet');
 }

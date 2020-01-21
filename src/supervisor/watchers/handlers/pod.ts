@@ -129,3 +129,7 @@ export async function podDeletedHandler(pod: V1Pod): Promise<void> {
     podSpec: pod.spec,
   }, workloadName);
 }
+
+export async function podErrorHandler(pod: V1Pod): Promise<void> {
+  logger.error({pod, kind: 'pod'}, 'Informer error on pod');
+}

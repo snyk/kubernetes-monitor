@@ -1,4 +1,6 @@
 import { V1DaemonSet } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -20,4 +22,8 @@ export async function daemonSetWatchHandler(daemonSet: V1DaemonSet): Promise<voi
     revision: daemonSet.status.observedGeneration,
     podSpec: daemonSet.spec.template.spec,
   }, workloadName);
+}
+
+export async function daemonSetErrorHandler(daemonSet: V1DaemonSet): Promise<void> {
+  logger.error({daemonSet, kind: 'daemonSet'}, 'Informer error on daemonSet');
 }

@@ -1,4 +1,6 @@
 import { V1Job } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -18,4 +20,8 @@ export async function jobWatchHandler(job: V1Job): Promise<void> {
     ownerRefs: job.metadata.ownerReferences,
     podSpec: job.spec.template.spec,
   }, workloadName);
+}
+
+export async function jobErrorHandler(job: V1Job): Promise<void> {
+  logger.error({job, kind: 'job'}, 'Informer error on job');
 }

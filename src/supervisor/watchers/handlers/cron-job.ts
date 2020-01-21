@@ -1,4 +1,6 @@
 import { V1beta1CronJob } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -19,4 +21,8 @@ export async function cronJobWatchHandler(cronJob: V1beta1CronJob): Promise<void
     ownerRefs: cronJob.metadata.ownerReferences,
     podSpec: cronJob.spec.jobTemplate.spec.template.spec,
   }, workloadName);
+}
+
+export async function cronJobErrorHandler(cronJob: V1beta1CronJob): Promise<void> {
+  logger.error({cronJob, kind: 'cronJob'}, 'Informer error on cronJob');
 }

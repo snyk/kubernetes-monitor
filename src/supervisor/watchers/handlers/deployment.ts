@@ -1,4 +1,6 @@
 import { V1Deployment } from '@kubernetes/client-node';
+
+import * as logger from '../../../common/logger';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -20,4 +22,8 @@ export async function deploymentWatchHandler(deployment: V1Deployment): Promise<
     revision: deployment.status.observedGeneration,
     podSpec: deployment.spec.template.spec,
   }, workloadName);
+}
+
+export async function deploymentErrorHandler(deployment: V1Deployment): Promise<void> {
+  logger.error({deployment, kind: 'deployment'}, 'Informer error on deployment');
 }

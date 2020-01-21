@@ -31,7 +31,7 @@ ENV NODE_ENV production
 
 RUN apk update
 RUN apk upgrade
-RUN apk --no-cache add db dumb-init
+RUN apk --no-cache add db dumb-init git
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
