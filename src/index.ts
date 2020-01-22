@@ -13,8 +13,14 @@ process.on('uncaughtException', (err) => {
   }
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error({reason, promise}, 'unhandled rejection');
+process.on('unhandledRejection', (reason) => {
+  try {
+    logger.error({reason}, 'UNHANDLED REJECTION!');
+  } catch (ignore) {
+    console.log('UNHANDLED REJECTION!', reason);
+  } finally {
+    process.exit(1);
+  }
 });
 
 function monitor(): void {
