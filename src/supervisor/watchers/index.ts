@@ -1,5 +1,6 @@
 import { makeInformer, ADD } from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
+
 import config = require('../../common/config');
 import logger = require('../../common/logger');
 import { WorkloadKind } from '../types';
@@ -51,7 +52,18 @@ export function isKubernetesInternalNamespace(namespace: string): boolean {
 }
 
 function setupWatchesForCluster(): void {
-  const informer = makeInformer(kubeConfig, '/api/v1/namespaces', () => k8sApi.coreClient.listNamespace());
+  const informer = makeInformer(
+    kubeConfig,
+    '/api/v1/namespaces',
+    async () => {
+      try {
+        return await k8sApi.coreClient.listNamespace();
+      } catch (err) {
+        logger.error({err}, 'error while listing namespaces');
+        throw err;
+      }
+    },
+  );
 
   informer.on(ADD, (namespace: V1Namespace) => {
     try {

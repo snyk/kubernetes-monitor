@@ -95,8 +95,17 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
   const workloadMetadata = workloadWatchMetadata[workloadKind];
   const namespacedEndpoint = workloadMetadata.endpoint.replace('{namespace}', namespace);
 
-  const informer = makeInformer<KubernetesObject>(kubeConfig, namespacedEndpoint,
-    workloadMetadata.listFactory(namespace));
+  const listMethod = workloadMetadata.listFactory(namespace);
+  const loggedListMethod = async () => {
+    try {
+      return await listMethod();
+    } catch (err) {
+      logger.error({err, namespace, workloadKind}, 'error while listing entities on namespace');
+      throw err;
+    }
+  };
+
+  const informer = makeInformer<KubernetesObject>(kubeConfig, namespacedEndpoint, loggedListMethod);
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(informerVerb, async (watchedWorkload) => {

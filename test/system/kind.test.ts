@@ -97,5 +97,10 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   // additional asserts?
   t.ok(nock.isDone(), 'all outgoing calls were made');
 
+  // instruct the Monitor to ignore errors from this point
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const kubernetesMonitorState = require('../../src/state');
+  kubernetesMonitorState.shutdownInProgress = true;
+
   // TODO cleanup the images we saved to /var/tmp?
 });
