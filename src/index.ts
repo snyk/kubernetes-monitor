@@ -1,9 +1,15 @@
 import * as SourceMapSupport from 'source-map-support';
+
+import * as state from './state';
 import logger = require('./common/logger');
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
 
 process.on('uncaughtException', (err) => {
+  if (state.shutdownInProgress) {
+    return;
+  }
+
   try {
     logger.error({err}, 'UNCAUGHT EXCEPTION!');
   } catch (ignore) {
@@ -14,6 +20,10 @@ process.on('uncaughtException', (err) => {
 });
 
 process.on('unhandledRejection', (reason) => {
+  if (state.shutdownInProgress) {
+    return;
+  }
+
   try {
     logger.error({reason}, 'UNHANDLED REJECTION!');
   } catch (ignore) {
