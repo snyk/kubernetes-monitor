@@ -42,8 +42,8 @@ export function validateSecureConfiguration(test: tap, deployment: V1Deployment)
   tap.ok(securityContext.allowPrivilegeEscalation === false, 'must explicitly set allowPrivilegeEscalation to false');
   tap.ok(securityContext.privileged === false, 'must explicitly set privileged to false');
   tap.ok(securityContext.runAsNonRoot === true, 'must explicitly set runAsNonRoot to true');
-  tap.ok(securityContext.runAsUser === 10001, 'must explicitly set runAsUser to 10001');
-  tap.ok(securityContext.runAsGroup === 10001, 'must explicitly set runAsGroup to 10001');
+  tap.ok(securityContext.runAsUser === 1000510001, 'must explicitly set runAsUser to 1000510001');
+  tap.ok(securityContext.runAsGroup === 1000510001, 'must explicitly set runAsGroup to 1000510001');
 }
 
 export function validateVolumeMounts(test: tap, deployment: V1Deployment) {

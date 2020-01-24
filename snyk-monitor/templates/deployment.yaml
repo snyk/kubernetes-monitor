@@ -54,8 +54,8 @@ spec:
               cpu: '1'
               memory: '2Gi'
           securityContext:
-            runAsUser: 10001
-            runAsGroup: 10001
+            runAsUser: 1000510001
+            runAsGroup: 1000510001
             privileged: false
             runAsNonRoot: true
             allowPrivilegeEscalation: false
