@@ -12,6 +12,10 @@ export async function retryKubernetesApiRequest(func: IKubernetesApiFunction) {
     try {
       return await func();
     } catch (err) {
+      if (!(err.response)) {
+        throw err;
+      }
+
       const response = err.response;
       if (response.statusCode !== 429) {
         throw err;
