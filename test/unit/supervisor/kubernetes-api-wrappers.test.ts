@@ -100,3 +100,20 @@ tap.test('retryKubernetesApiRequest for non-retryable errors', async (t) => {
   );
   t.equals(failures, 1, 'did not retry even once for non-retryable error code');
 });
+
+tap.test('retryKubernetesApiRequest for errors without response', async (t) => {
+  const errorWithoutResponse = 'there\'s butter on my face!';
+
+  let failures = 0;
+  const functionThatFails = () => {
+    failures +=1;
+    return Promise.reject(new Error(errorWithoutResponse));
+  };
+
+  t.rejects(
+    () => kubernetesApiWrappers.retryKubernetesApiRequest(functionThatFails),
+    new Error(errorWithoutResponse),
+    'errors without a response property are immediately rethrown',
+  );
+  t.equals(failures, 1, 'did not retry even once for non-retryable error code');
+});
