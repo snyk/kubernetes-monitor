@@ -10,6 +10,7 @@
     "test:integration": "TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts --timeout=1200",
     "test:integration:kind": "TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts --timeout=1200",
     "test:integration:eks": "TEST_PLATFORM=eks CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts --timeout=1200",
+    "test:integration:openshift4": "TEST_PLATFORM=openshift4 CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts --timeout=1200",
     "test:coverage": "npm run test:unit -- --coverage",
     "test:watch": "tsc-watch --onSuccess 'npm run test:unit'",
     "test:apk": "TEST_PLATFORM=kind CREATE_CLUSTER=true PACKAGE_MANAGER=apk tap test/integration/package-manager.test.ts --timeout=7200",
