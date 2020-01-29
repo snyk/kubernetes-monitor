@@ -3,11 +3,20 @@
 The Kubernetes-Monitor has different testing suites, each with different purposes and requirements.
 All our tests prefer a blackbox approach whenever possible.
 
+Different tests have different requirements in terms of software and environment variables. Requirements specific to one test suite will be described in each section, but the requirements shared by all of them are:
+1. npm
+2. Node (v10 or higher)
+
+In order to run the Kubernetes-Monitor's tests, please run
+`npm test`.
+
 ## Unit Tests ##
 
 These tests aim to check a single function, class or module.
 Our unit tests aren't thoroughly mocked, resulting in some tests' code reaching the Kubernetes client library we're using, adding noise and/or failures to some unit tests.
 Until this is fixed, one workaround is setting one's KUBECONFIG environment variable to a valid kubeconfig file.
+
+Run with `npm run test:unit`.
 
 ## System Tests ##
 
@@ -17,9 +26,16 @@ This means we're not running in the real runtime environment we expect to run (a
 
 This test requires Skopeo for MacOS machines, but will install it for Linux machines that don't have it.
 
+Run with `npm run test:system`.
+
 ## Integration Tests ##
 
 These tests assert the Kubernetes-Monitor's behaviour mostly through its affect on our Upstream service's state.
+
+All integration tests require the Kubernetes-Monitor to be built into an image on the local machine and be named and tagged as:
+`snyk/kubernetes-monitor:local`.
+The easiest way to achieve it is by running the `scripts/build-image.sh` script.
+Please note that `docker` needs to be installed in order for this script to succeed.
 
 As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `GCR_IO_DOCKERCFG`.
 
@@ -38,6 +54,8 @@ Our KinD integration test creates a new KinD cluster locally and deploys the Kub
 
 This test runs whenever we commit to any branch.
 
+Run with `npm run test:integration:kind`.
+
 ### EKS ###
 
 EKS is Amazon's Kubernetes platform and helps us ensure we support not only the generic Kubernetes API, but also specificly EKS.
@@ -49,8 +67,15 @@ This test uses an existing Amazon account with an existing EKS cluster, and as s
 
 This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
 
+Run with `npm run test:integration:eks`.
+
 ### Package Managers ###
 
 These tests attempt to provide some more thorough coverage for our scans of specific package manager: APK, APT and RPM.
 
 These tests run whenever we commit to any branch.
+
+Run with:
+* `npm run test:integration:apk`
+* `npm run test:integration:apt`
+* `npm run test:integration:rpm`
