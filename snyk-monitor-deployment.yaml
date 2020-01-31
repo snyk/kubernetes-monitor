@@ -56,6 +56,8 @@ spec:
                 optional: true
           - name: SNYK_MONITOR_VERSION
             value: IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
+          - name: HOME
+            value: /srv/app
         resources:
           requests:
             cpu: '250m'
