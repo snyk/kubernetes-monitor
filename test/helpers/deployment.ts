@@ -1,9 +1,6 @@
 import * as tap from 'tap';
 import { V1Deployment } from '@kubernetes/client-node';
 
-const OPENSHIFT4 = "openshift4";
-const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
-
 export function validateSecureConfiguration(test: tap, deployment: V1Deployment) {
   if (
     !deployment.spec ||
@@ -45,19 +42,16 @@ export function validateSecureConfiguration(test: tap, deployment: V1Deployment)
   tap.ok(securityContext.allowPrivilegeEscalation === false, 'must explicitly set allowPrivilegeEscalation to false');
   tap.ok(securityContext.privileged === false, 'must explicitly set privileged to false');
   tap.ok(securityContext.runAsNonRoot === true, 'must explicitly set runAsNonRoot to true');
-
-  if (testPlatform !== OPENSHIFT4) {
-    tap.ok(
-      securityContext.runAsUser !== undefined &&
-        securityContext.runAsUser >= 10001,
-      'must explicitly set runAsUser to be 10001 or greater',
-    );
-    tap.ok(
-      securityContext.runAsGroup !== undefined &&
-        securityContext.runAsGroup >= 10001,
-      'must explicitly set runAsGroup to be 10001 or greater',
-    );
-  }
+  tap.ok(
+    securityContext.runAsUser !== undefined &&
+      securityContext.runAsUser >= 10001,
+    'must explicitly set runAsUser to be 10001 or greater',
+  );
+  tap.ok(
+    securityContext.runAsGroup !== undefined &&
+      securityContext.runAsGroup >= 10001,
+    'must explicitly set runAsGroup to be 10001 or greater',
+  );
 }
 
 export function validateVolumeMounts(test: tap, deployment: V1Deployment) {
