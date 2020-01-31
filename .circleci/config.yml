@@ -222,32 +222,6 @@ jobs:
             fi
           when: on_fail
 
-  openshift4_integration_tests:
-    <<: *default_machine_config
-    steps:
-      - checkout
-      - run:
-          name: INTEGRATION TESTS OpenShift 4
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
-            .circleci/do-exclusively --branch staging npm run test:integration:openshift4
-      - run:
-          name: Notify Slack on failure
-          command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
-          when: on_fail
-
 ######################## MERGE TO STAGING ########################
   tag_and_push:
     <<: *default_container_config
@@ -373,10 +347,6 @@ workflows:
             - build_image
           <<: *staging_branch_only_filter
       - eks_integration_tests:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - openshift4_integration_tests:
           requires:
             - build_image
           <<: *staging_branch_only_filter
