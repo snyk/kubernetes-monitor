@@ -27,6 +27,7 @@ function createTestYamlDeployment(
   integrationId: string,
   imageNameAndTag: string,
   imagePullPolicy: string,
+  platform: string,
 ): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
@@ -125,6 +126,7 @@ async function createSecretForGcrIoAccess(): Promise<void> {
 async function installKubernetesMonitor(
   imageNameAndTag: string,
   imagePullPolicy: string,
+  platform: string,
   ): Promise<string> {
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
@@ -138,7 +140,7 @@ async function installKubernetesMonitor(
   });
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, imagePullPolicy);
+  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, imagePullPolicy, platform);
 
   await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
@@ -171,7 +173,7 @@ export async function deployMonitor(): Promise<string> {
     // TODO: hack, rewrite this
     const imagePullPolicy = testPlatform === 'kind' ? 'Never' : 'Always';
 
-    const integrationId = await installKubernetesMonitor(remoteImageName, imagePullPolicy);
+    const integrationId = await installKubernetesMonitor(remoteImageName, imagePullPolicy, testPlatform);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
