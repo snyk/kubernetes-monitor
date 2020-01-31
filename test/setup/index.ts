@@ -6,7 +6,6 @@ import platforms from './platforms';
 import * as kubectl from '../helpers/kubectl';
 import * as waiters from './waiters';
 
-const OPENSHIFT4 = "openshift4";
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
 const createCluster = process.env['CREATE_CLUSTER'] === 'true';
 
@@ -28,7 +27,6 @@ function createTestYamlDeployment(
   integrationId: string,
   imageNameAndTag: string,
   imagePullPolicy: string,
-  platform: string,
 ): void {
   console.log('Creating test deployment...');
   const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
@@ -54,11 +52,6 @@ function createTestYamlDeployment(
     name: 'SNYK_INTEGRATION_API',
     value: 'https://kubernetes-upstream.dev.snyk.io',
   };
-
-  if (platform === OPENSHIFT4) {
-    delete deployment.spec.template.spec.containers[0].securityContext.runAsUser;
-    delete deployment.spec.template.spec.containers[0].securityContext.runAsGroup;
-  }
 
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created test deployment');
@@ -116,7 +109,6 @@ async function createSecretForGcrIoAccess(): Promise<void> {
 async function installKubernetesMonitor(
   imageNameAndTag: string,
   imagePullPolicy: string,
-  platform: string,
   ): Promise<string> {
   const namespace = 'snyk-monitor';
   await kubectl.createNamespace(namespace);
@@ -130,7 +122,7 @@ async function installKubernetesMonitor(
   });
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, imagePullPolicy, platform);
+  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, imagePullPolicy);
 
   await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
@@ -162,7 +154,7 @@ export async function deployMonitor(): Promise<string> {
     // TODO: hack, rewrite this
     const imagePullPolicy = testPlatform === 'kind' ? 'Never' : 'Always';
 
-    const integrationId = await installKubernetesMonitor(remoteImageName, imagePullPolicy, testPlatform);
+    const integrationId = await installKubernetesMonitor(remoteImageName, imagePullPolicy);
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;

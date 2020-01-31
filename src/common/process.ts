@@ -16,7 +16,6 @@ export function exec(bin: string, ...processArgs: IProcessArgument[]):
   // For example, that process doesn't need to know secrets like our integrationId!
   const env = {
     PATH: process.env.PATH,
-    HOME: process.env.HOME,
   };
 
   const allArguments = processArgs.map((arg) => arg.body);
