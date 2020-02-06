@@ -69,6 +69,17 @@ This test runs whenever we commit to our `staging` branch, and at the moment may
 
 Run with `npm run test:integration:eks`.
 
+### OpenShift 4 ###
+
+OpenShift 4 is a Red Hat platform and helps us ensure we support not only the generic Kubernetes API, but also specifically OpenShift 4.
+
+This test uses an existing Google Cloud Platform (GCP) account with an existing OpenShift 4 cluster, and as such has a few more prerequisites:
+- OpenShift 4 environment variables: `OPEN_SHIFT_4_USER_PASSWORD` and `OPEN_SHIFT_4_CLUSTER_URL` are used to authenticate against the OpenShift 4 cluster in GCP account.
+
+This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
+
+Run with `npm run test:integration:openshift4`.
+
 ### Package Managers ###
 
 These tests attempt to provide some more thorough coverage for our scans of specific package manager: APK, APT and RPM.

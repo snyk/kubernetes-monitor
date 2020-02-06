@@ -1,5 +1,6 @@
 import * as kind from './kind';
 import * as eks from './eks';
+import * as openshift4 from './openshift4';
 
 interface IPlatformSetup {
   // create a Kubernetes cluster
@@ -38,7 +39,18 @@ const eksSetup: IPlatformSetup = {
   deploymentFileConfig: eks.deploymentFileConfig,
 };
 
+const openshift4Setup: IPlatformSetup = {
+  create: openshift4.createCluster,
+  targetImageName: openshift4.targetImageName,
+  loadImage: openshift4.loadImageInCluster,
+  delete: openshift4.deleteCluster,
+  config: openshift4.exportKubeConfig,
+  clean: openshift4.clean,
+  deploymentFileConfig: openshift4.deploymentFileConfig,
+};
+
 export default {
   kind: kindSetup,
   eks: eksSetup,
+  openshift4: openshift4Setup,
 };

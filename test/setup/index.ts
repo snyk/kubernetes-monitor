@@ -57,7 +57,7 @@ function createTestYamlDeployment(
     // Inject or remove any configuration that is specific for a platform
     platforms[testPlatform].deploymentFileConfig(deployment);
   } catch (error) {
-    console.warn(`There is no extra configuration for deployment file: ${error.message}`);
+    console.log(`There is no extra configuration for deployment file: ${error.message}`);
   }
 
   writeFileSync(newYamlPath, stringify(deployment));
