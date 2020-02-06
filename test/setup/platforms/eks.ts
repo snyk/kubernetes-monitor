@@ -10,13 +10,6 @@ export async function deleteCluster(): Promise<void> {
 }
 
 export async function exportKubeConfig(): Promise<void> {
-  await exec('aws eks update-kubeconfig --name runtime-integration-test --kubeconfig ./kubeconfig');
-  process.env.KUBECONFIG = './kubeconfig';
-}
-
-export async function loadImageInCluster(imageNameAndTag: string): Promise<string> {
-  console.log(`Loading image ${imageNameAndTag} in ECR...`);
-
   // update the `aws` CLI, the one in CircleCI's default image is outdated and doens't support eks
   await exec('pip install awscli --ignore-installed six');
 
@@ -25,7 +18,11 @@ export async function loadImageInCluster(imageNameAndTag: string): Promise<strin
   await exec(`aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`);
   await exec(`aws configure set aws_secret_access_key ${process.env['AWS_SECRET_ACCESS_KEY']}`);
   await exec(`aws configure set region ${process.env['AWS_REGION']}`);
+  await exec('aws eks update-kubeconfig --name runtime-integration-test --kubeconfig ./kubeconfig');
+  process.env.KUBECONFIG = './kubeconfig';
+}
 
+export async function targetImageName(imageNameAndTag: string): Promise<string> {
   const ecrLogin = await exec('aws ecr get-login --region us-east-2 --no-include-email');
 
   // aws ecr get-login returns something that looks like:
@@ -39,13 +36,16 @@ export async function loadImageInCluster(imageNameAndTag: string): Promise<strin
   }
 
   const targetImage = targetImageFromLoginDetails(ecrLogin.stdout);
-
   await exec(`docker tag ${imageNameAndTag} ${targetImage}`);
   await exec(ecrLogin.stdout);
-  await exec(`docker push ${targetImage}`);
 
-  console.log(`Loaded image ${targetImage} in ECR`);
   return targetImage;
+}
+
+export async function loadImageInCluster(targetImageName: string): Promise<void> {
+  console.log(`Loading image ${targetImageName} in ECR...`);
+  await exec(`docker push ${targetImageName}`);
+  console.log(`Loaded image ${targetImageName} in ECR`);
 }
 
 export async function clean(): Promise<void> {
@@ -53,6 +53,11 @@ export async function clean(): Promise<void> {
     kubectl.deleteNamespace('services'),
     kubectl.deleteNamespace('snyk-monitor'),
   ]);
+}
+
+export async function deploymentFileConfig(): Promise<void> {
+  // no special configuration is needed
+  throw new Error('Not implemented');
 }
 
 function targetImageFromLoginDetails(ecrLoginOutput: string): string {

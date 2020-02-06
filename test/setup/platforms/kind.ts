@@ -28,15 +28,23 @@ export async function exportKubeConfig(): Promise<void> {
   console.log('Exported K8s config!');
 }
 
-export async function loadImageInCluster(imageNameAndTag: string): Promise<string> {
-  console.log(`Loading image ${imageNameAndTag} in KinD cluster...`);
-  await exec(`./kind load docker-image ${imageNameAndTag}`);
-  console.log(`Loaded image ${imageNameAndTag}`);
+export async function targetImageName(imageNameAndTag: string): Promise<string> {
   return imageNameAndTag;
+}
+
+export async function loadImageInCluster(targetImageName: string): Promise<void> {
+  console.log(`Loading image ${targetImageName} in KinD cluster...`);
+  await exec(`./kind load docker-image ${targetImageName}`);
+  console.log(`Loaded image ${targetImageName}`);
 }
 
 export async function clean(): Promise<void> {
   // just delete the cluster instead
+  throw new Error('Not implemented');
+}
+
+export async function deploymentFileConfig(): Promise<void> {
+  // no special configuration is needed
   throw new Error('Not implemented');
 }
 

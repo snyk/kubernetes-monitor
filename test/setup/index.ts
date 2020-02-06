@@ -53,6 +53,13 @@ function createTestYamlDeployment(
     value: 'https://kubernetes-upstream.dev.snyk.io',
   };
 
+  try {
+    // Inject or remove any configuration that is specific for a platform
+    platforms[testPlatform].deploymentFileConfig(deployment);
+  } catch (error) {
+    console.warn(`There is no extra configuration for deployment file: ${error.message}`);
+  }
+
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created test deployment');
 }
@@ -62,6 +69,7 @@ export async function removeMonitor(): Promise<void> {
     if (createCluster) {
       await platforms[testPlatform].delete();
     } else {
+      await platforms[testPlatform].config();
       await platforms[testPlatform].clean();
     }
   } catch (error) {
@@ -85,6 +93,14 @@ async function createEnvironment(): Promise<void> {
   // Small hack to prevent timing problems in CircleCI...
   // TODO: should be replaced by actively waiting for the namespace to be created
   await sleep(5000);
+}
+
+async function loadImage(targetImageName): Promise<void> {
+  try {
+    await platforms[testPlatform].loadImage(targetImageName);
+  } catch (error) {
+    console.log(`Could not load image: ${error.message}`);
+  }
 }
 
 async function createSecretForGcrIoAccess(): Promise<void> {
@@ -146,7 +162,8 @@ export async function deployMonitor(): Promise<string> {
     if (createCluster) {
       await platforms[testPlatform].create();
     }
-    const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
+    const remoteImageName = await platforms[testPlatform].targetImageName(imageNameAndTag);
+    await loadImage(remoteImageName);
     await platforms[testPlatform].config();
     await createEnvironment();
     await createSecretForGcrIoAccess();
