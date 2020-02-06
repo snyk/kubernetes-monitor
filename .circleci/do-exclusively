@@ -8,6 +8,7 @@ parse_args() {
         case $1 in
             -b|--branch) branch="$2" ;;
             -t|--tag) tag="$2" ;;
+            -j|--job) job="$2" ;;
             *) break ;;
         esac
         shift 2
@@ -41,6 +42,10 @@ make_jq_prog() {
 
     if [[ $tag ]]; then
         jq_filters+=" and (.subject | contains(\"[$tag]\"))"
+    fi
+
+    if [[ $job ]]; then
+        jq_filters+=" and .workflows.job_name == \"$job\""
     fi
 
     jq_prog=".[] | select(.build_num < $CIRCLE_BUILD_NUM and (.status | test(\"running|pending|queued\")) $jq_filters) | .build_num"
