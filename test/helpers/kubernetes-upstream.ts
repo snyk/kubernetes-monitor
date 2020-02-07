@@ -7,8 +7,10 @@ import {
 import { WorkloadLocatorValidator, WorkloadMetadataValidator } from './types';
 import config = require('../../src/common/config');
 
-const toneDownFactor = 5;
-const maxPodChecks = 600 / toneDownFactor;
+const UPSTREAM_POLLING_CONFIGURATION = {
+  WAIT_BETWEEN_REQUESTS_MS: 5000,
+  MAXIMUM_REQUESTS: 120,
+};
 
 export async function getUpstreamResponseBody(
   relativeUrl: string,
@@ -22,7 +24,7 @@ export async function getUpstreamResponseBody(
 export async function validateUpstreamStoredData(
   validatorFn: WorkloadLocatorValidator,
   relativeUrl: string,
-  remainingChecks: number = maxPodChecks,
+  remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
     console.log(`Pinging upstream for existing data (${remainingChecks} checks remaining)...`);
@@ -32,7 +34,7 @@ export async function validateUpstreamStoredData(
     if (result) {
       return true;
     }
-    await sleep(1000 * toneDownFactor);
+    await sleep(UPSTREAM_POLLING_CONFIGURATION.WAIT_BETWEEN_REQUESTS_MS);
     remainingChecks--;
   }
   return false;
@@ -41,7 +43,7 @@ export async function validateUpstreamStoredData(
 export async function validateUpstreamStoredMetadata(
   validatorFn: WorkloadMetadataValidator,
   relativeUrl: string,
-  remainingChecks: number = maxPodChecks,
+  remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
     console.log(`Pinging upstream for existing metadata (${remainingChecks} checks remaining)...`);
@@ -52,7 +54,7 @@ export async function validateUpstreamStoredMetadata(
     if (result) {
       return true;
     }
-    await sleep(1000 * toneDownFactor);
+    await sleep(UPSTREAM_POLLING_CONFIGURATION.WAIT_BETWEEN_REQUESTS_MS);
     remainingChecks--;
   }
   return false;
