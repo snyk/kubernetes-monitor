@@ -25,6 +25,7 @@ export async function validateUpstreamStoredData(
   remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
+    console.log(`Pinging upstream for existing data (${remainingChecks} checks remaining)...`);
     const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
     const result = validatorFn(workloads);
@@ -43,6 +44,7 @@ export async function validateUpstreamStoredMetadata(
   remainingChecks: number = maxPodChecks,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
+    console.log(`Pinging upstream for existing metadata (${remainingChecks} checks remaining)...`);
     const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloadInfo: IWorkloadMetadata | undefined =
       responseBody.workloadInfo;
