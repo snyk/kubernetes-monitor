@@ -4,10 +4,11 @@ import * as sleep from 'sleep-promise';
 export const ATTEMPTS_MAX = 3;
 export const DEFAULT_SLEEP_SEC = 1;
 export const MAX_SLEEP_SEC = 5;
-type IKubernetesApiFunction = () => Promise<any>;
+type IKubernetesApiFunction<ResponseType> = () => Promise<ResponseType>;
 
-export async function retryKubernetesApiRequest(func: IKubernetesApiFunction) {
-
+export async function retryKubernetesApiRequest<ResponseType>(
+  func: IKubernetesApiFunction<ResponseType>
+): Promise<ResponseType> {
   for (let attempt = 1; attempt <= ATTEMPTS_MAX; attempt++) {
     try {
       return await func();
@@ -29,6 +30,8 @@ export async function retryKubernetesApiRequest(func: IKubernetesApiFunction) {
       await sleep(sleepSeconds * 1000);
     }
   }
+
+  throw new Error('Could not receive a response from the Kubernetes API');
 }
 
 export function calculateSleepSeconds(httpResponse: http.IncomingMessage): number {
