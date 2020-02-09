@@ -19,13 +19,11 @@ if (!packageManager) {
   throw new Error('Missing PACKAGE_MANAGER environment variable');
 }
 
-async function tearDown() {
+tap.tearDown(async () => {
   console.log('Begin removing the snyk-monitor...');
   await removeMonitor();
   console.log('Removed the snyk-monitor!');
-}
-
-tap.tearDown(tearDown);
+});
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
