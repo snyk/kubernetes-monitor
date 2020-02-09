@@ -1,6 +1,17 @@
 import { exec } from 'child-process-promise';
 import * as kubectl from '../../helpers/kubectl';
 
+export async function setupTester(): Promise<void> {
+  // update the `aws` CLI, the one in CircleCI's default image is outdated and doens't support eks
+  await exec('pip install awscli --ignore-installed six');
+
+  // TODO: assert all the vars are present before starting the setup?
+  // TODO: wipe out the data during teardown?
+  await exec(`aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`);
+  await exec(`aws configure set aws_secret_access_key ${process.env['AWS_SECRET_ACCESS_KEY']}`);
+  await exec(`aws configure set region ${process.env['AWS_REGION']}`);
+}
+
 export async function createCluster(): Promise<void> {
   throw new Error('Not implemented');
 }
@@ -16,15 +27,6 @@ export async function exportKubeConfig(): Promise<void> {
 
 export async function loadImageInCluster(imageNameAndTag: string): Promise<string> {
   console.log(`Loading image ${imageNameAndTag} in ECR...`);
-
-  // update the `aws` CLI, the one in CircleCI's default image is outdated and doens't support eks
-  await exec('pip install awscli --ignore-installed six');
-
-  // TODO: assert all the vars are present before starting the setup?
-  // TODO: wipe out the data during teardown?
-  await exec(`aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`);
-  await exec(`aws configure set aws_secret_access_key ${process.env['AWS_SECRET_ACCESS_KEY']}`);
-  await exec(`aws configure set region ${process.env['AWS_REGION']}`);
 
   const ecrLogin = await exec('aws ecr get-login --region us-east-2 --no-include-email');
 

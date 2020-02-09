@@ -6,10 +6,12 @@ import * as needle from 'needle';
 
 const clusterName = 'kind';
 
-export async function createCluster(): Promise<void> {
+export async function setupTester(): Promise<void> {
   const osDistro = platform();
   await download(osDistro);
+}
 
+export async function createCluster(): Promise<void> {
   // available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
   const kindImageTag = 'latest';
   console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);

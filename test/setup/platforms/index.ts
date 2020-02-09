@@ -12,6 +12,8 @@ interface IPlatformSetup {
   config: () => Promise<void>;
   // clean up whatever we littered an existing cluster with
   clean: () => Promise<void>;
+  // set up host requirements specific to this platform
+  setupTester: () => Promise<void>;
 }
 
 const kindSetup: IPlatformSetup = {
@@ -20,6 +22,7 @@ const kindSetup: IPlatformSetup = {
   delete: kind.deleteCluster,
   config: kind.exportKubeConfig,
   clean: kind.clean,
+  setupTester: kind.setupTester,
 };
 
 const eksSetup: IPlatformSetup = {
@@ -28,6 +31,7 @@ const eksSetup: IPlatformSetup = {
   delete: eks.deleteCluster,
   config: eks.exportKubeConfig,
   clean: eks.clean,
+  setupTester: eks.setupTester,
 };
 
 export default {
