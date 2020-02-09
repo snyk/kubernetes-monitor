@@ -135,9 +135,12 @@ export async function deployMonitor(): Promise<string> {
     await kubectl.downloadKubectl();
     if (createCluster) {
       await platforms[testPlatform].create();
+      await platforms[testPlatform].config();
+    } else {
+      await platforms[testPlatform].config();
+      await platforms[testPlatform].clean();
     }
     const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
-    await platforms[testPlatform].config();
     await createEnvironment();
     await createSecretForGcrIoAccess();
 
