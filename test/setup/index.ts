@@ -1,4 +1,4 @@
-import { readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
@@ -66,16 +66,6 @@ export async function removeMonitor(): Promise<void> {
     }
   } catch (error) {
     console.log(`Could not remove the Kubernetes-Monitor: ${error.message}`);
-  }
-
-  console.log('Removing KUBECONFIG environment variable...');
-  delete process.env.KUBECONFIG;
-
-  console.log('Removing test YAML file...');
-  try {
-    unlinkSync('snyk-monitor-test-deployment.yaml');
-  } catch (error) {
-    console.log(`Could not delete the test YAML file: ${error.message}`);
   }
 }
 
@@ -145,9 +135,12 @@ export async function deployMonitor(): Promise<string> {
     await kubectl.downloadKubectl();
     if (createCluster) {
       await platforms[testPlatform].create();
+      await platforms[testPlatform].config();
+    } else {
+      await platforms[testPlatform].config();
+      await platforms[testPlatform].clean();
     }
     const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
-    await platforms[testPlatform].config();
     await createEnvironment();
     await createSecretForGcrIoAccess();
 
