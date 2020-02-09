@@ -133,6 +133,7 @@ export async function deployMonitor(): Promise<string> {
     console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
 
     await kubectl.downloadKubectl();
+    await platforms[testPlatform].setupTester();
     if (createCluster) {
       await platforms[testPlatform].create();
       await platforms[testPlatform].config();
