@@ -37,7 +37,7 @@ export async function createNamespace(namespace: string): Promise<void> {
 
 export async function deleteNamespace(namespace: string): Promise<void> {
   console.log(`Deleting namespace ${namespace}...`);
-  await exec(`./kubectl delete namespace ${namespace}`);
+  await exec(`./kubectl delete namespace ${namespace} --ignore-not-found`);
   console.log(`Deleted namespace ${namespace}`);
 }
 
