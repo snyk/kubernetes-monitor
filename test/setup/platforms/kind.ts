@@ -9,7 +9,19 @@ const clusterName = 'kind';
 export async function createCluster(): Promise<void> {
   const osDistro = platform();
   await download(osDistro);
-  await createKindCluster(clusterName);
+
+  // available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
+  const kindImageTag = 'latest';
+  console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
+
+  let kindImageArgument = '';
+  if (kindImageTag !== 'latest') {
+    // not specifying the "--image" argument tells Kind to pick the latest image
+    // which does not necessarily have the "latest" tag
+    kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
+  }
+  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
+  console.log(`Created cluster ${clusterName}!`);
 }
 
 export async function deleteCluster(): Promise<void> {
@@ -60,18 +72,4 @@ async function download(osDistro: string): Promise<void> {
 
     console.log('KinD downloaded!');
   }
-}
-
-// available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
-async function createKindCluster(clusterName, kindImageTag = 'latest'): Promise<void> {
-  console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
-
-  let kindImageArgument = '';
-  if (kindImageTag !== 'latest') {
-    // not specifying the "--image" argument tells Kind to pick the latest image
-    // which does not necessarily have the "latest" tag
-    kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
-  }
-  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
-  console.log(`Created cluster ${clusterName}!`);
 }
