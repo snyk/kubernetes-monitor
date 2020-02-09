@@ -68,9 +68,6 @@ export async function removeMonitor(): Promise<void> {
     console.log(`Could not remove the Kubernetes-Monitor: ${error.message}`);
   }
 
-  console.log('Removing KUBECONFIG environment variable...');
-  delete process.env.KUBECONFIG;
-
   console.log('Removing test YAML file...');
   try {
     unlinkSync('snyk-monitor-test-deployment.yaml');
