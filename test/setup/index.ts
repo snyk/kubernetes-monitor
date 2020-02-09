@@ -1,4 +1,4 @@
-import { readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 import { parse, stringify } from 'yaml';
@@ -66,13 +66,6 @@ export async function removeMonitor(): Promise<void> {
     }
   } catch (error) {
     console.log(`Could not remove the Kubernetes-Monitor: ${error.message}`);
-  }
-
-  console.log('Removing test YAML file...');
-  try {
-    unlinkSync('snyk-monitor-test-deployment.yaml');
-  } catch (error) {
-    console.log(`Could not delete the test YAML file: ${error.message}`);
   }
 }
 
