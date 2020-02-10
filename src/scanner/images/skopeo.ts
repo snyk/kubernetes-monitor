@@ -1,5 +1,3 @@
-import { SpawnPromiseResult } from 'child-process-promise';
-
 import * as processWrapper from '../../common/process';
 import * as config from '../../common/config';
 import * as credentials from './credentials';
@@ -33,7 +31,7 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
 export async function pull(
   image: string,
   destination: string,
-): Promise<SpawnPromiseResult> {
+): Promise<void> {
   const creds = await credentials.getSourceCredentials(image);
   const credentialsParameters = getCredentialParameters(creds);
 
@@ -43,7 +41,7 @@ export async function pull(
   args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
   args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
 
-  return processWrapper.exec('skopeo', ...args);
+  processWrapper.exec('skopeo', ...args);
 }
 
 export function getCredentialParameters(credentials: string | undefined): Array<processWrapper.IProcessArgument> {
