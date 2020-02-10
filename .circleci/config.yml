@@ -123,6 +123,41 @@ jobs:
             fi
           when: on_fail
 
+  build_operator:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: Install operator-sdk
+          command: |
+            RELEASE_VERSION=v0.15.1
+            curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu
+            chmod +x operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu
+            mv operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu ./operator-sdk
+      - run:
+          name: Build Operator
+          command: |
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") # sets IMAGE_TAG to "staging-candidate" if the branch is "staging" or "discardable" otherwise
+            export FULL_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+            export FULL_OPERATOR_IMAGE_NAME_AND_TAG="snyk/snyk-kubernetes-operator:${FULL_IMAGE_TAG}"
+            ./scripts/operator-from-template.sh
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            docker push ${FULL_OPERATOR_IMAGE_NAME_AND_TAG}
+      - run:
+          name: Tar the operator
+          command: |
+            tar -czvf snyk-kubernetes-operator.tar.gz build/snyk-kubernetes-operator/
+            mv snyk-kubernetes-operator.tar.gz build/snyk-kubernetes-operator
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-build-operator-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
+          when: on_fail
+
   unit_tests:
     <<: *default_machine_config
     steps:
@@ -146,7 +181,7 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
-  
+
   system_tests:
     <<: *default_machine_config
     steps:
@@ -313,6 +348,8 @@ workflows:
     jobs:
       - build_image:
           <<: *main_branches_filter
+      - build_operator:
+          <<: *main_branches_filter
       - unit_tests:
           <<: *main_branches_filter
       - system_tests:
@@ -337,6 +374,8 @@ workflows:
   MERGE_TO_STAGING:
     jobs:
       - build_image:
+          <<: *staging_branch_only_filter
+      - build_operator:
           <<: *staging_branch_only_filter
       - unit_tests:
           <<: *staging_branch_only_filter
@@ -365,6 +404,7 @@ workflows:
       - tag_and_push:
           requires:
             - build_image
+            - build_operator
             - unit_tests
             - system_tests
             - integration_tests

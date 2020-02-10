@@ -1,0 +1,26 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: snyk-kubernetes-operator
+subjects:
+- kind: ServiceAccount
+  name: snyk-kubernetes-operator
+roleRef:
+  kind: Role
+  name: snyk-kubernetes-operator
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: snyk-kubernetes-operator-rb2
+subjects:
+- kind: ServiceAccount
+  name: snyk-kubernetes-operator
+  namespace: snyk-monitor
+roleRef:
+  kind: ClusterRole
+  name: snyk-kubernetes-operator-role2
+  apiGroup: rbac.authorization.k8s.io
