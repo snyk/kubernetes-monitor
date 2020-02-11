@@ -1,3 +1,5 @@
+import * as sleep from 'sleep-promise';
+
 import * as processWrapper from '../../common/process';
 import * as config from '../../common/config';
 import * as credentials from './credentials';
@@ -41,7 +43,24 @@ export async function pull(
   args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
   args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
 
-  processWrapper.exec('skopeo', ...args);
+  await pullWithRetry(args);
+}
+
+async function pullWithRetry(args: Array<processWrapper.IProcessArgument>): Promise<void> {
+  const MAX_ATTEMPTS = 10;
+  const RETRY_INTERVAL_SEC = 0.2;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      await processWrapper.exec('skopeo', ...args);
+      return;
+    } catch (err) {
+      if (attempt + 1 > MAX_ATTEMPTS) {
+        throw err;
+      }
+      await sleep(RETRY_INTERVAL_SEC * 1000);
+    }
+  }
 }
 
 export function getCredentialParameters(credentials: string | undefined): Array<processWrapper.IProcessArgument> {
