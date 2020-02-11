@@ -48,6 +48,7 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   await kubectl.downloadKubectl();
 
   // KinD
+  await kind.setupTester();
   await kind.createCluster();
   await kind.exportKubeConfig();
 
