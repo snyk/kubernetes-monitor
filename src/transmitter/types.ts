@@ -36,7 +36,7 @@ export interface IKubernetesMonitorMetadata {
 export interface IDepGraphPayload {
   imageLocator: IImageLocator;
   agentId: string;
-  dependencyGraph?: any;
+  dependencyGraph?: string;
   metadata: IKubernetesMonitorMetadata;
 }
 
