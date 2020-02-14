@@ -1,0 +1,70 @@
+import { readFileSync, writeFileSync } from 'fs';
+import { parse, stringify } from 'yaml';
+
+import * as kubectl from '../../helpers/kubectl';
+
+function getEnvVariableOrDefault(envVarName: string, defaultValue: string): string {
+  const value = process.env[envVarName];
+  return value === undefined || value === ''
+    ? defaultValue
+    : value;
+}
+
+export async function deployKubernetesMonitor(
+  integrationId: string,
+  imageOpts: {
+    imageNameAndTag: string;
+    imagePullPolicy: string;
+  }
+): Promise<void> {
+  const namespace = 'snyk-monitor';
+  await kubectl.createNamespace(namespace);
+
+  const secretName = 'snyk-monitor';
+  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
+  await kubectl.createSecret(secretName, namespace, {
+    'dockercfg.json': gcrDockercfg,
+    integrationId,
+  });
+
+  const testYaml = 'snyk-monitor-test-deployment.yaml';
+  createTestYamlDeployment(testYaml, integrationId, imageOpts.imageNameAndTag, imageOpts.imagePullPolicy);
+
+  await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
+  await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
+}
+
+function createTestYamlDeployment(
+  newYamlPath: string,
+  integrationId: string,
+  imageNameAndTag: string,
+  imagePullPolicy: string,
+): void {
+  console.log('Creating test deployment...');
+  const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
+  const deployment = parse(originalDeploymentYaml);
+
+  deployment.spec.template.spec.containers[0].image = imageNameAndTag;
+  deployment.spec.template.spec.containers[0].imagePullPolicy = imagePullPolicy;
+
+  // This is important due to an odd bug when running on Travis.
+  // By adding the Google nameserver, the container can start resolving external hosts.
+  deployment.spec.template.spec.dnsConfig = {
+    nameservers: ['8.8.8.8'],
+  };
+
+  // Inject the integration ID that will be used throughout the integration tests.
+  deployment.spec.template.spec.containers[0].env[0] = {
+    name: 'SNYK_INTEGRATION_ID',
+    value: integrationId,
+  };
+
+  // Inject the baseUrl of kubernetes-upstream that snyk-monitor container use to send metadata
+  deployment.spec.template.spec.containers[0].env[2] = {
+    name: 'SNYK_INTEGRATION_API',
+    value: 'https://kubernetes-upstream.dev.snyk.io',
+  };
+
+  writeFileSync(newYamlPath, stringify(deployment));
+  console.log('Created test deployment');
+}

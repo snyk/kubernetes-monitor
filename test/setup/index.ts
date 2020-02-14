@@ -1,8 +1,8 @@
-import { readFileSync, writeFileSync } from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
-import { parse, stringify } from 'yaml';
+
 import platforms from './platforms';
+import deployers, { DeploymentType } from './deployers';
 import * as kubectl from '../helpers/kubectl';
 import * as waiters from './waiters';
 
@@ -20,41 +20,6 @@ function getEnvVariableOrDefault(envVarName: string, defaultValue: string): stri
   return value === undefined || value === ''
     ? defaultValue
     : value;
-}
-
-function createTestYamlDeployment(
-  newYamlPath: string,
-  integrationId: string,
-  imageNameAndTag: string,
-  imagePullPolicy: string,
-): void {
-  console.log('Creating test deployment...');
-  const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
-  const deployment = parse(originalDeploymentYaml);
-
-  deployment.spec.template.spec.containers[0].image = imageNameAndTag;
-  deployment.spec.template.spec.containers[0].imagePullPolicy = imagePullPolicy;
-
-  // This is important due to an odd bug when running on Travis.
-  // By adding the Google nameserver, the container can start resolving external hosts.
-  deployment.spec.template.spec.dnsConfig = {
-    nameservers: ['8.8.8.8'],
-  };
-
-  // Inject the integration ID that will be used throughout the integration tests.
-  deployment.spec.template.spec.containers[0].env[0] = {
-    name: 'SNYK_INTEGRATION_ID',
-    value: integrationId,
-  };
-
-  // Inject the baseUrl of kubernetes-upstream that snyk-monitor container use to send metadata
-  deployment.spec.template.spec.containers[0].env[2] = {
-    name: 'SNYK_INTEGRATION_API',
-    value: 'https://kubernetes-upstream.dev.snyk.io',
-  };
-
-  writeFileSync(newYamlPath, stringify(deployment));
-  console.log('Created test deployment');
 }
 
 export async function removeMonitor(): Promise<void> {
@@ -96,30 +61,6 @@ async function createSecretForGcrIoAccess(): Promise<void> {
   );
 }
 
-async function installKubernetesMonitor(
-  imageNameAndTag: string,
-  imagePullPolicy: string,
-  ): Promise<string> {
-  const namespace = 'snyk-monitor';
-  await kubectl.createNamespace(namespace);
-
-  const secretName = 'snyk-monitor';
-  const integrationId = getIntegrationId();
-  const gcrDockercfg = getEnvVariableOrDefault('GCR_IO_DOCKERCFG', '{}');
-  await kubectl.createSecret(secretName, namespace, {
-    'dockercfg.json': gcrDockercfg,
-    integrationId,
-  });
-
-  const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageNameAndTag, imagePullPolicy);
-
-  await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
-  await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
-
-  return integrationId;
-}
-
 export async function deployMonitor(): Promise<string> {
   console.log('Begin deploying the snyk-monitor...');
 
@@ -145,10 +86,18 @@ export async function deployMonitor(): Promise<string> {
     await createEnvironment();
     await createSecretForGcrIoAccess();
 
+    const integrationId = getIntegrationId();
+
     // TODO: hack, rewrite this
     const imagePullPolicy = testPlatform === 'kind' ? 'Never' : 'Always';
-
-    const integrationId = await installKubernetesMonitor(remoteImageName, imagePullPolicy);
+    const deploymentImageOptions = {
+      imageNameAndTag: remoteImageName,
+      imagePullPolicy,
+    };
+    await deployers[DeploymentType.YAML].deploy(
+      integrationId,
+      deploymentImageOptions,
+    );
     await waiters.waitForMonitorToBeReady();
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
