@@ -65,6 +65,13 @@ function createTestYamlDeployment(
     value: 'https://kubernetes-upstream.dev.snyk.io',
   };
 
+  // TODO: remove this hack once an Operator is used to deploy the snyk-monitor for OpenShift tests
+  const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
+  if (testPlatform === 'openshift4') {
+    delete deployment.spec.template.spec.containers[0].securityContext.runAsUser;
+    delete deployment.spec.template.spec.containers[0].securityContext.runAsGroup;
+  }
+
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created test deployment');
 }
