@@ -69,6 +69,17 @@ This test runs whenever we commit to our `staging` branch, and at the moment may
 
 Run with `npm run test:integration:eks`.
 
+### OpenShift 4 ###
+
+OpenShift is RedHat's Kubernetes platform and helps us ensure we support not only the generic Kubernetes API, but also specifically OpenShift 4.
+
+This test uses an existing OpenShift 4 account with an existing OpenShift 4 cluster, and as such has a few more prerequisites:
+- The following environment variables: `OPENSHIFT4_USER`, `OPENSHIFT4_PASSWORD`, `OPENSHIFT4_CLUSTER_URL` are used to authenticate against the cluster.
+
+This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
+
+Run with `npm run test:integration:openshift4`.
+
 ### Package Managers ###
 
 These tests attempt to provide some more thorough coverage for our scans of specific package manager: APK, APT and RPM.
