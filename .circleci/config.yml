@@ -145,6 +145,17 @@ jobs:
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
       - run:
+          name: CREATE OPERATOR BUNDLE
+          command: |
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+            export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            ./scripts/gen-operator-bundle.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+      - run:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
@@ -177,7 +188,7 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
-  
+
   system_tests:
     <<: *default_machine_config
     steps:

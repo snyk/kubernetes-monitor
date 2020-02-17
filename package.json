@@ -37,6 +37,7 @@
     "aws-sdk": "^2.596.0",
     "bunyan": "^1.8.12",
     "child-process-promise": "^2.2.1",
+    "js-yaml": "^3.13.1",
     "lru-cache": "^5.1.1",
     "needle": "^2.4.0",
     "sleep-promise": "^8.0.1",
