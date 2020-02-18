@@ -139,7 +139,7 @@ jobs:
           command: |
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") # sets IMAGE_TAG to "staging-candidate" if the branch is "staging" or "discardable" otherwise
             export FULL_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-            export FULL_OPERATOR_IMAGE_NAME_AND_TAG="snyk/snyk-kubernetes-operator:${FULL_IMAGE_TAG}"
+            export FULL_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${FULL_IMAGE_TAG}"
             ./scripts/operator-from-template.sh
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${FULL_OPERATOR_IMAGE_NAME_AND_TAG}
