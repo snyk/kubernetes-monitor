@@ -38,5 +38,6 @@ tilt
 scripts
 tap
 snyk-monitor
+snyk-operator
 *-deployment.yaml
 *-permissions.yaml
