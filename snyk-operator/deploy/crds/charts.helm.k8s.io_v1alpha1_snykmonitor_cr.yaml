@@ -1,0 +1,12 @@
+apiVersion: charts.helm.k8s.io/v1alpha1
+kind: SnykMonitor
+metadata:
+  name: operator-snykmonitor
+spec:
+  # These values serve as example installation instructions for the customers to configure.
+  # Intentionally removing the "image" block as customers should not try to deploy a different version of the snyk-monitor.
+  clusterName: ""
+  integrationApi: ""
+  monitorSecrets: snyk-monitor
+  scope: Cluster
+  temporaryStorageSize: 50Gi
