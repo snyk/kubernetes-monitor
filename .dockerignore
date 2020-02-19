@@ -41,3 +41,4 @@ snyk-monitor
 snyk-operator
 *-deployment.yaml
 *-permissions.yaml
+*.bak
