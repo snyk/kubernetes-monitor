@@ -145,6 +145,13 @@ jobs:
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
       - run:
+          name: CREATE CLUSTERSERVICEVERSION
+          command: |
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export CSV_VERSION="${IMAGE_TAG}-${CIRCLE_SHA1}"
+            ./scripts/create-cluster-service-version.sh "${CSV_VERSION}"
+            # TODO: run test scripts against the CSV
+      - run:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
