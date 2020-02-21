@@ -1,0 +1,182 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "charts.helm.k8s.io/v1alpha1",
+          "kind": "SnykMonitor",
+          "metadata": {
+            "name": "snyk-monitor"
+          },
+          "spec": {
+            "clusterName": "",
+            "image": {
+              "pullPolicy": "Always",
+              "repository": "snyk/kubernetes-monitor",
+              "tag": "0.0.0"
+            },
+            "integrationApi": "",
+            "monitorSecrets": "snyk-monitor",
+            "scope": "Cluster",
+            "temporaryStorageSize": "50Gi"
+          }
+        }
+      ]
+    capabilities: Basic Install
+    categories: Developer Tools, Security
+    containerImage: docker.io/snyk/kubernetes-operator:0.0.0
+    createdAt: 2020-02-21T11:59:59Z
+    support: Snyk Ltd.
+    repository: https://github.com/snyk/kubernetes-monitor
+    description: |-
+      A Kubernetes Operator for creating and managing Snyk Kubernetes monitor instances.
+    certified: "false"
+  name: snyk-operator.v0.0.0
+  namespace: snyk-monitor
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+      - name: snykmonitors.charts.helm.k8s.io
+        displayName: Snyk Monitor
+        kind: SnykMonitor
+        version: v1alpha1
+        description: Represents the deployment of the Snyk controller, which scans container images in the cluster for vulnerabilities.
+  description: |-
+    A Kubernetes Operator for creating and managing Snyk Kubernetes monitor instances.
+
+    Snyk integrates with Kubernetes, enabling you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure. Once imported, Snyk continues to monitor those workloads, identifying additional security issues as new images are deployed and the workload configuration changes.
+  displayName: Snyk Operator
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterroles
+          - clusterrolebindings
+          verbs:
+          - '*'
+        serviceAccountName: snyk-operator
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          - deployments
+          - namespaces
+          - configmaps
+          - secrets
+          - services
+          - pods
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - snyk-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - charts.helm.k8s.io
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        serviceAccountName: snyk-operator
+      deployments:
+      - name: snyk-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: snyk-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: snyk-operator
+            spec:
+              containers:
+              - env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: snyk-operator
+                image: docker.io/snyk/kubernetes-operator:0.0.0
+                imagePullPolicy: Always
+                name: snyk-operator
+                resources:
+                  requests:
+                    cpu: '100m'
+                    memory: '100Mi'
+                  limits:
+                    cpu: '500m'
+                    memory: '500Mi'
+                securityContext:
+                  privileged: false
+                  runAsNonRoot: true
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  capabilities:
+                    drop:
+                      - ALL
+              serviceAccountName: snyk-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: false
+    type: AllNamespaces
+  maturity: stable
+  icon:
+    - base64data: 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
+      mediatype: image/png
+  provider:
+    name: Snyk Ltd.
+  maintainers:
+    - name: Snyk Ltd.
+      email: support@snyk.io
+  links:
+    - name: Website
+      url: https://snyk.io
+    - name: Documentation
+      url: https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview
+  version: 0.0.0
+  keywords:
+    - 'snyk'
+    - 'controller'
+    - 'monitor'
+    - 'operator'
+    - 'security'
+    - 'cluster'
+    - 'container'
+    - 'image'
