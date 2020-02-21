@@ -18,7 +18,7 @@ then
 fi
 
 echo overriding new yaml / chart files from master branch
-git checkout origin/master -- snyk-monitor snyk-monitor-cluster-permissions.yaml snyk-monitor-deployment.yaml snyk-monitor-namespaced-permissions.yaml README.md
+git checkout origin/master -- snyk-monitor snyk-operator/README.md snyk-monitor-cluster-permissions.yaml snyk-monitor-deployment.yaml snyk-monitor-namespaced-permissions.yaml README.md
 
 echo overriding tag placeholders with latest semantic version
 sed -i "s/IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING/${NEW_TAG}/g" ./snyk-monitor/values.yaml
@@ -36,6 +36,9 @@ git add ./snyk-monitor/values.yaml
 git add ./snyk-monitor-deployment.yaml
 git add ./snyk-monitor-cluster-permissions.yaml
 git add ./snyk-monitor-namespaced-permissions.yaml
+git add ./snyk-operator/deploy/olm-catalog/snyk-operator/snyk-operator.package.yaml
+git add ./snyk-operator/deploy/olm-catalog/snyk-operator/${NEW_TAG}
+git add ./snyk-operator/README.md
 git add ./README.md
 COMMIT_MESSAGE='fix: :egg: Automatic Publish '${NEW_TAG}' :egg:'
 git commit -m "${COMMIT_MESSAGE}"

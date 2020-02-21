@@ -308,6 +308,12 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          name: CREATE CLUSTERSERVICEVERSION
+          command: |
+            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
+            LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
+            ./scripts/create-cluster-service-version.sh "LATEST_TAG"
+      - run:
           name: PUBLISH
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
