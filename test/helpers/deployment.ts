@@ -1,6 +1,26 @@
 import * as tap from 'tap';
 import { V1Deployment } from '@kubernetes/client-node';
 
+export function validateEnvironmentVariables(test: tap, deployment: V1Deployment) {
+  if (
+    !deployment.spec ||
+    !deployment.spec.template.spec ||
+    !deployment.spec.template.spec.containers ||
+    deployment.spec.template.spec.containers.length === 0 ||
+    !deployment.spec.template.spec.containers[0].env
+  ) {
+    test.fail('bad container spec or missing env');
+    return;
+  }
+
+  const env = deployment.spec.template.spec.containers[0].env;
+
+  const envHasHomeEntry = env.some(
+    (entry) => entry.name === 'HOME' && entry.value === '/srv/app',
+  );
+  test.ok(envHasHomeEntry, 'has HOME entry in env variables');
+}
+
 export function validateSecureConfiguration(test: tap, deployment: V1Deployment) {
   if (
     !deployment.spec ||
