@@ -49,3 +49,4 @@ kind
 kubectl
 kubeconfig-integration-test-kind
 snyk-monitor-test-deployment.yaml
+snyk-operator/helm-charts
