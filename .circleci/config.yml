@@ -123,6 +123,37 @@ jobs:
             fi
           when: on_fail
 
+  build_operator:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: DOWNLOAD OPERATOR-SDK
+          command: |
+            RELEASE_VERSION=v0.15.1
+            DOWNLOAD_LOCATION=./operator-sdk
+            CURL_FOLLOW_REDIRECTS="-L"
+            curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
+            chmod +x ${DOWNLOAD_LOCATION}
+      - run:
+          name: CREATE OPERATOR AND PUSH OPERATOR IMAGE TO DOCKERHUB
+          command: |
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+            export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-build-operator-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
+          when: on_fail
+
   unit_tests:
     <<: *default_machine_config
     steps:
@@ -222,6 +253,36 @@ jobs:
             fi
           when: on_fail
 
+  openshift4_integration_tests:
+    <<: *default_machine_config
+    steps:
+      - checkout
+      - run:
+          name: APPEND AN ENTRY TO THE TEST ENVIRONMENT TO /ETC/HOSTS
+          command: |
+            echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
+      - run:
+          name: INTEGRATION TESTS OPENSHIFT 4
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm" &&
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
+            nvm install v10 &&
+            npm install &&
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
+            .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
+              ./scripts/slack-notify-failure.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
+            else
+              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
+            fi
+          when: on_fail
+
 ######################## MERGE TO STAGING ########################
   tag_and_push:
     <<: *default_container_config
@@ -313,6 +374,8 @@ workflows:
     jobs:
       - build_image:
           <<: *main_branches_filter
+      - build_operator:
+          <<: *main_branches_filter
       - unit_tests:
           <<: *main_branches_filter
       - system_tests:
@@ -338,6 +401,8 @@ workflows:
     jobs:
       - build_image:
           <<: *staging_branch_only_filter
+      - build_operator:
+          <<: *staging_branch_only_filter
       - unit_tests:
           <<: *staging_branch_only_filter
       - system_tests:
@@ -347,6 +412,10 @@ workflows:
             - build_image
           <<: *staging_branch_only_filter
       - eks_integration_tests:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
+      - openshift4_integration_tests:
           requires:
             - build_image
           <<: *staging_branch_only_filter
@@ -365,6 +434,7 @@ workflows:
       - tag_and_push:
           requires:
             - build_image
+            - build_operator
             - unit_tests
             - system_tests
             - integration_tests
