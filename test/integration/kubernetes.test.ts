@@ -99,15 +99,14 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
 });
 
 tap.test('snyk-monitor sends correct data to kubernetes-upstream after adding another deployment', async (t) => {
-  t.plan(3);
+  t.plan(6);
 
-  const deploymentName = 'nginx-deployment';
+  const deploymentName = 'node-deployment';
   const namespace = 'services';
   const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.Deployment;
-  const imageName = 'nginx';
 
-  await kubectl.applyK8sYaml('./test/fixtures/nginx-deployment.yaml');
+  await kubectl.applyK8sYaml('./test/fixtures/node-deployment.yaml');
   console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
@@ -124,8 +123,16 @@ tap.test('snyk-monitor sends correct data to kubernetes-upstream after adding an
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
   t.ok('dependencyGraphResults' in depGraphResult,
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
-  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
+  const pluginResult = JSON.parse(depGraphResult.dependencyGraphResults.node);
+  t.ok('imageMetadata' in pluginResult,
     'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
+  t.ok('hashes' in pluginResult, 'snyk-docker-plugin contains key-binary hashes');
+  t.equals(pluginResult.hashes.length, 1, 'one key-binary hash found in node image');
+  t.equals(
+    pluginResult.hashes[0],
+    '1fd7117ccedc1c673381f71cc611131cb8a47852a882e3d731381f14355a3346',
+    'SHA256 for node v12.16.1 found',
+  );
 });
 
 tap.test('snyk-monitor pulls images from a private gcr.io registry and sends data to kubernetes-upstream', async (t) => {
@@ -197,7 +204,7 @@ tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t)
   // First ensure the deployment exists from the previous test
   const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'nginx-deployment' &&
+      workloads.find((workload) => workload.name === 'node-deployment' &&
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
@@ -205,13 +212,13 @@ tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t)
     `api/v2/workloads/${integrationId}/Default cluster/services`);
   t.ok(testResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
 
-  const deploymentName = 'nginx-deployment';
+  const deploymentName = 'node-deployment';
   const namespace = 'services';
   await kubectl.deleteDeployment(deploymentName, namespace);
 
   // Finally, remove the workload and ensure that the snyk-monitor notifies kubernetes-upstream
   const deleteValidatorFn: WorkloadLocatorValidator = (workloads) => {
-    return workloads !== undefined && workloads.every((workload) => workload.name !== 'nginx-deployment');
+    return workloads !== undefined && workloads.every((workload) => workload.name !== 'node-deployment');
   };
 
   const clusterName = 'Default cluster';
