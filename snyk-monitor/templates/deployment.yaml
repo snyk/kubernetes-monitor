@@ -46,6 +46,8 @@ spec:
             value: {{ .Values.clusterName }}
           - name: SNYK_MONITOR_VERSION
             value: {{ .Values.image.tag }}
+          - name: HOME
+            value: /srv/app
           resources:
             requests:
               cpu: '250m'

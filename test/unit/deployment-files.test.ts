@@ -3,7 +3,11 @@ import { parse } from 'yaml';
 import { readFileSync } from 'fs';
 import { V1Deployment } from '@kubernetes/client-node';
 import * as snykConfig from '../../src/common/config';
-import { validateSecureConfiguration, validateVolumeMounts } from '../helpers/deployment';
+import {
+  validateSecureConfiguration,
+  validateVolumeMounts,
+  validateEnvironmentVariables,
+} from '../helpers/deployment';
 
 /**
  * Note that these checks are also performed at runtime on the deployed snyk-monitor, see the integration tests.
@@ -20,5 +24,6 @@ tap.test('ensure the security properties of the deployment files are unchanged',
 
     validateSecureConfiguration(t, deployment);
     validateVolumeMounts(t, deployment);
+    validateEnvironmentVariables(t, deployment);
   }
 });
