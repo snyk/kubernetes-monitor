@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.21.3
+      - image: snyk/kubernetes-monitor:1.21.4
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -55,7 +55,9 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.21.3
+            value: 1.21.4
+          - name: HOME
+            value: /srv/app
         resources:
           requests:
             cpu: '250m'
