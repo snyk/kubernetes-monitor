@@ -145,6 +145,14 @@ jobs:
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
       - run:
+          name: PACKAGE OPERATOR
+          command: |
+            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+            export SNYK_OPERATOR_VERSION="0.0.1"
+            export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+      - run:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
