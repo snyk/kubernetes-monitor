@@ -135,7 +135,10 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
   const podOwner: IKubeObjectMetadata | undefined = await findParentWorkload(
     pod.metadata.ownerReferences, pod.metadata.namespace);
 
-  return podOwner === undefined
-    ? undefined
-    : buildImageMetadata(podOwner, pod.status.containerStatuses);
+  if (podOwner === undefined) {
+    logger.info({pod}, 'pod associated with owner, but owner not found. not building metadata.');
+    return undefined;
+  }
+
+  return buildImageMetadata(podOwner, pod.status.containerStatuses);
 }
