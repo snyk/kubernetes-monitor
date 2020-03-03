@@ -38,6 +38,7 @@ tap.test('deploy sample workloads', async (t) => {
     kubectl.applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/scratch-deployment.yaml'),
     kubectl.createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
   ]);
   t.pass('successfully deployed sample workloads');
@@ -65,12 +66,12 @@ tap.test('snyk-monitor container started', async (t) => {
 });
 
 tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
-  t.plan(2);
+  t.plan(7);
 
   console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
-    return workloads !== undefined && workloads.length === 5 &&
+    return workloads !== undefined && workloads.length === 6 &&
       workloads.find((workload) => workload.name === 'alpine' &&
         workload.type === WorkloadKind.Pod) !== undefined &&
       workloads.find((workload) => workload.name === 'nginx' &&
@@ -78,6 +79,8 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
       workloads.find((workload) => workload.name === 'redis' &&
         workload.type === WorkloadKind.Deployment) !== undefined &&
       workloads.find((workload) => workload.name === 'alpine-from-sha' &&
+        workload.type === WorkloadKind.Deployment) !== undefined &&
+      workloads.find((workload) => workload.name === 'busybox' &&
         workload.type === WorkloadKind.Deployment) !== undefined &&
       workloads.find((workload) => workload.name === 'centos' &&
         workload.type === WorkloadKind.Deployment) !== undefined;
@@ -96,6 +99,15 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
   const workloadMetadataResult = await validateUpstreamStoredMetadata(metaValidator,
     `api/v1/workload/${integrationId}/Default cluster/services/Deployment/redis`);
   t.ok(workloadMetadataResult, 'snyk-monitor sent expected metadata in the expected timeframe');
+
+  const busyboxDepGraphPath = `api/v1/dependency-graphs/${integrationId}/Default%20cluster/services/Deployment/busybox`;
+  const depGraphScratchImage = await getUpstreamResponseBody(busyboxDepGraphPath);
+  t.ok('dependencyGraphResults' in depGraphScratchImage, 'upstream response contains dep graph results');
+  t.ok('busybox' in depGraphScratchImage.dependencyGraphResults, 'busybox was scanned');
+  const busyboxPluginResult = JSON.parse(depGraphScratchImage.dependencyGraphResults.busybox);
+  t.same(busyboxPluginResult.package.packageFormatVersion, 'linux:0.0.1', 'the version of the package format');
+  t.same(busyboxPluginResult.package.targetOS, {name: 'unknown', version: '0.0'}, 'busybox operating system unknown');
+  t.same(busyboxPluginResult.plugin.packageManager, 'linux', 'linux is the default package manager for scratch containers');
 });
 
 tap.test('snyk-monitor sends correct data to kubernetes-upstream after adding another deployment', async (t) => {
