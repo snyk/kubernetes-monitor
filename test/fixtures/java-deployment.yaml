@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: java
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: java
@@ -19,4 +19,6 @@ spec:
       - image: java:latest
         imagePullPolicy: Always
         name: java
+        command: ['/bin/sleep']
+        args: ['9999999']
       securityContext: {}
