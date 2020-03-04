@@ -84,9 +84,8 @@ async function findParentWorkload(
           'could not find workload, it probably no longer exists',
         );
         return undefined;
-      } else {
-        throw err;
       }
+      throw err;
     }
 
     if (nextParentMetadata === undefined) {
