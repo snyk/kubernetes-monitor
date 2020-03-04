@@ -83,10 +83,9 @@ async function findParentWorkload(
           {name: supportedWorkload.name, kind: supportedWorkload.kind, namespace},
           'could not find workload, it probably no longer exists',
         );
-        return parentMetadata;
-      } else {
-        throw err;
+        return undefined;
       }
+      throw err;
     }
 
     if (nextParentMetadata === undefined) {
