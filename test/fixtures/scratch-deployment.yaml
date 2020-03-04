@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox
+  namespace: services
+  labels:
+    app.kubernetes.io/name: busybox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: busybox
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: busybox
+    spec:
+      containers:
+      - image: busybox:1.31.1
+        imagePullPolicy: Always
+        name: busybox
+        command: ['/bin/sleep']
+        args: ['360000']
+      securityContext: {}
