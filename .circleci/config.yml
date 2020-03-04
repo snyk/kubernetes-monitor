@@ -11,6 +11,11 @@ default_container_config: &default_container_config
     - image: circleci/node:10
   working_directory: ~/kubernetes-monitor
 
+python_container_config: &python_container_config
+  docker:
+    - image: circleci/python:3
+  working_directory: ~/kubernetes-monitor
+
 staging_branch_only_filter: &staging_branch_only_filter
   filters:
     branches:
@@ -291,6 +296,14 @@ jobs:
             fi
           when: on_fail
 
+  preview_release_notes:
+    <<: *python_container_config
+    steps:
+      - checkout
+      - run:
+          name: SEND RELEASE NOTES PREVIEW TO SLACK
+          command: ./scripts/post-release-notes-preview.py
+
 ######################## MERGE TO STAGING ########################
   tag_and_push:
     <<: *default_container_config
@@ -403,6 +416,13 @@ workflows:
       - package_manager_test_rpm:
           requires:
             - build_image
+          <<: *main_branches_filter
+      - preview_release_notes:
+          requires:
+            - build_image
+            - unit_tests
+            - system_tests
+            - integration_tests
           <<: *main_branches_filter
 
   MERGE_TO_STAGING:
