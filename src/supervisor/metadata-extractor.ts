@@ -69,7 +69,25 @@ async function findParentWorkload(
     }
 
     const workloadReader = getWorkloadReader(supportedWorkload.kind);
-    const nextParentMetadata = await workloadReader(supportedWorkload.name, namespace);
+    let nextParentMetadata: IKubeObjectMetadata | undefined;
+    try {
+      nextParentMetadata = await workloadReader(supportedWorkload.name, namespace);
+    } catch (err) {
+      if (
+        err &&
+        err.response &&
+        err.response.body &&
+        err.response.body.code === 404
+      ) {
+        logger.info(
+          {name: supportedWorkload.name, kind: supportedWorkload.kind, namespace},
+          'could not find workload, it probably no longer exists',
+        );
+        return undefined;
+      }
+      throw err;
+    }
+
     if (nextParentMetadata === undefined) {
       // Could not extract data for the next parent, so return whatever we have so far.
       return parentMetadata;
@@ -135,7 +153,10 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
   const podOwner: IKubeObjectMetadata | undefined = await findParentWorkload(
     pod.metadata.ownerReferences, pod.metadata.namespace);
 
-  return podOwner === undefined
-    ? undefined
-    : buildImageMetadata(podOwner, pod.status.containerStatuses);
+  if (podOwner === undefined) {
+    logger.info({pod}, 'pod associated with owner, but owner not found. not building metadata.');
+    return undefined;
+  }
+
+  return buildImageMetadata(podOwner, pod.status.containerStatuses);
 }

@@ -91,7 +91,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadMetadata = await buildMetadataForWorkload(pod);
 
     if (workloadMetadata === undefined || workloadMetadata.length === 0) {
-      logger.warn({podName}, 'could not process pod, the workload is possibly unsupported');
+      logger.warn({podName}, 'could not process pod, the workload is possibly unsupported or deleted');
       return;
     }
 
