@@ -26,7 +26,7 @@ async function deployKubernetesMonitor(
   });
 
   const testYaml = 'snyk-monitor-test-deployment.yaml';
-  createTestYamlDeployment(testYaml, integrationId, imageOpts.imageNameAndTag, imageOpts.imagePullPolicy);
+  createTestYamlDeployment(testYaml, imageOpts.imageNameAndTag, imageOpts.imagePullPolicy);
 
   await kubectl.applyK8sYaml('./snyk-monitor-cluster-permissions.yaml');
   await kubectl.applyK8sYaml('./snyk-monitor-test-deployment.yaml');
@@ -34,7 +34,6 @@ async function deployKubernetesMonitor(
 
 function createTestYamlDeployment(
   newYamlPath: string,
-  integrationId: string,
   imageNameAndTag: string,
   imagePullPolicy: string,
 ): void {
@@ -44,12 +43,6 @@ function createTestYamlDeployment(
 
   deployment.spec.template.spec.containers[0].image = imageNameAndTag;
   deployment.spec.template.spec.containers[0].imagePullPolicy = imagePullPolicy;
-
-  // Inject the integration ID that will be used throughout the integration tests.
-  deployment.spec.template.spec.containers[0].env[0] = {
-    name: 'SNYK_INTEGRATION_ID',
-    value: integrationId,
-  };
 
   // Inject the baseUrl of kubernetes-upstream that snyk-monitor container use to send metadata
   deployment.spec.template.spec.containers[0].env[2] = {
