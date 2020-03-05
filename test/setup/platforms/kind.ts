@@ -64,7 +64,7 @@ async function download(osDistro: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/camelcase
     const requestOptions = { follow_max: 2 };
     await needle('get',
-      `https://github.com/kubernetes-sigs/kind/releases/download/v0.6.1/kind-${osDistro}-amd64`,
+      `https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-${osDistro}-amd64`,
       bodyData,
       requestOptions,
     ).then((response) => {
