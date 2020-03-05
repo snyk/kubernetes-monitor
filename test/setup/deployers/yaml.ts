@@ -2,8 +2,13 @@ import { readFileSync, writeFileSync } from 'fs';
 import { parse, stringify } from 'yaml';
 
 import * as kubectl from '../../helpers/kubectl';
+import { IDeployer } from './types';
 
-export async function deployKubernetesMonitor(
+export const yamlDeployer: IDeployer = {
+  deploy: deployKubernetesMonitor,
+};
+
+async function deployKubernetesMonitor(
   integrationId: string,
   imageOpts: {
     imageNameAndTag: string;
