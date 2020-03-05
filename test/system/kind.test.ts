@@ -78,6 +78,14 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/dependency-graph')
     .times(1)
+    .replyWithError({
+      code: 'ECONNRESET',
+      message: 'socket hang up',
+    });
+
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/dependency-graph')
+    .times(1)
     .reply(200, (uri, requestBody) => {
       // TODO assert POST payload
     });

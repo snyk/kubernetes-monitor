@@ -67,23 +67,40 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
   const retry = {
     attempts: 3,
     intervalSeconds: 2,
+    networkErrorMessages: [
+      'socket hang up',
+      'Client network socket disconnected before secure TLS connection was established',
+    ],
   };
   const options = {
     json: true,
     compressed: true,
   };
 
-  let response: NeedleResponse;
-  let attempt = 1;
+  let response: NeedleResponse | undefined;
+  let attempt: number;
 
-  response = await needle(verb, url, payload, options);
-  for (; attempt <= retry.attempts; attempt++) {
-    if (response.statusCode === 502 && attempt + 1 < retry.attempts) {
-      await sleep(retry.intervalSeconds * 1000);
+  for (attempt = 1; attempt <= retry.attempts; attempt++) {
+    const stillHaveRetries = attempt + 1 <= retry.attempts;
+    try {
       response = await needle(verb, url, payload, options);
-    } else {
-      break;
+      if (!(response.statusCode === 502 && stillHaveRetries)) {
+        break;
+      }
+    } catch (err) {
+      if (!(
+        err.code === 'ECONNRESET' &&
+        retry.networkErrorMessages.includes(err.message) &&
+        stillHaveRetries
+      )) {
+        throw err;
+      }
     }
+    await sleep(retry.intervalSeconds * 1000);
+  }
+
+  if (response === undefined) {
+    throw new Error('failed sending a request upstream');
   }
 
   return {response, attempt};
