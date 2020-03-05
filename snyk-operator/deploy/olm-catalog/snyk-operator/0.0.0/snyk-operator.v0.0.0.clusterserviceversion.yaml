@@ -31,7 +31,7 @@ metadata:
     support: Snyk Ltd.
     repository: https://github.com/snyk/kubernetes-monitor
     description: |-
-      A Kubernetes Operator for creating and managing Snyk Kubernetes controller instances.
+      A Kubernetes Operator for creating and managing Snyk controller instances.
     certified: "false"
   name: snyk-operator.vSNYK_OPERATOR_VERSION_OVERRIDE
   namespace: snyk-monitor
@@ -44,10 +44,80 @@ spec:
         kind: SnykMonitor
         version: v1alpha1
         description: Represents a deployment of the Snyk controller, which scans container images in the cluster for vulnerabilities.
+        resources:
+          - kind: Deployment
+            name: snyk-monitor
+            version: v1
+          - kind: Secret
+            name: snyk-monitor
+            version: v1
+        specDescriptors:
+          - description: >-
+              The name of the secret object that stores the Snyk controller secrets.
+              The secret needs to contain the following data fields:
+              - integrationId
+              - dockercfg.json
+            displayName: Snyk controller Secret name
+            path: monitorSecrets
+            x-descriptors:
+            - 'urn:alm:descriptor:io.kubernetes:Secret'
+          - description: >-
+              The name of the cluster that will be displayed in Snyk.
+            displayName: Cluster Name
+            path: clusterName
+            x-descriptors:
+            - 'urn:alm:descriptor:text'
+          - description: >-
+              Whether the Snyk controller scans images in the whole cluster or in a specific namespace. Valid values are: Cluster, Namespaced.
+            displayName: Scope
+            path: scope
+            x-descriptors:
+            - 'urn:alm:descriptor:text'
+          - description: >-
+              API endpoint for sending image scan results. Does not need to be provided as part of the installation as it defaults to sending results to Snyk.
+            displayName: Integration API
+            path: integrationApi
+            x-descriptors:
+            - 'urn:alm:descriptor:text'
+          - description: >-
+              How much disk storage to reserve for the Snyk controller.
+            displayName: Temporary Storage Size
+            path: temporaryStorageSize
+            x-descriptors:
+            - 'urn:alm:descriptor:text'
+          - description: >-
+              Pull policy for the image.
+            displayName: Image Pull Policy
+            path: image.pullPolicy
+            x-descriptors:
+            - 'urn:alm:descriptor:com.tectonic.ui:imagePullPolicy'
+          - description: >-
+              The registry repository for the Snyk controller's image.
+            displayName: Image repository
+            path: image.repository
+            x-descriptors:
+            - 'urn:alm:descriptor:text'
+          - description: >-
+              The tag for the Snyk controller's image.
+            displayName: Image tag
+            path: image.tag
+            x-descriptors:
+            - 'urn:alm:descriptor:text'
   description: |-
     A Kubernetes Operator for creating and managing Snyk Kubernetes controller instances.
 
     Snyk integrates with Kubernetes, enabling you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure. Once imported, Snyk continues to monitor those workloads, identifying additional security issues as new images are deployed and the workload configuration changes.
+
+    ## Prerequisites
+
+    To start using the Operator and the Snyk controller that it manages, you will need to create a secret containing your Snyk integrationId and Docker config file:
+
+    ```
+    kubectl create namespace snyk-monitor
+    kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=${SNYK_INTEGRATION_ID}
+    ```
+
+    Refer to the [Snyk documentation](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview) for more details. 
   displayName: Snyk Operator
   install:
     spec:
