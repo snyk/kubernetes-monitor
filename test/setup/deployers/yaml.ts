@@ -40,12 +40,6 @@ function createTestYamlDeployment(
   deployment.spec.template.spec.containers[0].image = imageNameAndTag;
   deployment.spec.template.spec.containers[0].imagePullPolicy = imagePullPolicy;
 
-  // This is important due to an odd bug when running on Travis.
-  // By adding the Google nameserver, the container can start resolving external hosts.
-  deployment.spec.template.spec.dnsConfig = {
-    nameservers: ['8.8.8.8'],
-  };
-
   // Inject the integration ID that will be used throughout the integration tests.
   deployment.spec.template.spec.containers[0].env[0] = {
     name: 'SNYK_INTEGRATION_ID',
