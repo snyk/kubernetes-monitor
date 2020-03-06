@@ -1,0 +1,19 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: snyk-operator
+  namespace: snyk-monitor
+spec:
+  targetNamespaces:
+  - snyk-monitor
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: snyk-operator
+  namespace: snyk-monitor
+spec:
+  channel: stable
+  name: snyk-operator
+  source: snyk-operator
+  sourceNamespace: openshift-marketplace
