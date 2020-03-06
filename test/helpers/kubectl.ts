@@ -67,6 +67,12 @@ export async function createDeploymentFromImage(name: string, image: string, nam
   console.log(`Done Letting Kubernetes decide how to manage image ${image} with name ${name}`);
 }
 
+export async function deleteResource(kind: string, name: string, namespace: string) {
+  console.log(`Deleting ${kind} ${name} in namespace ${namespace}...`);
+  await exec(`./kubectl delete ${kind} ${name} -n ${namespace}`);
+  console.log(`Deleted ${kind} ${name}`);
+}
+
 export async function deleteDeployment(deploymentName: string, namespace: string) {
   console.log(`Deleting deployment ${deploymentName} in namespace ${namespace}...`);
   await exec(`./kubectl delete deployment ${deploymentName} -n ${namespace}`);
