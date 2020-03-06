@@ -67,6 +67,12 @@ export async function createDeploymentFromImage(name: string, image: string, nam
   console.log(`Done Letting Kubernetes decide how to manage image ${image} with name ${name}`);
 }
 
+export async function patchResourceFinalizers(kind: string, name: string, namespace: string) {
+  console.log(`Patching resource finalizers for ${kind} ${name} in namespace ${namespace}...`);
+  await exec(`./kubectl patch ${kind} ${name} -p '{"metadata":{"finalizers":[]}}' --type=merge -n ${namespace}`);
+  console.log(`Patched resources finalizers for ${kind} ${name}`);
+}
+
 export async function deleteResource(kind: string, name: string, namespace: string) {
   console.log(`Deleting ${kind} ${name} in namespace ${namespace}...`);
   await exec(`./kubectl delete ${kind} ${name} -n ${namespace}`);
@@ -100,6 +106,22 @@ export async function getPodNames(namespace: string): Promise<string[]> {
 export async function getPodLogs(podName: string, namespace: string): Promise<any> {
   const logsOutput = await exec(`./kubectl -n ${namespace} logs ${podName}`);
   return logsOutput.stdout;
+}
+
+export async function waitForDeployment(name: string, namespace: string): Promise<void> {
+  console.log(`Trying to find deployment ${name} in namespace ${namespace}`);
+  for (let attempt = 0; attempt < 60; attempt++) {
+    try {
+      await exec(`./kubectl get deployment.apps/${name} -n ${namespace}`);
+    } catch (error) {
+      await sleep(1000);
+    }
+  }
+  console.log(`Found deployment ${name} in namespace ${namespace}`);
+
+  console.log(`Begin waiting for deployment ${name} in namespace ${namespace}`);
+  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=60s`);
+  console.log(`Deployment ${name} in namespace ${namespace} is available`);
 }
 
 export async function waitForServiceAccount(name: string, namespace: string): Promise<void> {
