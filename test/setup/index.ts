@@ -6,7 +6,6 @@ import platforms from './platforms';
 import deployers from './deployers';
 import * as kubectl from '../helpers/kubectl';
 import * as waiters from './waiters';
-import { DeploymentType } from './deployers/types';
 
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
 const createCluster = process.env['CREATE_CLUSTER'] === 'true';
@@ -97,7 +96,7 @@ export async function deployMonitor(): Promise<string> {
       imageNameAndTag: remoteImageName,
       imagePullPolicy,
     };
-    await deployers[DeploymentType.YAML].deploy(
+    await deployers['YAML'].deploy(
       integrationId,
       deploymentImageOptions,
     );
