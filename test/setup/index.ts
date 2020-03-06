@@ -9,6 +9,7 @@ import * as waiters from './waiters';
 
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
 const createCluster = process.env['CREATE_CLUSTER'] === 'true';
+const deploymentType = process.env['DEPLOYMENT_TYPE'] || 'YAML';
 
 function getIntegrationId(): string {
   const integrationId = uuidv4();
@@ -96,7 +97,7 @@ export async function deployMonitor(): Promise<string> {
       imageNameAndTag: remoteImageName,
       imagePullPolicy,
     };
-    await deployers['YAML'].deploy(
+    await deployers[deploymentType].deploy(
       integrationId,
       deploymentImageOptions,
     );

@@ -43,6 +43,9 @@ Our integration tests may use different Kubernetes platforms to host the Kuberne
 * `TEST_PLATFORM` (`kind`, `eks`)
 * `CREATE_CLUSTER` (`true`, `false`).
 
+Additionally, the deployment of the Kubernetes-Monitor can be configured through an environment variable:
+* `DEPLOYMENT_TYPE` (`YAML`, `Operator`)
+
 All integration tests determine the image to be tested based on the environment variable called `KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG`, and fallback to `snyk/kubernetes-monitor:local`, meaning one has to make sure the image desired to be tested is properly named and tagged.
 
 ### KinD ###
