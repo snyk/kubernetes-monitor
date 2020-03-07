@@ -84,6 +84,18 @@ export async function getDeploymentJson(deploymentName: string, namespace: strin
   return JSON.parse(getDeploymentResult.stdout);
 }
 
+export async function getPodNames(namespace: string): Promise<string[]> {
+  const commandPrefix = `./kubectl -n ${namespace} get pods`;
+  const onlyNames = ' --template \'{{range .items}}{{.metadata.name}}{{"\\n"}}{{end}}\'';
+  const podsOutput = await exec(commandPrefix+onlyNames);
+  return podsOutput.stdout.split('\n');
+}
+
+export async function getPodLogs(podName: string, namespace: string): Promise<any> {
+  const logsOutput = await exec(`./kubectl -n ${namespace} logs ${podName}`);
+  return logsOutput.stdout;
+}
+
 export async function waitForServiceAccount(name: string, namespace: string): Promise<void> {
   // TODO: add some timeout
   while (true) {
