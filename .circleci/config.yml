@@ -31,6 +31,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: create temp dir for logs
+          command: mkdir -p /tmp/logs/test/integration/kind
+      - run:
           name: APK Test
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
@@ -50,11 +53,16 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+      - store_artifacts:
+          path: /tmp/logs/test/integration/kind
 
   package_manager_test_apt:
     <<: *default_machine_config
     steps:
       - checkout
+      - run:
+          name: create temp dir for logs
+          command: mkdir -p /tmp/logs/test/integration/kind
       - run:
           name: APT Test
           command: |
@@ -75,11 +83,16 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+      - store_artifacts:
+          path: /tmp/logs/test/integration/kind
 
   package_manager_test_rpm:
     <<: *default_machine_config
     steps:
       - checkout
+      - run:
+          name: create temp dir for logs
+          command: mkdir -p /tmp/logs/test/integration/kind
       - run:
           name: RPM Test
           command: |
@@ -100,6 +113,8 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+      - store_artifacts:
+          path: /tmp/logs/test/integration/kind
 
   build_image:
     <<: *default_machine_config
@@ -214,6 +229,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: create temp dir for logs
+          command: mkdir -p /tmp/logs/test/integration/kind
+      - run:
           name: INTEGRATION TESTS
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
@@ -234,11 +252,16 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+      - store_artifacts:
+          path: /tmp/logs/test/integration/kind
 
   eks_integration_tests:
     <<: *default_machine_config
     steps:
       - checkout
+      - run:
+          name: create temp dir for logs
+          command: mkdir -p /tmp/logs/test/integration/eks
       - run:
           name: INTEGRATION TESTS EKS
           command: |
@@ -260,11 +283,16 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+      - store_artifacts:
+          path: /tmp/logs/test/integration/eks
 
   openshift4_integration_tests:
     <<: *default_machine_config
     steps:
       - checkout
+      - run:
+          name: create temp dir for logs
+          command: mkdir -p /tmp/logs/test/integration/openshift4
       - run:
           name: APPEND AN ENTRY TO THE TEST ENVIRONMENT TO /ETC/HOSTS
           command: |
@@ -290,6 +318,8 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+      - store_artifacts:
+          path: /tmp/logs/test/integration/openshift4
 
 ######################## MERGE TO STAGING ########################
   tag_and_push:
