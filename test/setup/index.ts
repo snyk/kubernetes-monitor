@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 
@@ -24,6 +25,7 @@ function getEnvVariableOrDefault(envVarName: string, defaultValue: string): stri
 }
 
 export async function removeMonitor(): Promise<void> {
+  await dumpLogs();
   try {
     if (createCluster) {
       await platforms[testPlatform].delete();
@@ -113,4 +115,17 @@ export async function deployMonitor(): Promise<string> {
       process.exit(-1);
     }
   }
+}
+
+async function dumpLogs(): Promise<void> {
+  const logDir = `/tmp/logs/test/integration/${testPlatform}`;
+  if (!(fs.existsSync(logDir))) {
+    console.log('not dumping logs because', logDir, 'does not exist');
+    return;
+  }
+  const podNames = await kubectl.getPodNames('snyk-monitor');
+  const logs = await kubectl.getPodLogs(podNames[0], 'snyk-monitor');
+  const logPath = `${logDir}/kubernetes-monitor.log`;
+  console.log('dumping logs to', logPath);
+  fs.writeFileSync(logPath, logs);
 }
