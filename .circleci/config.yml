@@ -381,6 +381,38 @@ jobs:
             docker push ${IMAGE_NAME_PUBLISHED} &&
             ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
             ./scripts/publish-gh-pages.sh ${LATEST_TAG}
+            # Preserve the latest tag for the next steps of this job
+            echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+      - run:
+          name: Download operator-sdk
+          command: |
+            RELEASE_VERSION=v0.15.1
+            DOWNLOAD_LOCATION=./operator-sdk
+            CURL_FOLLOW_REDIRECTS="-L"
+            curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
+            chmod +x ${DOWNLOAD_LOCATION}
+      - run:
+          name: Create Operator and push Operator image to DockerHub
+          command: |
+            export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
+            export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+            docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
+      - run:
+          name: Package Operator
+          command: |
+            export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
+            export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
+            export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+      - run:
+          name: Remove templated Operator before storing artifacts
+          command: |
+            rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
+      - store_artifacts:
+          path: snyk-operator/deploy/olm-catalog/snyk-operator
+          destination: snyk-operator
       - run:
           name: Notify Slack on failure
           command: ./scripts/slack-notify-failure.sh "master"
