@@ -1,6 +1,8 @@
 #! /bin/bash
 set -e
 
+trap "git checkout --force master" EXIT
+
 NEW_TAG=$1
 echo About to update the gh-pages branch with new tag ${NEW_TAG}
 
