@@ -1,7 +1,0 @@
-{
-  "alpine310": "alpine:3.10",
-  "mhart-alpine-node10": "mhart/alpine-node:10",
-  "anapsix-alpine-java": "anapsix/alpine-java:latest",
-  "golang112-alpine310": "golang:1.12-alpine3.10",
-  "dotnetcore-sdk21": "mcr.microsoft.com/dotnet/core/sdk:2.1-alpine"
-}
