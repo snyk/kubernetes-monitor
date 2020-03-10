@@ -339,7 +339,7 @@ jobs:
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
             export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
             docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
-            .circleci/do-exclusively --branch chore/e2e-operator --job ${CIRCLE_JOB} npm run test:integration:openshift4
+            .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4
       - run:
           name: Notify Slack on failure
           command: |
@@ -471,37 +471,6 @@ jobs:
 
 workflows:
   version: 2
-  # TODO: REMOVE THIS, ONLY TESTING :)
-  TEST:
-    jobs:
-      - build_image:
-          filters:
-            branches:
-              only:
-                - chore/e2e-operator
-      - build_operator:
-          filters:
-            branches:
-              only:
-                - chore/e2e-operator
-      - upload_operator:
-          filters:
-            branches:
-              only:
-                - chore/e2e-operator
-          requires:
-            - build_image
-            - build_operator
-      - openshift4_integration_tests:
-          filters:
-            branches:
-              only:
-                - chore/e2e-operator
-          requires:
-            - build_image
-            - build_operator
-            - upload_operator
-
   PR_TO_STAGING:
     jobs:
       - build_image:
