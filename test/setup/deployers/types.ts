@@ -1,9 +1,3 @@
-export enum DeploymentType {
-  YAML,
-  Helm,
-  Operator,
-}
-
 export interface IDeployer {
   deploy: (
     integrationId: string,

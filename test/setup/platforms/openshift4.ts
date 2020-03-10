@@ -49,9 +49,35 @@ export async function exportKubeConfig(): Promise<void> {
 }
 
 export async function clean(): Promise<void> {
+  // Kubernetes will be stuck trying to delete these resources if we don't clear the finalizers.
   await Promise.all([
-    kubectl.deleteNamespace('services'),
-    kubectl.deleteNamespace('snyk-monitor'),
+    kubectl.patchResourceFinalizers('customresourcedefinition', 'snykmonitors.charts.helm.k8s.io', 'snyk-monitor').catch((error) => {
+      console.log(error);
+    }),
+    kubectl.patchResourceFinalizers('snykmonitors.charts.helm.k8s.io', 'snyk-monitor', 'snyk-monitor').catch((error) => {
+      console.log(error);
+    }),
+  ]);
+
+  await Promise.all([
+    kubectl.deleteResource('customresourcedefinition', 'snykmonitors.charts.helm.k8s.io', 'default').catch((error) => {
+      console.log(error);
+    }),
+    kubectl.deleteResource('operatorsource', 'snyk-operator', 'openshift-marketplace').catch((error) => {
+      console.log(error);
+    }),
+    kubectl.deleteResource('clusterrolebinding', 'snyk-monitor', 'default').catch((error) => {
+      console.log(error);
+    }),
+    kubectl.deleteResource('clusterrole', 'snyk-monitor', 'default').catch((error) => {
+      console.log(error);
+    }),
+    kubectl.deleteNamespace('services').catch((error) => {
+      console.log(error);
+    }),
+    kubectl.deleteNamespace('snyk-monitor').catch((error) => {
+      console.log(error);
+    }),
   ]);
 }
 

@@ -11,6 +11,11 @@ default_container_config: &default_container_config
     - image: circleci/node:10
   working_directory: ~/kubernetes-monitor
 
+python_container_config: &python_container_config
+  docker:
+    - image: circleci/python:3
+  working_directory: ~/kubernetes-monitor
+
 staging_branch_only_filter: &staging_branch_only_filter
   filters:
     branches:
@@ -26,96 +31,6 @@ main_branches_filter: &main_branches_filter
 
 jobs:
 ######################## PR OR MERGE TO STAGING ########################
-  package_manager_test_apk:
-    <<: *default_machine_config
-    steps:
-      - checkout
-      - run:
-          name: create temp dir for logs
-          command: mkdir -p /tmp/logs/test/integration/kind
-      - run:
-          name: APK Test
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
-            npm run test:apk
-      - run:
-          name: Notify Slack on failure
-          command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-apk-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
-          when: on_fail
-      - store_artifacts:
-          path: /tmp/logs/test/integration/kind
-
-  package_manager_test_apt:
-    <<: *default_machine_config
-    steps:
-      - checkout
-      - run:
-          name: create temp dir for logs
-          command: mkdir -p /tmp/logs/test/integration/kind
-      - run:
-          name: APT Test
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
-            npm run test:apt
-      - run:
-          name: Notify Slack on failure
-          command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-apt-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
-          when: on_fail
-      - store_artifacts:
-          path: /tmp/logs/test/integration/kind
-
-  package_manager_test_rpm:
-    <<: *default_machine_config
-    steps:
-      - checkout
-      - run:
-          name: create temp dir for logs
-          command: mkdir -p /tmp/logs/test/integration/kind
-      - run:
-          name: RPM Test
-          command: |
-            export NVM_DIR="/opt/circleci/.nvm" &&
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
-            npm install &&
-            export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-            export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
-            npm run test:rpm
-      - run:
-          name: Notify Slack on failure
-          command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-rpm-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
-          when: on_fail
-      - store_artifacts:
-          path: /tmp/logs/test/integration/kind
-
   build_image:
     <<: *default_machine_config
     steps:
@@ -164,9 +79,17 @@ jobs:
           command: |
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
             export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-            export SNYK_OPERATOR_VERSION="0.0.1"
+            export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
             export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
             ./scripts/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+      - run:
+          name: Remove templated Operator before persisting to workspace
+          command: |
+            rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
+      - persist_to_workspace:
+          root: snyk-operator
+          paths:
+            - deploy/olm-catalog/snyk-operator
       - run:
           name: Notify Slack on failure
           command: |
@@ -176,6 +99,24 @@ jobs:
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
           when: on_fail
+
+  upload_operator:
+    <<: *python_container_config
+    steps:
+      - attach_workspace:
+          at: snyk-operator
+      - run:
+          name: Install operator-courier
+          command: pip3 install operator-courier
+      - run:
+          name: Upload Operator to Quay
+          command: |
+            export QUAY_TOKEN=$(curl -H "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" | jq -r .token)
+            export OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
+            export QUAY_NAMESPACE=snyk-runtime
+            export PACKAGE_NAME=snyk-operator
+            export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
+            operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${PACKAGE_VERSION}" "${QUAY_TOKEN}"
 
   unit_tests:
     <<: *default_machine_config
@@ -454,24 +395,16 @@ workflows:
           requires:
             - build_image
           <<: *main_branches_filter
-      - package_manager_test_apk:
-          requires:
-            - build_image
-          <<: *main_branches_filter
-      - package_manager_test_apt:
-          requires:
-            - build_image
-          <<: *main_branches_filter
-      - package_manager_test_rpm:
-          requires:
-            - build_image
-          <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
       - build_image:
           <<: *staging_branch_only_filter
       - build_operator:
+          <<: *staging_branch_only_filter
+      - upload_operator:
+          requires:
+            - build_operator
           <<: *staging_branch_only_filter
       - unit_tests:
           <<: *staging_branch_only_filter
@@ -488,18 +421,8 @@ workflows:
       - openshift4_integration_tests:
           requires:
             - build_image
-          <<: *staging_branch_only_filter
-      - package_manager_test_apk:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - package_manager_test_apt:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - package_manager_test_rpm:
-          requires:
-            - build_image
+            - build_operator
+            - upload_operator
           <<: *staging_branch_only_filter
       - tag_and_push:
           requires:
@@ -508,9 +431,6 @@ workflows:
             - unit_tests
             - system_tests
             - integration_tests
-            - package_manager_test_apk
-            - package_manager_test_apt
-            - package_manager_test_rpm
           <<: *staging_branch_only_filter
       - deploy_dev:
           requires:
