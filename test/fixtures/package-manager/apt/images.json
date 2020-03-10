@@ -1,9 +1,0 @@
-{
-  "debian9": "debian:9",
-  "ubuntu1804": "ubuntu:18.04",
-  "azurefunctions-dotnet": "mcr.microsoft.com/azure-functions/dotnet:2.0",
-  "azurecli": "microsoft/azure-cli:latest",
-  "dotnetcore-sdk21": "mcr.microsoft.com/dotnet/core/sdk:2.1-stretch",
-  "golang112-stretch": "golang:1.12-stretch",
-  "python37-stretch": "python:3.7-stretch"
-}
