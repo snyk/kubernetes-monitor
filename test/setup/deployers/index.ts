@@ -1,6 +1,7 @@
-import { DeploymentType } from './types';
 import { yamlDeployer } from './yaml';
+import { operatorDeployer } from './operator';
 
 export default {
-  [DeploymentType.YAML]: yamlDeployer,
+  YAML: yamlDeployer,
+  Operator: operatorDeployer,
 };

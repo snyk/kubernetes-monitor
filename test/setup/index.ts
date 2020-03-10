@@ -5,11 +5,10 @@ import * as uuidv4 from 'uuid/v4';
 import platforms from './platforms';
 import deployers from './deployers';
 import * as kubectl from '../helpers/kubectl';
-import * as waiters from './waiters';
-import { DeploymentType } from './deployers/types';
 
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
 const createCluster = process.env['CREATE_CLUSTER'] === 'true';
+const deploymentType = process.env['DEPLOYMENT_TYPE'] || 'YAML';
 
 function getIntegrationId(): string {
   const integrationId = uuidv4();
@@ -97,11 +96,11 @@ export async function deployMonitor(): Promise<string> {
       imageNameAndTag: remoteImageName,
       imagePullPolicy,
     };
-    await deployers[DeploymentType.YAML].deploy(
+    await deployers[deploymentType].deploy(
       integrationId,
       deploymentImageOptions,
     );
-    await waiters.waitForMonitorToBeReady();
+    await kubectl.waitForDeployment('snyk-monitor', 'snyk-monitor');
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
   } catch (err) {
