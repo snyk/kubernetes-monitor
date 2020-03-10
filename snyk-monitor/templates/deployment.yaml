@@ -50,11 +50,11 @@ spec:
             value: /srv/app
           resources:
             requests:
-              cpu: '250m'
-              memory: '400Mi'
+              cpu: {{ .Values.requests.cpu }}
+              memory: {{ .Values.requests.memory }}
             limits:
-              cpu: '1'
-              memory: '2Gi'
+              cpu: {{ .Values.limits.cpu }}
+              memory: {{ .Values.limits.memory }}
           securityContext:
             runAsUser: 10001
             runAsGroup: 10001
