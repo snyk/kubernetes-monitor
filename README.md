@@ -1,3 +1,6 @@
+
+[![Known Vulnerabilities](https://snyk.io/test/github/snyk/kubernetes-monitor/badge.svg)](https://snyk.io/test/github/snyk/kubernetes-monitor)
+
 # snyk/kubernetes-monitor #
 
 ## Summary ##
