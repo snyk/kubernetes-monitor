@@ -2,6 +2,8 @@ import * as kind from './kind';
 import * as eks from './eks';
 import * as openshift4 from './openshift4';
 
+export async function doNothingAsync(): Promise<void> {}
+
 interface IPlatformSetup {
   // create a Kubernetes cluster
   create: () => Promise<void>;
@@ -22,23 +24,23 @@ const kindSetup: IPlatformSetup = {
   loadImage: kind.loadImageInCluster,
   delete: kind.deleteCluster,
   config: kind.exportKubeConfig,
-  clean: kind.clean,
+  clean: doNothingAsync,
   setupTester: kind.setupTester,
 };
 
 const eksSetup: IPlatformSetup = {
-  create: eks.createCluster,
+  create: doNothingAsync,
   loadImage: eks.loadImageInCluster,
-  delete: eks.deleteCluster,
+  delete: doNothingAsync,
   config: eks.exportKubeConfig,
   clean: eks.clean,
   setupTester: eks.setupTester,
 };
 
 const openshift4Setup: IPlatformSetup = {
-  create: openshift4.createCluster,
+  create: doNothingAsync,
   loadImage: openshift4.returnUnchangedImageNameAndTag,
-  delete: openshift4.deleteCluster,
+  delete: doNothingAsync,
   config: openshift4.exportKubeConfig,
   clean: openshift4.clean,
   setupTester: openshift4.setupTester,

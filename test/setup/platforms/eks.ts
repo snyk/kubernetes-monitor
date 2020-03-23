@@ -12,14 +12,6 @@ export async function setupTester(): Promise<void> {
   await exec(`aws configure set region ${process.env['AWS_REGION']}`);
 }
 
-export async function createCluster(): Promise<void> {
-  throw new Error('Not implemented');
-}
-
-export async function deleteCluster(): Promise<void> {
-  throw new Error('Not implemented');
-}
-
 export async function exportKubeConfig(): Promise<void> {
   await exec('aws eks update-kubeconfig --name runtime-integration-test --kubeconfig ./kubeconfig');
   process.env.KUBECONFIG = './kubeconfig';

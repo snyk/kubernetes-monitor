@@ -28,14 +28,6 @@ export async function returnUnchangedImageNameAndTag(imageNameAndTag: string): P
   return imageNameAndTag;
 }
 
-export async function createCluster(): Promise<void> {
-  throw new Error('Not implemented');
-}
-
-export async function deleteCluster(): Promise<void> {
-  throw new Error('Not implemented');
-}
-
 export async function exportKubeConfig(): Promise<void> {
   const user = process.env['OPENSHIFT4_USER'];
   const userPassword = process.env['OPENSHIFT4_PASSWORD'];

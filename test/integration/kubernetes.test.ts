@@ -17,11 +17,15 @@ import * as kubectl from '../helpers/kubectl';
 
 let integrationId: string;
 
-tap.tearDown(async() => {
+async function tearDown(): Promise<void> {
   console.log('Begin removing the snyk-monitor...');
   await setup.removeMonitor();
   console.log('Removed the snyk-monitor!');
-});
+}
+
+tap.tearDown(tearDown);
+
+tap.test('try removing any existing deployments', tearDown);
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {

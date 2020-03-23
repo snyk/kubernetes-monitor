@@ -8,7 +8,6 @@ import { IImageOptions } from './deployers/types';
 import * as kubectl from '../helpers/kubectl';
 
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
-const createCluster = process.env['CREATE_CLUSTER'] === 'true';
 const deploymentType = process.env['DEPLOYMENT_TYPE'] || 'YAML';
 
 function getIntegrationId(): string {
@@ -25,13 +24,16 @@ function getEnvVariableOrDefault(envVarName: string, defaultValue: string): stri
 }
 
 export async function removeMonitor(): Promise<void> {
-  await dumpLogs();
   try {
-    if (createCluster) {
-      await platforms[testPlatform].delete();
-    } else {
-      await platforms[testPlatform].clean();
-    }
+    await dumpLogs();
+  } catch (error) {
+    console.log(`Could not dump logs: ${error.message}`);
+  }
+
+  try {
+    await platforms[testPlatform].config();
+    await platforms[testPlatform].clean();
+    await platforms[testPlatform].delete();
   } catch (error) {
     console.log(`Could not remove the Kubernetes-Monitor: ${error.message}`);
   }
@@ -90,17 +92,12 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
-    console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
+    console.log(`platform chosen is ${testPlatform}`);
 
     await kubectl.downloadKubectl();
     await platforms[testPlatform].setupTester();
-    if (createCluster) {
-      await platforms[testPlatform].create();
-      await platforms[testPlatform].config();
-    } else {
-      await platforms[testPlatform].config();
-      await platforms[testPlatform].clean();
-    }
+    await platforms[testPlatform].create();
+    await platforms[testPlatform].config();
     const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
     await createEnvironment();
     await createSecretForGcrIoAccess();

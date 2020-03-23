@@ -49,11 +49,6 @@ export async function loadImageInCluster(imageNameAndTag: string): Promise<strin
   return imageNameAndTag;
 }
 
-export async function clean(): Promise<void> {
-  // just delete the cluster instead
-  throw new Error('Not implemented');
-}
-
 async function download(osDistro: string): Promise<void> {
   try {
     accessSync(resolve(process.cwd(), 'kind'), constants.R_OK);
