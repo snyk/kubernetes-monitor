@@ -139,3 +139,22 @@ tap.test('constructWorkloadMetadata happy flow', async (t) => {
   t.ok('labels' in workloadMetadataPayload.workloadMetadata, 'labels present in metadata');
   t.ok('specLabels' in workloadMetadataPayload.workloadMetadata, 'specLabels present in metadata');
 });
+
+tap.test('constructDeleteWorkload happy flow', async (t) => {
+  const localWorkloadLocator: transmitterTypes.ILocalWorkloadLocator = {
+    name: 'wl-name',
+    namespace: 'wl-namespace',
+    type: 'wl-type'
+  };
+  const deleteWorkloadPayload = payload.constructDeleteWorkload(localWorkloadLocator);
+
+  t.ok('workloadLocator' in deleteWorkloadPayload, 'workloadLocator present in payload');
+  t.ok('agentId' in deleteWorkloadPayload, 'agentId present in payload');
+
+  t.ok('userLocator' in deleteWorkloadPayload.workloadLocator, 'userLocator present in workloadLocator');
+  t.ok('cluster' in deleteWorkloadPayload.workloadLocator, 'cluster present in workloadLocator');
+
+  t.equals(deleteWorkloadPayload.workloadLocator.name, 'wl-name', 'matched workload name');
+  t.equals(deleteWorkloadPayload.workloadLocator.namespace, 'wl-namespace', 'matched workload namespace');
+  t.equals(deleteWorkloadPayload.workloadLocator.type, 'wl-type', 'matched workload type');
+});
