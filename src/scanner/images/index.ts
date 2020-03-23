@@ -5,7 +5,7 @@ import logger = require('../../common/logger');
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
 import config = require('../../common/config');
 import { IPullableImage } from './types';
-import { IStaticAnalysisOptions, StaticAnalysisImageType, IScanResult } from '../types';
+import { IStaticAnalysisOptions, StaticAnalysisImageType, IScanResult, IPluginOptions } from '../types';
 
 export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
   const pulledImages: IPullableImage[] = [];
@@ -59,13 +59,11 @@ export function getImageTag(imageWithTag: string): string {
 // Exported for testing
 export function constructStaticAnalysisOptions(
   fileSystemPath: string,
-): { staticAnalysisOptions: IStaticAnalysisOptions } {
+): IStaticAnalysisOptions {
   return {
-    staticAnalysisOptions: {
-      imagePath: fileSystemPath,
-      imageType: StaticAnalysisImageType.DockerArchive,
-      tmpDirPath: config.IMAGE_STORAGE_ROOT,
-    },
+    imagePath: fileSystemPath,
+    imageType: StaticAnalysisImageType.DockerArchive,
+    tmpDirPath: config.IMAGE_STORAGE_ROOT,
   };
 }
 
@@ -76,7 +74,11 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
 
   for (const {imageName, fileSystemPath} of images) {
     try {
-      const options = constructStaticAnalysisOptions(fileSystemPath);
+      const staticAnalysisOptions = constructStaticAnalysisOptions(fileSystemPath);
+      const options: IPluginOptions = {
+        staticAnalysisOptions,
+        experimental: true,
+      };
 
       const result = await plugin.inspect(imageName, dockerfile, options);
 
