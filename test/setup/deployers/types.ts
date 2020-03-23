@@ -1,9 +1,8 @@
+export interface IImageOptions {
+  nameAndTag: string;
+  pullPolicy: 'Never' | 'Always' | 'IfPresent';
+}
+
 export interface IDeployer {
-  deploy: (
-    integrationId: string,
-    imageOpts: {
-      imageNameAndTag: string;
-      imagePullPolicy: string;
-    },
-  ) => Promise<void>;
+  deploy: (imageOptions: IImageOptions) => Promise<void>;
 }

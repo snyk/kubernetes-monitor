@@ -4,6 +4,7 @@ import * as uuidv4 from 'uuid/v4';
 
 import platforms from './platforms';
 import deployers from './deployers';
+import { IImageOptions } from './deployers/types';
 import * as kubectl from '../helpers/kubectl';
 
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
@@ -42,6 +43,22 @@ async function createEnvironment(): Promise<void> {
   // Small hack to prevent timing problems in CircleCI...
   // TODO: should be replaced by actively waiting for the namespace to be created
   await sleep(5000);
+}
+
+async function predeploy(integrationId: string): Promise<void> {
+  try {
+    const namespace = 'snyk-monitor';
+    await kubectl.createNamespace(namespace);
+
+    const secretName = 'snyk-monitor';
+    const gcrDockercfg = process.env['GCR_IO_DOCKERCFG'] || '{}';
+    await kubectl.createSecret(secretName, namespace, {
+      'dockercfg.json': gcrDockercfg,
+      integrationId,
+    });
+  } catch (error) {
+    console.log('Could not create namespace and secret, they probably already exist');
+  }
 }
 
 async function createSecretForGcrIoAccess(): Promise<void> {
@@ -89,17 +106,15 @@ export async function deployMonitor(): Promise<string> {
     await createSecretForGcrIoAccess();
 
     const integrationId = getIntegrationId();
+    await predeploy(integrationId);
 
     // TODO: hack, rewrite this
     const imagePullPolicy = testPlatform === 'kind' ? 'Never' : 'Always';
-    const deploymentImageOptions = {
-      imageNameAndTag: remoteImageName,
-      imagePullPolicy,
+    const deploymentImageOptions: IImageOptions = {
+      nameAndTag: remoteImageName,
+      pullPolicy: imagePullPolicy,
     };
-    await deployers[deploymentType].deploy(
-      integrationId,
-      deploymentImageOptions,
-    );
+    await deployers[deploymentType].deploy(deploymentImageOptions);
     await kubectl.waitForDeployment('snyk-monitor', 'snyk-monitor');
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
