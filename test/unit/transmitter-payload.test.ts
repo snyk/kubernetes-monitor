@@ -104,7 +104,7 @@ tap.test('constructDepGraph happy flow', async (t) => {
   config.MONITOR_VERSION = backups.version;
 });
 
-tap.test('constructWorkloadMetadataPayload happy flow', async (t) => {
+tap.test('constructWorkloadMetadata happy flow', async (t) => {
   const workloadWithImages: transmitterTypes.IWorkload = {
     type: 'type',
     name: 'workloadName',
@@ -122,7 +122,7 @@ tap.test('constructWorkloadMetadataPayload happy flow', async (t) => {
     podSpec: podSpecFixture,
   };
 
-  const workloadMetadataPayload = payload.constructWorkloadMetadataPayload(workloadWithImages);
+  const workloadMetadataPayload = payload.constructWorkloadMetadata(workloadWithImages);
 
   t.equals(workloadMetadataPayload.workloadLocator.cluster, 'grapefruit', 'cluster present in payload');
   t.equals(workloadMetadataPayload.workloadLocator.namespace, 'spacename', 'image ID present in payload');
