@@ -106,7 +106,7 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
   t.ok('busybox' in depGraphScratchImage.dependencyGraphResults, 'busybox was scanned');
   const busyboxPluginResult = JSON.parse(depGraphScratchImage.dependencyGraphResults.busybox);
   t.same(busyboxPluginResult.package.packageFormatVersion, 'linux:0.0.1', 'the version of the package format');
-  t.same(busyboxPluginResult.package.targetOS, {name: 'unknown', version: '0.0'}, 'busybox operating system unknown');
+  t.same(busyboxPluginResult.package.targetOS, {name: 'unknown', version: '0.0', prettyName: ""}, 'busybox operating system unknown');
   t.same(busyboxPluginResult.plugin.packageManager, 'linux', 'linux is the default package manager for scratch containers');
 });
 
