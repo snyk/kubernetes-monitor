@@ -5,7 +5,7 @@ import logger = require('../../../common/logger');
 import WorkloadWorker = require('../../../scanner');
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
-import { constructWorkloadMetadataPayload } from '../../../transmitter/payload';
+import { constructWorkloadMetadata } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
 import state = require('../../../state');
@@ -97,7 +97,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
 
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
-    const workloadMetadataPayload = constructWorkloadMetadataPayload(workloadMember);
+    const workloadMetadataPayload = constructWorkloadMetadata(workloadMember);
     const workloadLocator = workloadMetadataPayload.workloadLocator;
     const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadLocator.name}`;
     const workloadRevision = workloadMember.revision ? workloadMember.revision.toString() : ''; // this is actually the observed generation

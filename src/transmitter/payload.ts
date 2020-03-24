@@ -50,7 +50,7 @@ export function constructDepGraph(
   return results;
 }
 
-export function constructWorkloadMetadataPayload(workload: IWorkload): IWorkloadMetadataPayload {
+export function constructWorkloadMetadata(workload: IWorkload): IWorkloadMetadataPayload {
   if (!workload) {
     throw new Error('can\'t build workload metadata payload for undefined workload');
   }
@@ -73,7 +73,7 @@ export function constructWorkloadMetadataPayload(workload: IWorkload): IWorkload
   return { workloadLocator, agentId: config.AGENT_ID, workloadMetadata };
 }
 
-export function constructDeleteWorkloadPayload(
+export function constructDeleteWorkload(
   localWorkloadLocator: ILocalWorkloadLocator,
 ): IDeleteWorkloadPayload {
   return {
