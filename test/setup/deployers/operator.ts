@@ -1,4 +1,4 @@
-import { IDeployer } from './types';
+import { IDeployer, IImageOptions } from './types';
 import * as kubectl from '../../helpers/kubectl';
 
 export const operatorDeployer: IDeployer = {
@@ -6,22 +6,8 @@ export const operatorDeployer: IDeployer = {
 };
 
 async function deployKubernetesMonitor(
-  integrationId: string,
-  _imageOpts: {
-    imageNameAndTag: string;
-    imagePullPolicy: string;
-  },
+  _imageOptions: IImageOptions,
 ): Promise<void> {
-  const namespace = 'snyk-monitor';
-  await kubectl.createNamespace(namespace);
-
-  const secretName = 'snyk-monitor';
-  const gcrDockercfg = process.env['GCR_IO_DOCKERCFG'] || '{}';
-  await kubectl.createSecret(secretName, namespace, {
-    'dockercfg.json': gcrDockercfg,
-    integrationId,
-  });
-
   await kubectl.applyK8sYaml('./test/fixtures/operator/operator-source.yaml');
   await kubectl.applyK8sYaml('./test/fixtures/operator/installation.yaml');
 
