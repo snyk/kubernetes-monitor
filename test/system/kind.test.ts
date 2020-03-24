@@ -1,10 +1,10 @@
 import * as tap from 'tap';
 import * as nock from 'nock';
 import * as sleep from 'sleep-promise';
-import { exec } from 'child-process-promise';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
+import { tools } from '../setup/tools';
 
 // let integrationId: string;
 
@@ -25,24 +25,7 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
     console.log(`could not start with a clean environment: ${error.message}`);
   }
 
-  // install Skopeo
-  // TODO: this thing should probably be in a setup test environment script
-  // not in this file
-  try {
-    await exec('which skopeo');
-    console.log('Skopeo already installed :tada:');
-  } catch (err) {
-    // linux-oriented, not mac
-    // for mac, install skopeo with brew
-    console.log('installing Skopeo');
-    await exec('git clone https://github.com/containers/skopeo');
-    await exec('(cd skopeo && make binary-static DISABLE_CGO=1)');
-    await exec('sudo mkdir -p /etc/containers');
-    await exec('sudo chown circleci:circleci /etc/containers');
-    await exec('cp ./skopeo/default-policy.json /etc/containers/policy.json');
-
-    process.env['PATH'] = process.env['PATH'] + ':./skopeo';
-  }
+  await tools.skopeo.install();
 
   // kubectl
   await kubectl.downloadKubectl();
