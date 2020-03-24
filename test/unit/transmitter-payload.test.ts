@@ -104,7 +104,7 @@ tap.test('constructDepGraph happy flow', async (t) => {
   config.MONITOR_VERSION = backups.version;
 });
 
-tap.test('constructWorkloadMetadataPayload happy flow', async (t) => {
+tap.test('constructWorkloadMetadata happy flow', async (t) => {
   const workloadWithImages: transmitterTypes.IWorkload = {
     type: 'type',
     name: 'workloadName',
@@ -122,7 +122,7 @@ tap.test('constructWorkloadMetadataPayload happy flow', async (t) => {
     podSpec: podSpecFixture,
   };
 
-  const workloadMetadataPayload = payload.constructWorkloadMetadataPayload(workloadWithImages);
+  const workloadMetadataPayload = payload.constructWorkloadMetadata(workloadWithImages);
 
   t.equals(workloadMetadataPayload.workloadLocator.cluster, 'grapefruit', 'cluster present in payload');
   t.equals(workloadMetadataPayload.workloadLocator.namespace, 'spacename', 'image ID present in payload');
@@ -138,4 +138,23 @@ tap.test('constructWorkloadMetadataPayload happy flow', async (t) => {
   t.ok('specAnnotations' in workloadMetadataPayload.workloadMetadata, 'specAnnotations present in metadata');
   t.ok('labels' in workloadMetadataPayload.workloadMetadata, 'labels present in metadata');
   t.ok('specLabels' in workloadMetadataPayload.workloadMetadata, 'specLabels present in metadata');
+});
+
+tap.test('constructDeleteWorkload happy flow', async (t) => {
+  const localWorkloadLocator: transmitterTypes.ILocalWorkloadLocator = {
+    name: 'wl-name',
+    namespace: 'wl-namespace',
+    type: 'wl-type'
+  };
+  const deleteWorkloadPayload = payload.constructDeleteWorkload(localWorkloadLocator);
+
+  t.ok('workloadLocator' in deleteWorkloadPayload, 'workloadLocator present in payload');
+  t.ok('agentId' in deleteWorkloadPayload, 'agentId present in payload');
+
+  t.ok('userLocator' in deleteWorkloadPayload.workloadLocator, 'userLocator present in workloadLocator');
+  t.ok('cluster' in deleteWorkloadPayload.workloadLocator, 'cluster present in workloadLocator');
+
+  t.equals(deleteWorkloadPayload.workloadLocator.name, 'wl-name', 'matched workload name');
+  t.equals(deleteWorkloadPayload.workloadLocator.namespace, 'wl-namespace', 'matched workload namespace');
+  t.equals(deleteWorkloadPayload.workloadLocator.type, 'wl-type', 'matched workload type');
 });
