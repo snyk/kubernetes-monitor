@@ -5,64 +5,58 @@ import { constructDeleteWorkload, constructDepGraph } from '../transmitter/paylo
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { IPullableImage } from './images/types';
 
-export = class WorkloadWorker {
-  private readonly name: string;
+export async function processWorkload(workloadMetadata: IWorkload[]): Promise<void> {
+  // every workload metadata references the same workload name, grab it from the first one
+  const workloadName = workloadMetadata[0].name;
+  const allImages = workloadMetadata.map((meta) => meta.imageName);
+  logger.info({workloadName, imageCount: allImages.length}, 'queried workloads');
+  const uniqueImages = [...new Set<string>(allImages)];
 
-  constructor(name: string) {
-    this.name = name;
+  logger.info({workloadName, imageCount: uniqueImages.length}, 'pulling unique images');
+  const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
+  const pulledImages = await pullImages(imagesWithFileSystemPath);
+  if (pulledImages.length === 0) {
+    logger.info({workloadName}, 'no images were pulled, halting scanner process.');
+    return;
   }
 
-  public async process(workloadMetadata: IWorkload[]): Promise<void> {
-    const workloadName = this.name;
-    const allImages = workloadMetadata.map((meta) => meta.imageName);
-    logger.info({workloadName, imageCount: allImages.length}, 'queried workloads');
-    const uniqueImages = [...new Set<string>(allImages)];
+  try {
+    await scanImagesAndSendResults(workloadName, pulledImages, workloadMetadata);
+  } finally {
+    await removePulledImages(pulledImages);
+  }
+}
 
-    logger.info({workloadName, imageCount: uniqueImages.length}, 'pulling unique images');
-    const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
-    const pulledImages = await pullImages(imagesWithFileSystemPath);
-    if (pulledImages.length === 0) {
-      logger.info({workloadName}, 'no images were pulled, halting scanner process.');
-      return;
-    }
+// TODO: should be extracted from here and moved to the supervisor
+export async function sendDeleteWorkloadRequest(workloadName: string, localWorkloadLocator: ILocalWorkloadLocator): Promise<void> {
+  const deletePayload = constructDeleteWorkload(localWorkloadLocator);
+  logger.info({workloadName, workload: localWorkloadLocator},
+    'removing workloads from upstream');
+  await deleteWorkload(deletePayload);
+}
 
-    try {
-      await this.scanImagesAndSendResults(workloadName, pulledImages, workloadMetadata);
-    } finally {
-      await removePulledImages(pulledImages);
-    }
+async function scanImagesAndSendResults(
+  workloadName: string,
+  pulledImages: IPullableImage[],
+  workloadMetadata: IWorkload[],
+): Promise<void> {
+  const scannedImages = await scanImages(pulledImages);
+
+  if (scannedImages.length === 0) {
+    logger.info({workloadName}, 'no images were scanned, halting scanner process.');
+    return;
   }
 
-  // TODO: should be extracted from here and moved to the supervisor
-  public async delete(localWorkloadLocator: ILocalWorkloadLocator): Promise<void> {
-    const deletePayload = constructDeleteWorkload(localWorkloadLocator);
-    logger.info({workloadName: this.name, workload: localWorkloadLocator},
-      'removing workloads from upstream');
-    await deleteWorkload(deletePayload);
-  }
+  logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
 
-  private async scanImagesAndSendResults(
-    workloadName: string,
-    pulledImages: IPullableImage[],
-    workloadMetadata: IWorkload[],
-  ): Promise<void> {
-    const scannedImages = await scanImages(pulledImages);
+  const depGraphPayloads = constructDepGraph(scannedImages, workloadMetadata);
+  await sendDepGraph(...depGraphPayloads);
 
-    if (scannedImages.length === 0) {
-      logger.info({workloadName}, 'no images were scanned, halting scanner process.');
-      return;
-    }
+  const pulledImagesNames = pulledImages.map((image) => image.imageName);
+  const pulledImageMetadata = workloadMetadata.filter((meta) =>
+    pulledImagesNames.includes(meta.imageName),
+  );
 
-    logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
+  logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'processed images');
+}
 
-    const depGraphPayloads = constructDepGraph(scannedImages, workloadMetadata);
-    await sendDepGraph(...depGraphPayloads);
-
-    const pulledImagesNames = pulledImages.map((image) => image.imageName);
-    const pulledImageMetadata = workloadMetadata.filter((meta) =>
-      pulledImagesNames.includes(meta.imageName),
-    );
-
-    logger.info({workloadName, imageCount: pulledImageMetadata.length}, 'processed images');
-  }
-};
