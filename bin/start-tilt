@@ -1,4 +1,3 @@
 #! /bin/sh
 
-npm install tslint typescript tsc-watch -g
-exec tsc-watch --project tsconfig.json --onSuccess 'node --inspect-brk=0.0.0.0:9229 .'
+exec npx tsc-watch --project tsconfig.json --onSuccess 'node --inspect-brk=0.0.0.0:9229 .'
