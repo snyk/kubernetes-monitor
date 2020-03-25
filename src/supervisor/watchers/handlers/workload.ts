@@ -1,6 +1,6 @@
 import { IKubeObjectMetadata } from '../../types';
 import { buildWorkloadMetadata } from '../../metadata-extractor';
-import WorkloadWorker = require('../../../scanner');
+import { sendDeleteWorkloadRequest } from '../../../scanner';
 import logger = require('../../../common/logger');
 
 export async function deleteWorkload(kubernetesMetadata: IKubeObjectMetadata, workloadName: string): Promise<void> {
@@ -10,8 +10,7 @@ export async function deleteWorkload(kubernetesMetadata: IKubeObjectMetadata, wo
     }
 
     const localWorkloadLocator = buildWorkloadMetadata(kubernetesMetadata);
-    const workloadWorker = new WorkloadWorker(workloadName);
-    await workloadWorker.delete(localWorkloadLocator);
+    await sendDeleteWorkloadRequest(workloadName, localWorkloadLocator);
   } catch (error) {
     logger.error({error, resourceType: kubernetesMetadata.kind, resourceName: kubernetesMetadata.objectMeta.name},
       'could not delete workload');
