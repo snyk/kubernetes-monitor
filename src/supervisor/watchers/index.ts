@@ -6,6 +6,7 @@ import logger = require('../../common/logger');
 import { WorkloadKind } from '../types';
 import { setupInformer } from './handlers';
 import { kubeConfig, k8sApi } from '../cluster';
+import { kubernetesInternalNamespaces } from './internal-namespaces';
 
 /**
  * This map keeps track of all currently watched namespaces.
@@ -42,60 +43,6 @@ export function extractNamespaceName(namespace: V1Namespace): string {
 }
 
 export function isKubernetesInternalNamespace(namespace: string): boolean {
-  const kubernetesInternalNamespaces = [
-    'kube-node-lease',
-    'kube-public',
-    'kube-system',
-    'openshift-apiserver',
-    'openshift-apiserver-operator',
-    'openshift-authentication',
-    'openshift-authentication-operator',
-    'openshift-cloud-credential-operator',
-    'openshift-cluster-machine-approver',
-    'openshift-cluster-node-tuning-operator',
-    'openshift-cluster-samples-operator',
-    'openshift-cluster-storage-operator',
-    'openshift-cluster-version',
-    'openshift-config',
-    'openshift-config-managed',
-    'openshift-console',
-    'openshift-console-operator',
-    'openshift-controller-manager',
-    'openshift-controller-manager-operator',
-    'openshift-dns',
-    'openshift-dns-operator',
-    'openshift-etcd',
-    'openshift-image-registry',
-    'openshift-infra',
-    'openshift-ingress',
-    'openshift-ingress-operator',
-    'openshift-insights',
-    'openshift-kni-infra',
-    'openshift-kube-apiserver',
-    'openshift-kube-apiserver-operator',
-    'openshift-kube-controller-manager',
-    'openshift-kube-controller-manager-operator',
-    'openshift-kube-scheduler',
-    'openshift-kube-scheduler-operator',
-    'openshift-machine-api',
-    'openshift-machine-config-operator',
-    'openshift-marketplace',
-    'openshift-monitoring',
-    'openshift-multus',
-    'openshift-network-operator',
-    'openshift-node',
-    'openshift-openstack-infra',
-    'openshift-operator-lifecycle-manager',
-    'openshift-operators',
-    'openshift-ovirt-infra',
-    'openshift-sdn',
-    'openshift-service-ca',
-    'openshift-service-ca-operator',
-    'openshift-service-catalog-apiserver-operator',
-    'openshift-service-catalog-controller-manager-operator',
-    'openshift-user-workload-monitoring',
-  ];
-
   return kubernetesInternalNamespaces.includes(namespace);
 }
 
