@@ -8,7 +8,7 @@ default_machine_config: &default_machine_config
 
 default_container_config: &default_container_config
   docker:
-    - image: circleci/node:10
+    - image: circleci/node:12
   working_directory: ~/kubernetes-monitor
 
 python_container_config: &python_container_config
@@ -127,7 +127,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
+            nvm install v12 &&
             npm install &&
             npm run lint &&
             npm run build &&
@@ -151,7 +151,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
+            nvm install v12 &&
             npm install &&
             npm run build &&
             npm run test:system
@@ -177,7 +177,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
+            nvm install v12 &&
             npm install &&
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
@@ -208,7 +208,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
+            nvm install v12 &&
             npm install &&
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
@@ -243,7 +243,7 @@ jobs:
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
-            nvm install v10 &&
+            nvm install v12 &&
             npm install &&
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
