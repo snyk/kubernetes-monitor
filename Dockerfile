@@ -23,7 +23,7 @@ RUN cd $GOPATH/src/github.com/snyk/go-rpmdb \
 #---------------------------------------------------------------------
 # STAGE 3: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM node:dubnium-alpine
+FROM node:erbium-alpine
 
 LABEL maintainer="Snyk Ltd"
 
