@@ -2,7 +2,7 @@ import { V1Pod } from '@kubernetes/client-node';
 import async = require('async');
 import config = require('../../../common/config');
 import logger = require('../../../common/logger');
-import WorkloadWorker = require('../../../scanner');
+import { processWorkload } from '../../../scanner';
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
 import { constructWorkloadMetadata } from '../../../transmitter/payload';
@@ -28,9 +28,9 @@ function deleteFailedKeysFromState(keys): void {
 }
 
 async function queueWorkerWorkloadScan(task, callback): Promise<void> {
-  const {workloadWorker, workloadMetadata, imageKeys} = task;
+  const {workloadMetadata, imageKeys} = task;
   try {
-    await workloadWorker.process(workloadMetadata);
+    await processWorkload(workloadMetadata);
   } catch (err) {
     logger.error({err, task}, 'error processing a workload in the pod handler 2');
     deleteFailedKeysFromState(imageKeys);
@@ -54,7 +54,7 @@ metadataToSendQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload metadata send task');
 });
 
-function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkload[]): void {
+function handleReadyPod(workloadMetadata: IWorkload[]): void {
   const imagesToScan: IWorkload[] = [];
   const imageKeys: string[] = [];
   for (const image of workloadMetadata) {
@@ -68,7 +68,7 @@ function handleReadyPod(workloadWorker: WorkloadWorker, workloadMetadata: IWorkl
   }
 
   if (imagesToScan.length > 0) {
-    workloadsToScanQueue.push({workloadWorker, workloadMetadata: imagesToScan, imageKeys});
+    workloadsToScanQueue.push({workloadMetadata: imagesToScan, imageKeys});
   }
 }
 
@@ -106,9 +106,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
       metadataToSendQueue.push({workloadMetadataPayload});
     }
 
-    const workloadName = workloadMember.name;
-    const workloadWorker = new WorkloadWorker(workloadName);
-    handleReadyPod(workloadWorker, workloadMetadata);
+    handleReadyPod(workloadMetadata);
   } catch (error) {
     logger.error({error, podName}, 'could not build image metadata for pod');
   }
