@@ -61,7 +61,7 @@ export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> 
   console.log(`Applied ${pathToYamlDeployment}`);
 }
 
-export async function createDeploymentFromImage(name: string, image: string, namespace: string) {
+export async function createPodFromImage(name: string, image: string, namespace: string) {
   console.log(`Letting Kubernetes decide how to manage image ${image} with name ${name}`);
   await exec(`./kubectl run ${name} --image=${image} -n ${namespace} -- sleep 999999999`);
   console.log(`Done Letting Kubernetes decide how to manage image ${image} with name ${name}`);

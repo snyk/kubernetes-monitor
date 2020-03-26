@@ -39,7 +39,7 @@ tap.test('deploy sample workloads', async (t) => {
     kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/scratch-deployment.yaml'),
-    kubectl.createDeploymentFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
+    kubectl.createPodFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
   ]);
   t.pass('successfully deployed sample workloads');
 });
@@ -79,7 +79,7 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
       workloads.find((workload) => workload.name === 'redis' &&
         workload.type === WorkloadKind.Deployment) !== undefined &&
       workloads.find((workload) => workload.name === 'alpine-from-sha' &&
-        workload.type === WorkloadKind.Deployment) !== undefined &&
+        workload.type === WorkloadKind.Pod) !== undefined &&
       workloads.find((workload) => workload.name === 'busybox' &&
         workload.type === WorkloadKind.Deployment) !== undefined &&
       workloads.find((workload) => workload.name === 'centos' &&
