@@ -110,15 +110,15 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
   t.same(busyboxPluginResult.plugin.packageManager, 'linux', 'linux is the default package manager for scratch containers');
 });
 
-tap.test('snyk-monitor sends correct data to kubernetes-upstream after adding another deployment', async (t) => {
-  t.plan(6);
+tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async (t) => {
+  t.plan(9);
 
-  const deploymentName = 'node-deployment';
+  const deploymentName = 'binaries-deployment';
   const namespace = 'services';
   const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.Deployment;
 
-  await kubectl.applyK8sYaml('./test/fixtures/node-deployment.yaml');
+  await kubectl.applyK8sYaml('./test/fixtures/binaries-deployment.yaml');
   console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
@@ -135,15 +135,29 @@ tap.test('snyk-monitor sends correct data to kubernetes-upstream after adding an
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
   t.ok('dependencyGraphResults' in depGraphResult,
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
-  const pluginResult = JSON.parse(depGraphResult.dependencyGraphResults.node);
-  t.ok('imageMetadata' in pluginResult,
+
+  const nodePluginResult = JSON.parse(depGraphResult.dependencyGraphResults.node);
+  t.ok('imageMetadata' in nodePluginResult,
     'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
-  t.ok('hashes' in pluginResult, 'snyk-docker-plugin contains key-binary hashes');
-  t.equals(pluginResult.hashes.length, 1, 'one key-binary hash found in node image');
+  t.ok('hashes' in nodePluginResult, 'snyk-docker-plugin contains key-binary hashes');
+  t.equals(nodePluginResult.hashes.length, 1, 'one key-binary hash found in node image');
   t.equals(
-    pluginResult.hashes[0],
+    nodePluginResult.hashes[0],
     '1fd7117ccedc1c673381f71cc611131cb8a47852a882e3d731381f14355a3346',
     'SHA256 for node v12.16.1 found',
+  );
+
+  const openjdkPluginResult = JSON.parse(depGraphResult.dependencyGraphResults.openjdk);
+  t.ok('hashes' in openjdkPluginResult, 'snyk-docker-plugin contains key-binary hashes');
+  t.equals(openjdkPluginResult.hashes.length, 2, 'two openjdk hashes found in node image');
+  const expectedHashes = [
+    'a2fec3e093fa5b7b105efa2cc28a7ff5e168ba13ace0fff43a769db8797b173e',
+    '00a90dcce9ca53be1630a21538590cfe15676f57bfe8cf55de0099ee80bbeec4'
+  ];
+  t.deepEquals(
+    openjdkPluginResult.hashes,
+    expectedHashes,
+    'hashes for openjdk found',
   );
 });
 
@@ -216,7 +230,7 @@ tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t)
   // First ensure the deployment exists from the previous test
   const deploymentValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
-      workloads.find((workload) => workload.name === 'node-deployment' &&
+      workloads.find((workload) => workload.name === 'binaries-deployment' &&
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
@@ -224,13 +238,13 @@ tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t)
     `api/v2/workloads/${integrationId}/Default cluster/services`);
   t.ok(testResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
 
-  const deploymentName = 'node-deployment';
+  const deploymentName = 'binaries-deployment';
   const namespace = 'services';
   await kubectl.deleteDeployment(deploymentName, namespace);
 
   // Finally, remove the workload and ensure that the snyk-monitor notifies kubernetes-upstream
   const deleteValidatorFn: WorkloadLocatorValidator = (workloads) => {
-    return workloads !== undefined && workloads.every((workload) => workload.name !== 'node-deployment');
+    return workloads !== undefined && workloads.every((workload) => workload.name !== 'binaries-deployment');
   };
 
   const clusterName = 'Default cluster';

@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-deployment
+  name: binaries-deployment
   namespace: services
   labels:
-    app: node
+    app: binaries
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: node
+      app: binaries
   template:
     metadata:
       labels:
-        app: node
+        app: binaries
     spec:
       containers:
       - name: node
@@ -21,3 +21,6 @@ spec:
         command: ['sh', '-c', 'echo Hello from node:lts-alpine3.11 pod! && sleep 360000']
         ports:
         - containerPort: 80
+      - name: openjdk
+        image: openjdk:14
+        command: ['sh', '-c', 'echo Hello from openjdk:14 pod! && sleep 360000']
