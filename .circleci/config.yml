@@ -251,6 +251,11 @@ jobs:
             docker pull ${KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG} &&
             .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4
       - run:
+          name: Delete Operator from Quay
+          command: |
+            ./scripts/delete-operator-from-quay.sh
+          when: always
+      - run:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
