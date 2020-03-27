@@ -36,7 +36,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: BUILD IMAGE
+          name: Build image
           command: |
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
@@ -58,7 +58,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: DOWNLOAD OPERATOR-SDK
+          name: Download Operator SDK
           command: |
             RELEASE_VERSION=v0.15.1
             DOWNLOAD_LOCATION=./operator-sdk
@@ -66,7 +66,7 @@ jobs:
             curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
             chmod +x ${DOWNLOAD_LOCATION}
       - run:
-          name: CREATE OPERATOR AND PUSH OPERATOR IMAGE TO DOCKERHUB
+          name: Create Operator and push Operator image to DockerHub
           command: |
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
             export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
@@ -75,7 +75,7 @@ jobs:
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
       - run:
-          name: PACKAGE OPERATOR
+          name: Package Operator
           command: |
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
             export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
@@ -123,7 +123,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: UNIT TESTS
+          name: Unit tests
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
@@ -147,7 +147,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: SYSTEM TESTS
+          name: System tests
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
@@ -173,7 +173,7 @@ jobs:
           name: create temp dir for logs
           command: mkdir -p /tmp/logs/test/integration/kind
       - run:
-          name: INTEGRATION TESTS
+          name: Integration tests
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
@@ -201,10 +201,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: create temp dir for logs
+          name: Create temp dir for logs
           command: mkdir -p /tmp/logs/test/integration/eks
       - run:
-          name: INTEGRATION TESTS EKS
+          name: Integration tests EKS
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
@@ -235,11 +235,11 @@ jobs:
           name: create temp dir for logs
           command: mkdir -p /tmp/logs/test/integration/openshift4
       - run:
-          name: APPEND AN ENTRY TO THE TEST ENVIRONMENT TO /ETC/HOSTS
+          name: Append an entry to the test environment to /etc/hosts
           command: |
             echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
       - run:
-          name: INTEGRATION TESTS OPENSHIFT 4
+          name: Integration tests OpenShift 4
           command: |
             export NVM_DIR="/opt/circleci/.nvm" &&
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" &&
@@ -274,7 +274,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: TAG AND PUSH
+          name: Tag and push
           command: |
             npm install &&
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
@@ -294,7 +294,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: DEPLOY DEV
+          name: Deploy to dev
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
@@ -315,7 +315,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: PUBLISH
+          name: Publish
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
@@ -369,7 +369,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: DEPLOY PROD
+          name: Deploy to prod
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
