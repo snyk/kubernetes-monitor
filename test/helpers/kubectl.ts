@@ -1,32 +1,33 @@
 import { exec } from 'child-process-promise';
-import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
+import { chmodSync, writeFileSync, existsSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 import * as sleep from 'sleep-promise';
 
 export async function downloadKubectl(): Promise<void> {
-  try {
-    accessSync(resolve(process.cwd(), 'kubectl'), constants.R_OK);
-  } catch (error) {
-    console.log('Downloading kubectl...');
-
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    const requestOptions = { follow_max: 2 };
-    const k8sRelease = await getLatestStableK8sRelease();
-    const osDistro = platform();
-    const bodyData = null;
-    await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
-      `${k8sRelease}/bin/${osDistro}/amd64/kubectl`,
-      bodyData,
-      requestOptions,
-    ).then((response) => {
-      writeFileSync('kubectl', response.body);
-      chmodSync('kubectl', 0o755); // rwxr-xr-x
-    });
-
-    console.log('kubectl downloaded');
+  const kubectlPath = resolve(process.cwd(), 'kubectl');
+  if (existsSync(kubectlPath)) {
+    return;
   }
+
+  console.log('Downloading kubectl...');
+
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  const requestOptions = { follow_max: 2 };
+  const k8sRelease = await getLatestStableK8sRelease();
+  const osDistro = platform();
+  const bodyData = null;
+  await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
+    `${k8sRelease}/bin/${osDistro}/amd64/kubectl`,
+    bodyData,
+    requestOptions,
+  ).then((response) => {
+    writeFileSync('kubectl', response.body);
+    chmodSync('kubectl', 0o755); // rwxr-xr-x
+  });
+
+  console.log('kubectl downloaded');
 }
 
 export async function createNamespace(namespace: string): Promise<void> {
