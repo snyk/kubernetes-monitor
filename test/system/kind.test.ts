@@ -44,12 +44,13 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
     process.env['PATH'] = process.env['PATH'] + ':./skopeo';
   }
 
+  const kubernetesVersion = 'latest';
   // kubectl
-  await kubectl.downloadKubectl();
+  await kubectl.downloadKubectl(kubernetesVersion);
 
   // KinD
   await kind.setupTester();
-  await kind.createCluster();
+  await kind.createCluster(kubernetesVersion);
   await kind.exportKubeConfig();
 
   await Promise.all([
