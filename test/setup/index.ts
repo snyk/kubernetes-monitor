@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
 
-import platforms from './platforms';
+import platforms, { getKubernetesVersionForPlatform } from './platforms';
 import deployers from './deployers';
 import { IImageOptions } from './deployers/types';
 import * as kubectl from '../helpers/kubectl';
@@ -92,10 +92,12 @@ export async function deployMonitor(): Promise<string> {
 
     console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
 
-    await kubectl.downloadKubectl();
+    const kubernetesVersion = getKubernetesVersionForPlatform(testPlatform);
+    await kubectl.downloadKubectl(kubernetesVersion);
+
     await platforms[testPlatform].setupTester();
     if (createCluster) {
-      await platforms[testPlatform].create();
+      await platforms[testPlatform].create(kubernetesVersion);
       await platforms[testPlatform].config();
     } else {
       await platforms[testPlatform].config();

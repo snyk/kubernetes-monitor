@@ -4,7 +4,7 @@ import * as openshift4 from './openshift4';
 
 interface IPlatformSetup {
   // create a Kubernetes cluster
-  create: () => Promise<void>;
+  create: (version: string) => Promise<void>;
   // loads the image so Kubernetes may run it, return the name of the image in its registry's format
   loadImage: (imageNameAndTag: string) => Promise<string>;
   // delete a Kubernetes cluster
@@ -43,6 +43,10 @@ const openshift4Setup: IPlatformSetup = {
   clean: openshift4.clean,
   setupTester: openshift4.setupTester,
 };
+
+export function getKubernetesVersionForPlatform(testPlatform: string): string {
+  return 'latest';
+}
 
 export default {
   kind: kindSetup,
