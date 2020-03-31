@@ -48,6 +48,7 @@ config.local.json
 kind
 kubectl
 oc
+helm
 kubeconfig-integration-test-kind
 snyk-monitor-test-deployment.yaml
 snyk-operator/helm-charts
