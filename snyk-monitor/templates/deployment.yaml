@@ -56,8 +56,6 @@ spec:
               cpu: {{ .Values.limits.cpu }}
               memory: {{ .Values.limits.memory }}
           securityContext:
-            runAsUser: 10001
-            runAsGroup: 10001
             privileged: false
             runAsNonRoot: true
             allowPrivilegeEscalation: false
