@@ -35,6 +35,16 @@ const eksSetup: IPlatformSetup = {
   setupTester: eks.setupTester,
 };
 
+// Use a kind cluster pinned to a specific Kubernetes version to mimic OS3.
+const openshift3Setup: IPlatformSetup = {
+  create: kind.createCluster,
+  loadImage: kind.loadImageInCluster,
+  delete: kind.deleteCluster,
+  config: kind.exportKubeConfig,
+  clean: kind.clean,
+  setupTester: kind.setupTester,
+};
+
 const openshift4Setup: IPlatformSetup = {
   create: openshift4.createCluster,
   loadImage: openshift4.returnUnchangedImageNameAndTag,
@@ -45,11 +55,17 @@ const openshift4Setup: IPlatformSetup = {
 };
 
 export function getKubernetesVersionForPlatform(testPlatform: string): string {
-  return 'latest';
+  switch (testPlatform) {
+    case 'openshift3':
+      return 'v1.11.10';
+    default:
+      return 'latest';
+  }
 }
 
 export default {
   kind: kindSetup,
   eks: eksSetup,
+  openshift3: openshift3Setup,
   openshift4: openshift4Setup,
 };
