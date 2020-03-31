@@ -43,6 +43,7 @@ jspm_packages
 config.local.json
 
 .vscode/*
+.prettierrc.json
 
 # test utilities
 kind

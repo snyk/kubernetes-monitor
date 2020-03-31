@@ -1,6 +1,7 @@
 .github
 .nyc_output
 .dockerignore
+.prettierrc.json
 .git*
 Dockerfile
 node_modules
