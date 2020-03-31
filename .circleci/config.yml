@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 default_machine_config: &default_machine_config
   machine:
@@ -28,6 +28,20 @@ main_branches_filter: &main_branches_filter
       ignore:
         - staging
         - master
+
+commands:
+  setup_node12:
+    description: Setup Node 12
+    steps:
+      - run:
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v12
+            npm install
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+            echo 'nvm use 12' >> $BASH_ENV
 
 jobs:
 ######################## PR OR MERGE TO STAGING ########################
