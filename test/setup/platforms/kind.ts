@@ -11,9 +11,9 @@ export async function setupTester(): Promise<void> {
   await download(osDistro);
 }
 
-export async function createCluster(): Promise<void> {
+export async function createCluster(version: string): Promise<void> {
   // available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
-  const kindImageTag = 'latest';
+  const kindImageTag = version;
   console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
 
   let kindImageArgument = '';

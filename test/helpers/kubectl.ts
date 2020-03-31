@@ -1,21 +1,29 @@
 import { exec } from 'child-process-promise';
-import { chmodSync, writeFileSync, existsSync } from 'fs';
+import { chmodSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 import * as sleep from 'sleep-promise';
 
-export async function downloadKubectl(): Promise<void> {
+/**
+ * @param version For example: "v1.18.0"
+ */
+export async function downloadKubectl(version: string): Promise<void> {
   const kubectlPath = resolve(process.cwd(), 'kubectl');
   if (existsSync(kubectlPath)) {
-    return;
+    if (version === 'latest') {
+      return;
+    }
+
+    // Always start clean when requesting a specific version.
+    unlinkSync(kubectlPath);
   }
 
-  console.log('Downloading kubectl...');
+  console.log(`Downloading kubectl ${version}...`);
 
   // eslint-disable-next-line @typescript-eslint/camelcase
   const requestOptions = { follow_max: 2 };
-  const k8sRelease = await getLatestStableK8sRelease();
+  const k8sRelease = version === 'latest' ? await getLatestStableK8sRelease() : version;
   const osDistro = platform();
   const bodyData = null;
   await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
