@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.25.0
+      - image: snyk/kubernetes-monitor:1.25.1
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -55,7 +55,7 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.25.0
+            value: 1.25.1
           - name: HOME
             value: /srv/app
         resources:
@@ -66,8 +66,6 @@ spec:
             cpu: '1'
             memory: '2Gi'
         securityContext:
-          runAsUser: 10001
-          runAsGroup: 10001
           privileged: false
           runAsNonRoot: true
           allowPrivilegeEscalation: false
