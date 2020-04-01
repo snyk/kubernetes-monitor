@@ -1,5 +1,7 @@
+import * as fs from 'fs';
 import * as sleep from 'sleep-promise';
 
+import logger = require('../../common/logger');
 import * as processWrapper from '../../common/process';
 import * as config from '../../common/config';
 import * as credentials from './credentials';
@@ -43,10 +45,10 @@ export async function pull(
   args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
   args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
 
-  await pullWithRetry(args);
+  await pullWithRetry(args, destination);
 }
 
-async function pullWithRetry(args: Array<processWrapper.IProcessArgument>): Promise<void> {
+async function pullWithRetry(args: Array<processWrapper.IProcessArgument>, destination: string): Promise<void> {
   const MAX_ATTEMPTS = 10;
   const RETRY_INTERVAL_SEC = 0.2;
 
@@ -55,6 +57,13 @@ async function pullWithRetry(args: Array<processWrapper.IProcessArgument>): Prom
       await processWrapper.exec('skopeo', ...args);
       return;
     } catch (err) {
+      try {
+        if (fs.existsSync(destination)) {
+          fs.unlinkSync(destination);
+        }
+      } catch (deleteErr) {
+        logger.warn({error: deleteErr, destination}, 'could not clean up the Skopeo-copy archive');
+      }
       if (attempt + 1 > MAX_ATTEMPTS) {
         throw err;
       }
