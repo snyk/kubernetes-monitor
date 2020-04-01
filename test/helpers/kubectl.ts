@@ -1,32 +1,41 @@
 import { exec } from 'child-process-promise';
-import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
+import { chmodSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 import * as sleep from 'sleep-promise';
 
-export async function downloadKubectl(): Promise<void> {
-  try {
-    accessSync(resolve(process.cwd(), 'kubectl'), constants.R_OK);
-  } catch (error) {
-    console.log('Downloading kubectl...');
+/**
+ * @param version For example: "v1.18.0"
+ */
+export async function downloadKubectl(version: string): Promise<void> {
+  const kubectlPath = resolve(process.cwd(), 'kubectl');
+  if (existsSync(kubectlPath)) {
+    if (version === 'latest') {
+      return;
+    }
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    const requestOptions = { follow_max: 2 };
-    const k8sRelease = await getLatestStableK8sRelease();
-    const osDistro = platform();
-    const bodyData = null;
-    await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
-      `${k8sRelease}/bin/${osDistro}/amd64/kubectl`,
-      bodyData,
-      requestOptions,
-    ).then((response) => {
-      writeFileSync('kubectl', response.body);
-      chmodSync('kubectl', 0o755); // rwxr-xr-x
-    });
-
-    console.log('kubectl downloaded');
+    // Always start clean when requesting a specific version.
+    unlinkSync(kubectlPath);
   }
+
+  console.log(`Downloading kubectl ${version}...`);
+
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  const requestOptions = { follow_max: 2 };
+  const k8sRelease = version === 'latest' ? await getLatestStableK8sRelease() : version;
+  const osDistro = platform();
+  const bodyData = null;
+  await needle('get', 'https://storage.googleapis.com/kubernetes-release/release/' +
+    `${k8sRelease}/bin/${osDistro}/amd64/kubectl`,
+    bodyData,
+    requestOptions,
+  ).then((response) => {
+    writeFileSync('kubectl', response.body);
+    chmodSync('kubectl', 0o755); // rwxr-xr-x
+  });
+
+  console.log('kubectl downloaded');
 }
 
 export async function createNamespace(namespace: string): Promise<void> {
@@ -63,7 +72,7 @@ export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> 
 
 export async function createPodFromImage(name: string, image: string, namespace: string) {
   console.log(`Letting Kubernetes decide how to manage image ${image} with name ${name}`);
-  await exec(`./kubectl run ${name} --image=${image} -n ${namespace} -- sleep 999999999`);
+  await exec(`./kubectl run ${name} --generator=run-pod/v1 --image=${image} -n ${namespace} -- sleep 999999999`);
   console.log(`Done Letting Kubernetes decide how to manage image ${image} with name ${name}`);
 }
 
@@ -120,7 +129,7 @@ export async function waitForDeployment(name: string, namespace: string): Promis
   console.log(`Found deployment ${name} in namespace ${namespace}`);
 
   console.log(`Begin waiting for deployment ${name} in namespace ${namespace}`);
-  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=60s`);
+  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=120s`);
   console.log(`Deployment ${name} in namespace ${namespace} is available`);
 }
 
