@@ -16,5 +16,4 @@ export interface IPluginOptions {
 export interface IStaticAnalysisOptions {
   imagePath: string;
   imageType: StaticAnalysisImageType;
-  tmpDirPath: string;
 }
