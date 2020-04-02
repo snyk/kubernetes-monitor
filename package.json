@@ -9,6 +9,7 @@
     "test:system": "tap test/system --timeout=600",
     "test:integration": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts --timeout=900",
     "test:integration:kind": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts --timeout=900",
+    "test:integration:kind:helm": "DEPLOYMENT_TYPE=Helm TEST_PLATFORM=kind CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts --timeout=900",
     "test:integration:eks": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=eks CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts --timeout=900",
     "test:integration:openshift3": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=openshift3 CREATE_CLUSTER=true tap test/integration/kubernetes.test.ts --timeout=900",
     "test:integration:openshift4": "DEPLOYMENT_TYPE=Operator TEST_PLATFORM=openshift4 CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts --timeout=900",
