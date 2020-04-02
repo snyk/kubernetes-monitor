@@ -3,7 +3,7 @@
   "description": "Snyk kubernetes Monitioring Container",
   "main": "dist/index.js",
   "scripts": {
-    "pretest": "./scripts/build-image.sh",
+    "pretest": "./scripts/docker/build-image.sh",
     "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration",
     "test:unit": "NODE_ENV=test tap test/unit --timeout=300",
     "test:system": "tap test/system --timeout=600",
