@@ -22,6 +22,12 @@ staging_branch_only_filter: &staging_branch_only_filter
       only:
         - staging
 
+master_branch_only_filter: &master_branch_only_filter
+  filters:
+    branches:
+      only:
+        - master
+
 main_branches_filter: &main_branches_filter
   filters:
     branches:
@@ -457,14 +463,8 @@ workflows:
   MERGE_TO_MASTER:
     jobs:
       - publish:
-          filters:
-            branches:
-              only:
-                - master
+          <<: *master_branch_only_filter
       - deploy_prod:
           requires:
             - publish
-          filters:
-            branches:
-              only:
-                - master
+          <<: *master_branch_only_filter
