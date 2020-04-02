@@ -3,7 +3,6 @@ import * as plugin from 'snyk-docker-plugin';
 
 import logger = require('../../common/logger');
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
-import config = require('../../common/config');
 import { IPullableImage } from './types';
 import { IStaticAnalysisOptions, StaticAnalysisImageType, IScanResult, IPluginOptions } from '../types';
 
@@ -63,7 +62,6 @@ export function constructStaticAnalysisOptions(
   return {
     imagePath: fileSystemPath,
     imageType: StaticAnalysisImageType.DockerArchive,
-    tmpDirPath: config.IMAGE_STORAGE_ROOT,
   };
 }
 
