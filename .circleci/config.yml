@@ -60,11 +60,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-build-image-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-build-image-${CIRCLE_SHA1}"
           when: on_fail
 
   build_operator:
@@ -107,11 +103,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-build-operator-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-build-operator-${CIRCLE_SHA1}"
           when: on_fail
 
   upload_operator:
@@ -146,11 +138,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-unit-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-unit-tests-${CIRCLE_SHA1}"
           when: on_fail
   
   system_tests:
@@ -166,11 +154,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-system-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-system-tests-${CIRCLE_SHA1}"
           when: on_fail
 
   integration_tests:
@@ -189,11 +173,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-integration-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/kind
@@ -214,11 +194,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-integration-helm-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-integration-helm-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/kind-helm
@@ -239,11 +215,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-eks-integration-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-eks-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/eks
@@ -293,11 +265,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack/notify-failure.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
-            else
-              echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
-            fi
+            ./scripts/slack/notify-failure-on-branch.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/openshift4
