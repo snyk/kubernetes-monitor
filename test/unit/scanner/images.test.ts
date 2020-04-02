@@ -51,7 +51,6 @@ tap.test('constructStaticAnalysisOptions() tests', async (t) => {
   const expectedResult = {
     imagePath: somePath,
     imageType: 'docker-archive',
-    tmpDirPath: '/var/tmp',
   };
 
   t.deepEqual(options, expectedResult, 'returned options match expectations');
