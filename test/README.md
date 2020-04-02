@@ -34,7 +34,7 @@ These tests assert the Kubernetes-Monitor's behaviour mostly through its affect 
 
 All integration tests require the Kubernetes-Monitor to be built into an image on the local machine and be named and tagged as:
 `snyk/kubernetes-monitor:local`.
-The easiest way to achieve it is by running the `scripts/build-image.sh` script.
+The easiest way to achieve it is by running the `scripts/docker/build-image.sh` script.
 Please note that `docker` needs to be installed in order for this script to succeed.
 
 As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `GCR_IO_DOCKERCFG`.
