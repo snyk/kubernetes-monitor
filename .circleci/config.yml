@@ -55,13 +55,13 @@ jobs:
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
             IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-            ./scripts/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+            ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
             docker push ${IMAGE_NAME_CANDIDATE}
       - run:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-build-image-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-build-image-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -85,7 +85,7 @@ jobs:
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
             export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
             export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
-            ./scripts/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/operator/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
       - run:
@@ -95,7 +95,7 @@ jobs:
             export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
             export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
             export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-            ./scripts/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
       - run:
           name: Remove templated Operator before persisting to workspace
           command: |
@@ -108,7 +108,7 @@ jobs:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-build-operator-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-build-operator-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -147,7 +147,7 @@ jobs:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-unit-tests-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-unit-tests-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -167,7 +167,7 @@ jobs:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-system-tests-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-system-tests-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -190,7 +190,7 @@ jobs:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-integration-tests-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-integration-tests-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -215,7 +215,7 @@ jobs:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-integration-helm-tests-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-integration-helm-tests-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -244,7 +244,7 @@ jobs:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-eks-integration-tests-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-eks-integration-tests-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -267,7 +267,7 @@ jobs:
             npm run test:integration:openshift3
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
+          command: ./scripts/slack/notify-failure.sh "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/openshift3
@@ -292,13 +292,13 @@ jobs:
       - run:
           name: Delete Operator from Quay
           command: |
-            ./scripts/delete-operator-from-quay.sh
+            ./scripts/operator/delete-operator-from-quay.sh
           when: always
       - run:
           name: Notify Slack on failure
           command: |
             if [[ "$CIRCLE_BRANCH" == "staging" ]]; then
-              ./scripts/slack-notify-failure.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
+              ./scripts/slack/notify-failure.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
             else
               echo "Current branch is $CIRCLE_BRANCH so skipping notifying Slack"
             fi
@@ -323,10 +323,10 @@ jobs:
             unset CIRCLE_PULL_REQUESTS &&
             npx semantic-release &&
             NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-            ./scripts/approve-image.sh $NEW_VERSION
+            ./scripts/docker/approve-image.sh $NEW_VERSION
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "staging-release"
+          command: ./scripts/slack/notify-failure.sh "staging-release"
           when: on_fail
   deploy_dev:
     <<: *default_container_config
@@ -337,14 +337,14 @@ jobs:
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
-            ./scripts/slack-notify-deploy.sh $LATEST_TAG dev &&
+            ./scripts/slack/notify-deploy.sh $LATEST_TAG dev &&
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
                               \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
                 https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "deploy-dev"
+          command: ./scripts/slack/notify-failure.sh "deploy-dev"
           when: on_fail
 
 ######################## MERGE TO MASTER ########################
@@ -364,7 +364,7 @@ jobs:
             docker pull ${IMAGE_NAME_APPROVED} &&
             docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
             docker push ${IMAGE_NAME_PUBLISHED} &&
-            ./scripts/slack-notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
+            ./scripts/slack/notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
             ./scripts/publish-gh-pages.sh ${LATEST_TAG}
             # Preserve the latest tag for the next steps of this job
             echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
@@ -381,7 +381,7 @@ jobs:
           command: |
             export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
             export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
-            ./scripts/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/operator/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
       - run:
@@ -390,7 +390,7 @@ jobs:
             export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
             export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
             export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-            ./scripts/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
+            ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
       - run:
           name: Remove templated Operator before storing artifacts
           command: |
@@ -400,7 +400,7 @@ jobs:
           destination: snyk-operator
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "master"
+          command: ./scripts/slack/notify-failure.sh "master"
           when: on_fail
 
   deploy_prod:
@@ -412,13 +412,13 @@ jobs:
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-            ./scripts/slack-notify-deploy.sh $LATEST_TAG prod &&
+            ./scripts/slack/notify-deploy.sh $LATEST_TAG prod &&
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{}" \
                 https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack-notify-failure.sh "deploy-prod"
+          command: ./scripts/slack/notify-failure.sh "deploy-prod"
           when: on_fail
 
 #######################################################################
