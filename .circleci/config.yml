@@ -79,11 +79,7 @@ jobs:
           name: Create Operator and push Operator image to DockerHub
           command: |
             export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-            export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-            export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
-            ./scripts/operator/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
-            docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
+            ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
       - run:
           name: Package Operator
           command: |
@@ -343,11 +339,7 @@ jobs:
       - run:
           name: Create Operator and push Operator image to DockerHub
           command: |
-            export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
-            export SNYK_OPERATOR_IMAGE_NAME_AND_TAG="snyk/kubernetes-operator:${SNYK_MONITOR_IMAGE_TAG}"
-            ./scripts/operator/create-operator.sh "${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
-            docker push ${SNYK_OPERATOR_IMAGE_NAME_AND_TAG}
+            ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
       - run:
           name: Package Operator
           command: |
