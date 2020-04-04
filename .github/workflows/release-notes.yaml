@@ -12,10 +12,9 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git fetch --prune --unshallow --tags
-    - uses: snyk/release-notes-preview@v1.3.4
+    - uses: snyk/release-notes-preview@v1.4.0
       with:
         releaseBranch: staging
-        githubPosterId: 18642669
       env:
         GITHUB_PR_USERNAME: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.RELEASE_NOTES_GITHUB_TOKEN }}
