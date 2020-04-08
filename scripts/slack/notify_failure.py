@@ -2,6 +2,7 @@
 
 import os
 import requests
+import json
 import sys
 
 def notifySlack(branch_name):
@@ -20,7 +21,7 @@ def notifySlack(branch_name):
       ]
     }
 
-    requests.post(url, json=data)
+    requests.post(url, data=json.dumps(data))
 
 if __name__ == '__main__':
     branch_name = sys.argv[1]
