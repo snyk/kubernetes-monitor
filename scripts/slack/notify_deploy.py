@@ -2,6 +2,7 @@
 
 import os
 import requests
+import json
 import sys
 
 
@@ -21,7 +22,7 @@ def notifySlack(image_name, deployment_env_name):
         ]
     }
 
-    requests.post(url, json=data)
+    requests.post(url, data=json.dumps(data))
 
 
 if __name__ == '__main__':

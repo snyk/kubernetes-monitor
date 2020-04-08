@@ -2,6 +2,7 @@
 
 import os
 import requests
+import json
 
 def notifySlack():
     circle_build_url = os.getenv('CIRCLE_BUILD_URL')
@@ -19,7 +20,7 @@ def notifySlack():
       ]
     }
 
-    requests.post(url, json=data)
+    requests.post(url, data=json.dumps(data))
 
 if __name__ == '__main__':
     notifySlack()
