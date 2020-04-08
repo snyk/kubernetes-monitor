@@ -55,6 +55,7 @@ commands:
           command: |
             sudo apt update
             sudo apt install python3-requests
+          when: always
            
 
 jobs:
