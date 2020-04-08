@@ -48,6 +48,14 @@ commands:
             echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
             echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
             echo 'nvm use 12' >> $BASH_ENV
+  install_python_requests:
+    description: Install requests library
+    steps:
+      - run:
+          command: |
+            sudo apt update
+            sudo apt install python3-requests
+           
 
 jobs:
 ######################## PR OR MERGE TO STAGING ########################
@@ -55,6 +63,7 @@ jobs:
     <<: *default_machine_config
     steps:
       - checkout
+      - install_python_requests
       - run:
           name: Build image
           command: |
@@ -66,13 +75,14 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-build-image-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-build-image-${CIRCLE_SHA1}"
           when: on_fail
 
   build_operator:
     <<: *default_machine_config
     steps:
       - checkout
+      - install_python_requests
       - run:
           name: Download Operator SDK
           command: |
@@ -105,7 +115,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-build-operator-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-build-operator-${CIRCLE_SHA1}"
           when: on_fail
 
   upload_operator:
@@ -131,6 +141,7 @@ jobs:
     steps:
       - checkout
       - setup_node12
+      - install_python_requests
       - run:
           name: Unit tests
           command: |
@@ -140,7 +151,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-unit-tests-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-unit-tests-${CIRCLE_SHA1}"
           when: on_fail
   
   system_tests:
@@ -148,6 +159,7 @@ jobs:
     steps:
       - checkout
       - setup_node12
+      - install_python_requests
       - run:
           name: System tests
           command: |
@@ -156,7 +168,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-system-tests-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-system-tests-${CIRCLE_SHA1}"
           when: on_fail
 
   integration_tests:
@@ -164,6 +176,7 @@ jobs:
     steps:
       - checkout
       - setup_node12
+      - install_python_requests
       - run:
           name: create temp dir for logs
           command: mkdir -p /tmp/logs/test/integration/kind
@@ -175,7 +188,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-integration-tests-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/kind
@@ -185,6 +198,7 @@ jobs:
     steps:
       - checkout
       - setup_node12
+      - install_python_requests
       - run:
           name: Create temporary directory for logs
           command: mkdir -p /tmp/logs/test/integration/kind-helm
@@ -196,7 +210,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-integration-helm-tests-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-integration-helm-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/kind-helm
@@ -205,6 +219,7 @@ jobs:
     <<: *default_machine_config
     steps:
       - checkout
+      - install_python_requests
       - run:
           name: Create temp dir for logs
           command: mkdir -p /tmp/logs/test/integration/eks
@@ -221,7 +236,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-eks-integration-tests-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-eks-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/eks
@@ -231,6 +246,7 @@ jobs:
     steps:
       - checkout
       - setup_node12
+      - install_python_requests
       - run:
           name: Create temporary directory for logs
           command: mkdir -p /tmp/logs/test/integration/openshift3
@@ -241,7 +257,7 @@ jobs:
             npm run test:integration:openshift3
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack/notify-failure.sh "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
+          command: ./scripts/slack/notify_failure.py "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/openshift3
@@ -251,6 +267,7 @@ jobs:
     steps:
       - checkout
       - setup_node12
+      - install_python_requests
       - run:
           name: create temp dir for logs
           command: mkdir -p /tmp/logs/test/integration/openshift4
@@ -271,7 +288,7 @@ jobs:
       - run:
           name: Notify Slack on failure
           command: |
-            ./scripts/slack/notify-failure-on-branch.sh "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
+            ./scripts/slack/notify_failure_on_branch.py "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
           when: on_fail
       - store_artifacts:
           path: /tmp/logs/test/integration/openshift4
@@ -282,6 +299,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - install_python_requests
       - run:
           name: Tag and push
           command: |
@@ -296,25 +314,27 @@ jobs:
             ./scripts/docker/approve-image.sh $NEW_VERSION
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack/notify-failure.sh "staging-release"
+          command: ./scripts/slack/notify_failure.py "staging-release"
           when: on_fail
+  
   deploy_dev:
     <<: *default_container_config
     steps:
       - checkout
+      - install_python_requests
       - run:
           name: Deploy to dev
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
-            ./scripts/slack/notify-deploy.sh $LATEST_TAG dev &&
+            ./scripts/slack/notify_deploy.py $LATEST_TAG dev &&
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
                               \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
                 https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack/notify-failure.sh "deploy-dev"
+          command: ./scripts/slack/notify_failure.py "deploy-dev"
           when: on_fail
 
 ######################## MERGE TO MASTER ########################
@@ -323,6 +343,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - install_python_requests
       - run:
           name: Publish
           command: |
@@ -334,7 +355,7 @@ jobs:
             docker pull ${IMAGE_NAME_APPROVED} &&
             docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
             docker push ${IMAGE_NAME_PUBLISHED} &&
-            ./scripts/slack/notify-push.sh ${IMAGE_NAME_PUBLISHED} &&
+            ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
             ./scripts/publish-gh-pages.sh ${LATEST_TAG}
             # Preserve the latest tag for the next steps of this job
             echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
@@ -366,25 +387,26 @@ jobs:
           destination: snyk-operator
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack/notify-failure.sh "master"
+          command: ./scripts/slack/notify_failure.py "master"
           when: on_fail
 
   deploy_prod:
     <<: *default_container_config
     steps:
       - checkout
+      - install_python_requests
       - run:
           name: Deploy to prod
           command: |
             LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
             LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-            ./scripts/slack/notify-deploy.sh $LATEST_TAG prod &&
+            ./scripts/slack/notify_deploy.py $LATEST_TAG prod &&
             curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
                 -X POST -d "{}" \
                 https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
       - run:
           name: Notify Slack on failure
-          command: ./scripts/slack/notify-failure.sh "deploy-prod"
+          command: ./scripts/slack/notify_failure.py "deploy-prod"
           when: on_fail
 
 #######################################################################
