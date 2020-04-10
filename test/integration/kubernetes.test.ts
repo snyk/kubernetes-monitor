@@ -143,8 +143,8 @@ tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding a
   t.equals(nodePluginResult.hashes.length, 1, 'one key-binary hash found in node image');
   t.equals(
     nodePluginResult.hashes[0],
-    '1fd7117ccedc1c673381f71cc611131cb8a47852a882e3d731381f14355a3346',
-    'SHA256 for node v12.16.1 found',
+    '45cf3343b95cb067dec6d64ccc848f48b598baffed5b12be1d14142d087da0e8',
+    'SHA256 for whatever Node is on node:lts-alpine3.11',
   );
 
   const openjdkPluginResult = JSON.parse(depGraphResult.dependencyGraphResults.openjdk);
