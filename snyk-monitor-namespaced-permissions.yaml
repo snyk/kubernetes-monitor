@@ -79,4 +79,7 @@ data:
   namespace: snyk-monitor
   integrationApi: ""
   clusterName: ""
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
 ---

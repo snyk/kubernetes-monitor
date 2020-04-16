@@ -37,3 +37,7 @@ requests:
 limits:
   cpu: '1'
   memory: '2Gi'
+
+http_proxy:
+https_proxy:
+no_proxy:

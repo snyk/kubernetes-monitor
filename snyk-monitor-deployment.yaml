@@ -58,6 +58,24 @@ spec:
             value: IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
           - name: HOME
             value: /srv/app
+          - name: HTTP_PROXY
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: http_proxy
+                optional: true
+          - name: HTTPS_PROXY
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: https_proxy
+                optional: true
+          - name: NO_PROXY
+            valueFrom:
+              configMapKeyRef:
+                name: snyk-monitor
+                key: no_proxy
+                optional: true
         resources:
           requests:
             cpu: '250m'
