@@ -185,7 +185,7 @@ jobs:
           name: Integration tests
           command: |
             export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-            npm run test:integration
+            npm run test:integration:kind:yaml
       - run:
           name: Notify Slack on failure
           command: |
@@ -233,7 +233,7 @@ jobs:
             nvm install v12
             npm install
             export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-            .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks
+            .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
       - run:
           name: Notify Slack on failure
           command: |
@@ -255,7 +255,7 @@ jobs:
           name: Integration tests OpenShift 3
           command: |
             export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-            npm run test:integration:openshift3
+            npm run test:integration:openshift3:yaml
       - run:
           name: Notify Slack on failure
           command: ./scripts/slack/notify_failure.py "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
@@ -280,7 +280,7 @@ jobs:
           name: Integration tests OpenShift 4
           command: |
             export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-            .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4
+            .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
       - run:
           name: Delete Operator from Quay
           command: |
