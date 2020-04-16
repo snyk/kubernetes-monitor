@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forwarding-proxy
+  namespace: snyk-monitor
+spec:
+  selector:
+    matchLabels:
+      app: forwarding-proxy
+  template:
+    metadata:
+      labels:
+        app: forwarding-proxy
+    spec:
+      containers:
+      - name: forwarding-proxy
+        image: snyk/runtime-fixtures:tinyproxy
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 8080
