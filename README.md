@@ -87,3 +87,37 @@ Finally, to launch the Snyk monitor in your cluster, run the following:
 ```shell
 kubectl apply -f snyk-monitor-deployment.yaml
 ```
+
+## Setting up proxying ##
+
+Proxying traffic through a forwarding proxy can be achieved by modifying the `snyk-monitor-cluster-permissions.yaml` or `snyk-monitor-namespaced-permissions.yaml` (depending on which one was applied) and setting the following variables in the `ConfigMap`:
+
+* http_proxy
+* https_proxy
+* no_proxy
+
+For example:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  ...
+data:
+  ...
+  https_proxy: "http://192.168.99.100:8080"
+```
+
+The `snyk-monitor` currently works with HTTP proxies only.
+
+Note that `snyk-monitor` does not proxy requests to the Kubernetes API server.
+
+Note that `snyk-monitor` does not support wildcards or CIDR addresses in `no_proxy` -- it will only look for exact matches. For example:
+
+```yaml
+# not OK:
+no_proxy: *.example.local,*.other.global,192.168.0.0/16
+
+# OK:
+no_proxy: long.domain.name.local,example.local
+```
