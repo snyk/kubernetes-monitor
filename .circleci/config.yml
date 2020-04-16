@@ -454,6 +454,12 @@ workflows:
           requires:
             - build_image
           <<: *main_branches_filter
+      ## TODO: vvv REMOVE vvv
+      - integration_tests_proxy:
+          requires:
+            - build_image
+          <<: *main_branches_filter
+      ## TODO: ^^^ REMOVE ^^^
 
   MERGE_TO_STAGING:
     jobs:
