@@ -1,6 +1,7 @@
 import * as needle from 'needle';
 import { NeedleResponse, NeedleHttpVerbs } from 'needle';
 import * as sleep from 'sleep-promise';
+import { URL } from 'url';
 import * as config from '../common/config';
 import logger = require('../common/logger');
 import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload, IResponseWithAttempts } from './types';
@@ -75,6 +76,7 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
   const options = {
     json: true,
     compressed: true,
+    proxy: getProxy(config, url),
   };
 
   let response: NeedleResponse | undefined;
@@ -104,4 +106,39 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
   }
 
   return {response, attempt};
+}
+
+/**
+ * Exported for testing
+ */
+export function getProxy(
+  config: Record<string, any>,
+  endpoint: string
+): string | undefined | never {
+  const url = new URL(endpoint);
+
+  // Check if the address is explicitly marked not to be proxied.
+  if (config.NO_PROXY) {
+    const hosts = config.NO_PROXY.split(',').map((host) => host.toLowerCase());
+    
+    if (hosts.includes(url.hostname.toLowerCase())) {
+      return undefined;
+    }
+
+    // CIDR ranges are not supported, e.g. NO_PROXY=192.168.0.0/16.
+    // Wildcards are also not supported, e.g. NO_PROXY=*.mydomain.local
+  }
+
+  switch (url.protocol) {
+    case 'http:':
+      return config.HTTP_PROXY || undefined;
+
+    case 'https:':
+      return config.HTTPS_PROXY || undefined;
+
+    default:
+      const errorMessage = 'Unsupported protocol for proxying';
+      logger.error(errorMessage, { url, endpoint });
+      throw new Error(errorMessage);
+  }
 }
