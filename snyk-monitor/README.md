@@ -74,3 +74,36 @@ For Helm 3, you may run the following:
 ```shell
 helm upgrade --generate-name --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
 ```
+
+## Setting up proxying ##
+
+Proxying traffic through a forwarding proxy can be achieved by setting the following values in the Helm chart:
+
+* http_proxy
+* https_proxy
+* no_proxy
+
+For example:
+
+```bash
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set clusterName="Production cluster" \
+  --set https_proxy=http://192.168.99.100:8080
+```
+
+The `snyk-monitor` currently works with HTTP proxies only.
+
+Note that `snyk-monitor` does not proxy requests to the Kubernetes API server.
+
+Note that `snyk-monitor` does not support wildcards or CIDR addresses in `no_proxy` -- it will only look for exact matches. For example:
+
+```bash
+# not ok:
+helm upgrade --install ... \
+  --set no_proxy=*.example.local,*.other.global,192.168.0.0/16
+
+# ok:
+helm upgrade --install ... \
+  --set no_proxy=long.domain.name.local,example.local
+```
