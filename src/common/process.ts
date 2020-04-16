@@ -1,5 +1,6 @@
 import { spawn, SpawnPromiseResult } from 'child-process-promise';
 import logger = require('./logger');
+import config = require('./config');
 
 export interface IProcessArgument {
   body: string;
@@ -17,6 +18,9 @@ export function exec(bin: string, ...processArgs: IProcessArgument[]):
   const env = {
     PATH: process.env.PATH,
     HOME: process.env.HOME,
+    HTTPS_PROXY: config.HTTPS_PROXY,
+    HTTP_PROXY: config.HTTP_PROXY,
+    NO_PROXY: config.NO_PROXY,
   };
 
   const allArguments = processArgs.map((arg) => arg.body);

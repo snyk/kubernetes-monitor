@@ -32,6 +32,7 @@
     "@types/needle": "^2.0.4",
     "@types/node": "^10.17.17",
     "@types/sinon": "^7.5.2",
+    "@types/tunnel": "0.0.1",
     "async": "^2.6.2",
     "aws-sdk": "^2.633.0",
     "bunyan": "^1.8.12",
@@ -42,6 +43,7 @@
     "snyk-config": "3.0.0",
     "snyk-docker-plugin": "2.8.0",
     "source-map-support": "^0.5.16",
+    "tunnel": "0.0.6",
     "typescript": "^3.8.3",
     "ws": "^7.2.1",
     "yaml": "^1.7.2"
