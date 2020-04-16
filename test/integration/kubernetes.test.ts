@@ -151,7 +151,7 @@ tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding a
   t.ok('hashes' in openjdkPluginResult, 'snyk-docker-plugin contains key-binary hashes');
   t.equals(openjdkPluginResult.hashes.length, 2, 'two openjdk hashes found in node image');
   const expectedHashes = [
-    'a2fec3e093fa5b7b105efa2cc28a7ff5e168ba13ace0fff43a769db8797b173e',
+    '99503bfc6faed2da4fd35f36a5698d62676f886fb056fb353064cc78b1186195',
     '00a90dcce9ca53be1630a21538590cfe15676f57bfe8cf55de0099ee80bbeec4'
   ];
   t.deepEquals(
