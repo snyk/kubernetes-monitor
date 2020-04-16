@@ -24,13 +24,13 @@ NEW_OPERATOR_IMAGE_TAG="$2"
 NEW_MONITOR_IMAGE_TAG="$3"
 
 CSV_LOCATION="./snyk-operator/deploy/olm-catalog/snyk-operator"
-OPERATOR_PACKAGE_YALM_LOCATION="${CSV_LOCATION}/snyk-operator.package.yaml"
+OPERATOR_PACKAGE_YAML_LOCATION="${CSV_LOCATION}/snyk-operator.package.yaml"
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 cp -r "${CSV_LOCATION}/0.0.0" "${CSV_LOCATION}/${NEW_OPERATOR_VERSION}"
 
-sed -i.bak "s|0.0.0|${NEW_OPERATOR_VERSION}|g" "${OPERATOR_PACKAGE_YALM_LOCATION}"
-rm "${OPERATOR_PACKAGE_YALM_LOCATION}.bak"
+sed -i.bak "s|0.0.0|${NEW_OPERATOR_VERSION}|g" "${OPERATOR_PACKAGE_YAML_LOCATION}"
+rm "${OPERATOR_PACKAGE_YAML_LOCATION}.bak"
 
 SOURCE_CSV="${CSV_LOCATION}/${NEW_OPERATOR_VERSION}/snyk-operator.v0.0.0.clusterserviceversion.yaml"
 TARGET_CSV="${CSV_LOCATION}/${NEW_OPERATOR_VERSION}/snyk-operator.v${NEW_OPERATOR_VERSION}.clusterserviceversion.yaml"
