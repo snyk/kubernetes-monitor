@@ -20,7 +20,7 @@
     "build": "tsc",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
-    "lint": "eslint 'src/**/*.ts' && (cd test && eslint '**/*.ts')"
+    "lint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")"
   },
   "author": "snyk.io",
   "license": "private",
