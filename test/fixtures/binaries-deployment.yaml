@@ -22,5 +22,5 @@ spec:
         ports:
         - containerPort: 80
       - name: openjdk
-        image: openjdk:14
+        image: openjdk:14.0.1
         command: ['sh', '-c', 'echo Hello from openjdk:14 pod! && sleep 360000']
