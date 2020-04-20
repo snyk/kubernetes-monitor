@@ -3,7 +3,7 @@ import { currentClusterName } from '../supervisor/cluster';
 import { IScanResult } from '../scanner/types';
 import {
   IDeleteWorkloadPayload,
-  IDepGraphPayload,
+  IDependencyGraphPayload,
   IWorkload,
   ILocalWorkloadLocator,
   IImageLocator,
@@ -16,7 +16,7 @@ import {
 export function constructDepGraph(
     scannedImages: IScanResult[],
     workloadMetadata: IWorkload[],
-): IDepGraphPayload[] {
+): IDependencyGraphPayload[] {
   const results = scannedImages.map((scannedImage) => {
     // We know that .find() won't return undefined
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -44,7 +44,7 @@ export function constructDepGraph(
       agentId: config.AGENT_ID,
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
       metadata: monitorMetadata,
-    } as IDepGraphPayload;
+    } as IDependencyGraphPayload;
   });
 
   return results;
