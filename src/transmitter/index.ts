@@ -3,12 +3,17 @@ import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import * as sleep from 'sleep-promise';
 import * as config from '../common/config';
 import logger = require('../common/logger');
-import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload, IResponseWithAttempts } from './types';
+import {
+  IDeleteWorkloadPayload,
+  IDependencyGraphPayload,
+  IWorkloadMetadataPayload,
+  IResponseWithAttempts,
+} from './types';
 import { getProxyAgent } from './proxy';
 
 const upstreamUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
-export async function sendDepGraph(...payloads: IDepGraphPayload[]): Promise<void> {
+export async function sendDepGraph(...payloads: IDependencyGraphPayload[]): Promise<void> {
   for (const payload of payloads) {
     // Intentionally removing dependencyGraph as it would be too big to log
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
