@@ -64,9 +64,8 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   // Services
   await Promise.all([
     kubectl.applyK8sYaml('./test/fixtures/java-deployment.yaml'),
+    kubectl.waitForDeployment('java', 'services'),
   ]);
-
-  // TODO: wait for the services to start?
 
   // Setup nocks
   nock('https://kubernetes-upstream.snyk.io')
