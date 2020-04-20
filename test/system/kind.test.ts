@@ -5,6 +5,7 @@ import { exec } from 'child-process-promise';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
+import * as transmitterTypes from '../../src/transmitter/types';
 
 // let integrationId: string;
 
@@ -71,8 +72,27 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/workload')
     .times(1)
-    .reply(200, (uri, requestBody) => {
-      // TODO assert POST payload
+    .reply(200, (uri, requestBody: transmitterTypes.IWorkloadMetadataPayload) => {
+      t.ok('workloadLocator' in requestBody, 'workload locator is present in workload payload');
+      t.ok(
+        'cluster' in requestBody.workloadLocator &&
+          'name' in requestBody.workloadLocator &&
+          'namespace' in requestBody.workloadLocator &&
+          'type' in requestBody.workloadLocator &&
+          'userLocator' in requestBody.workloadLocator,
+        'all properties are present in the workload locator',
+      );
+      t.ok('workloadMetadata' in requestBody, 'workload metadata is present in workload payload');
+      t.ok(
+        'annotations' in requestBody.workloadMetadata &&
+          'labels' in requestBody.workloadMetadata &&
+          'podSpec' in requestBody.workloadMetadata &&
+          'revision' in requestBody.workloadMetadata &&
+          'specAnnotations' in requestBody.workloadMetadata &&
+          'specLabels' in requestBody.workloadMetadata,
+        'all properties are present in the workload metadata',
+      );
+      t.ok('agentId' in requestBody, 'agent ID is present in workload payload');
     });
 
   nock('https://kubernetes-upstream.snyk.io')
@@ -86,8 +106,29 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/dependency-graph')
     .times(1)
-    .reply(200, (uri, requestBody) => {
-      // TODO assert POST payload
+    .reply(200, (uri, requestBody: transmitterTypes.IDepGraphPayload) => {
+      t.ok('metadata' in requestBody, 'metadata is present in dependency graph payload');
+      // TODO: this is weird, why is agentId present in two places?
+      t.ok('agentId' in requestBody, 'agent ID is present in dependency graph payload');
+      t.ok(
+        'metadata' in requestBody && 'agentId' in requestBody.metadata,
+        'agent ID is present in dependency graph payload',
+      );
+      t.ok('imageLocator' in requestBody, 'image locator is present in dependency graph payload');
+      t.ok(
+        'cluster' in requestBody.imageLocator &&
+          'name' in requestBody.imageLocator &&
+          'imageId' in requestBody.imageLocator &&
+          'namespace' in requestBody.imageLocator &&
+          'type' in requestBody.imageLocator &&
+          'userLocator' in requestBody.imageLocator,
+        'all properties are present in the image locator',
+      );
+      t.ok(
+        'dependencyGraph' in requestBody &&
+          typeof requestBody.dependencyGraph === 'string',
+        'dependency graph is in payload and has the right type',
+      );
     });
 
   // Start the monitor
