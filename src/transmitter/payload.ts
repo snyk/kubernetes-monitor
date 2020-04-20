@@ -17,7 +17,7 @@ export function constructDepGraph(
     scannedImages: IScanResult[],
     workloadMetadata: IWorkload[],
 ): IDependencyGraphPayload[] {
-  const results = scannedImages.map((scannedImage) => {
+  const results = scannedImages.map((scannedImage): IDependencyGraphPayload => {
     // We know that .find() won't return undefined
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const kubeWorkload: IWorkload = workloadMetadata.find((meta) => meta.imageName === scannedImage.imageWithTag)!;
@@ -44,7 +44,7 @@ export function constructDepGraph(
       agentId: config.AGENT_ID,
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
       metadata: monitorMetadata,
-    } as IDependencyGraphPayload;
+    };
   });
 
   return results;
