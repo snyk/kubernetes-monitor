@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: forwarding-proxy
+  namespace: snyk-monitor
+  labels:
+    app: forwarding-proxy
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    app: forwarding-proxy

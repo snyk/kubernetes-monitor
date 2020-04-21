@@ -48,6 +48,12 @@ spec:
             value: {{ .Values.image.tag }}
           - name: HOME
             value: /srv/app
+          - name: HTTP_PROXY
+            value: {{ .Values.http_proxy }}
+          - name: HTTPS_PROXY
+            value: {{ .Values.https_proxy }}
+          - name: NO_PROXY
+            value: {{ .Values.no_proxy }}
           resources:
             requests:
               cpu: {{ .Values.requests.cpu }}
