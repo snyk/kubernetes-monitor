@@ -87,4 +87,7 @@ data:
   namespace: ""
   integrationApi: ""
   clusterName: ""
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
 ---

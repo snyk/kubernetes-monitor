@@ -1,9 +1,10 @@
 import * as needle from 'needle';
-import { NeedleResponse, NeedleHttpVerbs } from 'needle';
+import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import * as sleep from 'sleep-promise';
 import * as config from '../common/config';
 import logger = require('../common/logger');
 import { IDeleteWorkloadPayload, IDepGraphPayload, IWorkloadMetadataPayload, IResponseWithAttempts } from './types';
+import { getProxyAgent } from './proxy';
 
 const upstreamUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
@@ -72,10 +73,13 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
       'Client network socket disconnected before secure TLS connection was established',
     ],
   };
-  const options = {
+  const options: NeedleOptions = {
     json: true,
     compressed: true,
   };
+  if (config.HTTP_PROXY || config.HTTPS_PROXY) {
+    options.agent = getProxyAgent(config, url);
+  }
 
   let response: NeedleResponse | undefined;
   let attempt: number;
