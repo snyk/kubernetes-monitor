@@ -106,7 +106,7 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/dependency-graph')
     .times(1)
-    .reply(200, (uri, requestBody: transmitterTypes.IDepGraphPayload) => {
+    .reply(200, (uri, requestBody: transmitterTypes.IDependencyGraphPayload) => {
       t.ok('metadata' in requestBody, 'metadata is present in dependency graph payload');
       // TODO: this is weird, why is agentId present in two places?
       t.ok('agentId' in requestBody, 'agent ID is present in dependency graph payload');
