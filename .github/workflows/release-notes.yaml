@@ -14,9 +14,9 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         git fetch --prune --unshallow --tags
-    - uses: snyk/release-notes-preview@v1.5.2
+    - uses: snyk/release-notes-preview@v1.6.1
       with:
         releaseBranch: staging
       env:
         GITHUB_PR_USERNAME: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.RELEASE_NOTES_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
