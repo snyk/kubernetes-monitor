@@ -33,7 +33,7 @@ export interface IKubernetesMonitorMetadata {
   namespace?: string;
 }
 
-export interface IDepGraphPayload {
+export interface IDependencyGraphPayload {
   imageLocator: IImageLocator;
   agentId: string;
   dependencyGraph?: string;
