@@ -122,5 +122,9 @@ function shouldRetryRequest(err: IRequestError, stillHaveRetries: boolean): bool
     return true;
   }
 
+  if (err.code === 'EAI_AGAIN') {
+    return true;
+  }
+
   return false;
 }
