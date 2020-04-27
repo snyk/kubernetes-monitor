@@ -8,6 +8,7 @@ import {
   IDependencyGraphPayload,
   IWorkloadMetadataPayload,
   IResponseWithAttempts,
+  IRequestError,
 } from './types';
 import { getProxyAgent } from './proxy';
 
@@ -73,10 +74,6 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
   const retry = {
     attempts: 3,
     intervalSeconds: 2,
-    networkErrorMessages: [
-      'socket hang up',
-      'Client network socket disconnected before secure TLS connection was established',
-    ],
   };
   const options: NeedleOptions = {
     json: true,
@@ -97,11 +94,7 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
         break;
       }
     } catch (err) {
-      if (!(
-        err.code === 'ECONNRESET' &&
-        retry.networkErrorMessages.includes(err.message) &&
-        stillHaveRetries
-      )) {
+      if (!shouldRetryRequest(err, stillHaveRetries)) {
         throw err;
       }
     }
@@ -113,4 +106,21 @@ async function retryRequest(verb: NeedleHttpVerbs, url: string, payload: object)
   }
 
   return {response, attempt};
+}
+
+function shouldRetryRequest(err: IRequestError, stillHaveRetries: boolean): boolean {
+  const networkErrorMessages: string[] = [
+    'socket hang up',
+    'Client network socket disconnected before secure TLS connection was established',
+  ];
+
+  if (!stillHaveRetries) {
+    return false;
+  }
+
+  if (err.code === 'ECONNRESET' && networkErrorMessages.includes(err.message)) {
+    return true;
+  }
+
+  return false;
 }

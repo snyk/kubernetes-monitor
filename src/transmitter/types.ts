@@ -72,3 +72,8 @@ export interface IResponseWithAttempts {
   response: NeedleResponse;
   attempt: number;
 }
+
+export interface IRequestError {
+  code: string;
+  message: string;
+}
