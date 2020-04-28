@@ -2,7 +2,6 @@ import { exec } from 'child-process-promise';
 import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
-import * as needle from 'needle';
 
 const clusterName = 'kind';
 
@@ -60,17 +59,9 @@ async function download(osDistro: string): Promise<void> {
   } catch (error) {
     console.log('Downloading KinD...');
 
-    const bodyData = null;
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    const requestOptions = { follow_max: 2 };
-    await needle('get',
-      `https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-${osDistro}-amd64`,
-      bodyData,
-      requestOptions,
-    ).then((response) => {
-      writeFileSync('kind', response.body);
-      chmodSync('kind', 0o755); // rwxr-xr-x
-    });
+    const url = `https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-${osDistro}-amd64`;
+    await exec(`curl -Lo ./kind ${url}`);
+    chmodSync('kind', 0o755); // rwxr-xr-x
 
     console.log('KinD downloaded!');
   }
