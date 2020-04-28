@@ -16,11 +16,24 @@ kubectl create namespace snyk-monitor
 Notice our namespace is called _snyk-monitor_ and it is used for the following commands in scoping the resources.
 
 
-The Snyk monitor relies on using your Snyk Integration ID, and using a `dockercfg` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually a copy of the `dockercfg` resides in `$HOME/.docker/config.json`.
+The Snyk monitor relies on using your Snyk Integration ID, which must be provided from a Kubernetes secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
 
-Both of these items must be provided by a Kubernetes secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
+1. Locate your Snyk Integration ID from the Snyk Integrations page (navigate to https://app.snyk.io/org/YOUR-ORGANIZATION-NAME/manage/integrations/kubernetes) and copy it.
+The Snyk Integration ID is a UUID and looks similar to the following:
+```
+abcd1234-abcd-1234-abcd-1234abcd1234
+```
+The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in the next step.
 
-1. Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should look like this:
+2. If you are not using any private registries, create a Kubernetes secret called `snyk-monitor` containing the Snyk Integration ID from the previous step running the following command:
+ ```shell
+ kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
+ ```
+ Continue to Helm installation instructions below.
+
+3. If we're using a private registry, you should create a `dockercfg` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually a copy of the `dockercfg` resides in `$HOME/.docker/config.json`.
+
+Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should look like this:
 
 ```json
 {
@@ -32,25 +45,10 @@ Both of these items must be provided by a Kubernetes secret. The secret must be 
   }
 }
 ```
-
-If access to private registries is not needed, the `dockercfg.json` file contents should look like this:
-
-```json
-{}
-```
-
-2. Locate your Snyk Integration ID from the Snyk Integrations page (navigate to https://app.snyk.io/org/YOUR-ORGANIZATION-NAME/manage/integrations/kubernetes) and copy it. The Snyk Integration ID looks similar to the following:
-```
-abcd1234-abcd-1234-abcd-1234abcd1234
-```
-The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in the next step.
-
-3. Finally, create the secret in Kubernetes by running the following command:
+Finally, create the secret in Kubernetes by running the following command:
 ```shell
 kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
 ```
-
-Note that the secret _must_ be namespaced, and the namespace (which we configured earlier) is called _snyk-monitor_.
 
 ## Installation from Helm repo ##
 
