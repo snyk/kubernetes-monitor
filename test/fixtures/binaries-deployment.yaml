@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: node
-        image: node:lts-alpine3.11
+        image: node@sha256:215a9fbef4df2c1ceb7c79481d3cfd94ad8f1f0105bade39f3be907bf386c5e1
         command: ['sh', '-c', 'echo Hello from node:lts-alpine3.11 pod! && sleep 360000']
         ports:
         - containerPort: 80
