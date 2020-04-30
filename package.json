@@ -16,11 +16,12 @@
     "test:coverage": "npm run test:unit -- --coverage",
     "test:watch": "tsc-watch --onSuccess 'npm run test:unit'",
     "start": "bin/start",
-    "prepare": "npm run build",
+    "prepare": "npm run snyk-protect && npm run build",
     "build": "tsc",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
-    "lint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")"
+    "lint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")",
+    "snyk-protect": "snyk protect"
   },
   "author": "snyk.io",
   "license": "private",
@@ -47,7 +48,8 @@
     "tunnel": "0.0.6",
     "typescript": "^3.8.3",
     "ws": "^7.2.1",
-    "yaml": "^1.7.2"
+    "yaml": "^1.7.2",
+    "snyk": "^1.316.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.22.0",
@@ -78,5 +80,6 @@
     "fail": [
       "@semantic-release/github"
     ]
-  }
+  },
+  "snyk": true
 }
