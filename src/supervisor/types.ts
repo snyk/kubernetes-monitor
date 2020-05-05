@@ -1,3 +1,4 @@
+import { IncomingMessage }  from 'http';
 import { AppsV1Api, BatchV1Api, BatchV1beta1Api, CoreV1Api, KubeConfig,
   V1ObjectMeta, V1OwnerReference, V1PodSpec } from '@kubernetes/client-node';
 
@@ -10,6 +11,10 @@ export enum WorkloadKind {
   CronJob = 'CronJob',
   ReplicationController = 'ReplicationController',
   Pod = 'Pod',
+}
+
+export interface IRequestError {
+  response?: IncomingMessage;
 }
 
 export interface IKubeObjectMetadata {
