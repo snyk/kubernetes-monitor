@@ -10,6 +10,7 @@ import { replicaSetWatchHandler } from './replica-set';
 import { replicationControllerWatchHandler } from './replication-controller';
 import { statefulSetWatchHandler } from './stateful-set';
 import { k8sApi, kubeConfig } from '../../cluster';
+import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 /**
@@ -98,7 +99,8 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
   const listMethod = workloadMetadata.listFactory(namespace);
   const loggedListMethod = async () => {
     try {
-      return await listMethod();
+      return await kubernetesApiWrappers.retryKubernetesApiRequest(
+        () => listMethod());
     } catch (err) {
       logger.error({err, namespace, workloadKind}, 'error while listing entities on namespace');
       throw err;
