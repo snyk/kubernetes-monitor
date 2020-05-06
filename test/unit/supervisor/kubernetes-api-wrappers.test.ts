@@ -46,6 +46,84 @@ tap.test('calculateSleepSeconds', async (t) => {
   );
 });
 
+tap.test('retryKubernetesApiRequest for ECONNREFUSED error', async (t) => {
+  const retryableErrorResponse = {code: 'ECONNREFUSED'};
+
+  await t.rejects(
+    () => kubernetesApiWrappers.retryKubernetesApiRequest(() => Promise.reject(retryableErrorResponse)),
+    'eventually throws on repeated retryable error responses',
+  );
+
+  let failures = 0;
+  const functionThatFailsJustEnoughTimes = () => {
+    if (failures < kubernetesApiWrappers.ATTEMPTS_MAX - 1) {
+      failures +=1;
+      return Promise.reject(retryableErrorResponse);
+    }
+    return Promise.resolve('egg');
+  };
+
+  const successfulResponse = await kubernetesApiWrappers.retryKubernetesApiRequest(functionThatFailsJustEnoughTimes);
+  t.equals(
+    successfulResponse,
+    'egg',
+    'keeps retrying on ECONNREFUSED as long as we don\'t cross max attempts',
+  );
+
+  failures = 0;
+  const functionThatFailsOneTooManyTimes = () => {
+    if (failures < kubernetesApiWrappers.ATTEMPTS_MAX) {
+      failures +=1;
+      return Promise.reject(retryableErrorResponse);
+    }
+    return Promise.resolve('egg');
+  };
+
+  await t.rejects(
+    () => kubernetesApiWrappers.retryKubernetesApiRequest(functionThatFailsOneTooManyTimes),
+    'failure more than the maximum, rejects, even for a retryable error response',
+  );
+});
+
+tap.test('retryKubernetesApiRequest for ETIMEDOUT error', async (t) => {
+  const retryableErrorResponse = {code: 'ETIMEDOUT'};
+
+  await t.rejects(
+    () => kubernetesApiWrappers.retryKubernetesApiRequest(() => Promise.reject(retryableErrorResponse)),
+    'eventually throws on repeated retryable error responses',
+  );
+
+  let failures = 0;
+  const functionThatFailsJustEnoughTimes = () => {
+    if (failures < kubernetesApiWrappers.ATTEMPTS_MAX - 1) {
+      failures +=1;
+      return Promise.reject(retryableErrorResponse);
+    }
+    return Promise.resolve('egg');
+  };
+
+  const successfulResponse = await kubernetesApiWrappers.retryKubernetesApiRequest(functionThatFailsJustEnoughTimes);
+  t.equals(
+    successfulResponse,
+    'egg',
+    'keeps retrying on ETIMEDOUT as long as we don\'t cross max attempts',
+  );
+
+  failures = 0;
+  const functionThatFailsOneTooManyTimes = () => {
+    if (failures < kubernetesApiWrappers.ATTEMPTS_MAX) {
+      failures +=1;
+      return Promise.reject(retryableErrorResponse);
+    }
+    return Promise.resolve('egg');
+  };
+
+  await t.rejects(
+    () => kubernetesApiWrappers.retryKubernetesApiRequest(functionThatFailsOneTooManyTimes),
+    'failure more than the maximum, rejects, even for a retryable error response',
+  );
+});
+
 tap.test('retryKubernetesApiRequest for retryable errors', async (t) => {
   const retryableErrorResponse = {response: {statusCode: 429}};
 

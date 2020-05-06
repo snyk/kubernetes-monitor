@@ -46,6 +46,14 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return false;
   }
 
+  if (err.code === 'ECONNREFUSED') {
+    return true;
+  }
+
+  if (err.code === 'ETIMEDOUT') {
+    return true;
+  }
+
   if (!(err.response)) {
     return false;
   }

@@ -6,6 +6,7 @@ import logger = require('../../common/logger');
 import { WorkloadKind } from '../types';
 import { setupInformer } from './handlers';
 import { kubeConfig, k8sApi } from '../cluster';
+import * as kubernetesApiWrappers from '../kuberenetes-api-wrappers';
 import { kubernetesInternalNamespaces } from './internal-namespaces';
 
 /**
@@ -52,7 +53,8 @@ function setupWatchesForCluster(): void {
     '/api/v1/namespaces',
     async () => {
       try {
-        return await k8sApi.coreClient.listNamespace();
+        return await kubernetesApiWrappers.retryKubernetesApiRequest(
+          () => k8sApi.coreClient.listNamespace());
       } catch (err) {
         logger.error({err}, 'error while listing namespaces');
         throw err;
