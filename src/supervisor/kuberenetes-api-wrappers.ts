@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as sleep from 'sleep-promise';
+import { IRequestError } from './types';
 
 export const ATTEMPTS_MAX = 3;
 export const DEFAULT_SLEEP_SEC = 1;
@@ -13,20 +14,11 @@ export async function retryKubernetesApiRequest<ResponseType>(
     try {
       return await func();
     } catch (err) {
-      if (!(err.response)) {
+      if (!shouldRetryRequest(err, attempt)) {
         throw err;
       }
 
-      const response = err.response;
-      if (response.statusCode !== 429) {
-        throw err;
-      }
-
-      if (attempt === ATTEMPTS_MAX) {
-        throw err;
-      }
-
-      const sleepSeconds = calculateSleepSeconds(response);
+      const sleepSeconds = calculateSleepSeconds(err.response);
       await sleep(sleepSeconds * 1000);
     }
   }
@@ -47,4 +39,20 @@ export function calculateSleepSeconds(httpResponse: http.IncomingMessage): numbe
     }
   }
   return Math.min(sleepSeconds, MAX_SLEEP_SEC);
+}
+
+function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
+  if (attempt >= ATTEMPTS_MAX) {
+    return false;
+  }
+
+  if (!(err.response)) {
+    return false;
+  }
+
+  if (err.response.statusCode === 429) {
+    return true;
+  }
+
+  return false;
 }
