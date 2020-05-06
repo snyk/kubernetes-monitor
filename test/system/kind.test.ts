@@ -69,6 +69,30 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
   ]);
 
   // Setup nocks
+  nock(/https\:\/\/127\.0\.0\.1\:\d+/, { allowUnmocked: true})
+    .get('/api/v1/namespaces')
+    .times(1)
+    .replyWithError({
+      code: 'ECONNREFUSED'
+    })
+    .get('/api/v1/namespaces')
+    .times(1)
+    .replyWithError({
+      code: 'ETIMEDOUT'
+    });
+
+  nock(/https\:\/\/127\.0\.0\.1\:\d+/, { allowUnmocked: true})
+    .get('/apis/apps/v1/namespaces/snyk-monitor/deployments')
+    .times(1)
+    .replyWithError({
+      code: 'ECONNREFUSED'
+    })
+    .get('/apis/apps/v1/namespaces/snyk-monitor/deployments')
+    .times(1)
+    .replyWithError({
+      code: 'ETIMEDOUT'
+    });
+
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/workload')
     .times(1)
