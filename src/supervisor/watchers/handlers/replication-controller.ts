@@ -7,7 +7,6 @@ export async function replicationControllerWatchHandler(replicationController: V
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
       !replicationController.spec.template.metadata || !replicationController.spec.template.spec ||
       !replicationController.status) {
-    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
 

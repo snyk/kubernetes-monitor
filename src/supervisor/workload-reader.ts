@@ -3,6 +3,7 @@ import { V1OwnerReference } from '@kubernetes/client-node';
 import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
+import logger = require('../common/logger');
 
 type IWorkloadReaderFunc = (
   workloadName: string,
@@ -16,7 +17,8 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 
   if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
       !deployment.spec.template.spec || !deployment.status) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -37,7 +39,8 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 
   if (!replicaSet.metadata || !replicaSet.spec || !replicaSet.spec.template ||
       !replicaSet.spec.template.metadata || !replicaSet.spec.template.spec || !replicaSet.status) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -58,7 +61,8 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
 
   if (!statefulSet.metadata || !statefulSet.spec || !statefulSet.spec.template.metadata ||
       !statefulSet.spec.template.spec || !statefulSet.status) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -79,7 +83,8 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
 
   if (!daemonSet.metadata || !daemonSet.spec || !daemonSet.spec.template.spec ||
       !daemonSet.spec.template.metadata || !daemonSet.status) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -99,7 +104,8 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const job = jobResult.body;
 
   if (!job.metadata || !job.spec || !job.spec.template.spec || !job.spec.template.metadata) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -122,7 +128,8 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
 
   if (!cronJob.metadata || !cronJob.spec || !cronJob.spec.jobTemplate.metadata ||
       !cronJob.spec.jobTemplate.spec || !cronJob.spec.jobTemplate.spec.template.spec) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -143,7 +150,8 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
   if (!replicationController.metadata || !replicationController.spec || !replicationController.spec.template ||
       !replicationController.spec.template.metadata || !replicationController.spec.template.spec ||
       !replicationController.status) {
-    // TODO(ivanstanev): add logging to know when/if it happens!
+    logIncompleteWorkload(workloadName, namespace);
+
     return undefined;
   }
 
@@ -156,6 +164,10 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
     podSpec: replicationController.spec.template.spec,
   };
 };
+
+function logIncompleteWorkload(workloadName: string, namespace: string): void {
+  logger.info({ workloadName, namespace }, 'kubernetes api could not return workload');
+}
 
 // Here we are using the "kind" property of a k8s object as a key to map it to a reader.
 // This gives us a quick look up table where we can abstract away the internal implementation of reading a resource
