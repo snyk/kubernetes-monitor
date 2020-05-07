@@ -32,7 +32,7 @@
     "@types/child-process-promise": "^2.2.1",
     "@types/lru-cache": "^5.1.0",
     "@types/needle": "^2.0.4",
-    "@types/node": "^10.17.17",
+    "@types/node": "^10.17.19",
     "@types/sinon": "^7.5.2",
     "@types/tunnel": "0.0.1",
     "async": "^2.6.2",
