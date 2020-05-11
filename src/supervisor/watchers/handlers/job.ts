@@ -5,7 +5,6 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 
 export async function jobWatchHandler(job: V1Job): Promise<void> {
   if (!job.metadata || !job.spec || !job.spec.template.metadata || !job.spec.template.spec) {
-    // TODO(ivanstanev): possibly log this. It shouldn't happen but we should track it!
     return;
   }
 

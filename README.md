@@ -58,6 +58,11 @@ Finally, create the secret in Kubernetes by running the following command:
 kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
 ```
 
+4. If your private registry requires installing certificates (*.crt, *.cert, *.key only) please put them in a folder and create the following ConfigMap:
+```shell
+kubectl create configmap snyk-monitor-certs -n snyk-monitor --from-file=<path_to_certs_folder>
+```
+
 ## Installation from YAML files ##
 
 The `kubernetes-monitor` can run in one of two modes: constrained to a single namespace, or with access to the whole cluster.
