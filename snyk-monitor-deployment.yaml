@@ -30,6 +30,8 @@ spec:
           mountPath: "/srv/app/.docker"
         - name: temporary-storage
           mountPath: "/var/tmp"
+        - name: ssl-certs
+          mountPath: "/srv/app/certs"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -101,4 +103,8 @@ spec:
       - name: temporary-storage
         emptyDir:
           sizeLimit: 50Gi
+      - name: ssl-certs
+        configMap:
+          name: snyk-monitor-certs
+          optional: true
       serviceAccountName: snyk-monitor

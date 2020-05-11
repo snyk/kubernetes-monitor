@@ -38,10 +38,12 @@ export async function pull(
 ): Promise<void> {
   const creds = await credentials.getSourceCredentials(image);
   const credentialsParameters = getCredentialParameters(creds);
+  const certificatesParameters = getCertificatesParameters();
 
   const args: Array<processWrapper.IProcessArgument> = [];
   args.push({body: 'copy', sanitise: false});
   args.push(...credentialsParameters);
+  args.push(...certificatesParameters);
   args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
   args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
 
@@ -79,4 +81,11 @@ export function getCredentialParameters(credentials: string | undefined): Array<
     credentialsParameters.push({body: credentials, sanitise: true});
   }
   return credentialsParameters;
+}
+
+export function getCertificatesParameters(): Array<processWrapper.IProcessArgument> {
+  const certificatesParameters: Array<processWrapper.IProcessArgument> = [];
+  certificatesParameters.push({body: '--src-cert-dir', sanitise: true});
+  certificatesParameters.push({body: '/srv/app/certs', sanitise: true});
+  return certificatesParameters;
 }

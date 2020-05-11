@@ -17,8 +17,17 @@ tap.test('getCredentialParameters()', async (t) => {
     credentialParametersForSomeCredentials,
     [
       {body: '--src-creds', sanitise: true},
-      {body: someCredentials, sanitise: true}
+      {body: someCredentials, sanitise: true},
     ],
     'returns Skopeo\'s args for source credentials',
+  );
+  const certificatesParameters = skopeo.getCertificatesParameters();
+  t.same(
+    certificatesParameters,
+    [
+      {body: '--src-cert-dir', sanitise: true},
+      {body: '/srv/app/certs', sanitise: true},
+    ],
+    'returns Skopeo\'s certificate args',
   );
 });
