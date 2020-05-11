@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.27.3
+      - image: snyk/kubernetes-monitor:1.28.1
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -30,6 +30,8 @@ spec:
           mountPath: "/srv/app/.docker"
         - name: temporary-storage
           mountPath: "/var/tmp"
+        - name: ssl-certs
+          mountPath: "/srv/app/certs"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -55,7 +57,7 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.27.3
+            value: 1.28.1
           - name: HOME
             value: /srv/app
           - name: HTTP_PROXY
@@ -101,4 +103,8 @@ spec:
       - name: temporary-storage
         emptyDir:
           sizeLimit: 50Gi
+      - name: ssl-certs
+        configMap:
+          name: snyk-monitor-certs
+          optional: true
       serviceAccountName: snyk-monitor

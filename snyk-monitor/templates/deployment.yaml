@@ -32,6 +32,8 @@ spec:
             mountPath: "/srv/app/.docker"
           - name: temporary-storage
             mountPath: "/var/tmp"
+          - name: ssl-certs
+            mountPath: "/srv/app/certs"
           env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -79,3 +81,7 @@ spec:
         - name: temporary-storage
           emptyDir:
             sizeLimit: {{ .Values.temporaryStorageSize }}
+        - name: ssl-certs
+          configMap:
+            name: {{ .Values.certsConfigMap }}
+            optional: true
