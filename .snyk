@@ -18,3 +18,23 @@ patch:
         patched: '2020-04-30T14:34:25.161Z'
     - snyk-docker-plugin > @snyk/rpm-parser > eslint > table > lodash:
         patched: '2020-04-30T14:34:25.161Z'
+    - async > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk-config > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - '@kubernetes/client-node > openid-client > lodash':
+        patched: '2020-05-13T11:05:47.964Z'
+    - '@kubernetes/client-node > openid-client > node-jose > lodash':
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk > snyk-nodejs-lockfile-parser > snyk-config > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk-docker-plugin > @snyk/rpm-parser > eslint > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk > snyk-mvn-plugin > @snyk/java-call-graph-builder > snyk-config > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk-docker-plugin > @snyk/rpm-parser > eslint > inquirer > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk-docker-plugin > @snyk/rpm-parser > eslint > table > lodash:
+        patched: '2020-05-13T11:05:47.964Z'
+    - snyk > snyk-docker-plugin > snyk-nodejs-lockfile-parser > snyk-config > lodash:
+        patched: '2020-05-13T13:38:00.155Z'
