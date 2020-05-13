@@ -1,0 +1,110 @@
+version: 2.1
+
+staging_branch_only_filter: &staging_branch_only_filter
+  filters:
+    branches:
+      only:
+        - staging
+
+master_branch_only_filter: &master_branch_only_filter
+  filters:
+    branches:
+      only:
+        - master
+
+main_branches_filter: &main_branches_filter
+  filters:
+    branches:
+      ignore:
+        - staging
+        - master
+        - RUN-921/chore/automate-operator-testing
+
+workflows:
+  PR_TO_STAGING:
+    jobs:
+      - create_local_cluster:
+          filters:
+            branches:
+              only:
+                - RUN-921/chore/automate-operator-testing
+      - build_image:
+          <<: *main_branches_filter
+      - build_operator:
+          <<: *main_branches_filter
+      - unit_tests:
+          <<: *main_branches_filter
+      - system_tests:
+          <<: *main_branches_filter
+      - integration_tests:
+          requires:
+            - build_image
+          <<: *main_branches_filter
+      - integration_tests_helm:
+          requires:
+            - build_image
+          <<: *main_branches_filter
+
+  MERGE_TO_STAGING:
+    jobs:
+      - build_image:
+          <<: *staging_branch_only_filter
+      - build_operator:
+          <<: *staging_branch_only_filter
+      - upload_operator:
+          requires:
+            - build_operator
+          <<: *staging_branch_only_filter
+      - unit_tests:
+          <<: *staging_branch_only_filter
+      - system_tests:
+          <<: *staging_branch_only_filter
+      - integration_tests:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
+      - integration_tests_helm:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
+      - integration_tests_proxy:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
+      - eks_integration_tests:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
+      - openshift3_integration_tests:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
+      - openshift4_integration_tests:
+          requires:
+            - build_image
+            - build_operator
+            - upload_operator
+          <<: *staging_branch_only_filter
+      - tag_and_push:
+          requires:
+            - build_image
+            - build_operator
+            - unit_tests
+            - system_tests
+            - integration_tests
+            - integration_tests_helm
+            - integration_tests_proxy
+          <<: *staging_branch_only_filter
+      - deploy_dev:
+          requires:
+            - tag_and_push
+          <<: *staging_branch_only_filter
+
+  MERGE_TO_MASTER:
+    jobs:
+      - publish:
+          <<: *master_branch_only_filter
+      - deploy_prod:
+          requires:
+            - publish
+          <<: *master_branch_only_filter
