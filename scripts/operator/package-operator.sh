@@ -22,6 +22,7 @@ set -e
 NEW_OPERATOR_VERSION="$1"
 NEW_OPERATOR_IMAGE_TAG="$2"
 NEW_MONITOR_IMAGE_TAG="$3"
+OPERATOR_REPLACES_VERSION="$4"
 
 CSV_LOCATION="./snyk-operator/deploy/olm-catalog/snyk-operator"
 OPERATOR_PACKAGE_YAML_LOCATION="${CSV_LOCATION}/snyk-operator.package.yaml"
@@ -42,6 +43,10 @@ sed -i.bak "s|SNYK_OPERATOR_VERSION_OVERRIDE|${NEW_OPERATOR_VERSION}|g" "${TARGE
 sed -i.bak "s|SNYK_OPERATOR_IMAGE_TAG_OVERRIDE|${NEW_OPERATOR_IMAGE_TAG}|g" "${TARGET_CSV}"
 sed -i.bak "s|SNYK_MONITOR_IMAGE_TAG_OVERRIDE|${NEW_MONITOR_IMAGE_TAG}|g" "${TARGET_CSV}"
 rm "${TARGET_CSV}.bak"
+
+if [[ "$OPERATOR_REPLACES_VERSION" != "" ]]; then
+  echo "  replaces: snyk-operator.v${OPERATOR_REPLACES_VERSION}" >> "${TARGET_CSV}"
+fi
 
 echo "Operator version: ${NEW_OPERATOR_VERSION}"
 echo "Operator image tag: ${NEW_OPERATOR_IMAGE_TAG}"

@@ -15,5 +15,6 @@ metadata:
 spec:
   channel: stable
   name: snyk-operator
+  installPlanApproval: Automatic
   source: snyk-operator
   sourceNamespace: openshift-marketplace
