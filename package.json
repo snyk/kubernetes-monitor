@@ -49,7 +49,7 @@
     "typescript": "^3.8.3",
     "ws": "^7.2.1",
     "yaml": "^1.7.2",
-    "snyk": "^1.316.0"
+    "snyk": "^1.320.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.22.0",
