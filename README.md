@@ -63,6 +63,21 @@ kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockerc
 kubectl create configmap snyk-monitor-certs -n snyk-monitor --from-file=<path_to_certs_folder>
 ```
 
+5. If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
+
+Create a file named `registries.conf`, see example adding an insecure registry: 
+
+```
+[[registry]]
+location = "internal-registry-for-example.net/bar"
+insecure = true
+```
+
+Once you've created the file, you can use it to create the following ConfigMap:
+```shell
+kubectl create configmap snyk-monitor-registries-conf -n snyk-monitor --from-file=<path_to_registries_conf_file>
+```
+
 ## Installation from YAML files ##
 
 The `kubernetes-monitor` can run in one of two modes: constrained to a single namespace, or with access to the whole cluster.
