@@ -6,6 +6,7 @@
 # The currently used keys within the secret are: "dockercfg.json", "integrationId".
 monitorSecrets: snyk-monitor
 certsConfigMap: snyk-monitor-certs
+registriesConfConfigMap: snyk-monitor-registries-conf
 
 # One of: Cluster, Namespaced
 # Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
