@@ -32,6 +32,8 @@ spec:
           mountPath: "/var/tmp"
         - name: ssl-certs
           mountPath: "/srv/app/certs"
+        - name: registries-conf
+          mountPath: "/srv/app/.config/containers"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -106,5 +108,9 @@ spec:
       - name: ssl-certs
         configMap:
           name: snyk-monitor-certs
+          optional: true
+      - name: registries-conf
+        configMap:
+          name: snyk-monitor-registries-conf
           optional: true
       serviceAccountName: snyk-monitor
