@@ -4,7 +4,7 @@
 FROM golang:1.13.1-alpine3.10 AS skopeo-build
 
 RUN apk --no-cache add git make gcc musl-dev ostree-dev go-md2man
-RUN git clone --depth 1 -b 'v0.1.39' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+RUN git clone --depth 1 -b 'v0.2.0' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
 RUN cd $GOPATH/src/github.com/containers/skopeo \
   && make binary-local-static DISABLE_CGO=1 \
   && make install
