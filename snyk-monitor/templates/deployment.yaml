@@ -34,6 +34,8 @@ spec:
             mountPath: "/var/tmp"
           - name: ssl-certs
             mountPath: "/srv/app/certs"
+          - name: registries-conf
+            mountPath: "/srv/app/.config/containers"
           env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -84,4 +86,8 @@ spec:
         - name: ssl-certs
           configMap:
             name: {{ .Values.certsConfigMap }}
+            optional: true
+        - name: registries-conf
+          configMap:
+            name: {{ .Values.registriesConfConfigMap }}
             optional: true

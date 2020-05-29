@@ -6,6 +6,7 @@
 # The currently used keys within the secret are: "dockercfg.json", "integrationId".
 monitorSecrets: snyk-monitor
 certsConfigMap: snyk-monitor-certs
+registriesConfConfigMap: snyk-monitor-registries-conf
 
 # One of: Cluster, Namespaced
 # Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
@@ -18,7 +19,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.28.3
+  tag: 1.29.0
   pullPolicy: Always
 
 # The snyk-monitor requires knowing the cluster name so that it can organise
