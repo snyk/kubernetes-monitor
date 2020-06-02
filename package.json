@@ -40,7 +40,7 @@
     "bunyan": "^1.8.12",
     "child-process-promise": "^2.2.1",
     "lru-cache": "^5.1.1",
-    "needle": "^2.4.0",
+    "needle": "^2.5.0",
     "sleep-promise": "^8.0.1",
     "snyk-config": "3.0.0",
     "snyk-docker-plugin": "2.8.0",
