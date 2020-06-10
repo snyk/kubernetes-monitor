@@ -798,4 +798,9 @@ workflows:
             - master
         requires:
         - build_image
+    - operator_upgrade_tests:
+        filters:
+          branches:
+            only:
+            - chore/overnight-operator-testing
 
