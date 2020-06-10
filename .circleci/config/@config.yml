@@ -43,6 +43,11 @@ workflows:
             branches:
               only:
                 - chore/overnight-operator-testing
+      - push_operator_to_community_operators:
+          filters:
+            branches:
+              only:
+                - chore/overnight-operator-testing
 
   MERGE_TO_STAGING:
     jobs:
