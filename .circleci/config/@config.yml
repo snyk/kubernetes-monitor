@@ -42,7 +42,7 @@ workflows:
           filters:
             branches:
               only:
-                - chore/overnight-operator-testing
+                - chore/push-operator
 
   MERGE_TO_STAGING:
     jobs:

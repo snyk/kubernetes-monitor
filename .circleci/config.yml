@@ -872,5 +872,5 @@ workflows:
         filters:
           branches:
             only:
-            - chore/overnight-operator-testing
+            - chore/push-operator
 
