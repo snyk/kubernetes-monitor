@@ -200,6 +200,11 @@ steps:
         echo "Update complete!"
 
   - run:
+      name: Notify Slack on successful upgrade
+      command: |
+        ./scripts/slack/notify_success_openshift_upgrade.py "${OPERATOR_VERSION}" "${LATEST_TAG}"
+
+  - run:
       name: Cleanup
       command: |
         set +e

@@ -465,6 +465,10 @@ jobs:
         name: Upgrade Operator and check that snyk-monitor also upgraded
     - run:
         command: |
+          ./scripts/slack/notify_success_openshift_upgrade.py "${OPERATOR_VERSION}" "${LATEST_TAG}"
+        name: Notify Slack on successful upgrade
+    - run:
+        command: |
           set +e
 
           curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
