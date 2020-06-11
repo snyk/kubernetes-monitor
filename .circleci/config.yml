@@ -609,6 +609,10 @@ jobs:
           git push --set-upstream origin --force snyk/snyk-operator-v${NEW_OPERATOR_VERSION}
         name: Push new Operator to the fork of the community-operators repository
     - run:
+        command: |
+          ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}"
+        name: Notify Slack on new branch in snyk/community-operators
+    - run:
         command: ./scripts/slack/notify_failure.py "push-new-operator"
         name: Notify Slack on failure
         when: on_fail
