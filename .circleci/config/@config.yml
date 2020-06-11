@@ -102,3 +102,14 @@ workflows:
           requires:
             - publish
           <<: *master_branch_only_filter
+
+  NIGHTLY:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - operator_upgrade_tests
