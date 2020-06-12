@@ -17,7 +17,7 @@ steps:
         sudo apt install -y uuid-runtime
         python -m pip install requests pyyaml
         python -m pip install operator-courier
-  
+
   - install_python_requests
 
   - run:
@@ -44,6 +44,23 @@ steps:
 
         echo "Currently released version is: ${OPERATOR_VERSION}"
         echo "export OPERATOR_VERSION=${OPERATOR_VERSION}" >> $BASH_ENV
+
+  - run:
+      name: Get latest snyk-monitor tag
+      description: |
+        This tag is used to identify the Operator version we are going to upgrade to.
+      command: |
+        LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+        LATEST_TAG=${LATEST_TAG_WITH_V:1}
+        echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+
+  - run:
+      name: End tests early if no new Operator is to be released
+      command: |
+        if [[ "${LATEST_TAG}" == "${OPERATOR_VERSION}" ]]; then
+          echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
+          exit 1
+        fi
 
   - run:
       name: Package and deploy last released Operator
@@ -150,9 +167,6 @@ steps:
       command: |
         set -eo pipefail
 
-        LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
-        LATEST_TAG=${LATEST_TAG_WITH_V:1}
-
         REPLACES_VERSION=${OPERATOR_VERSION}
 
         CSV_LOCATION="./snyk-operator/deploy/olm-catalog/snyk-operator"
@@ -228,5 +242,8 @@ steps:
 
   - run:
       name: Notify Slack on failure
-      command: ./scripts/slack/notify_failure.py "nightly-operator-upgrade-tests"
+      command: |
+        if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
+          ./scripts/slack/notify_failure.py "nightly-operator-upgrade-tests"
+        fi
       when: on_fail
