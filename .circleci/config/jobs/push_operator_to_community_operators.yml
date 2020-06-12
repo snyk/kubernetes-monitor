@@ -36,6 +36,14 @@ steps:
         echo "export NEW_OPERATOR_VERSION=${NEW_OPERATOR_VERSION}" >> $BASH_ENV
 
   - run:
+      name: End tests early if no new Operator is to be released
+      command: |
+        if [[ "${NEW_OPERATOR_VERSION}" == "${LAST_OPERATOR_VERSION}" ]]; then
+          echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
+          exit 1
+        fi
+
+  - run:
       name: Package Operator
       command: |
         ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
@@ -78,5 +86,8 @@ steps:
 
   - run:
       name: Notify Slack on failure
-      command: ./scripts/slack/notify_failure.py "push-new-operator"
+      command: |
+        if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
+          ./scripts/slack/notify_failure.py "push-new-operator"
+        fi
       when: on_fail
