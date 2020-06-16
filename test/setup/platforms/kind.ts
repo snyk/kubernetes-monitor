@@ -59,7 +59,7 @@ async function download(osDistro: string): Promise<void> {
   } catch (error) {
     console.log('Downloading KinD...');
 
-    const url = `https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-${osDistro}-amd64`;
+    const url = `https://github.com/kubernetes-sigs/kind/releases/download/v0.8.1/kind-${osDistro}-amd64`;
     await exec(`curl -Lo ./kind ${url}`);
     chmodSync('kind', 0o755); // rwxr-xr-x
 
