@@ -36,7 +36,7 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
     // linux-oriented, not mac
     // for mac, install skopeo with brew
     console.log('installing Skopeo');
-    await exec('git clone https://github.com/containers/skopeo');
+    await exec('git clone --depth 1 -b "v0.2.0" https://github.com/containers/skopeo');
     await exec('(cd skopeo && make binary-static DISABLE_CGO=1)');
     await exec('sudo mkdir -p /etc/containers');
     await exec('sudo chown circleci:circleci /etc/containers');
