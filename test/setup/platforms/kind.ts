@@ -21,7 +21,9 @@ export async function createCluster(version: string): Promise<void> {
     // which does not necessarily have the "latest" tag
     kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
   }
-  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
+  const clusterConfigPath = "test/setup/platforms/cluster-config.yaml";
+
+  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`);
   console.log(`Created cluster ${clusterName}!`);
 }
 
@@ -59,7 +61,7 @@ async function download(osDistro: string): Promise<void> {
   } catch (error) {
     console.log('Downloading KinD...');
 
-    const url = `https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-${osDistro}-amd64`;
+    const url = `https://github.com/kubernetes-sigs/kind/releases/download/v0.8.1/kind-${osDistro}-amd64`;
     await exec(`curl -Lo ./kind ${url}`);
     chmodSync('kind', 0o755); // rwxr-xr-x
 
