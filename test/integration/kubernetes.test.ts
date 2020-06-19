@@ -1,5 +1,4 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
-import { exec } from 'child-process-promise';
 import setup = require('../setup');
 import * as tap from 'tap';
 import { WorkloadKind } from '../../src/supervisor/types';
@@ -22,12 +21,6 @@ tap.tearDown(async() => {
   console.log('Begin removing the snyk-monitor...');
   await setup.removeMonitor();
   console.log('Removed the snyk-monitor!');
-  console.log('Begin removing local container registry...');
-  await setup.removeLocalContainerRegistry();
-  console.log('Removed local container registry');
-  console.log('Begin removing "kind" network...');
-  await setup.removeUnusedKindNetwork();
-  console.log('Removed "kind" network');
 });
 
 // Make sure this runs first -- deploying the monitor for the next tests
@@ -70,19 +63,6 @@ tap.test('snyk-monitor container started', async (t) => {
   t.ok(monitorPod!.status !== undefined, 'Snyk monitor status object exists');
   t.notEqual(monitorPod!.status!.phase, 'Failed', 'Snyk monitor container didn\'t fail');
   console.log('Done -- snyk-monitor exists!');
-});
-
-tap.test('create local container registry and push an image', async (t) => {
-  console.log('Creating local container registry...');
-  await exec('docker run -d --restart=always -p "5000:5000" --name "kind-registry" registry:2');
-  await exec('docker network connect "kind" "kind-registry"');
-  
-  console.log('Pushing python:rc-buster image to the local registry');
-  //Note: this job takes a while and waitForJob() should be called before trying to access local registry image,
-  //to make sure it completed
-  await kubectl.applyK8sYaml('./test/fixtures/insecure-registries/push-dockerhub-image-to-local-registry.yaml');
-
-  t.pass('successfully started a job to push image to a local registry');
 });
 
 tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
@@ -244,46 +224,6 @@ tap.test('snyk-monitor pulls images from a private ECR and sends data to kuberne
     'expected dependencyGraphResults field to exist in /dependency-graphs response');
   t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
     'snyk-monitor sent expected data to upstream in the expected timeframe');
-});
-
-tap.test('snyk-monitor pulls images from a local registry and sends data to kubernetes-upstream', async (t) => {
-  t.plan(4);
-
-  const deploymentName = 'python-local';
-  const namespace = 'services';
-  const clusterName = 'Default cluster';
-  const deploymentType = WorkloadKind.Deployment;
-  const imageName = 'kind-registry:5000/python:rc-buster';
-
-  await kubectl.waitForJob('push-to-local-registry', 'default');
-  
-  console.log('Applying local registry workload...');
-  await kubectl.applyK8sYaml('./test/fixtures/insecure-registries/python-local-deployment.yaml');
-
-  console.log(`Begin polling upstream for the expected kind-registry:5000 image with integration ID ${integrationId}...`);
-
-  const validatorFn: WorkloadLocatorValidator = (workloads) => {
-    return workloads !== undefined &&
-      workloads.find((workload) => workload.name === deploymentName &&
-        workload.type === WorkloadKind.Deployment) !== undefined;
-  };
-
-  const testResult = await validateUpstreamStoredData(
-    validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
-  t.ok(testResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
-
-  const depGraphResult = await getUpstreamResponseBody(
-    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
-  
-  t.ok('dependencyGraphResults' in depGraphResult,
-  'expected dependencyGraphResults field to exist in /dependency-graphs response');
-
-  /* Because of a bug in removeTagFromImage() func in src/scanner/images/index.ts, 
-  which chops off everything after ':' from the image name, we store a wrong image name 
-  and the result does not exist in the object referred below */
-  t.same(depGraphResult.dependencyGraphResults[imageName], null,
-  'expected result for image kind-registry:5000/python:rc-buster does not exist');
-  t.ok('kind-registry' in depGraphResult.dependencyGraphResults, 'BUG: the full image name is not stored in kubernetes-upstream');
 });
 
 tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t) => {
