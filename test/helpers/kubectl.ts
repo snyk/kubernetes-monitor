@@ -64,16 +64,6 @@ export async function createSecret(
   console.log(`Created secret ${secretName}`);
 }
 
-export async function createConfigMap(
-  configMapName: string,
-  namespace: string,
-  filePath: string
-): Promise<void> {
-  console.log(`Creating config map ${configMapName} in namespace ${namespace}...`);
-  await exec(`./kubectl create configmap ${configMapName} -n ${namespace} --from-file=${filePath}`);
-  console.log(`Created config map ${configMapName}`);
-}
-
 export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
   console.log(`Applying ${pathToYamlDeployment}...`);
   await exec(`./kubectl apply -f ${pathToYamlDeployment}`);
@@ -153,22 +143,6 @@ export async function waitForServiceAccount(name: string, namespace: string): Pr
       await sleep(500);
     }
   }
-}
-
-export async function waitForJob(name: string, namespace: string): Promise<void> {
-  console.log(`Trying to find job ${name} in namespace ${namespace}`);
-  for (let attempt = 0; attempt < 60; attempt++) {
-    try {
-      await exec(`./kubectl get jobs/${name} -n ${namespace}`);
-    } catch (error) {
-      await sleep(1000);
-    }
-  }
-  console.log(`Found job ${name} in namespace ${namespace}`);
-
-  console.log(`Begin waiting for job ${name} in namespace ${namespace} to complete`);
-  await exec(`./kubectl wait --for=condition=complete jobs/${name} -n ${namespace} --timeout=240s`);
-  console.log(`Job ${name} in namespace ${namespace} is complete`);
 }
 
 async function getLatestStableK8sRelease(): Promise<string> {
