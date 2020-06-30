@@ -93,3 +93,29 @@ Run with:
 * `npm run test:integration:apk`
 * `npm run test:integration:apt`
 * `npm run test:integration:rpm`
+
+## Debugging with Tilt ##
+
+Tilt allows you to run and debug the snyk-monitor while it is running in a container. Tilt deploys the snyk-monitor using the same Helm chart that we publish to users.
+
+You can download Tilt from the [Tilt GitHub repository](https://github.com/tilt-dev/tilt#install-tilt).
+
+### Start a debugging session ###
+
+First, ensure you have the snyk-monitor namespace set up and the snyk-monitor Secret with your integration ID and dockercfg (as per the prerequisites for installing snyk-monitor).
+
+Finally, put breakpoints in the code and run `tilt up`.
+
+### Errors with read-only file system ###
+
+If you see an error like the following...
+
+```shell
+Error: EROFS: read-only file system, mkdir '/srv/app/.npm/_npx'
+```
+
+... it means that the `readOnlyRootFilesystem` protection on the snyk-monitor Helm Deployment causes issues with Tilt. This can be fixed by removing the `readOnlyRootFilesystem: true` value from the Helm chart located in `snyk-monitor/templates/deployment.yaml`.
+
+### Cleaning up ###
+
+Run `tilt down` to tear down the debugging session.
