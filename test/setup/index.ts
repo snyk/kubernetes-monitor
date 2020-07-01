@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
+import { exec } from 'child-process-promise';
 
 import platforms, { getKubernetesVersionForPlatform } from './platforms';
 import deployers from './deployers';
@@ -37,6 +38,22 @@ export async function removeMonitor(): Promise<void> {
   }
 }
 
+export async function removeLocalContainerRegistry(): Promise<void> {
+  try {
+    await exec('docker rm kind-registry --force');
+  } catch (error) {
+    console.log(`Could not remove container registry, it probably did not exist: ${error.message}`);
+  }
+}
+
+export async function removeUnusedKindNetwork(): Promise<void> {
+  try {
+    await exec('docker network rm kind');
+  } catch (error) {
+    console.log(`Could not remove "kind" network: ${error.message}`);
+  }
+}
+
 async function createEnvironment(): Promise<void> {
   // TODO: we probably want to use k8s-api for that, not kubectl
   await kubectl.createNamespace('services');
@@ -56,6 +73,7 @@ async function predeploy(integrationId: string): Promise<void> {
       'dockercfg.json': gcrDockercfg,
       integrationId,
     });
+    await createRegistriesConfigMap();
   } catch (error) {
     console.log('Could not create namespace and secret, they probably already exist');
   }
@@ -78,6 +96,10 @@ async function createSecretForGcrIoAccess(): Promise<void> {
     gcrKubectlSecretsKeyPrefix,
     gcrSecretType,
   );
+}
+
+async function createRegistriesConfigMap(): Promise<void> {
+  await kubectl.createConfigMap('snyk-monitor-registries-conf', 'snyk-monitor', './test/fixtures/insecure-registries/registries.conf');
 }
 
 export async function deployMonitor(): Promise<string> {
