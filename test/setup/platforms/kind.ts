@@ -21,7 +21,9 @@ export async function createCluster(version: string): Promise<void> {
     // which does not necessarily have the "latest" tag
     kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
   }
-  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument}`);
+  const clusterConfigPath = "test/setup/platforms/cluster-config.yaml";
+
+  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`);
   console.log(`Created cluster ${clusterName}!`);
 }
 
