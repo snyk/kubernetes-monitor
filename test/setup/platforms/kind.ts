@@ -7,7 +7,7 @@ const clusterName = 'kind';
 
 export async function setupTester(): Promise<void> {
   const osDistro = platform();
-  await download(osDistro);
+  await download(osDistro, 'v0.8.1');
 }
 
 export async function createCluster(version: string): Promise<void> {
@@ -55,13 +55,13 @@ export async function clean(): Promise<void> {
   throw new Error('Not implemented');
 }
 
-async function download(osDistro: string): Promise<void> {
+export async function download(osDistro: string, kindVersion: string): Promise<void> {
   try {
     accessSync(resolve(process.cwd(), 'kind'), constants.R_OK);
   } catch (error) {
-    console.log('Downloading KinD...');
+    console.log(`Downloading KinD ${kindVersion}...`);
 
-    const url = `https://github.com/kubernetes-sigs/kind/releases/download/v0.8.1/kind-${osDistro}-amd64`;
+    const url = `https://github.com/kubernetes-sigs/kind/releases/download/${kindVersion}/kind-${osDistro}-amd64`;
     await exec(`curl -Lo ./kind ${url}`);
     chmodSync('kind', 0o755); // rwxr-xr-x
 
