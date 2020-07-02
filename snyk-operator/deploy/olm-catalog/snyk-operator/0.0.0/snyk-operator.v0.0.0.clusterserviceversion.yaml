@@ -1,6 +1,11 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
+  labels:
+    app.kubernetes.io/instance: snyk-monitor
+    app.kubernetes.io/version: 0.0.0
+    app.kubernetes.io/name: snyk-monitor
+    app.kubernetes.io/managed-by: operator
   annotations:
     alm-examples: |-
       [
@@ -8,7 +13,18 @@ metadata:
           "apiVersion": "charts.helm.k8s.io/v1alpha1",
           "kind": "SnykMonitor",
           "metadata": {
-            "name": "snyk-monitor"
+            "name": "snyk-monitor",
+            "labels": {
+              "app.kubernetes.io/instance": "snyk-monitor",
+              "app.kubernetes.io/version": "0.0.0",
+              "app.kubernetes.io/name": "snyk-monitor",
+              "app.kubernetes.io/managed-by": "operator"
+            },
+            "annotations": {
+              "productID": "OVERRIDE_TO_METERING_PRODUCT_ID",
+              "productName": "snyk-monitor",
+              "productVersion": "0.0.0"
+            }
           },
           "spec": {
             "clusterName": "",
@@ -33,6 +49,9 @@ metadata:
     description: |-
       A Kubernetes Operator for creating and managing Snyk controller instances.
     certified: "false"
+    productID: OVERRIDE_TO_METERING_PRODUCT_ID
+    productName: snyk-monitor
+    productVersion: 0.0.0
   name: snyk-operator.vSNYK_OPERATOR_VERSION_OVERRIDE
   namespace: snyk-monitor
 spec:
@@ -216,6 +235,15 @@ spec:
                     drop:
                       - ALL
               serviceAccountName: snyk-operator
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: kubernetes.io/arch
+                        operator: In
+                        values:
+                        - amd64
     strategy: deployment
   installModes:
   - supported: true
