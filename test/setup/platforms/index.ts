@@ -1,5 +1,6 @@
 import * as kind from './kind';
 import * as eks from './eks';
+import * as openshift3 from './openshift3';
 import * as openshift4 from './openshift4';
 
 interface IPlatformSetup {
@@ -42,7 +43,7 @@ const openshift3Setup: IPlatformSetup = {
   delete: kind.deleteCluster,
   config: kind.exportKubeConfig,
   clean: kind.clean,
-  setupTester: kind.setupTester,
+  setupTester: openshift3.setupTester,
 };
 
 const openshift4Setup: IPlatformSetup = {
