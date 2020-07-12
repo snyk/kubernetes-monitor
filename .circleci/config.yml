@@ -953,4 +953,12 @@ workflows:
             - master
         requires:
         - build_image
+    - integration_tests_proxy:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_image
 

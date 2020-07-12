@@ -42,6 +42,10 @@ workflows:
           requires:
             - build_image
           <<: *main_branches_filter
+      - integration_tests_proxy:
+          requires:
+            - build_image
+          <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
