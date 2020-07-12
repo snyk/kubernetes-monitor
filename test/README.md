@@ -40,7 +40,7 @@ Please note that `docker` needs to be installed in order for this script to succ
 As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `GCR_IO_DOCKERCFG`.
 
 Our integration tests may use different Kubernetes platforms to host the Kubernetes-Monitor. These platforms may use an existing cluster, or create a new one. Both decisions are based on the environment variables:
-* `TEST_PLATFORM` (`kind`, `eks`)
+* `TEST_PLATFORM` (`kind`, `kindolm`, `eks`)
 * `CREATE_CLUSTER` (`true`, `false`).
 
 Additionally, the deployment of the Kubernetes-Monitor can be configured through an environment variable:
@@ -82,6 +82,14 @@ This test uses an existing OpenShift 4 account with an existing OpenShift 4 clus
 This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
 
 Run with `npm run test:integration:openshift4`.
+
+### KinD with OLM ###
+
+This test helps us ensure our operator is installable and functioning on a plain k8s cluster.
+
+This test runs whenever we commit to any branch.
+
+Run with `npm run test:integration:kindolm:operator`.
 
 ### Package Managers ###
 

@@ -38,6 +38,10 @@ workflows:
           requires:
             - build_image
           <<: *main_branches_filter
+      - integration_tests_proxy:
+          requires:
+            - build_image
+          <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
@@ -73,11 +77,18 @@ workflows:
           requires:
             - build_image
           <<: *staging_branch_only_filter
+      - integration_tests_operator_on_k8s:
+          requires:
+            - build_image
+            - build_operator
+            - upload_operator
+          <<: *staging_branch_only_filter
       - openshift4_integration_tests:
           requires:
             - build_image
             - build_operator
             - upload_operator
+            - integration_tests_operator_on_k8s
           <<: *staging_branch_only_filter
       - tag_and_push:
           requires:

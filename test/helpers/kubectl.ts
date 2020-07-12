@@ -74,7 +74,14 @@ export async function createConfigMap(
   console.log(`Created config map ${configMapName}`);
 }
 
-export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
+export async function applyK8sYaml(pathToYamlDeployment: string, namespace?: string): Promise<void> {
+  if (namespace) {
+    console.log(`Applying ${pathToYamlDeployment} to namespace ${namespace}...`);
+    await exec(`./kubectl apply -f ${pathToYamlDeployment} -n ${namespace}`);
+    console.log(`Applied ${pathToYamlDeployment} to namespace ${namespace}`);
+    return;
+  }
+
   console.log(`Applying ${pathToYamlDeployment}...`);
   await exec(`./kubectl apply -f ${pathToYamlDeployment}`);
   console.log(`Applied ${pathToYamlDeployment}`);
@@ -122,6 +129,13 @@ export async function getPodNames(namespace: string): Promise<string[]> {
   return podsOutput.stdout.split('\n');
 }
 
+export async function getNamespaces(): Promise<string[]> {
+  const commandPrefix = `./kubectl get ns`;
+  const onlyNames = ' --template \'{{range .items}}{{.metadata.name}}{{"\\n"}}{{end}}\'';
+  const nsOutput = await exec(commandPrefix+onlyNames);
+  return nsOutput.stdout.split('\n');
+}
+
 export async function getPodLogs(podName: string, namespace: string): Promise<any> {
   const logsOutput = await exec(`./kubectl -n ${namespace} logs ${podName}`);
   return logsOutput.stdout;
@@ -148,6 +162,18 @@ export async function waitForServiceAccount(name: string, namespace: string): Pr
   while (true) {
     try {
       await exec(`./kubectl get serviceaccount ${name} -n ${namespace}`);
+      break;
+    } catch (err) {
+      await sleep(500);
+    }
+  }
+}
+
+export async function waitForCRD(name: string): Promise<void> {
+  // TODO: add some timeout
+  while (true) {
+    try {
+      await exec(`./kubectl get crd ${name}`);
       break;
     } catch (err) {
       await sleep(500);
