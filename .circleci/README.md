@@ -1,6 +1,6 @@
 # CircleCI configuration #
 
-If you want to generate a new CircleCI configuration, edit the relevant files (do not touch `config.ylm` in the current directory) and then run:
+If you want to generate a new CircleCI configuration, edit the relevant files (do not touch `config.yml` in the current directory) and then run:
 
 ```shell
 cd kubernetes-monitor
