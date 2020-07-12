@@ -135,7 +135,7 @@ export async function deployMonitor(): Promise<string> {
     await predeploy(integrationId);
 
     // TODO: hack, rewrite this
-    const imagePullPolicy = testPlatform === 'kind' || testPlatform === 'openshift3' ? 'Never' : 'Always';
+    const imagePullPolicy = testPlatform === 'kind' || testPlatform === 'kindolm' || testPlatform === 'openshift3' ? 'Never' : 'Always';
     const deploymentImageOptions: IImageOptions = {
       nameAndTag: remoteImageName,
       pullPolicy: imagePullPolicy,
