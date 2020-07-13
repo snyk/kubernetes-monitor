@@ -26,6 +26,10 @@ workflows:
           <<: *main_branches_filter
       - build_operator:
           <<: *main_branches_filter
+      - upload_operator:
+          requires:
+            - build_operator
+          <<: *main_branches_filter
       - unit_tests:
           <<: *main_branches_filter
       - system_tests:
@@ -45,6 +49,12 @@ workflows:
       - integration_tests_proxy:
           requires:
             - build_image
+          <<: *main_branches_filter
+      - integration_tests_operator_on_k8s:
+          requires:
+            - build_image
+            - build_operator
+            - upload_operator
           <<: *main_branches_filter
 
   MERGE_TO_STAGING:

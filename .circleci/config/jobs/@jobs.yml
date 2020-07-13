@@ -194,7 +194,7 @@ integration_tests_operator_on_k8s:
         name: Delete Operator from Quay
         command: |
           ./scripts/operator/delete-operator-from-quay.sh
-        when: on_fail # it will be deleted on success in the openshift4 tests
+        when: always # it will be deleted on success in the openshift4 tests
     - run:
         command: |
           ./scripts/slack/notify_failure_on_branch.py "staging-integration-operator-k8s-tests-${CIRCLE_SHA1}"

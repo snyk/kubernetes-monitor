@@ -219,7 +219,7 @@ jobs:
         command: |
           ./scripts/operator/delete-operator-from-quay.sh
         name: Delete Operator from Quay
-        when: on_fail
+        when: always
     - run:
         command: |
           ./scripts/slack/notify_failure_on_branch.py "staging-integration-operator-k8s-tests-${CIRCLE_SHA1}"
@@ -917,6 +917,14 @@ workflows:
             ignore:
             - staging
             - master
+    - upload_operator:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_operator
     - unit_tests:
         filters:
           branches:
@@ -961,4 +969,14 @@ workflows:
             - master
         requires:
         - build_image
+    - integration_tests_operator_on_k8s:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_image
+        - build_operator
+        - upload_operator
 
