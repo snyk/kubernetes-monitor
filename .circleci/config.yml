@@ -292,7 +292,7 @@ jobs:
         command: |
           sudo apt install -y uuid-runtime
           python -m pip install requests pyyaml
-          python -m pip install operator-courier
+          python -m pip install operator-courier==2.1.7
         name: Install required packages
     - install_python_requests
     - run:
@@ -712,7 +712,7 @@ jobs:
     - attach_workspace:
         at: snyk-operator
     - run:
-        command: pip3 install operator-courier
+        command: pip3 install operator-courier==2.1.7
         name: Install operator-courier
     - run:
         command: |
