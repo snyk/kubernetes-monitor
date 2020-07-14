@@ -16,7 +16,7 @@ steps:
       command: |
         sudo apt install -y uuid-runtime
         python -m pip install requests pyyaml
-        python -m pip install operator-courier
+        python -m pip install operator-courier==2.1.7
 
   - install_python_requests
 
