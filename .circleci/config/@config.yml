@@ -26,6 +26,16 @@ workflows:
           <<: *main_branches_filter
       - build_operator:
           <<: *main_branches_filter
+      - upload_operator:
+          <<: *main_branches_filter
+          requires:
+          - build_operator
+      - openshift4_integration_tests:
+          <<: *main_branches_filter
+          requires:
+          - build_image
+          - build_operator
+          - upload_operator
       - unit_tests:
           <<: *main_branches_filter
       - system_tests:

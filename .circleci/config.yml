@@ -264,7 +264,7 @@ jobs:
     - run:
         command: |
           export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
+          .circleci/do-exclusively --branch ${CIRCLE_BRANCH} --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
         name: Integration tests OpenShift 4
     - run:
         command: |
@@ -878,6 +878,24 @@ workflows:
             ignore:
             - staging
             - master
+    - upload_operator:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_operator
+    - openshift4_integration_tests:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_image
+        - build_operator
+        - upload_operator
     - unit_tests:
         filters:
           branches:
