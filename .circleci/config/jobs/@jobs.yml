@@ -72,7 +72,7 @@ upload_operator:
         at: snyk-operator
     - run:
         name: Install operator-courier
-        command: pip3 install operator-courier
+        command: pip3 install operator-courier==2.1.7
     - run:
         name: Upload Operator to Quay
         command: |
