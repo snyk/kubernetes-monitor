@@ -41,18 +41,31 @@ export async function removePulledImages(images: IPullableImage[]): Promise<void
 }
 
 // Exported for testing
-export function removeTagFromImage(imageWithTag: string): string {
-  return imageWithTag.split('@')[0].split(':')[0];
-}
-
-// Exported for testing
-export function getImageTag(imageWithTag: string): string {
-  const imageParts: string[] = imageWithTag.split(':');
-  if (imageParts.length === 2) { // image@sha256:hash or image:tag
-    return imageParts[1];
+export function getImageParts(imageWithTag: string) : {imageName: string, imageTag: string} {
+  // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory)@<tag_identifier>(optional):<image_tag>(optional)
+  const regex = /((?:.*(:\d{4})?\/)?(?:[a-z0-9]+))([@|:].+)?/ig;
+  const groups  = regex.exec(imageWithTag);
+  
+  if(!groups){
+    logger.error({image: imageWithTag}, 'Image with tag is malformed, cannot extract valid parts');
+    return {imageName: imageWithTag, imageTag: ''};
   }
 
-  return '';
+  return {
+    imageName: groups[1],
+    imageTag: validateAndExtractImageTag(groups[3])
+  };
+}
+
+function validateAndExtractImageTag(imageTagGroup: string | undefined): string {
+  if(imageTagGroup === undefined){
+    return '';
+  }
+
+  const imageTagParts: string[]= imageTagGroup.split(':');
+
+  //valid formats: image@sha256:hash or image:tag
+  return imageTagParts.length === 2 ? imageTagParts[1] : '';
 }
 
 // Exported for testing
@@ -84,13 +97,15 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
         throw Error('Unexpected empty result from docker-plugin');
       }
 
+      const imageParts: {imageName: string, imageTag: string} = getImageParts(imageName);
+
       result.imageMetadata = {
-        image: removeTagFromImage(imageName),
-        imageTag: getImageTag(imageName),
+        image: imageParts.imageName,
+        imageTag: imageParts.imageTag,
       };
 
       scannedImages.push({
-        image: removeTagFromImage(imageName),
+        image: imageParts.imageName,
         imageWithTag: imageName,
         pluginResult: result,
       });

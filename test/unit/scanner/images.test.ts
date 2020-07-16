@@ -56,29 +56,39 @@ tap.test('constructStaticAnalysisOptions() tests', async (t) => {
   t.deepEqual(options, expectedResult, 'returned options match expectations');
 });
 
-tap.test('getImageTag() tests', async (t) => {
-  t.plan(4);
+tap.test('extracted image tag tests', async (t) => {
+  t.plan(6);
 
   const imageWithSha = 'nginx@sha256:1234567890abcdef';
-  const imageWithShaResult = scannerImages.getImageTag(imageWithSha);
-  t.same(imageWithShaResult, '1234567890abcdef', 'image sha is returned');
+  const imageWithShaResult = scannerImages.getImageParts(imageWithSha);
+  t.same(imageWithShaResult.imageTag, '1234567890abcdef', 'image sha is returned');
 
   const imageWithTag = 'nginx:latest';
-  const imageWithTagResult = scannerImages.getImageTag(imageWithTag);
-  t.same(imageWithTagResult, 'latest', 'image tag is returned');
+  const imageWithTagResult = scannerImages.getImageParts(imageWithTag);
+  t.same(imageWithTagResult.imageTag, 'latest', 'image tag is returned');
+
+  const imageWithFullRepository = 'kind-registry:5000/nginx:latest';
+  const imageWithFullRepositoryResult = scannerImages.getImageParts(imageWithFullRepository);
+  t.same(imageWithFullRepositoryResult.imageTag, 'latest', 'image tag is returned when full repo specified');
 
   const imageWithoutTag = 'nginx';
-  const imageWithoutTagResult = scannerImages.getImageTag(imageWithoutTag);
-  t.same(imageWithoutTagResult, '', 'empty tag returned when no tag is specified');
+  const imageWithoutTagResult = scannerImages.getImageParts(imageWithoutTag);
+  t.same(imageWithoutTagResult.imageTag, '', 'empty tag returned when no tag is specified');
 
   const imageWithManySeparators = 'nginx@abc:tag@bad:reallybad';
-  const imageWithManySeparatorsResult = scannerImages.getImageTag(imageWithManySeparators);
-  t.same(imageWithManySeparatorsResult, '', 'empty tag is returned on malformed image name and tag');
+  const imageWithManySeparatorsResult = scannerImages.getImageParts(imageWithManySeparators);
+  t.same(imageWithManySeparatorsResult.imageTag, '', 'empty tag is returned on malformed image name and tag');
+
+  const imageWithFullRepoAndManySeparators = 'kind-registry:5000/nginx@abc:tag@bad:reallybad';
+  const imageWithFullRepoAndManySeparatorsResult = scannerImages.getImageParts(imageWithFullRepoAndManySeparators);
+  t.same(imageWithFullRepoAndManySeparatorsResult.imageTag, '', 'empty tag is returned on malformed image name and tag with full repo');
 });
 
-tap.test('removeTagFromImage() tests', async (t) => {
-  t.plan(2);
+tap.test('extracted image name tests', async (t) => {
+  t.plan(4);
 
-  t.same(scannerImages.removeTagFromImage('nginx:latest'), 'nginx', 'removed image:tag');
-  t.same(scannerImages.removeTagFromImage('nginx:@sha256:1234567890abcdef'), 'nginx', 'removed image@sha:hex');
+  t.same(scannerImages.getImageParts('nginx:latest').imageName, 'nginx', 'removed image:tag');
+  t.same(scannerImages.getImageParts('nginx:@sha256:1234567890abcdef').imageName, 'nginx', 'removed malformed image:@sha:hex');
+  t.same(scannerImages.getImageParts('node@sha256:215a9fbef4df2c1ceb7c79481d3cfd94ad8f1f0105bade39f3be907bf386c5e1').imageName, 'node', 'removed image@sha:hex');
+  t.same(scannerImages.getImageParts('kind-registry:5000/python:rc-buster').imageName, 'kind-registry:5000/python', 'removed repository/image:tag');
 });
