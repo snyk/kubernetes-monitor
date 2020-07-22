@@ -40,7 +40,7 @@ steps:
       command: |
         set -xeo pipefail
 
-        OPERATOR_VERSION=$(python ./scripts/operator/get-last-published-operator-version.py)
+        OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
 
         echo "Currently released version is: ${OPERATOR_VERSION}"
         echo "export OPERATOR_VERSION=${OPERATOR_VERSION}" >> $BASH_ENV
