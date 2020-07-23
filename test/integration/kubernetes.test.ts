@@ -22,6 +22,10 @@ tap.tearDown(async() => {
   console.log('Begin removing the snyk-monitor...');
   await setup.removeMonitor();
   console.log('Removed the snyk-monitor!');
+
+  console.log('Begin removing "kind" network...');
+  await setup.removeUnusedKindNetwork();
+  console.log('Removed "kind" network');
 });
 
 // Make sure this runs first -- deploying the monitor for the next tests
@@ -249,9 +253,6 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
     console.log('Begin removing local container registry...');
     await setup.removeLocalContainerRegistry();
     console.log('Removed local container registry');
-    console.log('Begin removing "kind" network...');
-    await setup.removeUnusedKindNetwork();
-    console.log('Removed "kind" network');
   });
   
   if (process.env['TEST_PLATFORM'] !== 'kind') {
