@@ -3,6 +3,10 @@ import {
   IWorkloadMetadata,
 } from '../../src/transmitter/types';
 
+export type DepGraphsValidator = (depGraphs?: {
+  [name: string]: object;
+}) => boolean;
+
 export type WorkloadLocatorValidator = (
   workloads: IWorkloadLocator[] | undefined,
 ) => boolean;
