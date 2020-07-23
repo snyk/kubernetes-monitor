@@ -4,7 +4,11 @@ import {
   IWorkloadLocator,
   IWorkloadMetadata,
 } from '../../src/transmitter/types';
-import { WorkloadLocatorValidator, WorkloadMetadataValidator } from './types';
+import {
+  WorkloadLocatorValidator,
+  WorkloadMetadataValidator,
+  DepGraphsValidator,
+} from './types';
 import config = require('../../src/common/config');
 
 const UPSTREAM_POLLING_CONFIGURATION = {
@@ -19,6 +23,25 @@ export async function getUpstreamResponseBody(
   const upstreamResponse = await needle('get', url, null);
   const responseBody = upstreamResponse.body;
   return responseBody;
+}
+
+export async function validateUpstreamStoredDepGraphs(
+  validatorFn: DepGraphsValidator,
+  relativeUrl: string,
+  remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
+): Promise<boolean> {
+  while (remainingChecks > 0) {
+    console.log(`Pinging upstream for existing data (${remainingChecks} checks remaining)...`);
+    const responseBody = await getUpstreamResponseBody(relativeUrl);
+    const depGraphs = responseBody?.dependencyGraphResults;
+    const result = validatorFn(depGraphs);
+    if (result) {
+      return true;
+    }
+    await sleep(UPSTREAM_POLLING_CONFIGURATION.WAIT_BETWEEN_REQUESTS_MS);
+    remainingChecks--;
+  }
+  return false;
 }
 
 export async function validateUpstreamStoredData(
