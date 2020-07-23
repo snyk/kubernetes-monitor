@@ -8,6 +8,7 @@ import {
   validateUpstreamStoredData,
   validateUpstreamStoredMetadata,
   getUpstreamResponseBody,
+  validateUpstreamStoredDepGraphs,
 } from '../helpers/kubernetes-upstream';
 import {
   validateSecureConfiguration,
@@ -22,6 +23,10 @@ tap.tearDown(async() => {
   console.log('Begin removing the snyk-monitor...');
   await setup.removeMonitor();
   console.log('Removed the snyk-monitor!');
+
+  console.log('Begin removing "kind" network...');
+  await setup.removeUnusedKindNetwork();
+  console.log('Removed "kind" network');
 });
 
 // Make sure this runs first -- deploying the monitor for the next tests
@@ -129,7 +134,7 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
 });
 
 tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async (t) => {
-  t.plan(9);
+  t.plan(10);
 
   const deploymentName = 'binaries-deployment';
   const namespace = 'services';
@@ -139,15 +144,31 @@ tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding a
   await kubectl.applyK8sYaml('./test/fixtures/binaries-deployment.yaml');
   console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
-  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+  const workloadLocatorValidatorFn: WorkloadLocatorValidator = (workloads) => {
     return workloads !== undefined &&
       workloads.find((workload) => workload.name === deploymentName &&
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
+  const depGraphsValidatorFn = (depGraphs?: {
+    node?: object;
+    openjdk?: object;
+  }) => {
+    return (
+      depGraphs !== undefined &&
+      depGraphs.node !== undefined &&
+      depGraphs.openjdk !== undefined
+    );
+  };
+
   const testResult = await validateUpstreamStoredData(
-    validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
+    workloadLocatorValidatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(testResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
+
+  const depGraphsResult = await validateUpstreamStoredDepGraphs(
+    depGraphsValidatorFn, `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`
+  );
+  t.ok(depGraphsResult, 'snyk-monitor sent expected dependency graphs to kubernetes-upstream in the expected timeframe');
 
   const depGraphResult = await getUpstreamResponseBody(
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
@@ -249,9 +270,6 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
     console.log('Begin removing local container registry...');
     await setup.removeLocalContainerRegistry();
     console.log('Removed local container registry');
-    console.log('Begin removing "kind" network...');
-    await setup.removeUnusedKindNetwork();
-    console.log('Removed "kind" network');
   });
   
   if (process.env['TEST_PLATFORM'] !== 'kind') {

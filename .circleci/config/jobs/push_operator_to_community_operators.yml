@@ -24,7 +24,7 @@ steps:
       name: Get last released Operator version
       command: |
         set -xeo pipefail
-        LAST_OPERATOR_VERSION=$(python ./scripts/operator/get-last-published-operator-version.py)
+        LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
         echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
 
   - run:
