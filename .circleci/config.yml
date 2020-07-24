@@ -878,6 +878,24 @@ workflows:
             ignore:
             - staging
             - master
+    - upload_operator:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_operator
+    - openshift4_integration_tests:
+        filters:
+          branches:
+            ignore:
+            - staging
+            - master
+        requires:
+        - build_image
+        - build_operator
+        - upload_operator
     - unit_tests:
         filters:
           branches:
