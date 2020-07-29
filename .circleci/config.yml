@@ -409,7 +409,7 @@ jobs:
                     set -o pipefail
 
                     kubectl apply -f ./test/fixtures/operator/custom-resource.yaml
-                    sleep 30
+                    sleep 60
 
                     kubectl get pods -n snyk-monitor --no-headers | \
                       grep "snyk-monitor" | \
