@@ -35,6 +35,11 @@ COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/cont
 # Add manifest files and install before adding anything else to take advantage of layer caching
 ADD --chown=snyk:snyk package.json package-lock.json .snyk ./
 
+# The `.config` directory is used by `snyk protect` and we also mount a K8s volume there at runtime.
+# This clashes with OpenShift 3 which mounts things differently and prevents access to the directory.
+# TODO: Remove this line once OpenShift 3 comes out of support.
+RUN mkdir -p .config
+
 RUN npm install
 
 # add the rest of the app files
