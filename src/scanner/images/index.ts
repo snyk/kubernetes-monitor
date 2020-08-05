@@ -43,7 +43,7 @@ export async function removePulledImages(images: IPullableImage[]): Promise<void
 // Exported for testing
 export function getImageParts(imageWithTag: string) : {imageName: string, imageTag: string} {
   // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory)@<tag_identifier>(optional):<image_tag>(optional)
-  const regex = /((?:.*(:\d{4})?\/)?(?:[a-z0-9]+))([@|:].+)?/ig;
+  const regex = /((?:.*(:\d{4})?\/)?(?:[a-z0-9-]+))([@|:].+)?/ig;
   const groups  = regex.exec(imageWithTag);
   
   if(!groups){
