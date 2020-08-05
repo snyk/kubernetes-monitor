@@ -128,6 +128,20 @@ tap.test('isKubernetesInternalNamespace', async (t) => {
     'openshift-service-catalog-controller-manager-operator is a k8s internal namespace');
   t.ok(watchers.isKubernetesInternalNamespace('openshift-user-workload-monitoring'),
     'openshift-user-workload-monitoring is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift'),
+    'openshift is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift-config-operator'),
+    'openshift-config-operator is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift-etcd-operator'),
+    'openshift-etcd-operator is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift-kube-storage-version-migrator'),
+    'openshift-kube-storage-version-migrator is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift-kube-storage-version-migrator-operator'),
+    'openshift-kube-storage-version-migrator-operator is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift-service-catalog-removed'),
+    'openshift-service-catalog-removed is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('openshift-vsphere-infra'),
+    'openshift-vsphere-infra is a k8s internal namespace');
   t.notOk(watchers.isKubernetesInternalNamespace('kube-node-lease-'),
     'kube-node-lease- is not a k8s internal namespace');
   t.notOk(watchers.isKubernetesInternalNamespace('node-lease'),
