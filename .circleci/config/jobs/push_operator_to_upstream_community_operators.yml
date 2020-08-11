@@ -1,6 +1,6 @@
 description: |
   Packages a new Operator and pushes it to Snyk's fork of
-  the OpenShift community-operators.
+  the OpenShift upstream-community-operators.
 
 executor: redhat-openshift/default
 
@@ -24,7 +24,7 @@ steps:
       name: Get last released Operator version
       command: |
         set -xeo pipefail
-        LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
+        LAST_OPERATOR_VERSION=$(python ./scripts/operator/get-last-published-operator-version.py)
         echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
 
   - run:
@@ -49,13 +49,13 @@ steps:
         ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
 
   - run:
-      name: Push new Operator to the fork of the community-operators repository
+      name: Push new Operator to the fork of the upstream-community-operators repository
       command: |
         CURRENT_DIRECTORY=$(pwd)
-        COMMUNITY_FOLDER_LOCATION="community-operators"
+        COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
         ./scripts/operator/push-operator.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
   - run:
-      name: Notify Slack on new branch in snyk/community-operators
+      name: Notify Slack on new branch in snyk/upstream-community-operators
       command: |
         ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}"
 
@@ -63,6 +63,6 @@ steps:
       name: Notify Slack on failure
       command: |
         if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-          ./scripts/slack/notify_failure.py "push-new-operator on ${COMMUNITY_FOLDER_LOCATION}"
+          ./scripts/slack/notify_failure.py "push-new-operator on upstream-community-operators"
         fi
       when: on_fail

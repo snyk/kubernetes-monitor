@@ -116,3 +116,6 @@ workflows:
       - push_operator_to_community_operators:
           requires:
             - operator_upgrade_tests
+      - push_operator_to_upstream_community_operators:
+          requires:
+            - operator_upgrade_tests
