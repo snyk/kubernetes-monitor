@@ -16,7 +16,7 @@ steps:
   - run:
       name: Install required packages
       command: |
-        python -m pip install requests pyyaml
+        python -m pip install requests pyyaml PyGithub
 
   - install_python_requests
 
@@ -54,6 +54,11 @@ steps:
         CURRENT_DIRECTORY=$(pwd)
         COMMUNITY_FOLDER_LOCATION="community-operators"
         ./scripts/operator/push-operator.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+  - run:
+      name: Open a Pull Request to the operator-framework/community-operators repository for community-operators
+      command: |
+        COMMUNITY_FOLDER_LOCATION="community-operators"
+        python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}"
   - run:
       name: Notify Slack on new branch in snyk/community-operators
       command: |

@@ -570,7 +570,7 @@ jobs:
                     - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
             - run:
                 command: |
-                    python -m pip install requests pyyaml
+                    python -m pip install requests pyyaml PyGithub
                 name: Install required packages
             - install_python_requests
             - run:
@@ -605,6 +605,11 @@ jobs:
                 name: Push new Operator to the fork of the community-operators repository
             - run:
                 command: |
+                    COMMUNITY_FOLDER_LOCATION="community-operators"
+                    python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}"
+                name: Open a Pull Request to the operator-framework/community-operators repository for community-operators
+            - run:
+                command: |
                     ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}"
                 name: Notify Slack on new branch in snyk/community-operators
             - run:
@@ -627,13 +632,13 @@ jobs:
                     - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
             - run:
                 command: |
-                    python -m pip install requests pyyaml
+                    python -m pip install requests pyyaml PyGithub
                 name: Install required packages
             - install_python_requests
             - run:
                 command: |
                     set -xeo pipefail
-                    LAST_OPERATOR_VERSION=$(python ./scripts/operator/get-last-published-operator-version.py)
+                    LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
                     echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
                 name: Get last released Operator version
             - run:
@@ -660,6 +665,11 @@ jobs:
                     COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
                     ./scripts/operator/push-operator.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
                 name: Push new Operator to the fork of the upstream-community-operators repository
+            - run:
+                command: |
+                    COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
+                    python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}"
+                name: Open a Pull Request to the operator-framework/community-operators repository for upstream-community-operators
             - run:
                 command: |
                     ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}"
