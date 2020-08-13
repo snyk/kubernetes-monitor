@@ -27,6 +27,8 @@ def create_pull_request(new_operator_version, new_release_branch_name):
     print('Raised a PR for operator version ' +
           new_operator_version + ': ' + pr.url)
 
+    return pr.url
+
 
 if __name__ == '__main__':
     operator_upstream_folder = sys.argv[1]
@@ -41,4 +43,5 @@ if __name__ == '__main__':
         os.exit(1)
     else:
         new_operator_release_branch = get_new_operator_release_branch(new_operator_version, operator_upstream_folder)
-        create_pull_request(new_operator_version, new_operator_release_branch)
+        pr_url = create_pull_request(new_operator_version, new_operator_release_branch)
+        print(pr_url)

@@ -158,8 +158,8 @@ export async function waitForDeployment(name: string, namespace: string): Promis
 }
 
 export async function waitForServiceAccount(name: string, namespace: string): Promise<void> {
-  // TODO: add some timeout
-  while (true) {
+  console.log(`Trying to find ServiceAccount ${name} in namespace ${namespace}`);
+  for (let attempt = 0; attempt < 60; attempt++) {
     try {
       await exec(`./kubectl get serviceaccount ${name} -n ${namespace}`);
       break;
@@ -170,8 +170,8 @@ export async function waitForServiceAccount(name: string, namespace: string): Pr
 }
 
 export async function waitForCRD(name: string): Promise<void> {
-  // TODO: add some timeout
-  while (true) {
+  console.log(`Trying to find CRD ${name}`);
+  for (let attempt = 0; attempt < 60; attempt++) {
     try {
       await exec(`./kubectl get crd ${name}`);
       break;
@@ -195,6 +195,12 @@ export async function waitForJob(name: string, namespace: string): Promise<void>
   console.log(`Begin waiting for job ${name} in namespace ${namespace} to complete`);
   await exec(`./kubectl wait --for=condition=complete jobs/${name} -n ${namespace} --timeout=240s`);
   console.log(`Job ${name} in namespace ${namespace} is complete`);
+}
+
+export async function getEvents(namespace: string): Promise<string> {
+  const events  = await exec(`./kubectl get events -n ${namespace}`);
+
+  return events.stdout;
 }
 
 async function getLatestStableK8sRelease(): Promise<string> {

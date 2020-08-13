@@ -174,36 +174,6 @@ integration_tests_helm:
     - store_artifacts:
         path: /tmp/logs/test/integration/kind-helm
 
-integration_tests_operator_on_k8s:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
-        name: Create temporary directory for logs
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          npm run test:integration:kindolm:operator
-        name: Operator integration tests on plain k8s
-    - run:
-        name: Delete Operator from Quay
-        command: |
-          ./scripts/operator/delete-operator-from-quay.sh
-        when: on_fail # it will be deleted on success in the openshift4 tests
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-integration-operator-k8s-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/kind-olm-operator
-    working_directory: ~/kubernetes-monitor
-
 integration_tests_proxy:
   machine:
     enabled: true

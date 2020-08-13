@@ -38,14 +38,6 @@ workflows:
           requires:
             - build_image
           <<: *main_branches_filter
-      - integration_tests_proxy:
-          requires:
-            - build_image
-          <<: *main_branches_filter
-      - integration_tests_proxy:
-          requires:
-            - build_image
-          <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
@@ -92,7 +84,6 @@ workflows:
             - build_image
             - build_operator
             - upload_operator
-            - integration_tests_operator_on_k8s
           <<: *staging_branch_only_filter
       - tag_and_push:
           requires:
@@ -122,6 +113,17 @@ workflows:
     triggers:
       - schedule:
           cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - operator_upgrade_tests
+
+  MONTHLY:
+    triggers:
+      - schedule:
+          cron: "0 1 1 * *"
           filters:
             branches:
               only:

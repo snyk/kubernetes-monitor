@@ -53,21 +53,22 @@ steps:
       command: |
         CURRENT_DIRECTORY=$(pwd)
         COMMUNITY_FOLDER_LOCATION="community-operators"
-        ./scripts/operator/push-operator.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+        ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
   - run:
       name: Open a Pull Request to the operator-framework/community-operators repository for community-operators
       command: |
         COMMUNITY_FOLDER_LOCATION="community-operators"
-        python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}"
+        PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+        export SLACK_PR_URL=${PR_URL}
   - run:
       name: Notify Slack on new branch in snyk/community-operators
       command: |
-        ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}"
+        ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}" "${SLACK_PR_URL}"
 
   - run:
       name: Notify Slack on failure
       command: |
         if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-          ./scripts/slack/notify_failure.py "push-new-operator on ${COMMUNITY_FOLDER_LOCATION}"
+          ./scripts/slack/notify_failure.py "push-new-operator on community-operators"
         fi
       when: on_fail
