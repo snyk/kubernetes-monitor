@@ -349,6 +349,20 @@ tap.test(`snyk-monitor has resource limits`, async (t) => {
   t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
 });
 
+tap.test('snyk-monitor has nodeSelector', async (t) => {
+  t.plan(1);
+
+  if (process.env['DEPLOYMENT_TYPE'] !== 'Helm') {
+    t.pass('Not testing nodeSelector because we\'re not installing with Helm');
+    return;
+  }
+
+  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', 'snyk-monitor');
+  const spec = snykMonitorDeployment.spec.template.spec;
+
+  t.ok('nodeSelector' in spec, 'snyk-monitor has nodeSelector');
+});
+
 tap.test('snyk-monitor secure configuration is as expected', async (t) => {
   const kubeConfig = new KubeConfig();
   kubeConfig.loadFromDefault();

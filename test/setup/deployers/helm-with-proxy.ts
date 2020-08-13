@@ -35,7 +35,7 @@ async function deployKubernetesMonitor(
       `--set image.tag=${imageTag} ` +
       `--set image.pullPolicy=${imagePullPolicy} ` +
       '--set integrationApi=https://kubernetes-upstream.dev.snyk.io ' +
-      '--set https_proxy=http://forwarding-proxy:8080',
+      '--set https_proxy=http://forwarding-proxy:8080'
   );
   console.log(`Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`);
 }
