@@ -106,6 +106,8 @@ export async function deployMonitor(): Promise<string> {
   console.log('Begin deploying the snyk-monitor...');
 
   try {
+    await platforms[testPlatform].validateRequiredEnvironment();
+
     const imageNameAndTag = getEnvVariableOrDefault(
       'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
       // the default, determined by ./script/build-image.sh

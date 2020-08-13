@@ -1,5 +1,16 @@
 import { exec } from 'child-process-promise';
+
+import { throwIfEnvironmentVariableUnset } from './helpers';
 import * as kubectl from '../../helpers/kubectl';
+
+export async function validateRequiredEnvironment(): Promise<void> {
+  console.log(
+    'Checking for the required environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION',
+  );
+  throwIfEnvironmentVariableUnset('AWS_ACCESS_KEY_ID');
+  throwIfEnvironmentVariableUnset('AWS_SECRET_ACCESS_KEY');
+  throwIfEnvironmentVariableUnset('AWS_REGION');
+}
 
 export async function setupTester(): Promise<void> {
   // update the `aws` CLI, the one in CircleCI's default image is outdated and doens't support eks
