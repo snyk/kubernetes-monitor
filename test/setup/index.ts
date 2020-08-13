@@ -25,6 +25,15 @@ function getEnvVariableOrDefault(envVarName: string, defaultValue: string): stri
     : value;
 }
 
+export function snykMonitorNamespace(): string {
+  let namespace = 'snyk-monitor';
+  if (testPlatform === 'kindolm') {
+    namespace = 'marketplace';
+  }
+
+  return namespace;
+}
+
 export async function removeMonitor(): Promise<void> {
   await dumpLogs();
   try {
@@ -62,18 +71,23 @@ async function createEnvironment(): Promise<void> {
   await sleep(5000);
 }
 
-async function predeploy(integrationId: string): Promise<void> {
+async function predeploy(integrationId: string, namespace: string): Promise<void> {
   try {
-    const namespace = 'snyk-monitor';
-    await kubectl.createNamespace(namespace);
-
     const secretName = 'snyk-monitor';
+    console.log(`Creating namespace ${namespace} and secret ${secretName}`);
+
+    try {
+      await kubectl.createNamespace(namespace);
+    } catch (error) {
+      console.log(`Namespace ${namespace} already exist`);
+    }
     const gcrDockercfg = process.env['GCR_IO_DOCKERCFG'] || '{}';
     await kubectl.createSecret(secretName, namespace, {
       'dockercfg.json': gcrDockercfg,
       integrationId,
     });
-    await createRegistriesConfigMap();
+    await createRegistriesConfigMap(namespace);
+    console.log(`Namespace ${namespace} and secret ${secretName} created`);
   } catch (error) {
     console.log('Could not create namespace and secret, they probably already exist');
   }
@@ -98,13 +112,13 @@ async function createSecretForGcrIoAccess(): Promise<void> {
   );
 }
 
-async function createRegistriesConfigMap(): Promise<void> {
-  await kubectl.createConfigMap('snyk-monitor-registries-conf', 'snyk-monitor', './test/fixtures/insecure-registries/registries.conf');
+async function createRegistriesConfigMap(namespace): Promise<void> {
+  await kubectl.createConfigMap('snyk-monitor-registries-conf', namespace, './test/fixtures/insecure-registries/registries.conf');
 }
 
 export async function deployMonitor(): Promise<string> {
   console.log('Begin deploying the snyk-monitor...');
-
+  const namespace = snykMonitorNamespace();
   try {
     const imageNameAndTag = getEnvVariableOrDefault(
       'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
@@ -130,7 +144,7 @@ export async function deployMonitor(): Promise<string> {
     await createSecretForGcrIoAccess();
 
     const integrationId = getIntegrationId();
-    await predeploy(integrationId);
+    await predeploy(integrationId, namespace);
 
     // TODO: hack, rewrite this
     const imagePullPolicy = testPlatform === 'kind' || testPlatform === 'kindolm' || testPlatform === 'openshift3' ? 'Never' : 'Always';
@@ -139,7 +153,8 @@ export async function deployMonitor(): Promise<string> {
       pullPolicy: imagePullPolicy,
     };
     await deployers[deploymentType].deploy(deploymentImageOptions);
-    await kubectl.waitForDeployment('snyk-monitor', 'snyk-monitor');
+    await kubectl.waitForDeployment('snyk-monitor', namespace);
+
     console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
     return integrationId;
   } catch (err) {

@@ -2,16 +2,16 @@ apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
   name: snyk-operator
-  namespace: snyk-monitor
+  namespace: marketplace
 spec:
   targetNamespaces:
-  - snyk-monitor
+  - marketplace
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: snyk-operator
-  namespace: snyk-monitor
+  namespace: marketplace
 spec:
   channel: stable
   name: snyk-operator

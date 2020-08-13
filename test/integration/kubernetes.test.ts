@@ -18,6 +18,7 @@ import {
 import * as kubectl from '../helpers/kubectl';
 
 let integrationId: string;
+let namespace: string;
 
 tap.tearDown(async() => {
   console.log('Begin removing the snyk-monitor...');
@@ -31,6 +32,8 @@ tap.tearDown(async() => {
 
 // Make sure this runs first -- deploying the monitor for the next tests
 tap.test('deploy snyk-monitor', async (t) => {
+  namespace  = setup.snykMonitorNamespace();
+
   integrationId = await setup.deployMonitor();
   t.pass('successfully deployed the snyk-monitor');
 });
@@ -60,7 +63,7 @@ tap.test('snyk-monitor container started', async (t) => {
   console.log('Loaded KinD config!');
 
   console.log('Querying the snyk-monitor...');
-  const response = await k8sApi.listNamespacedPod('snyk-monitor');
+  const response = await k8sApi.listNamespacedPod(namespace);
   t.ok(response.body.items.length > 0, 'PodList is not empty');
 
   const monitorPod = response.body.items.find((pod) => pod.metadata !== undefined &&
@@ -339,7 +342,7 @@ tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t)
 
 tap.test(`snyk-monitor has resource limits`, async (t) => {
   t.plan(5);
-  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', 'snyk-monitor');
+  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', namespace);
   const monitorResources = snykMonitorDeployment.spec.template.spec.containers[0].resources;
 
   t.ok(monitorResources !== undefined, 'snyk-monitor has resources');
@@ -356,7 +359,7 @@ tap.test('snyk-monitor secure configuration is as expected', async (t) => {
 
   const response = await k8sApi.readNamespacedDeployment(
     'snyk-monitor',
-    'snyk-monitor',
+    namespace,
   );
   const deployment = response.body;
 

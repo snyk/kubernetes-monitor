@@ -5,7 +5,7 @@ import os
 import requests
 import json
 
-def notifySlack(operator_version, upstream_community):
+def notifySlack(operator_version, upstream_community, pr_url):
     circle_build_url = os.getenv('CIRCLE_BUILD_URL')
     url = os.getenv('SLACK_WEBHOOK')
 
@@ -15,9 +15,8 @@ def notifySlack(operator_version, upstream_community):
         {
           'color': '#7CD197',
           'fallback': 'Build Notification: ' + circle_build_url,
-          'title': 'Snyk Operator Pushed to GitHub repo snyk/community-operators',
-          'text': 'Branch *snyk/snyk-operator-v' + operator_version + '* is ready for publishing to the ' + upstream_community + '.\n' +
-            'https://github.com/operator-framework/community-operators/compare/master...snyk:snyk/snyk-operator-v' + operator_version + '-' + upstream_community
+          'title': 'Snyk Operator has Open PR to GitHub repo operator-framework/community-operators',
+          'text': 'PR was opened for branch */snyk/' + upstream_community + '/snyk-operator-v' + operator_version + '* on GitHub repo operator-framework/community-operators for ' + upstream_community + '.\n' + pr_url
         }
       ]
     }
@@ -27,4 +26,5 @@ def notifySlack(operator_version, upstream_community):
 if __name__ == '__main__':
     operator_version = sys.argv[1]
     upstream_community = sys.argv[2]
-    notifySlack(operator_version, upstream_community)
+    pr_url = sys.argv[3]
+    notifySlack(operator_version, upstream_community, pr_url)
