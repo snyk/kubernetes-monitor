@@ -69,4 +69,6 @@ export default {
   eks: eksSetup,
   openshift3: openshift3Setup,
   openshift4: openshift4Setup,
+} as {
+  [key: string]: IPlatformSetup;
 };
