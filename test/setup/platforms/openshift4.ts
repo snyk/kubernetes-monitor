@@ -5,9 +5,19 @@ import { platform, tmpdir } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 
+import { throwIfEnvironmentVariableUnset } from './helpers';
 import * as kubectl from '../../helpers/kubectl';
 
 const OPENSHIFT_CLI_VERSION = '4.3.0';
+
+export async function validateRequiredEnvironment(): Promise<void> {
+  console.log(
+    'Checking for the required environment variables: OPENSHIFT4_USER, OPENSHIFT4_PASSWORD, OPENSHIFT4_CLUSTER_URL',
+  );
+  throwIfEnvironmentVariableUnset('OPENSHIFT4_USER');
+  throwIfEnvironmentVariableUnset('OPENSHIFT4_PASSWORD');
+  throwIfEnvironmentVariableUnset('OPENSHIFT4_CLUSTER_URL');
+}
 
 export async function setupTester(): Promise<void> {
   if (existsSync(resolve(process.cwd(), 'oc'))) {

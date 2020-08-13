@@ -14,6 +14,8 @@ interface IPlatformSetup {
   config: () => Promise<void>;
   // clean up whatever we littered an existing cluster with
   clean: () => Promise<void>;
+  // ensure the environment is configured properly for the platform setup; can throw
+  validateRequiredEnvironment: () => Promise<void>;
   // set up host requirements specific to this platform
   setupTester: () => Promise<void>;
 }
@@ -25,6 +27,7 @@ const kindSetup: IPlatformSetup = {
   config: kind.exportKubeConfig,
   clean: kind.clean,
   setupTester: kind.setupTester,
+  validateRequiredEnvironment: () => Promise.resolve(),
 };
 
 const eksSetup: IPlatformSetup = {
@@ -34,6 +37,7 @@ const eksSetup: IPlatformSetup = {
   config: eks.exportKubeConfig,
   clean: eks.clean,
   setupTester: eks.setupTester,
+  validateRequiredEnvironment: eks.validateRequiredEnvironment,
 };
 
 // Use a kind cluster pinned to a specific Kubernetes version to mimic OS3.
@@ -44,6 +48,7 @@ const openshift3Setup: IPlatformSetup = {
   config: kind.exportKubeConfig,
   clean: kind.clean,
   setupTester: openshift3.setupTester,
+  validateRequiredEnvironment: () => Promise.resolve(),
 };
 
 const openshift4Setup: IPlatformSetup = {
@@ -53,6 +58,7 @@ const openshift4Setup: IPlatformSetup = {
   config: openshift4.exportKubeConfig,
   clean: openshift4.clean,
   setupTester: openshift4.setupTester,
+  validateRequiredEnvironment: openshift4.validateRequiredEnvironment,
 };
 
 export function getKubernetesVersionForPlatform(testPlatform: string): string {
