@@ -16,7 +16,7 @@ import {
 tap.test('ensure the security properties of the deployment files are unchanged', async (t) => {
   t.same(snykConfig.IMAGE_STORAGE_ROOT, '/var/tmp', 'the snyk-monitor points to the correct mounted path');
 
-  const deploymentFiles = ['./snyk-monitor/templates/deployment.yaml', './snyk-monitor-deployment.yaml'];
+  const deploymentFiles = ['./snyk-monitor-deployment.yaml'];
 
   for (const filePath of deploymentFiles) {
     const fileContent = readFileSync(filePath, 'utf8');
