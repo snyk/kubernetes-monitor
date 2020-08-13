@@ -29,7 +29,8 @@ async function deployKubernetesMonitor(
       `--set image.repository=${imageName} ` +
       `--set image.tag=${imageTag} ` +
       `--set image.pullPolicy=${imagePullPolicy} ` +
-      '--set integrationApi=https://kubernetes-upstream.dev.snyk.io',
+      '--set integrationApi=https://kubernetes-upstream.dev.snyk.io ' +
+      '--set nodeSelector."kubernetes\\.io/os"=linux'
   );
   console.log(`Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`);
 }
