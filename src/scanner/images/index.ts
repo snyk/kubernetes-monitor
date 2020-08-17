@@ -42,8 +42,9 @@ export async function removePulledImages(images: IPullableImage[]): Promise<void
 
 // Exported for testing
 export function getImageParts(imageWithTag: string) : {imageName: string, imageTag: string} {
-  // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory)@<tag_identifier>(optional):<image_tag>(optional)
-  const regex = /((?:.*(:\d{4})?\/)?(?:[a-z0-9-]+))([@|:].+)?/ig;
+  // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory):<image_tag>(optional)@<tag_identifier>(optional)
+  // extracted from https://github.com/docker/distribution/blob/master/reference/regexp.go
+  const regex = /^((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])(?:(?:\.(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]))+)?(?::[0-9]+)?\/)?[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?(?:(?:\/[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?)+)?)(?::([\w][\w.-]{0,127}))?(?:@([A-Za-z][A-Za-z0-9]*(?:[-_+.][A-Za-z][A-Za-z0-9]*)*[:][A-Fa-f0-9]{32,}))?$/ig;
   const groups  = regex.exec(imageWithTag);
   
   if(!groups){
@@ -51,21 +52,15 @@ export function getImageParts(imageWithTag: string) : {imageName: string, imageT
     return {imageName: imageWithTag, imageTag: ''};
   }
 
+  const IMAGE_NAME_GROUP = 1;
+  const IMAGE_TAG_GROUP = 2;
+  const IMAGE_DIGEST_GROUP = 3;
+
   return {
-    imageName: groups[1],
-    imageTag: validateAndExtractImageTag(groups[3])
+    imageName: groups[IMAGE_NAME_GROUP],
+    // prefer tag over digest
+    imageTag: groups[IMAGE_TAG_GROUP] || groups[IMAGE_DIGEST_GROUP] || '',
   };
-}
-
-function validateAndExtractImageTag(imageTagGroup: string | undefined): string {
-  if(imageTagGroup === undefined){
-    return '';
-  }
-
-  const imageTagParts: string[]= imageTagGroup.split(':');
-
-  //valid formats: image@sha256:hash or image:tag
-  return imageTagParts.length === 2 ? imageTagParts[1] : '';
 }
 
 // Exported for testing
