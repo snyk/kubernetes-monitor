@@ -59,9 +59,9 @@ tap.test('constructStaticAnalysisOptions() tests', async (t) => {
 tap.test('extracted image tag tests', async (t) => {
   t.plan(6);
 
-  const imageWithSha = 'nginx@sha256:1234567890abcdef';
+  const imageWithSha = 'nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2';
   const imageWithShaResult = scannerImages.getImageParts(imageWithSha);
-  t.same(imageWithShaResult.imageTag, '1234567890abcdef', 'image sha is returned');
+  t.same(imageWithShaResult.imageTag, 'sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2', 'image sha is returned');
 
   const imageWithTag = 'nginx:latest';
   const imageWithTagResult = scannerImages.getImageParts(imageWithTag);
@@ -88,9 +88,9 @@ tap.test('extracted image name tests', async (t) => {
   t.plan(5);
 
   t.same(scannerImages.getImageParts('nginx:latest').imageName, 'nginx', 'removed image:tag');
-  t.same(scannerImages.getImageParts('nginx:@sha256:1234567890abcdef').imageName, 'nginx', 'removed malformed image:@sha:hex');
   t.same(scannerImages.getImageParts('node@sha256:215a9fbef4df2c1ceb7c79481d3cfd94ad8f1f0105bade39f3be907bf386c5e1').imageName, 'node', 'removed image@sha:hex');
   t.same(scannerImages.getImageParts('kind-registry:5000/python:rc-buster').imageName, 'kind-registry:5000/python', 'removed repository/image:tag');
   // Verify support on image names that contain dashes
   t.same(scannerImages.getImageParts('kind-registry:5000/python-27:rc-buster').imageName, 'kind-registry:5000/python-27', 'removed repository/image:tag');
+  t.same(scannerImages.getImageParts('kind-registry:5000/test/python-27:rc-buster').imageName, 'kind-registry:5000/test/python-27', 'removed repository/image:tag');
 });
