@@ -187,7 +187,7 @@ integration_tests_proxy:
         name: Create temporary directory for logs
         command: mkdir -p /tmp/logs/test/integration/proxy
     - run:
-        name: Integration tests with Helm deployment
+        name: Integration tests with proxy
         command: |
           export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
           npm run test:integration:kind:proxy
