@@ -12,18 +12,20 @@ RUN cd $GOPATH/src/github.com/containers/skopeo \
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM node:erbium-alpine
+FROM registry.access.redhat.com/ubi8/ubi:latest
 
 LABEL maintainer="Snyk Ltd"
 
 ENV NODE_ENV production
 
-RUN apk update
-RUN apk upgrade
-RUN apk --no-cache add dumb-init
+RUN curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+RUN yum install -y nodejs
 
-RUN addgroup -S -g 10001 snyk
-RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
+RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
+RUN chmod 755 /usr/bin/dumb-init
+
+RUN groupadd -g 10001 snyk
+RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
 WORKDIR /srv/app
 USER 10001:10001
@@ -44,6 +46,9 @@ RUN npm install
 
 # add the rest of the app files
 ADD --chown=snyk:snyk . .
+
+# OpenShift 4 doesn't allow dumb-init access the app folder without this permission.
+RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
 
 # Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
 RUN npm run prepare
