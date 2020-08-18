@@ -74,7 +74,14 @@ export async function createConfigMap(
   console.log(`Created config map ${configMapName}`);
 }
 
-export async function applyK8sYaml(pathToYamlDeployment: string): Promise<void> {
+export async function applyK8sYaml(pathToYamlDeployment: string, namespace?: string): Promise<void> {
+  if (namespace) {
+    console.log(`Applying ${pathToYamlDeployment} to namespace ${namespace}...`);
+    await exec(`./kubectl apply -f ${pathToYamlDeployment} -n ${namespace}`);
+    console.log(`Applied ${pathToYamlDeployment} to namespace ${namespace}`);
+    return;
+  }
+
   console.log(`Applying ${pathToYamlDeployment}...`);
   await exec(`./kubectl apply -f ${pathToYamlDeployment}`);
   console.log(`Applied ${pathToYamlDeployment}`);
@@ -122,6 +129,13 @@ export async function getPodNames(namespace: string): Promise<string[]> {
   return podsOutput.stdout.split('\n');
 }
 
+export async function getNamespaces(): Promise<string[]> {
+  const commandPrefix = `./kubectl get ns`;
+  const onlyNames = ' --template \'{{range .items}}{{.metadata.name}}{{"\\n"}}{{end}}\'';
+  const nsOutput = await exec(commandPrefix+onlyNames);
+  return nsOutput.stdout.split('\n');
+}
+
 export async function getPodLogs(podName: string, namespace: string): Promise<any> {
   const logsOutput = await exec(`./kubectl -n ${namespace} logs ${podName}`);
   return logsOutput.stdout;
@@ -144,10 +158,22 @@ export async function waitForDeployment(name: string, namespace: string): Promis
 }
 
 export async function waitForServiceAccount(name: string, namespace: string): Promise<void> {
-  // TODO: add some timeout
-  while (true) {
+  console.log(`Trying to find ServiceAccount ${name} in namespace ${namespace}`);
+  for (let attempt = 0; attempt < 60; attempt++) {
     try {
       await exec(`./kubectl get serviceaccount ${name} -n ${namespace}`);
+      break;
+    } catch (err) {
+      await sleep(500);
+    }
+  }
+}
+
+export async function waitForCRD(name: string): Promise<void> {
+  console.log(`Trying to find CRD ${name}`);
+  for (let attempt = 0; attempt < 60; attempt++) {
+    try {
+      await exec(`./kubectl get crd ${name}`);
       break;
     } catch (err) {
       await sleep(500);
@@ -169,6 +195,12 @@ export async function waitForJob(name: string, namespace: string): Promise<void>
   console.log(`Begin waiting for job ${name} in namespace ${namespace} to complete`);
   await exec(`./kubectl wait --for=condition=complete jobs/${name} -n ${namespace} --timeout=240s`);
   console.log(`Job ${name} in namespace ${namespace} is complete`);
+}
+
+export async function getEvents(namespace: string): Promise<string> {
+  const events  = await exec(`./kubectl get events -n ${namespace}`);
+
+  return events.stdout;
 }
 
 async function getLatestStableK8sRelease(): Promise<string> {

@@ -73,6 +73,12 @@ workflows:
           requires:
             - build_image
           <<: *staging_branch_only_filter
+      - integration_tests_operator_on_k8s:
+          requires:
+            - build_image
+            - build_operator
+            - upload_operator
+          <<: *staging_branch_only_filter
       - openshift4_integration_tests:
           requires:
             - build_image
@@ -113,6 +119,20 @@ workflows:
                 - master
     jobs:
       - operator_upgrade_tests
+
+  MONTHLY:
+    triggers:
+      - schedule:
+          cron: "0 1 1 * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - operator_upgrade_tests
       - push_operator_to_community_operators:
+          requires:
+            - operator_upgrade_tests
+      - push_operator_to_upstream_community_operators:
           requires:
             - operator_upgrade_tests

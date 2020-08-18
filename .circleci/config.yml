@@ -199,6 +199,34 @@ jobs:
             - store_artifacts:
                 path: /tmp/logs/test/integration/kind-helm
         working_directory: ~/kubernetes-monitor
+    integration_tests_operator_on_k8s:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
+                name: Create temporary directory for logs
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
+                name: Operator integration tests on plain k8s
+            - run:
+                command: |
+                    ./scripts/operator/delete-operator-from-quay.sh
+                name: Delete Operator from Quay
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-operator-on-k8s-${CIRCLE_SHA1}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/kind-olm-operator
+        working_directory: ~/kubernetes-monitor
     integration_tests_proxy:
         machine:
             docker_layer_caching: true
@@ -214,7 +242,7 @@ jobs:
                 command: |
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     npm run test:integration:kind:proxy
-                name: Integration tests with Helm deployment
+                name: Integration tests with proxy
             - run:
                 command: |
                     ./scripts/slack/notify_failure_on_branch.py "staging-integration-proxy-tests-${CIRCLE_SHA1}"
@@ -570,7 +598,7 @@ jobs:
                     - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
             - run:
                 command: |
-                    python -m pip install requests pyyaml
+                    python -m pip install requests pyyaml PyGithub
                 name: Install required packages
             - install_python_requests
             - run:
@@ -599,42 +627,85 @@ jobs:
                 name: Package Operator
             - run:
                 command: |
-                    set -xeo pipefail
-
                     CURRENT_DIRECTORY=$(pwd)
-                    COMMUNITY_OPERATORS_UPSTREAM_LOCATION="${CURRENT_DIRECTORY}/community-operators"
-                    DEPLOY_LOCATION="${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}/community-operators"
-                    OPERATOR_LOCATION="${CURRENT_DIRECTORY}/snyk-operator/deploy/olm-catalog/snyk-operator"
-
-                    # Configure git user and gpg key
-                    echo "${OPENSHIFT_OPERATOR_SIGNING_KEY_BASE64}" | base64 -d | gpg --import
-                    git config --global commit.gpgsign true
-                    git config --global user.signingkey "${OPENSHIFT_OPERATOR_SIGNING_KEY_ID}"
-                    git config --global user.email "${OPENSHIFT_OPERATOR_GITHUB_EMAIL}"
-                    git config --global user.name "${OPENSHIFT_OPERATOR_GITHUB_NAME}"
-
-                    # Clone Community Operators repo from Snyk
-                    git clone https://github.com/snyk/community-operators.git $COMMUNITY_OPERATORS_UPSTREAM_LOCATION
-                    cd "${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}"
-                    git checkout -b snyk/snyk-operator-v${NEW_OPERATOR_VERSION}
-
-                    # Copy new release to branch
-                    cp -r "${OPERATOR_LOCATION}/${NEW_OPERATOR_VERSION}" "${DEPLOY_LOCATION}/snyk-operator/."
-                    cp "${OPERATOR_LOCATION}/snyk-operator.package.yaml" "${DEPLOY_LOCATION}/snyk-operator/."
-
-                    # Create the signed commit and push
-                    git add "${DEPLOY_LOCATION}/snyk-operator/*"
-                    git commit -s -m "Upgrade snyk-operator to version ${NEW_OPERATOR_VERSION}"
-                    git push --set-upstream origin --force snyk/snyk-operator-v${NEW_OPERATOR_VERSION}
+                    COMMUNITY_FOLDER_LOCATION="community-operators"
+                    ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
                 name: Push new Operator to the fork of the community-operators repository
             - run:
                 command: |
-                    ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}"
+                    COMMUNITY_FOLDER_LOCATION="community-operators"
+                    python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}"
+                name: Open a Pull Request to the operator-framework/community-operators repository for community-operators
+            - run:
+                command: |
+                    ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}"
                 name: Notify Slack on new branch in snyk/community-operators
             - run:
                 command: |
                     if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-                      ./scripts/slack/notify_failure.py "push-new-operator"
+                      ./scripts/slack/notify_failure.py "push-new-operator on community-operators"
+                    fi
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    push_operator_to_upstream_community_operators:
+        description: |
+            Packages a new Operator and pushes it to Snyk's fork of
+            the OpenShift upstream-community-operators.
+        executor: redhat-openshift/default
+        steps:
+            - checkout
+            - add_ssh_keys:
+                fingerprints:
+                    - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
+            - run:
+                command: |
+                    python -m pip install requests pyyaml PyGithub
+                name: Install required packages
+            - install_python_requests
+            - run:
+                command: |
+                    set -xeo pipefail
+                    LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
+                    echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get last released Operator version
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}
+                    NEW_OPERATOR_VERSION=${LATEST_TAG}
+                    echo "export NEW_OPERATOR_VERSION=${NEW_OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get new Operator version
+            - run:
+                command: |
+                    if [[ "${NEW_OPERATOR_VERSION}" == "${LAST_OPERATOR_VERSION}" ]]; then
+                      echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
+                      exit 1
+                    fi
+                name: End tests early if no new Operator is to be released
+            - run:
+                command: |
+                    ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
+                name: Package Operator
+            - run:
+                command: |
+                    CURRENT_DIRECTORY=$(pwd)
+                    COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
+                    ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+                name: Push new Operator to the fork of the upstream-community-operators repository
+            - run:
+                command: |
+                    COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
+                    python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}"
+                name: Open a Pull Request to the operator-framework/community-operators repository for upstream-community-operators
+            - run:
+                command: |
+                    ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}"
+                name: Notify Slack on new branch in snyk/upstream-community-operators
+            - run:
+                command: |
+                    if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
+                      ./scripts/slack/notify_failure.py "push-new-operator on upstream-community-operators"
                     fi
                 name: Notify Slack on failure
                 when: on_fail
@@ -819,6 +890,15 @@ workflows:
                             - staging
                 requires:
                     - build_image
+            - integration_tests_operator_on_k8s:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+                    - build_operator
+                    - upload_operator
             - openshift4_integration_tests:
                 filters:
                     branches:
@@ -848,12 +928,25 @@ workflows:
                             - staging
                 requires:
                     - tag_and_push
-    NIGHTLY:
+    MONTHLY:
         jobs:
             - operator_upgrade_tests
             - push_operator_to_community_operators:
                 requires:
                     - operator_upgrade_tests
+            - push_operator_to_upstream_community_operators:
+                requires:
+                    - operator_upgrade_tests
+        triggers:
+            - schedule:
+                cron: 0 1 1 * *
+                filters:
+                    branches:
+                        only:
+                            - master
+    NIGHTLY:
+        jobs:
+            - operator_upgrade_tests
         triggers:
             - schedule:
                 cron: 0 1 * * *
