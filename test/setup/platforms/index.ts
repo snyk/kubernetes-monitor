@@ -38,6 +38,7 @@ const kindOlmSetup: IPlatformSetup = {
   config: kind.exportKubeConfig,
   clean: kind.clean,
   setupTester: kind.setupTester,
+  validateRequiredEnvironment: () => Promise.resolve(),
 };
 
 const eksSetup: IPlatformSetup = {
