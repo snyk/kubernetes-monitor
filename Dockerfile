@@ -14,7 +14,13 @@ RUN cd $GOPATH/src/github.com/containers/skopeo \
 #---------------------------------------------------------------------
 FROM registry.access.redhat.com/ubi8/ubi:latest
 
-LABEL maintainer="Snyk Ltd"
+LABEL name="Snyk Controller" \
+      maintainer="support@snyk.io" \
+      vendor="Snyk Ltd" \
+      summary="Snyk integration for Kubernetes" \
+      description="Snyk Controller enables you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure."
+
+COPY LICENSE /licenses/LICENSE
 
 ENV NODE_ENV production
 
