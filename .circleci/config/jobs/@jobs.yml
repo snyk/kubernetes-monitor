@@ -325,7 +325,7 @@ deploy_dev:
           LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
           LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
           ./scripts/slack/notify_deploy.py $LATEST_TAG dev &&
-          curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
+          curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
               -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
                             \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
               https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
@@ -402,7 +402,7 @@ deploy_prod:
           LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
           LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
           ./scripts/slack/notify_deploy.py $LATEST_TAG prod &&
-          curl -i -H "Accept: application/json" -H "Content-Type: application/json" \
+          curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
               -X POST -d "{}" \
               https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
     - run:
