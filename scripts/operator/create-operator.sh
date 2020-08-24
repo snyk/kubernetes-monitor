@@ -29,6 +29,11 @@ HELM_CHART_NAME="snyk-monitor"
 OPERATOR_NAME="snyk-operator"
 OPERATOR_LOCATION="${PWD}/${OPERATOR_NAME}"
 HELM_CHART_LOCATION="${PWD}/${HELM_CHART_NAME}"
+
+# Copy the license to operator location to be included in the Operator image
+LICENSE_LOCATION="${PWD}/LICENSE"
+cp "${LICENSE_LOCATION}" "${OPERATOR_LOCATION}"
+
 # The location of this Helm chart's copy must match what the Dockerfile of the Operator.
 # Also, the end location should be "helm-charts", as this is what the operator-sdk expects when building the Operator image!
 OPERATOR_HELM_CHARTS_LOCATION="${OPERATOR_LOCATION}/helm-charts"
