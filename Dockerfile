@@ -34,7 +34,6 @@ RUN groupadd -g 10001 snyk
 RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
 WORKDIR /srv/app
-USER 10001:10001
 
 COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
@@ -55,6 +54,10 @@ ADD --chown=snyk:snyk . .
 
 # OpenShift 4 doesn't allow dumb-init access the app folder without this permission.
 RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
+
+# This must be in the end for Red Hat Build Service
+RUN chown -R snyk:snyk .
+USER 10001:10001
 
 # Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
 RUN npm run prepare
