@@ -47,7 +47,7 @@
     "snyk-docker-plugin": "2.8.0",
     "source-map-support": "^0.5.16",
     "tunnel": "0.0.6",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.7",
     "ws": "^7.2.1",
     "yaml": "^1.7.2",
     "snyk": "^1.320.3"
