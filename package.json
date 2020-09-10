@@ -29,7 +29,7 @@
   "private": true,
   "dependencies": {
     "@kubernetes/client-node": "^0.11.1",
-    "@types/async": "^3.0.8",
+    "@types/async": "^3.2.3",
     "@types/child-process-promise": "^2.2.1",
     "@types/lru-cache": "^5.1.0",
     "@types/needle": "^2.0.4",
