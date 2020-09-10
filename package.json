@@ -49,7 +49,7 @@
     "tunnel": "0.0.6",
     "typescript": "^3.8.3",
     "ws": "^7.2.1",
-    "yaml": "^1.7.2",
+    "yaml": "^1.10.0",
     "snyk": "^1.320.3"
   },
   "devDependencies": {
