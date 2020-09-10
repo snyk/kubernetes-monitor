@@ -37,7 +37,7 @@
     "@types/sinon": "^7.5.2",
     "@types/tunnel": "0.0.1",
     "async": "^2.6.2",
-    "aws-sdk": "^2.633.0",
+    "aws-sdk": "^2.737.0",
     "bunyan": "^1.8.13",
     "child-process-promise": "^2.2.1",
     "lru-cache": "^5.1.1",
