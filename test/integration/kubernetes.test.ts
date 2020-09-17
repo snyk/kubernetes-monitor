@@ -366,6 +366,18 @@ tap.test('snyk-monitor has nodeSelector', async (t) => {
   t.ok('nodeSelector' in spec, 'snyk-monitor has nodeSelector');
 });
 
+tap.test('snyk-monitor has PodSecurityPolicy', async (t) => {
+  t.plan(1);
+
+  if (process.env['DEPLOYMENT_TYPE'] !== 'Helm') {
+    t.pass('Not testing PodSecurityPolicy because we\'re not installing with Helm');
+    return;
+  }
+
+  const pspExists = await kubectl.verifyPodSecurityPolicy('snyk-monitor');
+  t.ok(pspExists, 'PodSecurityPolicy was deployed');
+});
+
 tap.test('snyk-monitor secure configuration is as expected', async (t) => {
   const kubeConfig = new KubeConfig();
   kubeConfig.loadFromDefault();

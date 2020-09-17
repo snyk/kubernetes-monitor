@@ -45,3 +45,7 @@ https_proxy:
 no_proxy:
 
 nodeSelector: {}
+
+psp:
+  enabled: false
+  name: ""
