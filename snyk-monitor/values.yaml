@@ -40,6 +40,8 @@ limits:
   cpu: '1'
   memory: '2Gi'
 
+use_psp:
+
 http_proxy:
 https_proxy:
 no_proxy:

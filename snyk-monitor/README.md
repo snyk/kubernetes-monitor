@@ -78,7 +78,7 @@ Add Snyk's Helm repo:
 helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/
 ```
 
-Run the following command to launch the Snyk monitor in your cluster:
+Run the following command to launch the Snyk monitor in your cluster. If your Kubernetes cluster uses PodSecurityPolicies you will also need to set `use_psp` to `true`.
 
 ```shell
 helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"

@@ -53,4 +53,16 @@ rules:
   - get
   - list
   - watch
+{{- if .Values.use_psp }}
+- apiGroups:
+  - policy
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - get
+  - list
+  - use
+  resourceNames:
+  - {{ include "snyk-monitor.name" . }}
+{{- end }}
 {{- end }}
