@@ -51,7 +51,7 @@ rules:
   - get
   - list
   - watch
-{{- if .Values.use_psp }}
+{{- if .Values.psp.enabled }}
 - apiGroups:
   - policy
   resources:
@@ -61,6 +61,6 @@ rules:
   - list
   - use
   resourceNames:
-  - {{ include "snyk-monitor.name" . }}
+  - {{ if eq .Values.psp.name "" }}{{ include "snyk-monitor.name" . }}{{ else }}{{ .Values.psp.name }}{{- end }}
 {{- end }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.use_psp }}
+{{- if .Values.psp.enabled }}{{- if eq .Values.psp.name "" }}
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
@@ -29,4 +29,4 @@ spec:
     - secret
     - configMap
     - emptyDir
-{{- end }}
+{{- end }}{{- end }}
