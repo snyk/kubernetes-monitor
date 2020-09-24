@@ -126,6 +126,21 @@ helm upgrade --install ... \
   --set no_proxy=long.domain.name.local,example.local
 ```
 
+## PodSecurityPolicies
+**This should not be used when installing on OpenShift.**
+
+Using PodSecurityPolicies can be achieved by setting the following values in the Helm chart:
+* psp.enabled - default is `false`. Set to `true` if PodSecurityPolicy is needed
+* psp.name - default is empty. Leave it empty if you want us to install the necessary PodSecurityPolicy. Modify it to specify an existing PodSecurityPolicy rather than creating a new one.
+
+For example:
+```bash
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set clusterName="Production cluster" \
+  --set psp.enabled=true
+```
+
 ## Terms and conditions ##
 
 *The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*
