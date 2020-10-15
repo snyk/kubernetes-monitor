@@ -340,7 +340,7 @@ tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t)
   t.ok(deleteTestResult, 'snyk-monitor sent deleted workload data to kubernetes-upstream in the expected timeframe');
 });
 
-tap.test(`snyk-monitor has resource limits`, async (t) => {
+tap.test('snyk-monitor has resource limits', async (t) => {
   t.plan(5);
   const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', namespace);
   const monitorResources = snykMonitorDeployment.spec.template.spec.containers[0].resources;
@@ -350,6 +350,19 @@ tap.test(`snyk-monitor has resource limits`, async (t) => {
   t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
   t.ok(monitorResources.requests.cpu !== undefined, 'snyk-monitor has cpu resource request');
   t.ok(monitorResources.requests.memory !== undefined, 'snyk-monitor has memory resource request');
+});
+
+tap.test('snyk-monitor has log level', async(t) => {
+  if (['Helm', 'YAML'].includes(process.env.DEPLOYMENT_TYPE || '')) {
+    t.pass('Not testing LOG_LEVEL existence because we\'re not installing with Helm');
+    return;
+  }
+
+  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', namespace);
+  const { LOG_LEVEL } = snykMonitorDeployment.spec.template.spec.containers[0].env;
+
+  t.ok(LOG_LEVEL, 'snyk-monitor has log level');
+  t.ok(LOG_LEVEL === 'INFO', 'snyk-monitor has correct log level');
 });
 
 tap.test('snyk-monitor has nodeSelector', async (t) => {

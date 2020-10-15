@@ -126,6 +126,22 @@ helm upgrade --install ... \
   --set no_proxy=long.domain.name.local,example.local
 ```
 
+## Changing log level ##
+
+To lower `snyk-monitor`'s logging verbosity `log_level` value could be set to one of these options:
+* `'WARN'`
+* `'ERROR'`
+
+By default, `log_level` is `'INFO'`.
+
+For example
+```bash
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set clusterName="Production cluster" \
+  --set log_level="WARN"
+```
+
 ## PodSecurityPolicies
 **This should not be used when installing on OpenShift.**
 

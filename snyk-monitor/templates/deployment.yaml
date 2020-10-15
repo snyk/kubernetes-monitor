@@ -58,6 +58,8 @@ spec:
             value: {{ .Values.https_proxy }}
           - name: NO_PROXY
             value: {{ .Values.no_proxy }}
+          - name: LOG_LEVEL
+            value: {{ .Values.log_level }}
           resources:
             requests:
               cpu: {{ .Values.requests.cpu }}
