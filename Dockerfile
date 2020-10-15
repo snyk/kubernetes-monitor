@@ -40,7 +40,7 @@ COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
 # Add manifest files and install before adding anything else to take advantage of layer caching
-ADD --chown=snyk:snyk package.json package-lock.json .snyk ./
+ADD --chown=snyk:snyk package.json package-lock.json ./
 
 # The `.config` directory is used by `snyk protect` and we also mount a K8s volume there at runtime.
 # This clashes with OpenShift 3 which mounts things differently and prevents access to the directory.
