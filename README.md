@@ -140,6 +140,14 @@ no_proxy: *.example.local,*.other.global,192.168.0.0/16
 no_proxy: long.domain.name.local,example.local
 ```
 
+## Changing log level ##
+
+To lower `snyk-monitor`'s logging verbosity `log_level` value could be set to one of these options:
+* `'WARN'`
+* `'ERROR'`
+
+By default, `log_level` is `'INFO'`.
+
 ## Terms and conditions ##
 
 *The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*

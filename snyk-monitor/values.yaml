@@ -44,6 +44,9 @@ http_proxy:
 https_proxy:
 no_proxy:
 
+# Override default (INFO) log level if less verbosity needed
+log_level:
+
 nodeSelector: {}
 
 psp:
