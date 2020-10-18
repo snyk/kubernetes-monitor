@@ -31,7 +31,8 @@ async function deployKubernetesMonitor(
       `--set image.pullPolicy=${imagePullPolicy} ` +
       '--set integrationApi=https://kubernetes-upstream.dev.snyk.io ' +
       '--set nodeSelector."kubernetes\\.io/os"=linux ' +
-      '--set psp.enabled=true'
+      '--set psp.enabled=true ' + 
+      '--set log_level="INFO"'
   );
   console.log(`Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`);
 }
