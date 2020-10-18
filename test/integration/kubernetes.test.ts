@@ -82,7 +82,7 @@ tap.test('create local container registry and push an image', async (t) => {
   console.log('Creating local container registry...');
   await exec('docker run -d --restart=always -p "5000:5000" --name "kind-registry" registry:2');
   await exec('docker network connect "kind" "kind-registry"');
-  
+
   console.log('Pushing python:rc-buster image to the local registry');
   //Note: this job takes a while and waitForJob() should be called before trying to access local registry image,
   //to make sure it completed
@@ -274,7 +274,7 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
     await setup.removeLocalContainerRegistry();
     console.log('Removed local container registry');
   });
-  
+
   if (process.env['TEST_PLATFORM'] !== 'kind') {
     t.pass('Not testing local container registry because we\'re not running in KinD');
     return;
@@ -288,7 +288,7 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
   const imageName = 'kind-registry:5000/python';
 
   await kubectl.waitForJob('push-to-local-registry', 'default');
-  
+
   console.log('Applying local registry workload...');
   await kubectl.applyK8sYaml('./test/fixtures/insecure-registries/python-local-deployment.yaml');
 
@@ -306,7 +306,7 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
 
   const depGraphResult = await getUpstreamResponseBody(
     `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
-  
+
   t.ok('dependencyGraphResults' in depGraphResult,
   'expected dependencyGraphResults field to exist in /dependency-graphs response');
   t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
@@ -353,16 +353,17 @@ tap.test('snyk-monitor has resource limits', async (t) => {
 });
 
 tap.test('snyk-monitor has log level', async(t) => {
-  if (['Helm', 'YAML'].includes(process.env.DEPLOYMENT_TYPE || '')) {
-    t.pass('Not testing LOG_LEVEL existence because we\'re not installing with Helm');
+  if (!['Helm', 'YAML'].includes(process.env.DEPLOYMENT_TYPE || '')) {
+    t.pass('Not testing LOG_LEVEL existence because we\'re not installing with Helm or Yaml');
     return;
   }
 
   const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', namespace);
-  const { LOG_LEVEL } = snykMonitorDeployment.spec.template.spec.containers[0].env;
+  const env = snykMonitorDeployment.spec.template.spec.containers[0].env;
+  const logLevel = env.find(({ name }) => name === 'LOG_LEVEL');
 
-  t.ok(LOG_LEVEL, 'snyk-monitor has log level');
-  t.ok(LOG_LEVEL === 'INFO', 'snyk-monitor has correct log level');
+  t.ok(logLevel.name, 'snyk-monitor has log level variable');
+  t.ok(logLevel.value, 'snyk-monitor has log level value');
 });
 
 tap.test('snyk-monitor has nodeSelector', async (t) => {
