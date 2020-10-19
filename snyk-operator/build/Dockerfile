@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/helm-operator:v0.15.1
+FROM quay.io/operator-framework/helm-operator:v1.1.0
 
 LABEL name="Snyk Operator" \
       maintainer="support@snyk.io" \
@@ -8,5 +8,6 @@ LABEL name="Snyk Operator" \
 
 COPY LICENSE /licenses/LICENSE
 
+ENV HOME=/opt/helm
 COPY watches.yaml ${HOME}/watches.yaml
 COPY helm-charts/ ${HOME}/helm-charts/
