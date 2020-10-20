@@ -3,31 +3,31 @@ import * as plugin from 'snyk-docker-plugin';
 
 import logger = require('../../common/logger');
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
-import { IPullableImage } from './types';
+import { IPullableImage, IScanImage } from './types';
 import { IStaticAnalysisOptions, StaticAnalysisImageType, IScanResult, IPluginOptions } from '../types';
 
 export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
   const pulledImages: IPullableImage[] = [];
 
   for (const image of images) {
-    const {imageName, fileSystemPath} = image;
+    const {imageWithDigest, fileSystemPath} = image;
     if (!fileSystemPath) {
       continue;
     }
 
     try {
-      await skopeoCopy(imageName, fileSystemPath);
+      await skopeoCopy(imageWithDigest, fileSystemPath);
       pulledImages.push(image);
     } catch (error) {
-      logger.error({error, image: imageName}, 'failed to pull image');
+      logger.error({error, image: imageWithDigest}, 'failed to pull image');
     }
   }
 
   return pulledImages;
 }
 
-export function getImagesWithFileSystemPath(images: string[]): IPullableImage[] {
-  return images.map((image) => ({ imageName: image, fileSystemPath: getDestinationForImage(image) }));
+export function getImagesWithFileSystemPath(images: IScanImage[]): IPullableImage[] {
+  return images.map((image) => ({ ...image, fileSystemPath: getDestinationForImage(image.imageName) }));
 }
 
 export async function removePulledImages(images: IPullableImage[]): Promise<void> {
@@ -41,15 +41,15 @@ export async function removePulledImages(images: IPullableImage[]): Promise<void
 }
 
 // Exported for testing
-export function getImageParts(imageWithTag: string) : {imageName: string, imageTag: string} {
+export function getImageParts(imageWithTag: string) : {imageName: string, imageTag: string, imageDigest: string} {
   // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory):<image_tag>(optional)@<tag_identifier>(optional)
   // extracted from https://github.com/docker/distribution/blob/master/reference/regexp.go
   const regex = /^((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])(?:(?:\.(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]))+)?(?::[0-9]+)?\/)?[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?(?:(?:\/[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?)+)?)(?::([\w][\w.-]{0,127}))?(?:@([A-Za-z][A-Za-z0-9]*(?:[-_+.][A-Za-z][A-Za-z0-9]*)*[:][A-Fa-f0-9]{32,}))?$/ig;
   const groups  = regex.exec(imageWithTag);
-  
+
   if(!groups){
     logger.error({image: imageWithTag}, 'Image with tag is malformed, cannot extract valid parts');
-    return {imageName: imageWithTag, imageTag: ''};
+    return { imageName: imageWithTag, imageTag: '', imageDigest: '' };
   }
 
   const IMAGE_NAME_GROUP = 1;
@@ -58,8 +58,8 @@ export function getImageParts(imageWithTag: string) : {imageName: string, imageT
 
   return {
     imageName: groups[IMAGE_NAME_GROUP],
-    // prefer tag over digest
-    imageTag: groups[IMAGE_TAG_GROUP] || groups[IMAGE_DIGEST_GROUP] || '',
+    imageTag: groups[IMAGE_TAG_GROUP] || '',
+    imageDigest: groups[IMAGE_DIGEST_GROUP] || '',
   };
 }
 
@@ -78,7 +78,7 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
 
   const dockerfile = undefined;
 
-  for (const {imageName, fileSystemPath} of images) {
+  for (const { imageName, fileSystemPath, imageWithDigest } of images) {
     try {
       const staticAnalysisOptions = constructStaticAnalysisOptions(fileSystemPath);
       const options: IPluginOptions = {
@@ -92,16 +92,18 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
         throw Error('Unexpected empty result from docker-plugin');
       }
 
-      const imageParts: {imageName: string, imageTag: string} = getImageParts(imageName);
+      const imageParts = getImageParts(imageName);
 
       result.imageMetadata = {
         image: imageParts.imageName,
         imageTag: imageParts.imageTag,
+        imageDigest: getImageParts(imageWithDigest).imageDigest,
       };
 
       scannedImages.push({
         image: imageParts.imageName,
         imageWithTag: imageName,
+        imageWithDigest: imageWithDigest,
         pluginResult: result,
       });
     } catch (error) {
