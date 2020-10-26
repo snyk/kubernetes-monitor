@@ -3,25 +3,17 @@ import { pullImages, removePulledImages, getImagesWithFileSystemPath, scanImages
 import { deleteWorkload, sendDepGraph } from '../transmitter';
 import { constructDeleteWorkload, constructDepGraph } from '../transmitter/payload';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
-import { IPullableImage, IScanImage } from './images/types';
+import { IPullableImage } from './images/types';
 
 export async function processWorkload(workloadMetadata: IWorkload[]): Promise<void> {
   // every workload metadata references the same workload name, grab it from the first one
   const workloadName = workloadMetadata[0].name;
-  const uniqueImages: { [key: string]: IScanImage } = workloadMetadata.reduce((accum, meta) => {
-    // example: "docker.io/library/redis@sha256:33ca074e6019b451235735772a9c3e7216f014aae8eb0580d7e94834fe23efb3"
-    const imageWithDigest = meta.imageId.substring(meta.imageId.lastIndexOf('/') + 1);
+  const allImages = workloadMetadata.map((meta) => meta.imageName);
+  logger.info({workloadName, imageCount: allImages.length}, 'queried workloads');
+  const uniqueImages = [...new Set<string>(allImages)];
 
-    accum[meta.imageName] = {
-      imageName: meta.imageName,
-      imageWithDigest,
-    };
-
-    return accum;
-  }, {});
-
-  logger.info({workloadName, imageCount: Object.values(uniqueImages).length}, 'pulling unique images');
-  const imagesWithFileSystemPath = getImagesWithFileSystemPath(Object.values(uniqueImages));
+  logger.info({workloadName, imageCount: uniqueImages.length}, 'pulling unique images');
+  const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
   const pulledImages = await pullImages(imagesWithFileSystemPath);
   if (pulledImages.length === 0) {
     logger.info({workloadName}, 'no images were pulled, halting scanner process.');
