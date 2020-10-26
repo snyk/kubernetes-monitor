@@ -27,7 +27,6 @@ export function constructDepGraph(
     const imageLocator: IImageLocator = {
       userLocator: config.INTEGRATION_ID,
       imageId: scannedImage.image,
-      imageWithDigest: scannedImage.imageWithDigest,
       cluster,
       namespace,
       type,
