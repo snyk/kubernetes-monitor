@@ -1,11 +1,5 @@
-export interface IScanImage {
-  imageName: string;
-  imageWithDigest: string;
-}
-
 export interface IPullableImage {
   imageName: string;
-  imageWithDigest: string;
   fileSystemPath: string;
 }
 

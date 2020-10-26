@@ -11,13 +11,11 @@ tap.test('constructDepGraph breaks when workloadMetadata is missing items', asyn
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
-      imageWithDigest: 'myImage@sha256:idontcarewhatissha',
       pluginResult: 'whatever1',
     },
     {
       image: 'anotherImage',
       imageWithTag: 'anotherImage:1.2.3-alpha',
-      imageWithDigest: 'myImage@sha256:somuchdifferentsha256',
       pluginResult: 'whatever3',
     },
   ];
@@ -50,7 +48,6 @@ tap.test('constructDepGraph happy flow', async (t) => {
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
-      imageWithDigest: 'myImage@sha256:idontcarewhatissha',
       pluginResult: 'whatever1',
     },
   ];
