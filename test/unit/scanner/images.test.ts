@@ -1,16 +1,18 @@
 import * as tap from 'tap';
 
-import { IPullableImage } from '../../../src/scanner/images/types';
+import {IPullableImage, IScanImage} from '../../../src/scanner/images/types';
 import config = require('../../../src/common/config');
 import * as scannerImages from '../../../src/scanner/images';
 
-
 tap.test('getImagesWithFileSystemPath()', async (t) => {
-  const noImages: string[] = [];
+  const noImages: IScanImage[] = [];
   const noImagesResult = scannerImages.getImagesWithFileSystemPath(noImages);
   t.same(noImagesResult, [], 'correctly maps an empty array');
 
-  const image = ['nginx:latest'];
+  const image: IScanImage[] = [{
+    imageName: 'nginx:latest',
+    imageWithDigest: 'nginx@sha256:4949aa7259aa6f827450207db5ad94cabaa9248277c6d736d5e1975d200c7e43',
+  }];
   const imageResult = scannerImages.getImagesWithFileSystemPath(image);
   t.same(imageResult.length, 1, 'expected 1 item');
 
@@ -28,7 +30,10 @@ tap.test('getImagesWithFileSystemPath()', async (t) => {
   t.ok(expectedPattern, 'the file system path starts with an expected pattern');
 
   // Ensure that two consecutive calls do not return the same file system path
-  const someImage = ['centos:latest'];
+  const someImage = [{
+    imageName: 'centos:latest',
+    imageWithDigest: 'centos@sha256:fc4a234b91cc4b542bac8a6ad23b2ddcee60ae68fc4dbd4a52efb5f1b0baad71',
+  }];
   const firstCallResult = scannerImages.getImagesWithFileSystemPath(someImage)[0];
   const secondCallResult = scannerImages.getImagesWithFileSystemPath(someImage)[0];
   t.ok(
@@ -44,8 +49,6 @@ tap.test('pullImages() skips on missing file system path', async (t) => {
 });
 
 tap.test('constructStaticAnalysisOptions() tests', async (t) => {
-  t.plan(1);
-
   const somePath = '/var/tmp/file.tar';
   const options = scannerImages.constructStaticAnalysisOptions(somePath);
   const expectedResult = {
@@ -57,11 +60,10 @@ tap.test('constructStaticAnalysisOptions() tests', async (t) => {
 });
 
 tap.test('extracted image tag tests', async (t) => {
-  t.plan(6);
-
   const imageWithSha = 'nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2';
   const imageWithShaResult = scannerImages.getImageParts(imageWithSha);
-  t.same(imageWithShaResult.imageTag, 'sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2', 'image sha is returned');
+  t.same(imageWithShaResult.imageTag, '', 'image tag is empty');
+  t.same(imageWithShaResult.imageDigest, 'sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2', 'image digest is returned');
 
   const imageWithTag = 'nginx:latest';
   const imageWithTagResult = scannerImages.getImageParts(imageWithTag);
@@ -85,8 +87,6 @@ tap.test('extracted image tag tests', async (t) => {
 });
 
 tap.test('extracted image name tests', async (t) => {
-  t.plan(5);
-
   t.same(scannerImages.getImageParts('nginx:latest').imageName, 'nginx', 'removed image:tag');
   t.same(scannerImages.getImageParts('node@sha256:215a9fbef4df2c1ceb7c79481d3cfd94ad8f1f0105bade39f3be907bf386c5e1').imageName, 'node', 'removed image@sha:hex');
   t.same(scannerImages.getImageParts('kind-registry:5000/python:rc-buster').imageName, 'kind-registry:5000/python', 'removed repository/image:tag');
