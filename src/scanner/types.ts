@@ -1,6 +1,6 @@
 export interface IScanResult {
   image: string;
-  imageWithDigest: string;
+  imageWithDigest?: string;
   imageWithTag: string;
   pluginResult: any;
 }

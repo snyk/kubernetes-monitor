@@ -10,13 +10,15 @@ export async function pullImages(images: IPullableImage[]): Promise<IPullableIma
   const pulledImages: IPullableImage[] = [];
 
   for (const image of images) {
-    const {imageWithDigest, fileSystemPath} = image;
+    const { imageName, imageWithDigest, fileSystemPath } = image;
     if (!fileSystemPath) {
       continue;
     }
 
     try {
-      await skopeoCopy(imageWithDigest, fileSystemPath);
+      // Scan image by digest if exists, other way fallback tag
+      const scanId = imageWithDigest ?? imageName;
+      await skopeoCopy(scanId, fileSystemPath);
       pulledImages.push(image);
     } catch (error) {
       logger.error({error, image: imageWithDigest}, 'failed to pull image');
@@ -93,11 +95,12 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
       }
 
       const imageParts = getImageParts(imageName);
+      const imageDigest = imageWithDigest && getImageParts(imageWithDigest).imageDigest;
 
       result.imageMetadata = {
         image: imageParts.imageName,
         imageTag: imageParts.imageTag,
-        imageDigest: getImageParts(imageWithDigest).imageDigest,
+        imageDigest,
       };
 
       scannedImages.push({
