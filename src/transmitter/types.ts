@@ -25,7 +25,7 @@ export interface IWorkloadMetadata {
 
 export interface IImageLocator extends IWorkloadLocator {
   imageId: string;
-  imageWithDigest: string;
+  imageWithDigest?: string;
 }
 
 export interface IKubernetesMonitorMetadata {

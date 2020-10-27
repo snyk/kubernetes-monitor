@@ -8,7 +8,7 @@ import { IPullableImage, IScanImage } from './images/types';
 export async function processWorkload(workloadMetadata: IWorkload[]): Promise<void> {
   // every workload metadata references the same workload name, grab it from the first one
   const workloadName = workloadMetadata[0].name;
-  const uniqueImages = getUniqueImages(workloadMetadata);
+  const uniqueImages: IScanImage[] = getUniqueImages(workloadMetadata);
 
   logger.info({ workloadName, imageCount: uniqueImages.length }, 'pulling unique images');
   const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
@@ -35,6 +35,11 @@ export async function sendDeleteWorkloadRequest(workloadName: string, localWorkl
 
 export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {
   const uniqueImages: { [key: string]: IScanImage } = workloadMetadata.reduce((accum, meta) => {
+    logger.info({
+      workloadName: workloadMetadata[0].name,
+      name: meta.imageName,
+      id: meta.imageId
+    }, 'image metadata');
     // example: For DCR "redis:latest"
     // example: For GCR "gcr.io/test-dummy/redis:latest"
     // example: For ECR "291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/redis:latest"
@@ -44,11 +49,13 @@ export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {
     // example: For DCR "docker.io/library/redis@sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
     // example: For GCR "sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
     // example: For ECR "sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
-    const digest = meta.imageId.substring(meta.imageId.lastIndexOf('@') + 1);
-    const imageWithDigest = `${imageName}@${digest}`;
+    let digest: string | undefined = undefined;
+    if (meta.imageId.lastIndexOf('@') > -1 || meta.imageId.startsWith('sha')) {
+      digest = meta.imageId.substring(meta.imageId.lastIndexOf('@') + 1);
+    }
 
-    accum[imageWithDigest] = {
-      imageWithDigest,
+    accum[meta.imageName] = {
+      imageWithDigest: digest && `${imageName}@${digest}`,
       imageName: meta.imageName, // Image name with tag
     };
 
