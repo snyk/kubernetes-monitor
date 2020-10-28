@@ -70,13 +70,14 @@ upload_operator:
   steps:
     - attach_workspace:
         at: snyk-operator
+    - install_python_requests
     - run:
         name: Install operator-courier
         command: pip3 install operator-courier==2.1.7
     - run:
         name: Upload Operator to Quay
         command: |
-          export QUAY_TOKEN=$(curl -H "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" | jq -r .token)
+          export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
           export OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
           export QUAY_NAMESPACE=snyk-runtime
           export PACKAGE_NAME=snyk-operator
@@ -274,9 +275,9 @@ openshift4_integration_tests:
           export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
           .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
     - run:
-        name: Delete Operator from Quay
+        name: Delete Operators from Quay
         command: |
-          ./scripts/operator/delete-operator-from-quay.sh
+          python scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
         when: always
     - run:
         name: Notify Slack on failure
