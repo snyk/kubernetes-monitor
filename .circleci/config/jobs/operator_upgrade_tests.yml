@@ -87,10 +87,7 @@ steps:
         set -eo pipefail
 
 
-        export QUAY_TOKEN=$(curl -H "Content-Type: application/json" \
-          -XPOST https://quay.io/cnr/api/v1/users/login \
-          -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" \
-          | jq -r .token)
+        export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
         OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
         QUAY_NAMESPACE=snyk-runtime
@@ -177,10 +174,7 @@ steps:
 
         mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
 
-        export QUAY_TOKEN=$(curl -H "Content-Type: application/json" \
-          -XPOST https://quay.io/cnr/api/v1/users/login \
-          -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" \
-          | jq -r .token)
+        export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
         OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
         QUAY_NAMESPACE=snyk-runtime
