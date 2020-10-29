@@ -68,7 +68,7 @@ jobs:
                     export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
                     export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
                     ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-                name: Package Operator
+                name: Package Operator Bundle
             - run:
                 command: |
                     rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
@@ -218,7 +218,7 @@ jobs:
             - run:
                 command: |
                     python scripts/operator/delete_operators_from_quay.py
-                name: Delete Operator from Quay
+                name: Delete Operators from Quay
                 when: always
             - run:
                 command: |
@@ -362,7 +362,7 @@ jobs:
                 command: |
                     set -xeo pipefail
 
-                    # Package Operator to be uploaded to Quay.io
+                    # Package Operator Bundle to be uploaded to Quay.io
                     SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
                     SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
                     ./scripts/operator/package-operator.sh $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG
@@ -473,7 +473,7 @@ jobs:
                     operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
                     set -x
                     echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
-                name: Package Operator upgrade and push to Quay
+                name: Package Operator Bundle upgrade and push to Quay
             - run:
                 command: |
                     set -xeo pipefail
@@ -563,20 +563,6 @@ jobs:
                     ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
                 name: Create Operator and push Operator image to DockerHub
             - run:
-                command: |
-                    export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
-                    export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
-                    export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-                    ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-                name: Package Operator
-            - run:
-                command: |
-                    rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-                name: Remove templated Operator before storing artifacts
-            - store_artifacts:
-                destination: snyk-operator
-                path: snyk-operator/deploy/olm-catalog/snyk-operator
-            - run:
                 command: ./scripts/slack/notify_failure.py "master"
                 name: Notify Slack on failure
                 when: on_fail
@@ -619,7 +605,7 @@ jobs:
             - run:
                 command: |
                     ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
-                name: Package Operator
+                name: Package Operator Bundle
             - run:
                 command: |
                     CURRENT_DIRECTORY=$(pwd)
@@ -682,7 +668,7 @@ jobs:
             - run:
                 command: |
                     ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
-                name: Package Operator
+                name: Package Operator Bundle
             - run:
                 command: |
                     CURRENT_DIRECTORY=$(pwd)

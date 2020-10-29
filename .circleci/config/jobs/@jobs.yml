@@ -372,20 +372,6 @@ publish:
         command: |
           ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
     - run:
-        name: Package Operator
-        command: |
-          export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
-          export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
-          export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-          ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-    - run:
-        name: Remove templated Operator before storing artifacts
-        command: |
-          rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-    - store_artifacts:
-        path: snyk-operator/deploy/olm-catalog/snyk-operator
-        destination: snyk-operator
-    - run:
         name: Notify Slack on failure
         command: ./scripts/slack/notify_failure.py "master"
         when: on_fail
