@@ -69,7 +69,7 @@ jobs:
                 name: Upload Operator to Quay
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-build-and-upload-operator-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
@@ -90,7 +90,7 @@ jobs:
                 name: Build image
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-build-image-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
@@ -162,7 +162,7 @@ jobs:
                 name: Integration tests EKS
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-eks-integration-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
             - store_artifacts:
@@ -186,7 +186,7 @@ jobs:
                 name: Integration tests
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
             - store_artifacts:
@@ -210,7 +210,7 @@ jobs:
                 name: Integration tests with Helm deployment
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-integration-helm-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
             - store_artifacts:
@@ -239,7 +239,7 @@ jobs:
                 when: always
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-operator-on-k8s-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
             - store_artifacts:
@@ -263,7 +263,7 @@ jobs:
                 name: Integration tests with proxy
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-integration-proxy-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
             - store_artifacts:
@@ -319,7 +319,7 @@ jobs:
                 when: always
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
             - store_artifacts:
@@ -705,7 +705,7 @@ jobs:
                 name: System tests
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-system-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
@@ -752,7 +752,7 @@ jobs:
                 name: Unit tests
             - run:
                 command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-unit-tests-${CIRCLE_SHA1}"
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
