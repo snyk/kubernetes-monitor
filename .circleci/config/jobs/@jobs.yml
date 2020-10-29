@@ -23,6 +23,9 @@ build_image:
 build_and_upload_operator:
   docker:
     - image: circleci/python:3.9
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -278,6 +281,9 @@ openshift4_integration_tests:
 tag_and_push:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -303,6 +309,9 @@ tag_and_push:
 deploy_dev:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -326,6 +335,9 @@ deploy_dev:
 publish:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -366,6 +378,9 @@ publish:
 deploy_prod:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout

@@ -22,7 +22,10 @@ commands:
 jobs:
     build_and_upload_operator:
         docker:
-            - image: circleci/python:3.9
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/python:3.9
         steps:
             - checkout
             - setup_remote_docker
@@ -93,7 +96,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_dev:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - install_python_requests
@@ -114,7 +120,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_prod:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - install_python_requests
@@ -513,7 +522,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     publish:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - setup_remote_docker
@@ -699,7 +711,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     tag_and_push:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - setup_remote_docker
