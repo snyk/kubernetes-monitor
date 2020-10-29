@@ -44,7 +44,7 @@ jobs:
             - run:
                 command: |
                     export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    python3 scripts/operator/create_operator_and_push.py "${IMAGE_TAG}-${CIRCLE_SHA1}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                 name: Create Operator and push Operator image to DockerHub
             - run:
                 command: |
@@ -555,7 +555,7 @@ jobs:
                 name: Download operator-sdk
             - run:
                 command: |
-                    ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
+                    python3 scripts/operator/create_operator_and_push.py "${LATEST_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                 name: Create Operator and push Operator image to DockerHub
             - run:
                 command: ./scripts/slack/notify_failure.py "master"

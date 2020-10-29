@@ -46,7 +46,7 @@ build_and_upload_operator:
         name: Create Operator and push Operator image to DockerHub
         command: |
           export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-          ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
+          python3 scripts/operator/create_operator_and_push.py "${IMAGE_TAG}-${CIRCLE_SHA1}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
     - run:
         name: Package Operator Bundle
         command: |
@@ -369,7 +369,7 @@ publish:
     - run:
         name: Create Operator and push Operator image to DockerHub
         command: |
-          ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
+          python3 scripts/operator/create_operator_and_push.py "${LATEST_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
     - run:
         name: Notify Slack on failure
         command: ./scripts/slack/notify_failure.py "master"
