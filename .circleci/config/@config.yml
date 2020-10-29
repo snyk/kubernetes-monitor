@@ -24,7 +24,7 @@ workflows:
     jobs:
       - build_image:
           <<: *main_branches_filter
-      - build_operator:
+      - build_and_upload_operator:
           <<: *main_branches_filter
       - unit_tests:
           <<: *main_branches_filter
@@ -43,11 +43,7 @@ workflows:
     jobs:
       - build_image:
           <<: *staging_branch_only_filter
-      - build_operator:
-          <<: *staging_branch_only_filter
-      - upload_operator:
-          requires:
-            - build_operator
+      - build_and_upload_operator:
           <<: *staging_branch_only_filter
       - unit_tests:
           <<: *staging_branch_only_filter
@@ -76,19 +72,17 @@ workflows:
       - integration_tests_operator_on_k8s:
           requires:
             - build_image
-            - build_operator
-            - upload_operator
+            - build_and_upload_operator
           <<: *staging_branch_only_filter
       - openshift4_integration_tests:
           requires:
             - build_image
-            - build_operator
-            - upload_operator
+            - build_and_upload_operator
           <<: *staging_branch_only_filter
       - tag_and_push:
           requires:
             - build_image
-            - build_operator
+            - build_and_upload_operator
             - unit_tests
             - system_tests
             - integration_tests

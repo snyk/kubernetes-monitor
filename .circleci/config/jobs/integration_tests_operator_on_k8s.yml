@@ -16,7 +16,7 @@ steps:
 - run:
     name: Delete Operators from Quay
     command: |
-      python scripts/operator/delete_operators_from_quay.py
+      python3 scripts/operator/delete_operators_from_quay.py
     when: always
 - run:
     command: |

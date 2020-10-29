@@ -46,7 +46,8 @@ steps:
   - run:
       name: Package Operator Bundle
       command: |
-        ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
+        OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+        cp -r "${OPERATOR_PATH}/" snyk-operator/deploy/olm-catalog/snyk-operator/
 
   - run:
       name: Push new Operator to the fork of the upstream-community-operators repository
