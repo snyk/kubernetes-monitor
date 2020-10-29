@@ -71,7 +71,7 @@ steps:
       command: |
         set -xeo pipefail
 
-        # Package Operator to be uploaded to Quay.io
+        # Package Operator Bundle to be uploaded to Quay.io
         SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
         SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
         ./scripts/operator/package-operator.sh $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG
@@ -160,7 +160,7 @@ steps:
         rm -rf ./snyk-operator/deploy/olm-catalog/snyk-operator/${OPERATOR_VERSION}
 
   - run:
-      name: Package Operator upgrade and push to Quay
+      name: Package Operator Bundle upgrade and push to Quay
       command: |
         set -eo pipefail
 

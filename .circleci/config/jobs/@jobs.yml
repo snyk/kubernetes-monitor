@@ -42,7 +42,7 @@ build_operator:
           export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
           ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
     - run:
-        name: Package Operator
+        name: Package Operator Bundle
         command: |
           export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
           export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
