@@ -20,14 +20,20 @@ build_image:
           ./scripts/slack/notify_failure_on_branch.py "staging-build-image-${CIRCLE_SHA1}"
         when: on_fail
 
-build_operator:
-  machine:
-    enabled: true
-    docker_layer_caching: true
+build_and_upload_operator:
+  docker:
+    - image: circleci/python:3.9
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
+    - setup_remote_docker
     - install_python_requests
+    - run:
+        name: Install operator-courier
+        command: pip install operator-courier==2.1.7
     - run:
         name: Download Operator SDK
         command: |
@@ -42,47 +48,31 @@ build_operator:
           export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
           ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
     - run:
-        name: Package Operator
+        name: Package Operator Bundle
         command: |
           export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
           export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
           export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
           export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-          ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-    - run:
-        name: Remove templated Operator before persisting to workspace
-        command: |
-          rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-    - persist_to_workspace:
-        root: snyk-operator
-        paths:
-          - deploy/olm-catalog/snyk-operator
-    - run:
-        name: Notify Slack on failure
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-build-operator-${CIRCLE_SHA1}"
-        when: on_fail
-
-upload_operator:
-  docker:
-    - image: circleci/python:3
-  working_directory: ~/kubernetes-monitor
-  steps:
-    - attach_workspace:
-        at: snyk-operator
-    - install_python_requests
-    - run:
-        name: Install operator-courier
-        command: pip3 install operator-courier==2.1.7
+          OPERATOR_PATH=$(python3 scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
+          echo "export OPERATOR_PATH=$OPERATOR_PATH" >> $BASH_ENV
     - run:
         name: Upload Operator to Quay
         command: |
-          export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
-          export OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
+          if [ "$CIRCLE_BRANCH" != "staging" ]; then
+            exit 0
+          fi
+          export QUAY_TOKEN=$(python3 ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
+          export OPERATOR_DIR=$OPERATOR_PATH
           export QUAY_NAMESPACE=snyk-runtime
           export PACKAGE_NAME=snyk-operator
           export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
           operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${PACKAGE_VERSION}" "${QUAY_TOKEN}"
+    - run:
+        name: Notify Slack on failure
+        command: |
+          ./scripts/slack/notify_failure_on_branch.py "staging-build-and-upload-operator-${CIRCLE_SHA1}"
+        when: on_fail
 
 unit_tests:
   machine:
@@ -277,7 +267,7 @@ openshift4_integration_tests:
     - run:
         name: Delete Operators from Quay
         command: |
-          python scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+          python3 scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
         when: always
     - run:
         name: Notify Slack on failure
@@ -291,6 +281,9 @@ openshift4_integration_tests:
 tag_and_push:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -316,6 +309,9 @@ tag_and_push:
 deploy_dev:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -339,6 +335,9 @@ deploy_dev:
 publish:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -372,20 +371,6 @@ publish:
         command: |
           ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
     - run:
-        name: Package Operator
-        command: |
-          export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
-          export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
-          export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-          ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-    - run:
-        name: Remove templated Operator before storing artifacts
-        command: |
-          rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-    - store_artifacts:
-        path: snyk-operator/deploy/olm-catalog/snyk-operator
-        destination: snyk-operator
-    - run:
         name: Notify Slack on failure
         command: ./scripts/slack/notify_failure.py "master"
         when: on_fail
@@ -393,6 +378,9 @@ publish:
 deploy_prod:
   docker:
     - image: circleci/node:12
+      auth:
+        username: $DOCKERHUB_USER
+        password: $DOCKERHUB_PASSWORD
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout

@@ -20,6 +20,59 @@ commands:
                     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
                     echo 'nvm use 12' >> $BASH_ENV
 jobs:
+    build_and_upload_operator:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/python:3.9
+        steps:
+            - checkout
+            - setup_remote_docker
+            - install_python_requests
+            - run:
+                command: pip install operator-courier==2.1.7
+                name: Install operator-courier
+            - run:
+                command: |
+                    RELEASE_VERSION=v0.15.1
+                    DOWNLOAD_LOCATION=./operator-sdk
+                    CURL_FOLLOW_REDIRECTS="-L"
+                    curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
+                    chmod +x ${DOWNLOAD_LOCATION}
+                name: Download Operator SDK
+            - run:
+                command: |
+                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
+                name: Create Operator and push Operator image to DockerHub
+            - run:
+                command: |
+                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
+                    OPERATOR_PATH=$(python3 scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
+                    echo "export OPERATOR_PATH=$OPERATOR_PATH" >> $BASH_ENV
+                name: Package Operator Bundle
+            - run:
+                command: |
+                    if [ "$CIRCLE_BRANCH" != "staging" ]; then
+                      exit 0
+                    fi
+                    export QUAY_TOKEN=$(python3 ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
+                    export OPERATOR_DIR=$OPERATOR_PATH
+                    export QUAY_NAMESPACE=snyk-runtime
+                    export PACKAGE_NAME=snyk-operator
+                    export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${PACKAGE_VERSION}" "${QUAY_TOKEN}"
+                name: Upload Operator to Quay
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "staging-build-and-upload-operator-${CIRCLE_SHA1}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
     build_image:
         machine:
             docker_layer_caching: true
@@ -41,51 +94,12 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    build_operator:
-        machine:
-            docker_layer_caching: true
-            enabled: true
-        steps:
-            - checkout
-            - install_python_requests
-            - run:
-                command: |
-                    RELEASE_VERSION=v0.15.1
-                    DOWNLOAD_LOCATION=./operator-sdk
-                    CURL_FOLLOW_REDIRECTS="-L"
-                    curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
-                    chmod +x ${DOWNLOAD_LOCATION}
-                name: Download Operator SDK
-            - run:
-                command: |
-                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
-                name: Create Operator and push Operator image to DockerHub
-            - run:
-                command: |
-                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-                    export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
-                    export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-                    ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-                name: Package Operator
-            - run:
-                command: |
-                    rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-                name: Remove templated Operator before persisting to workspace
-            - persist_to_workspace:
-                paths:
-                    - deploy/olm-catalog/snyk-operator
-                root: snyk-operator
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "staging-build-operator-${CIRCLE_SHA1}"
-                name: Notify Slack on failure
-                when: on_fail
-        working_directory: ~/kubernetes-monitor
     deploy_dev:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - install_python_requests
@@ -106,7 +120,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_prod:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - install_python_requests
@@ -217,8 +234,8 @@ jobs:
                 name: Operator integration tests on plain k8s
             - run:
                 command: |
-                    python scripts/operator/delete_operators_from_quay.py
-                name: Delete Operator from Quay
+                    python3 scripts/operator/delete_operators_from_quay.py
+                name: Delete Operators from Quay
                 when: always
             - run:
                 command: |
@@ -297,7 +314,7 @@ jobs:
                 name: Integration tests OpenShift 4
             - run:
                 command: |
-                    python scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+                    python3 scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
                 name: Delete Operators from Quay
                 when: always
             - run:
@@ -362,33 +379,22 @@ jobs:
                 command: |
                     set -xeo pipefail
 
-                    # Package Operator to be uploaded to Quay.io
+                    # Package Operator Bundle to be uploaded to Quay.io
                     SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
                     SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
-                    ./scripts/operator/package-operator.sh $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG
+                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py  $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG)
 
-                    # We do not want to include the templating files when we push the Operator,
-                    # therefore we move the directory to /temp, and restore it later
-                    mkdir temp
-                    mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
-                description: |
-                    Even though the Operator is released to the community-operators repo,
-                    we can reproduce it locally using our packaged scripts. This also helps us
-                    test the upgrade by pushing all tested Operators to our Quay repo.
-                name: Package and deploy last released Operator
-            - run:
-                command: |
-                    set -eo pipefail
+                    QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
-
-                    export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
-
-                    OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
                     QUAY_NAMESPACE=snyk-runtime
                     PACKAGE_NAME=snyk-operator
 
                     operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${OPERATOR_VERSION}" "${QUAY_TOKEN}"
-                name: Push Operator to Quay
+                description: |
+                    Even though the Operator is released to the community-operators repo,
+                    we can reproduce it locally using our packaged scripts. This also helps us
+                    test the upgrade by pushing all tested Operators to our Quay repo.
+                name: Package Operator Bundle and push to Quay
             - run:
                 command: |
                     set -xo pipefail
@@ -444,28 +450,14 @@ jobs:
                 name: Deploy snyk-monitor resource
             - run:
                 command: |
-                    set -xeo pipefail
-
-                    mv ./temp/0.0.0 ./snyk-operator/deploy/olm-catalog/snyk-operator/
-                    rm -rf ./snyk-operator/deploy/olm-catalog/snyk-operator/${OPERATOR_VERSION}
-                name: Restore template files
-            - run:
-                command: |
                     set -eo pipefail
 
                     REPLACES_VERSION=${OPERATOR_VERSION}
 
-                    CSV_LOCATION="./snyk-operator/deploy/olm-catalog/snyk-operator"
-                    OPERATOR_PACKAGE_YAML_LOCATION="${CSV_LOCATION}/snyk-operator.package.yaml"
-                    sed -i.bak "s|${REPLACES_VERSION}|${LATEST_TAG}|g" "${OPERATOR_PACKAGE_YAML_LOCATION}"
-
-                    ./scripts/operator/package-operator.sh ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
-
-                    mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
+                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
 
                     export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
-                    OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
                     QUAY_NAMESPACE=snyk-runtime
                     PACKAGE_NAME=snyk-operator
 
@@ -473,7 +465,7 @@ jobs:
                     operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
                     set -x
                     echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
-                name: Package Operator upgrade and push to Quay
+                name: Package Operator Bundle upgrade and push to Quay
             - run:
                 command: |
                     set -xeo pipefail
@@ -530,7 +522,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     publish:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - setup_remote_docker
@@ -562,20 +557,6 @@ jobs:
                 command: |
                     ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
                 name: Create Operator and push Operator image to DockerHub
-            - run:
-                command: |
-                    export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
-                    export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
-                    export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-                    ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-                name: Package Operator
-            - run:
-                command: |
-                    rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-                name: Remove templated Operator before storing artifacts
-            - store_artifacts:
-                destination: snyk-operator
-                path: snyk-operator/deploy/olm-catalog/snyk-operator
             - run:
                 command: ./scripts/slack/notify_failure.py "master"
                 name: Notify Slack on failure
@@ -618,8 +599,9 @@ jobs:
                 name: End tests early if no new Operator is to be released
             - run:
                 command: |
-                    ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
-                name: Package Operator
+                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+                    cp -r "${OPERATOR_PATH}/" snyk-operator/deploy/olm-catalog/snyk-operator/
+                name: Package Operator Bundle
             - run:
                 command: |
                     CURRENT_DIRECTORY=$(pwd)
@@ -681,8 +663,9 @@ jobs:
                 name: End tests early if no new Operator is to be released
             - run:
                 command: |
-                    ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
-                name: Package Operator
+                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+                    cp -r "${OPERATOR_PATH}/" snyk-operator/deploy/olm-catalog/snyk-operator/
+                name: Package Operator Bundle
             - run:
                 command: |
                     CURRENT_DIRECTORY=$(pwd)
@@ -728,7 +711,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     tag_and_push:
         docker:
-            - image: circleci/node:12
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
         steps:
             - checkout
             - setup_remote_docker
@@ -769,26 +755,6 @@ jobs:
                     ./scripts/slack/notify_failure_on_branch.py "staging-unit-tests-${CIRCLE_SHA1}"
                 name: Notify Slack on failure
                 when: on_fail
-        working_directory: ~/kubernetes-monitor
-    upload_operator:
-        docker:
-            - image: circleci/python:3
-        steps:
-            - attach_workspace:
-                at: snyk-operator
-            - install_python_requests
-            - run:
-                command: pip3 install operator-courier==2.1.7
-                name: Install operator-courier
-            - run:
-                command: |
-                    export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
-                    export OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
-                    export QUAY_NAMESPACE=snyk-runtime
-                    export PACKAGE_NAME=snyk-operator
-                    export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
-                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${PACKAGE_VERSION}" "${QUAY_TOKEN}"
-                name: Upload Operator to Quay
         working_directory: ~/kubernetes-monitor
 main_branches_filter:
     filters:
@@ -831,18 +797,11 @@ workflows:
                     branches:
                         only:
                             - staging
-            - build_operator:
+            - build_and_upload_operator:
                 filters:
                     branches:
                         only:
                             - staging
-            - upload_operator:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_operator
             - unit_tests:
                 filters:
                     branches:
@@ -895,8 +854,7 @@ workflows:
                             - staging
                 requires:
                     - build_image
-                    - build_operator
-                    - upload_operator
+                    - build_and_upload_operator
             - openshift4_integration_tests:
                 filters:
                     branches:
@@ -904,8 +862,7 @@ workflows:
                             - staging
                 requires:
                     - build_image
-                    - build_operator
-                    - upload_operator
+                    - build_and_upload_operator
             - tag_and_push:
                 filters:
                     branches:
@@ -913,7 +870,7 @@ workflows:
                             - staging
                 requires:
                     - build_image
-                    - build_operator
+                    - build_and_upload_operator
                     - unit_tests
                     - system_tests
                     - integration_tests
@@ -960,7 +917,7 @@ workflows:
                         ignore:
                             - staging
                             - master
-            - build_operator:
+            - build_and_upload_operator:
                 filters:
                     branches:
                         ignore:
