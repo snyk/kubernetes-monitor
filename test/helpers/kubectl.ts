@@ -153,7 +153,7 @@ export async function waitForDeployment(name: string, namespace: string): Promis
   console.log(`Found deployment ${name} in namespace ${namespace}`);
 
   console.log(`Begin waiting for deployment ${name} in namespace ${namespace}`);
-  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=120s`);
+  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=240s`);
   console.log(`Deployment ${name} in namespace ${namespace} is available`);
 }
 
