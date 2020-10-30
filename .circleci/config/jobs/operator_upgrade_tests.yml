@@ -105,6 +105,7 @@ steps:
       command: |
         set -xe
 
+        sed -i.bak "s|QUAY_USERNAME_OVERRIDE|${QUAY_USERNAME}|g" ./test/fixtures/operator/operator-source.yaml
         kubectl apply -f ./test/fixtures/operator/operator-source.yaml
 
         set +e
