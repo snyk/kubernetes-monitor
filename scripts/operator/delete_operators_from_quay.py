@@ -21,7 +21,7 @@ def getOperators(url: str) -> List[Package]:
 
 def getVersions(packages: List[Package]) -> List[str]:
     def extract_version(package):
-        return package["version"]
+        return package["release"]
 
     return list(map(extract_version, packages))
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     )
 
     operators = getOperators(
-        "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator"
+        "https://quay.io/cnr/api/v1/packages/" + username + "/" + "snyk-operator"
     )
     versions = getVersions(operators)
 
@@ -56,5 +56,6 @@ if __name__ == '__main__':
     for version in versions:
         deleteOperator(
             quay_token,
-            "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/" + version + "/helm"
+            "https://quay.io/cnr/api/v1/packages/" + username +
+            "/" + "snyk-operator/" + version + "/helm"
         )
