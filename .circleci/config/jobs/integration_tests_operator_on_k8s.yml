@@ -20,7 +20,7 @@ steps:
     when: always
 - run:
     command: |
-      ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-operator-on-k8s-${CIRCLE_SHA1}"
+      ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
     name: Notify Slack on failure
     when: on_fail
 - store_artifacts:
