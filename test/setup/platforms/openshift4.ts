@@ -61,33 +61,17 @@ export async function exportKubeConfig(): Promise<void> {
 export async function clean(): Promise<void> {
   // Kubernetes will be stuck trying to delete these resources if we don't clear the finalizers.
   await Promise.all([
-    kubectl.patchResourceFinalizers('customresourcedefinition', 'snykmonitors.charts.helm.k8s.io', 'snyk-monitor').catch((error) => {
-      console.log(error);
-    }),
-    kubectl.patchResourceFinalizers('snykmonitors.charts.helm.k8s.io', 'snyk-monitor', 'snyk-monitor').catch((error) => {
-      console.log(error);
-    }),
+    kubectl.patchResourceFinalizers('customresourcedefinition', 'snykmonitors.charts.helm.k8s.io', 'snyk-monitor').catch(() => undefined),
+    kubectl.patchResourceFinalizers('snykmonitors.charts.helm.k8s.io', 'snyk-monitor', 'snyk-monitor').catch(() => undefined),
   ]);
 
   await Promise.all([
-    kubectl.deleteResource('customresourcedefinition', 'snykmonitors.charts.helm.k8s.io', 'default').catch((error) => {
-      console.log(error);
-    }),
-    kubectl.deleteResource('operatorsource', 'snyk-operator', 'openshift-marketplace').catch((error) => {
-      console.log(error);
-    }),
-    kubectl.deleteResource('clusterrolebinding', 'snyk-monitor', 'default').catch((error) => {
-      console.log(error);
-    }),
-    kubectl.deleteResource('clusterrole', 'snyk-monitor', 'default').catch((error) => {
-      console.log(error);
-    }),
-    kubectl.deleteNamespace('services').catch((error) => {
-      console.log(error);
-    }),
-    kubectl.deleteNamespace('snyk-monitor').catch((error) => {
-      console.log(error);
-    }),
+    kubectl.deleteResource('customresourcedefinition', 'snykmonitors.charts.helm.k8s.io', 'default').catch(() => undefined),
+    kubectl.deleteResource('operatorsource', 'snyk-operator', 'openshift-marketplace').catch(() => undefined),
+    kubectl.deleteResource('clusterrolebinding', 'snyk-monitor', 'default').catch(() => undefined),
+    kubectl.deleteResource('clusterrole', 'snyk-monitor', 'default').catch(() => undefined),
+    kubectl.deleteNamespace('services').catch(() => undefined),
+    kubectl.deleteNamespace('snyk-monitor').catch(() => undefined),
   ]);
 }
 

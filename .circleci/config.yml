@@ -44,7 +44,9 @@ jobs:
             - run:
                 command: |
                     export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    OPERATOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    MONITOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                 name: Create Operator and push Operator image to DockerHub
             - run:
                 command: |
@@ -415,6 +417,7 @@ jobs:
                 command: |
                     set -xe
 
+                    sed -i.bak "s|QUAY_USERNAME_OVERRIDE|${QUAY_USERNAME}|g" ./test/fixtures/operator/operator-source.yaml
                     kubectl apply -f ./test/fixtures/operator/operator-source.yaml
 
                     set +e
@@ -555,7 +558,9 @@ jobs:
                 name: Download operator-sdk
             - run:
                 command: |
-                    ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
+                    OPERATOR_TAG="${LATEST_TAG}"
+                    MONITOR_TAG="${LATEST_TAG}"
+                    python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                 name: Create Operator and push Operator image to DockerHub
             - run:
                 command: ./scripts/slack/notify_failure.py "master"
