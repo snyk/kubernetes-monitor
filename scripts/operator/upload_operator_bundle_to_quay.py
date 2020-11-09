@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 from subprocess import call
 from sys import argv
 
