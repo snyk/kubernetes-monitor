@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 """Set up a local OpenShift environment
 
 Does the following steps:

@@ -48,7 +48,7 @@ build_and_upload_operator:
           export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
           OPERATOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
           MONITOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-          python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
+          scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
     - run:
         name: Package Operator Bundle
         command: |
@@ -56,7 +56,7 @@ build_and_upload_operator:
           export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
           export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
           export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-          OPERATOR_PATH=$(python3 scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
+          OPERATOR_PATH=$(scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
           echo "export OPERATOR_PATH=$OPERATOR_PATH" >> $BASH_ENV
     - run:
         name: Upload Operator to Quay
@@ -64,7 +64,7 @@ build_and_upload_operator:
           if [ "$CIRCLE_BRANCH" != "staging" ]; then
             exit 0
           fi
-          export QUAY_TOKEN=$(python3 ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
+          export QUAY_TOKEN=$(scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
           export OPERATOR_DIR=$OPERATOR_PATH
           export QUAY_NAMESPACE=snyk-runtime
           export PACKAGE_NAME=snyk-operator
@@ -269,7 +269,7 @@ openshift4_integration_tests:
     - run:
         name: Delete Operators from Quay
         command: |
-          python3 scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+          scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
         when: always
     - run:
         name: Notify Slack on failure

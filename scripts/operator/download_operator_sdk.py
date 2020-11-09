@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 from tempfile import mkdtemp
 from os import chmod, getcwd
 from os.path import isfile

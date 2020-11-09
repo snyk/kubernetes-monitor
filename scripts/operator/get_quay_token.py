@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 from requests import post
 from json import loads, dumps
 from sys import argv
