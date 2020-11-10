@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 from sys import argv
 from create_operator import createOperatorAndBuildOperatorImage
 from subprocess import call

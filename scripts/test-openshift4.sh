@@ -40,9 +40,9 @@ validateEnvVar OPENSHIFT4_USER "$OPENSHIFT4_USER"
 validateEnvVar OPENSHIFT4_PASSWORD "$OPENSHIFT4_PASSWORD"
 validateEnvVar OPENSHIFT4_CLUSTER_URL "$OPENSHIFT4_CLUSTER_URL"
 
-python3 scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
-
 if [ "${CI}" != "true" ]; then
+  python3 scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+  
   if [ "$KUBERNETES_MONITOR_IMAGE_TAG" == "" ]; then
     RED_COLOR='\033[0;31m'
     NO_COLOR='\033[0m'
@@ -63,6 +63,8 @@ if [ "${CI}" != "true" ]; then
   oc login -u "${OPENSHIFT4_USER}" -p "${OPENSHIFT4_PASSWORD}" "${OPENSHIFT4_CLUSTER_URL}" --insecure-skip-tls-verify=true
   
   python3 scripts/operator/main.py
+else
+  scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
 fi
 
 DEPLOYMENT_TYPE=OperatorOS TEST_PLATFORM=openshift4 CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts --timeout=900

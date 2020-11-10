@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 """Delete all Operators from the Quay Snyk Operator repository
 
 Args:
