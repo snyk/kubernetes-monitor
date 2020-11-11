@@ -63,7 +63,7 @@ steps:
         fi
 
   - run:
-      name: Package and deploy last released Operator
+      name: Package Operator Bundle and push to Quay
       description: |
         Even though the Operator is released to the community-operators repo,
         we can reproduce it locally using our packaged scripts. This also helps us
@@ -71,28 +71,13 @@ steps:
       command: |
         set -xeo pipefail
 
-        # Package Operator to be uploaded to Quay.io
+        # Package Operator Bundle to be uploaded to Quay.io
         SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
         SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
-        ./scripts/operator/package-operator.sh $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG
+        OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py  $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG)
 
-        # We do not want to include the templating files when we push the Operator,
-        # therefore we move the directory to /temp, and restore it later
-        mkdir temp
-        mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
+        QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
-  - run:
-      name: Push Operator to Quay
-      command: |
-        set -eo pipefail
-
-
-        export QUAY_TOKEN=$(curl -H "Content-Type: application/json" \
-          -XPOST https://quay.io/cnr/api/v1/users/login \
-          -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" \
-          | jq -r .token)
-
-        OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
         QUAY_NAMESPACE=snyk-runtime
         PACKAGE_NAME=snyk-operator
 
@@ -120,6 +105,7 @@ steps:
       command: |
         set -xe
 
+        sed -i.bak "s|QUAY_USERNAME_OVERRIDE|${QUAY_USERNAME}|g" ./test/fixtures/operator/operator-source.yaml
         kubectl apply -f ./test/fixtures/operator/operator-source.yaml
 
         set +e
@@ -155,34 +141,16 @@ steps:
           xargs -I{} kubectl wait pod/{} -n snyk-monitor --timeout 60s --for condition=Ready
 
   - run:
-      name: Restore template files
-      command: |
-        set -xeo pipefail
-
-        mv ./temp/0.0.0 ./snyk-operator/deploy/olm-catalog/snyk-operator/
-        rm -rf ./snyk-operator/deploy/olm-catalog/snyk-operator/${OPERATOR_VERSION}
-
-  - run:
-      name: Package Operator upgrade and push to Quay
+      name: Package Operator Bundle upgrade and push to Quay
       command: |
         set -eo pipefail
 
         REPLACES_VERSION=${OPERATOR_VERSION}
 
-        CSV_LOCATION="./snyk-operator/deploy/olm-catalog/snyk-operator"
-        OPERATOR_PACKAGE_YAML_LOCATION="${CSV_LOCATION}/snyk-operator.package.yaml"
-        sed -i.bak "s|${REPLACES_VERSION}|${LATEST_TAG}|g" "${OPERATOR_PACKAGE_YAML_LOCATION}"
+        OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
 
-        ./scripts/operator/package-operator.sh ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
+        export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
-        mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
-
-        export QUAY_TOKEN=$(curl -H "Content-Type: application/json" \
-          -XPOST https://quay.io/cnr/api/v1/users/login \
-          -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" \
-          | jq -r .token)
-
-        OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
         QUAY_NAMESPACE=snyk-runtime
         PACKAGE_NAME=snyk-operator
 

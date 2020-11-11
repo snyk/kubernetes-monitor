@@ -1,4 +1,5 @@
 machine:
+  image: ubuntu-2004:202010-01
   docker_layer_caching: true
   enabled: true
 steps:
@@ -14,12 +15,13 @@ steps:
       .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
     name: Operator integration tests on plain k8s
 - run:
-    name: Delete Operator from Quay
+    name: Delete Operators from Quay
     command: |
-      ./scripts/operator/delete-operator-from-quay.sh
+      scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+    when: always
 - run:
     command: |
-      ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-operator-on-k8s-${CIRCLE_SHA1}"
+      ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
     name: Notify Slack on failure
     when: on_fail
 - store_artifacts:

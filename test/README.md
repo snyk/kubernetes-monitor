@@ -1,5 +1,17 @@
 # Testing the Kubernetes-Monitor #
 
+- [Unit tests](#unit-tests)  
+- [System tests](#system-tests)
+- [Integration tests](#integration-tests)
+  - [KinD](#kind)
+  - [EKS](#eks)
+  - [OpenShift 4](#openshift-4)
+  - [KinD with OLM](#kind-with-olm)
+- [Debugging with Tilt](#debugging-with-tilt)
+  - [Start a debugging session](#start-a-debugging-session)
+  - [Errors with read-only file system](#errors-with-read-only-file-system)
+  - [Cleaning up](#cleaning-up)
+
 The Kubernetes-Monitor has different testing suites, each with different purposes and requirements.
 All our tests prefer a blackbox approach whenever possible.
 
@@ -74,14 +86,11 @@ Run with `npm run test:integration:eks`.
 
 ### OpenShift 4 ###
 
+See the [OpenShift 4 README](README.md) for setup instructions.
+
 OpenShift is RedHat's Kubernetes platform and helps us ensure we support not only the generic Kubernetes API, but also specifically OpenShift 4.
 
-This test uses an existing OpenShift 4 account with an existing OpenShift 4 cluster, and as such has a few more prerequisites:
-- The following environment variables: `OPENSHIFT4_USER`, `OPENSHIFT4_PASSWORD`, `OPENSHIFT4_CLUSTER_URL` are used to authenticate against the cluster.
-
 This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
-
-Run with `npm run test:integration:openshift4`.
 
 ### KinD with OLM ###
 
@@ -90,17 +99,6 @@ This test helps us ensure our operator is installable and functioning on a plain
 This test runs whenever we commit to any branch.
 
 Run with `npm run test:integration:kindolm:operator`.
-
-### Package Managers ###
-
-These tests attempt to provide some more thorough coverage for our scans of specific package manager: APK, APT and RPM.
-
-These tests run whenever we commit to any branch.
-
-Run with:
-* `npm run test:integration:apk`
-* `npm run test:integration:apt`
-* `npm run test:integration:rpm`
 
 ## Debugging with Tilt ##
 

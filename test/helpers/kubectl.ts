@@ -117,6 +117,11 @@ export async function deletePod(podName: string, namespace: string) {
   console.log(`Deleted pod ${podName}`);
 }
 
+export async function describeKubernetesResource(kind: string, name: string, namespace: string): Promise<string> {
+  const result = await exec(`./kubectl describe ${kind} ${name} -n ${namespace}`);
+  return result.stdout;
+}
+
 export async function getDeploymentJson(deploymentName: string, namespace: string): Promise<any> {
   const getDeploymentResult = await exec(`./kubectl get deployment ${deploymentName} -n ${namespace} -o json`);
   return JSON.parse(getDeploymentResult.stdout);
@@ -143,7 +148,7 @@ export async function getPodLogs(podName: string, namespace: string): Promise<an
 
 export async function waitForDeployment(name: string, namespace: string): Promise<void> {
   console.log(`Trying to find deployment ${name} in namespace ${namespace}`);
-  for (let attempt = 0; attempt < 60; attempt++) {
+  for (let attempt = 0; attempt < 120; attempt++) {
     try {
       await exec(`./kubectl get deployment.apps/${name} -n ${namespace}`);
     } catch (error) {
@@ -153,7 +158,7 @@ export async function waitForDeployment(name: string, namespace: string): Promis
   console.log(`Found deployment ${name} in namespace ${namespace}`);
 
   console.log(`Begin waiting for deployment ${name} in namespace ${namespace}`);
-  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=120s`);
+  await exec(`./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=240s`);
   console.log(`Deployment ${name} in namespace ${namespace} is available`);
 }
 

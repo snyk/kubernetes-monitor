@@ -178,8 +178,15 @@ async function dumpLogs(): Promise<void> {
     console.log('not dumping logs because', logDir, 'does not exist');
     return;
   }
-  const podNames = await kubectl.getPodNames('snyk-monitor');
-  const logs = await kubectl.getPodLogs(podNames[0], 'snyk-monitor');
+
+  const podNames = await kubectl.getPodNames('snyk-monitor').catch(() => []);
+  const snykMonitorPod = podNames.find((name) => name.startsWith('snyk-monitor'));
+  if (snykMonitorPod === undefined) {
+    console.log('not dumping logs because snyk-monitor pod does not exist');
+    return;
+  }
+
+  const logs = await kubectl.getPodLogs(snykMonitorPod, 'snyk-monitor');
   const logPath = `${logDir}/kubernetes-monitor.log`;
   console.log('dumping logs to', logPath);
   fs.writeFileSync(logPath, logs);

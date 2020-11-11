@@ -1,1006 +1,980 @@
 commands:
-  install_python_requests:
-    description: Install requests library
-    steps:
-    - run:
-        command: |
-          sudo apt update
-          sudo apt install python3-requests
-        when: always
-  setup_node12:
-    description: Setup Node 12
-    steps:
-    - run:
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install v12
-          npm install
-          echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
-          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-          echo 'nvm use 12' >> $BASH_ENV
+    install_python_requests:
+        description: Install requests library
+        steps:
+            - run:
+                command: |
+                    sudo apt update
+                    sudo apt install python3-requests
+                when: always
+    setup_node12:
+        description: Setup Node 12
+        steps:
+            - run:
+                command: |
+                    export NVM_DIR="/opt/circleci/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm install v12
+                    npm install
+                    echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+                    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+                    echo 'nvm use 12' >> $BASH_ENV
 jobs:
-  build_image:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - install_python_requests
-    - run:
-        command: |
-          docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-          export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-          IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-          ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
-          docker push ${IMAGE_NAME_CANDIDATE}
-        name: Build image
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-build-image-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  build_operator:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - install_python_requests
-    - run:
-        command: |
-          RELEASE_VERSION=v0.15.1
-          DOWNLOAD_LOCATION=./operator-sdk
-          CURL_FOLLOW_REDIRECTS="-L"
-          curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
-          chmod +x ${DOWNLOAD_LOCATION}
-        name: Download Operator SDK
-    - run:
-        command: |
-          export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-          ./scripts/operator/create-operator-and-push.sh "${IMAGE_TAG}-${CIRCLE_SHA1}"
-        name: Create Operator and push Operator image to DockerHub
-    - run:
-        command: |
-          export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-          export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-          export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
-          export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-          ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-        name: Package Operator
-    - run:
-        command: |
-          rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-        name: Remove templated Operator before persisting to workspace
-    - persist_to_workspace:
-        paths:
-        - deploy/olm-catalog/snyk-operator
-        root: snyk-operator
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-build-operator-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  deploy_dev:
-    docker:
-    - image: circleci/node:12
-    steps:
-    - checkout
-    - install_python_requests
-    - run:
-        command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-          LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
-          ./scripts/slack/notify_deploy.py $LATEST_TAG dev &&
-          curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
-              -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
-                            \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
-              https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
-        name: Deploy to dev
-    - run:
-        command: ./scripts/slack/notify_failure.py "deploy-dev"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  deploy_prod:
-    docker:
-    - image: circleci/node:12
-    steps:
-    - checkout
-    - install_python_requests
-    - run:
-        command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-          LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-          ./scripts/slack/notify_deploy.py $LATEST_TAG prod &&
-          curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
-              -X POST -d "{}" \
-              https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
-        name: Deploy to prod
-    - run:
-        command: ./scripts/slack/notify_failure.py "deploy-prod"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  eks_integration_tests:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/eks
-        name: Create temp dir for logs
-    - run:
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install v12
-          npm install
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
-        name: Integration tests EKS
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-eks-integration-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/eks
-    working_directory: ~/kubernetes-monitor
-  integration_tests:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/kind
-        name: create temp dir for logs
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          npm run test:integration:kind:yaml
-        name: Integration tests
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/kind
-    working_directory: ~/kubernetes-monitor
-  integration_tests_helm:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/kind-helm
-        name: Create temporary directory for logs
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          npm run test:integration:kind:helm
-        name: Integration tests with Helm deployment
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-integration-helm-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/kind-helm
-    working_directory: ~/kubernetes-monitor
-  integration_tests_operator_on_k8s:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
-        name: Create temporary directory for logs
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
-        name: Operator integration tests on plain k8s
-    - run:
-        command: |
-          ./scripts/operator/delete-operator-from-quay.sh
-        name: Delete Operator from Quay
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-integration-tests-operator-on-k8s-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/kind-olm-operator
-    working_directory: ~/kubernetes-monitor
-  integration_tests_proxy:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/proxy
-        name: Create temporary directory for logs
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          npm run test:integration:kind:proxy
-        name: Integration tests with proxy
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-integration-proxy-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/proxy
-    working_directory: ~/kubernetes-monitor
-  openshift3_integration_tests:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/openshift3
-        name: Create temporary directory for logs
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          npm run test:integration:openshift3:yaml
-        name: Integration tests OpenShift 3
-    - run:
-        command: ./scripts/slack/notify_failure.py "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/openshift3
-    working_directory: ~/kubernetes-monitor
-  openshift4_integration_tests:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: mkdir -p /tmp/logs/test/integration/openshift4
-        name: create temp dir for logs
-    - run:
-        command: |
-          echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
-        name: Append an entry to the test environment to /etc/hosts
-    - run:
-        command: |
-          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-          .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
-        name: Integration tests OpenShift 4
-    - run:
-        command: |
-          ./scripts/operator/delete-operator-from-quay.sh
-        name: Delete Operator from Quay
-        when: always
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-openshift4-integration-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    - store_artifacts:
-        path: /tmp/logs/test/integration/openshift4
-    working_directory: ~/kubernetes-monitor
-  operator_upgrade_tests:
-    description: |
-      Deploys a previously released version of the snyk-operator.
-      Subsequently upgrades the Operator with a new version that is intended
-      to be released. If the Operator reaches the running state in both cases,
-      we can aassume that it's able to upgrade.
-    executor: redhat-openshift/default
-    steps:
-    - checkout
-    - run:
-        command: |
-          sudo apt install -y uuid-runtime
-          python -m pip install requests pyyaml
-          python -m pip install operator-courier==2.1.7
-        name: Install required packages
-    - install_python_requests
-    - run:
-        command: echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
-        description: "The test cluster returns URLs that are local only to the cluster
-          (e.g. https://api.crc.testing).\nThese URLs don't make sense for the public
-          internet, so we add a little hack in /etc/hosts \nthat makes the URLs point
-          to the IP address of the test cluster, allowing us to reach back to it.\n"
-        name: Update /etc/hosts with an entry to the OpenShift cluster
-    - redhat-openshift/login-and-update-kubeconfig:
-        insecure-skip-tls-verify: true
-        openshift-platform-version: 4.x
-        password: $OPENSHIFT4_PASSWORD
-        server-address: $OPENSHIFT4_CLUSTER_URL
-        username: $OPENSHIFT4_USER
-    - run:
-        command: |
-          set -xeo pipefail
-
-          OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
-
-          echo "Currently released version is: ${OPERATOR_VERSION}"
-          echo "export OPERATOR_VERSION=${OPERATOR_VERSION}" >> $BASH_ENV
-        name: Get last released Operator version
-    - run:
-        command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
-          LATEST_TAG=${LATEST_TAG_WITH_V:1}
-          echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+    build_and_upload_operator:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/python:3.9
+        steps:
+            - checkout
+            - setup_remote_docker
+            - install_python_requests
+            - run:
+                command: pip install operator-courier==2.1.7
+                name: Install operator-courier
+            - run:
+                command: |
+                    RELEASE_VERSION=v0.15.1
+                    DOWNLOAD_LOCATION=./operator-sdk
+                    CURL_FOLLOW_REDIRECTS="-L"
+                    curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
+                    chmod +x ${DOWNLOAD_LOCATION}
+                name: Download Operator SDK
+            - run:
+                command: |
+                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    OPERATOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    MONITOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
+                name: Create Operator and push Operator image to DockerHub
+            - run:
+                command: |
+                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
+                    OPERATOR_PATH=$(scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
+                    echo "export OPERATOR_PATH=$OPERATOR_PATH" >> $BASH_ENV
+                name: Package Operator Bundle
+            - run:
+                command: |
+                    if [ "$CIRCLE_BRANCH" != "staging" ]; then
+                      exit 0
+                    fi
+                    export QUAY_TOKEN=$(scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
+                    export OPERATOR_DIR=$OPERATOR_PATH
+                    export QUAY_NAMESPACE=snyk-runtime
+                    export PACKAGE_NAME=snyk-operator
+                    export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${PACKAGE_VERSION}" "${QUAY_TOKEN}"
+                name: Upload Operator to Quay
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    build_image:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - install_python_requests
+            - run:
+                command: |
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+                    docker push ${IMAGE_NAME_CANDIDATE}
+                name: Build image
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    deploy_dev:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
+        steps:
+            - checkout
+            - install_python_requests
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
+                    ./scripts/slack/notify_deploy.py $LATEST_TAG dev &&
+                    curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
+                        -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
+                                      \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
+                        https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
+                name: Deploy to dev
+            - run:
+                command: ./scripts/slack/notify_failure.py "deploy-dev"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    deploy_prod:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
+        steps:
+            - checkout
+            - install_python_requests
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
+                    ./scripts/slack/notify_deploy.py $LATEST_TAG prod &&
+                    curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
+                        -X POST -d "{}" \
+                        https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
+                name: Deploy to prod
+            - run:
+                command: ./scripts/slack/notify_failure.py "deploy-prod"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    eks_integration_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/eks
+                name: Create temp dir for logs
+            - run:
+                command: |
+                    export NVM_DIR="/opt/circleci/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm install v12
+                    npm install
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
+                name: Integration tests EKS
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/eks
+        working_directory: ~/kubernetes-monitor
+    integration_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/kind
+                name: create temp dir for logs
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    npm run test:integration:kind:yaml
+                name: Integration tests
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/kind
+        working_directory: ~/kubernetes-monitor
+    integration_tests_helm:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/kind-helm
+                name: Create temporary directory for logs
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    npm run test:integration:kind:helm
+                name: Integration tests with Helm deployment
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/kind-helm
+        working_directory: ~/kubernetes-monitor
+    integration_tests_operator_on_k8s:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
+                name: Create temporary directory for logs
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
+                name: Operator integration tests on plain k8s
+            - run:
+                command: |
+                    scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+                name: Delete Operators from Quay
+                when: always
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/kind-olm-operator
+        working_directory: ~/kubernetes-monitor
+    integration_tests_proxy:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/proxy
+                name: Create temporary directory for logs
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    npm run test:integration:kind:proxy
+                name: Integration tests with proxy
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/proxy
+        working_directory: ~/kubernetes-monitor
+    openshift3_integration_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/openshift3
+                name: Create temporary directory for logs
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    npm run test:integration:openshift3:yaml
+                name: Integration tests OpenShift 3
+            - run:
+                command: ./scripts/slack/notify_failure.py "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/openshift3
+        working_directory: ~/kubernetes-monitor
+    openshift4_integration_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/openshift4
+                name: create temp dir for logs
+            - run:
+                command: |
+                    echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
+                name: Append an entry to the test environment to /etc/hosts
+            - run:
+                command: |
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
+                name: Integration tests OpenShift 4
+            - run:
+                command: |
+                    scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
+                name: Delete Operators from Quay
+                when: always
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/openshift4
+        working_directory: ~/kubernetes-monitor
+    operator_upgrade_tests:
         description: |
-          This tag is used to identify the Operator version we are going to upgrade to.
-        name: Get latest snyk-monitor tag
-    - run:
-        command: |
-          if [[ "${LATEST_TAG}" == "${OPERATOR_VERSION}" ]]; then
-            echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
-            exit 1
-          fi
-        name: End tests early if no new Operator is to be released
-    - run:
-        command: |
-          set -xeo pipefail
+            Deploys a previously released version of the snyk-operator.
+            Subsequently upgrades the Operator with a new version that is intended
+            to be released. If the Operator reaches the running state in both cases,
+            we can aassume that it's able to upgrade.
+        executor: redhat-openshift/default
+        steps:
+            - checkout
+            - run:
+                command: |
+                    sudo apt install -y uuid-runtime
+                    python -m pip install requests pyyaml
+                    python -m pip install operator-courier==2.1.7
+                name: Install required packages
+            - install_python_requests
+            - run:
+                command: echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
+                description: "The test cluster returns URLs that are local only to the cluster (e.g. https://api.crc.testing).\nThese URLs don't make sense for the public internet, so we add a little hack in /etc/hosts \nthat makes the URLs point to the IP address of the test cluster, allowing us to reach back to it.\n"
+                name: Update /etc/hosts with an entry to the OpenShift cluster
+            - redhat-openshift/login-and-update-kubeconfig:
+                insecure-skip-tls-verify: true
+                openshift-platform-version: 4.x
+                password: $OPENSHIFT4_PASSWORD
+                server-address: $OPENSHIFT4_CLUSTER_URL
+                username: $OPENSHIFT4_USER
+            - run:
+                command: |
+                    set -xeo pipefail
 
-          # Package Operator to be uploaded to Quay.io
-          SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
-          SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
-          ./scripts/operator/package-operator.sh $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG
+                    OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
 
-          # We do not want to include the templating files when we push the Operator,
-          # therefore we move the directory to /temp, and restore it later
-          mkdir temp
-          mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
+                    echo "Currently released version is: ${OPERATOR_VERSION}"
+                    echo "export OPERATOR_VERSION=${OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get last released Operator version
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}
+                    echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+                description: |
+                    This tag is used to identify the Operator version we are going to upgrade to.
+                name: Get latest snyk-monitor tag
+            - run:
+                command: |
+                    if [[ "${LATEST_TAG}" == "${OPERATOR_VERSION}" ]]; then
+                      echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
+                      exit 1
+                    fi
+                name: End tests early if no new Operator is to be released
+            - run:
+                command: |
+                    set -xeo pipefail
+
+                    # Package Operator Bundle to be uploaded to Quay.io
+                    SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
+                    SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
+                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py  $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG)
+
+                    QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
+
+                    QUAY_NAMESPACE=snyk-runtime
+                    PACKAGE_NAME=snyk-operator
+
+                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${OPERATOR_VERSION}" "${QUAY_TOKEN}"
+                description: |
+                    Even though the Operator is released to the community-operators repo,
+                    we can reproduce it locally using our packaged scripts. This also helps us
+                    test the upgrade by pushing all tested Operators to our Quay repo.
+                name: Package Operator Bundle and push to Quay
+            - run:
+                command: |
+                    set -xo pipefail
+                    set +e
+
+                    ns=$(kubectl get ns snyk-monitor --no-headers --output=go-template={{.metadata.name}} 2>/dev/null)
+
+                    if [[ -z "${ns}" ]]; then
+                      echo "snyk-monitor namespace not found, creating..."
+                      kubectl create ns snyk-monitor
+                    fi
+
+                    set -e
+                    INTEGRATION_ID=$(uuidgen)
+                    kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=integrationId=${INTEGRATION_ID} --from-literal=dockercfg.json={}
+                name: Configure snyk-monitor namespace
+            - run:
+                command: |
+                    set -xe
+
+                    sed -i.bak "s|QUAY_USERNAME_OVERRIDE|${QUAY_USERNAME}|g" ./test/fixtures/operator/operator-source.yaml
+                    kubectl apply -f ./test/fixtures/operator/operator-source.yaml
+
+                    set +e
+                    opsrc=$(kubectl get operatorsource snyk-operator -n openshift-marketplace --no-headers 2>/dev/null | awk '{print $9}')
+
+                    set -e
+                    while [[ "${opsrc}" != "Succeeded" ]]; do
+                      if [[ -z "${opsrc}" || "${opsrc}" == "Failed" ]]; then
+                        >&2 echo "failed to deploy operator source resource"
+                        exit 1
+                      fi
+                      opsrc=$(kubectl get operatorsource snyk-operator -n openshift-marketplace --no-headers 2>/dev/null | awk '{print $9}')
+                    done
+
+                    kubectl apply -f ./test/fixtures/operator/installation.yaml
+                    sleep 60
+                    kubectl get pods -n snyk-monitor --no-headers | \
+                      grep "snyk-operator" | \
+                      awk 'END { if (NR==0) exit 1; else print $1 }' | \
+                      xargs -I{} kubectl wait pod/{} -n snyk-monitor --timeout 60s --for condition=Ready
+                name: Install Operator
+            - run:
+                command: |
+                    set -o pipefail
+
+                    kubectl apply -f ./test/fixtures/operator/custom-resource.yaml
+                    sleep 60
+
+                    kubectl get pods -n snyk-monitor --no-headers | \
+                      grep "snyk-monitor" | \
+                      awk 'END { if (NR==0) exit 1; else print $1 }' | \
+                      xargs -I{} kubectl wait pod/{} -n snyk-monitor --timeout 60s --for condition=Ready
+                name: Deploy snyk-monitor resource
+            - run:
+                command: |
+                    set -eo pipefail
+
+                    REPLACES_VERSION=${OPERATOR_VERSION}
+
+                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
+
+                    export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
+
+                    QUAY_NAMESPACE=snyk-runtime
+                    PACKAGE_NAME=snyk-operator
+
+                    set +x
+                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
+                    set -x
+                    echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+                name: Package Operator Bundle upgrade and push to Quay
+            - run:
+                command: |
+                    set -xeo pipefail
+
+                    # NOTE: This is the action that actually refreshes the source and makes OLM "see" the new version in Quay!
+                    oc patch operatorsource snyk-operator -n openshift-marketplace -p '[{"op":"replace","path":"/status","value":{}}]' --type json
+                    sleep 120
+
+                    VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
+                      grep "snyk-monitor" | \
+                      awk 'END { if (NR==0) exit 1; else print $1 }' | \
+                      xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..image} | \
+                      awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
+
+                    if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
+                      &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
+                      exit 1
+                    fi
+
+                    echo "Update complete!"
+                name: Upgrade Operator and check that snyk-monitor also upgraded
+            - run:
+                command: |
+                    ./scripts/slack/notify_success_openshift_upgrade.py "${OPERATOR_VERSION}" "${LATEST_TAG}"
+                name: Notify Slack on successful upgrade
+            - run:
+                command: |
+                    set +e
+
+                    curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
+                      -H "Authorization: ${QUAY_DELETE_TOKEN}" "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/${OPERATOR_VERSION}/helm"
+                    curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
+                      -H "Authorization: ${QUAY_DELETE_TOKEN}" "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/${LATEST_TAG}/helm"
+
+                    kubectl delete -f ./test/fixtures/operator/operator-source.yaml
+                    kubectl delete -f ./test/fixtures/operator/installation.yaml
+
+                    kubectl patch customresourcedefinition snykmonitors.charts.helm.k8s.io -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
+                    kubectl patch snykmonitors.charts.helm.k8s.io snyk-monitor -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
+                    kubectl delete -f ./test/fixtures/operator/custom-resource.yaml
+                    kubectl delete clusterrolebinding snyk-monitor
+                    kubectl delete clusterrole snyk-monitor
+
+                    kubectl delete ns snyk-monitor
+                name: Cleanup
+                when: always
+            - run:
+                command: |
+                    if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
+                      ./scripts/slack/notify_failure.py "nightly-operator-upgrade-tests"
+                    fi
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    publish:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
+        steps:
+            - checkout
+            - setup_remote_docker
+            - install_python_requests
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
+                    IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved &&
+                    IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG} &&
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+                    docker pull ${IMAGE_NAME_APPROVED} &&
+                    docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
+                    docker push ${IMAGE_NAME_PUBLISHED} &&
+                    ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
+                    ./scripts/publish-gh-pages.sh ${LATEST_TAG}
+                    # Preserve the latest tag for the next steps of this job
+                    echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+                name: Publish
+            - run:
+                command: |
+                    RELEASE_VERSION=v0.15.1
+                    DOWNLOAD_LOCATION=./operator-sdk
+                    CURL_FOLLOW_REDIRECTS="-L"
+                    curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
+                    chmod +x ${DOWNLOAD_LOCATION}
+                name: Download operator-sdk
+            - run:
+                command: |
+                    OPERATOR_TAG="${LATEST_TAG}"
+                    MONITOR_TAG="${LATEST_TAG}"
+                    python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
+                name: Create Operator and push Operator image to DockerHub
+            - run:
+                command: ./scripts/slack/notify_failure.py "master"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    push_operator_to_community_operators:
         description: |
-          Even though the Operator is released to the community-operators repo,
-          we can reproduce it locally using our packaged scripts. This also helps us
-          test the upgrade by pushing all tested Operators to our Quay repo.
-        name: Package and deploy last released Operator
-    - run:
-        command: |
-          set -eo pipefail
-
-
-          export QUAY_TOKEN=$(curl -H "Content-Type: application/json" \
-            -XPOST https://quay.io/cnr/api/v1/users/login \
-            -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" \
-            | jq -r .token)
-
-          OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
-          QUAY_NAMESPACE=snyk-runtime
-          PACKAGE_NAME=snyk-operator
-
-          operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${OPERATOR_VERSION}" "${QUAY_TOKEN}"
-        name: Push Operator to Quay
-    - run:
-        command: |
-          set -xo pipefail
-          set +e
-
-          ns=$(kubectl get ns snyk-monitor --no-headers --output=go-template={{.metadata.name}} 2>/dev/null)
-
-          if [[ -z "${ns}" ]]; then
-            echo "snyk-monitor namespace not found, creating..."
-            kubectl create ns snyk-monitor
-          fi
-
-          set -e
-          INTEGRATION_ID=$(uuidgen)
-          kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=integrationId=${INTEGRATION_ID} --from-literal=dockercfg.json={}
-        name: Configure snyk-monitor namespace
-    - run:
-        command: |
-          set -xe
-
-          kubectl apply -f ./test/fixtures/operator/operator-source.yaml
-
-          set +e
-          opsrc=$(kubectl get operatorsource snyk-operator -n openshift-marketplace --no-headers 2>/dev/null | awk '{print $9}')
-
-          set -e
-          while [[ "${opsrc}" != "Succeeded" ]]; do
-            if [[ -z "${opsrc}" || "${opsrc}" == "Failed" ]]; then
-              >&2 echo "failed to deploy operator source resource"
-              exit 1
-            fi
-            opsrc=$(kubectl get operatorsource snyk-operator -n openshift-marketplace --no-headers 2>/dev/null | awk '{print $9}')
-          done
-
-          kubectl apply -f ./test/fixtures/operator/installation.yaml
-          sleep 60
-          kubectl get pods -n snyk-monitor --no-headers | \
-            grep "snyk-operator" | \
-            awk 'END { if (NR==0) exit 1; else print $1 }' | \
-            xargs -I{} kubectl wait pod/{} -n snyk-monitor --timeout 60s --for condition=Ready
-        name: Install Operator
-    - run:
-        command: |
-          set -o pipefail
-
-          kubectl apply -f ./test/fixtures/operator/custom-resource.yaml
-          sleep 60
-
-          kubectl get pods -n snyk-monitor --no-headers | \
-            grep "snyk-monitor" | \
-            awk 'END { if (NR==0) exit 1; else print $1 }' | \
-            xargs -I{} kubectl wait pod/{} -n snyk-monitor --timeout 60s --for condition=Ready
-        name: Deploy snyk-monitor resource
-    - run:
-        command: |
-          set -xeo pipefail
-
-          mv ./temp/0.0.0 ./snyk-operator/deploy/olm-catalog/snyk-operator/
-          rm -rf ./snyk-operator/deploy/olm-catalog/snyk-operator/${OPERATOR_VERSION}
-        name: Restore template files
-    - run:
-        command: |
-          set -eo pipefail
-
-          REPLACES_VERSION=${OPERATOR_VERSION}
-
-          CSV_LOCATION="./snyk-operator/deploy/olm-catalog/snyk-operator"
-          OPERATOR_PACKAGE_YAML_LOCATION="${CSV_LOCATION}/snyk-operator.package.yaml"
-          sed -i.bak "s|${REPLACES_VERSION}|${LATEST_TAG}|g" "${OPERATOR_PACKAGE_YAML_LOCATION}"
-
-          ./scripts/operator/package-operator.sh ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
-
-          mv ./snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0 ./temp/
-
-          export QUAY_TOKEN=$(curl -H "Content-Type: application/json" \
-            -XPOST https://quay.io/cnr/api/v1/users/login \
-            -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" \
-            | jq -r .token)
-
-          OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
-          QUAY_NAMESPACE=snyk-runtime
-          PACKAGE_NAME=snyk-operator
-
-          set +x
-          operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
-          set -x
-          echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
-        name: Package Operator upgrade and push to Quay
-    - run:
-        command: |
-          set -xeo pipefail
-
-          # NOTE: This is the action that actually refreshes the source and makes OLM "see" the new version in Quay!
-          oc patch operatorsource snyk-operator -n openshift-marketplace -p '[{"op":"replace","path":"/status","value":{}}]' --type json
-          sleep 120
-
-          VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
-            grep "snyk-monitor" | \
-            awk 'END { if (NR==0) exit 1; else print $1 }' | \
-            xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..image} | \
-            awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
-
-          if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
-            &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
-            exit 1
-          fi
-
-          echo "Update complete!"
-        name: Upgrade Operator and check that snyk-monitor also upgraded
-    - run:
-        command: |
-          ./scripts/slack/notify_success_openshift_upgrade.py "${OPERATOR_VERSION}" "${LATEST_TAG}"
-        name: Notify Slack on successful upgrade
-    - run:
-        command: |
-          set +e
-
-          curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
-            -H "Authorization: ${QUAY_DELETE_TOKEN}" "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/${OPERATOR_VERSION}/helm"
-          curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
-            -H "Authorization: ${QUAY_DELETE_TOKEN}" "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/${LATEST_TAG}/helm"
-
-          kubectl delete -f ./test/fixtures/operator/operator-source.yaml
-          kubectl delete -f ./test/fixtures/operator/installation.yaml
-
-          kubectl patch customresourcedefinition snykmonitors.charts.helm.k8s.io -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
-          kubectl patch snykmonitors.charts.helm.k8s.io snyk-monitor -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
-          kubectl delete -f ./test/fixtures/operator/custom-resource.yaml
-          kubectl delete clusterrolebinding snyk-monitor
-          kubectl delete clusterrole snyk-monitor
-
-          kubectl delete ns snyk-monitor
-        name: Cleanup
-        when: always
-    - run:
-        command: |
-          if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-            ./scripts/slack/notify_failure.py "nightly-operator-upgrade-tests"
-          fi
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  publish:
-    docker:
-    - image: circleci/node:12
-    steps:
-    - checkout
-    - setup_remote_docker
-    - install_python_requests
-    - run:
-        command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-          LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-          IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved &&
-          IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG} &&
-          docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-          docker pull ${IMAGE_NAME_APPROVED} &&
-          docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
-          docker push ${IMAGE_NAME_PUBLISHED} &&
-          ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
-          ./scripts/publish-gh-pages.sh ${LATEST_TAG}
-          # Preserve the latest tag for the next steps of this job
-          echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
-        name: Publish
-    - run:
-        command: |
-          RELEASE_VERSION=v0.15.1
-          DOWNLOAD_LOCATION=./operator-sdk
-          CURL_FOLLOW_REDIRECTS="-L"
-          curl ${CURL_FOLLOW_REDIRECTS} https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu -o ${DOWNLOAD_LOCATION}
-          chmod +x ${DOWNLOAD_LOCATION}
-        name: Download operator-sdk
-    - run:
-        command: |
-          ./scripts/operator/create-operator-and-push.sh "${LATEST_TAG}"
-        name: Create Operator and push Operator image to DockerHub
-    - run:
-        command: |
-          export SNYK_MONITOR_IMAGE_TAG="${LATEST_TAG}"
-          export SNYK_OPERATOR_VERSION="${LATEST_TAG}"
-          export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
-          ./scripts/operator/package-operator.sh "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}"
-        name: Package Operator
-    - run:
-        command: |
-          rm -rf snyk-operator/deploy/olm-catalog/snyk-operator/0.0.0
-        name: Remove templated Operator before storing artifacts
-    - store_artifacts:
-        destination: snyk-operator
-        path: snyk-operator/deploy/olm-catalog/snyk-operator
-    - run:
-        command: ./scripts/slack/notify_failure.py "master"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  push_operator_to_community_operators:
-    description: |
-      Packages a new Operator and pushes it to Snyk's fork of
-      the OpenShift community-operators.
-    executor: redhat-openshift/default
-    steps:
-    - checkout
-    - add_ssh_keys:
-        fingerprints:
-        - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
-    - run:
-        command: |
-          python -m pip install requests pyyaml PyGithub
-        name: Install required packages
-    - install_python_requests
-    - run:
-        command: |
-          set -xeo pipefail
-          LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
-          echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
-        name: Get last released Operator version
-    - run:
-        command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
-          LATEST_TAG=${LATEST_TAG_WITH_V:1}
-          NEW_OPERATOR_VERSION=${LATEST_TAG}
-          echo "export NEW_OPERATOR_VERSION=${NEW_OPERATOR_VERSION}" >> $BASH_ENV
-        name: Get new Operator version
-    - run:
-        command: |
-          if [[ "${NEW_OPERATOR_VERSION}" == "${LAST_OPERATOR_VERSION}" ]]; then
-            echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
-            exit 1
-          fi
-        name: End tests early if no new Operator is to be released
-    - run:
-        command: |
-          ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
-        name: Package Operator
-    - run:
-        command: |
-          CURRENT_DIRECTORY=$(pwd)
-          COMMUNITY_FOLDER_LOCATION="community-operators"
-          ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
-        name: Push new Operator to the fork of the community-operators repository
-    - run:
-        command: |
-          COMMUNITY_FOLDER_LOCATION="community-operators"
-          PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
-          export SLACK_PR_URL=${PR_URL}
-        name: Open a Pull Request to the operator-framework/community-operators repository
-          for community-operators
-    - run:
-        command: |
-          ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}" "${SLACK_PR_URL}"
-        name: Notify Slack on new branch in snyk/community-operators
-    - run:
-        command: |
-          if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-            ./scripts/slack/notify_failure.py "push-new-operator on community-operators"
-          fi
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  push_operator_to_upstream_community_operators:
-    description: |
-      Packages a new Operator and pushes it to Snyk's fork of
-      the OpenShift upstream-community-operators.
-    executor: redhat-openshift/default
-    steps:
-    - checkout
-    - add_ssh_keys:
-        fingerprints:
-        - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
-    - run:
-        command: |
-          python -m pip install requests pyyaml PyGithub
-        name: Install required packages
-    - install_python_requests
-    - run:
-        command: |
-          set -xeo pipefail
-          LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
-          echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
-        name: Get last released Operator version
-    - run:
-        command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
-          LATEST_TAG=${LATEST_TAG_WITH_V:1}
-          NEW_OPERATOR_VERSION=${LATEST_TAG}
-          echo "export NEW_OPERATOR_VERSION=${NEW_OPERATOR_VERSION}" >> $BASH_ENV
-        name: Get new Operator version
-    - run:
-        command: |
-          if [[ "${NEW_OPERATOR_VERSION}" == "${LAST_OPERATOR_VERSION}" ]]; then
-            echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
-            exit 1
-          fi
-        name: End tests early if no new Operator is to be released
-    - run:
-        command: |
-          ./scripts/operator/package-operator.sh "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}"
-        name: Package Operator
-    - run:
-        command: |
-          CURRENT_DIRECTORY=$(pwd)
-          COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
-          ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
-        name: Push new Operator to the fork of the upstream-community-operators repository
-    - run:
-        command: |
-          COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
-          PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
-          export SLACK_PR_URL=${PR_URL}
-        name: Open a Pull Request to the operator-framework/community-operators repository
-          for upstream-community-operators
-    - run:
-        command: |
-          ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}" "${SLACK_PR_URL}"
-        name: Notify Slack on new branch in snyk/upstream-community-operators
-    - run:
-        command: |
-          if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-            ./scripts/slack/notify_failure.py "push-new-operator on upstream-community-operators"
-          fi
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  system_tests:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: |
-          npm run build &&
-          npm run test:system
-        name: System tests
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-system-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  tag_and_push:
-    docker:
-    - image: circleci/node:12
-    steps:
-    - checkout
-    - setup_remote_docker
-    - install_python_requests
-    - run:
-        command: |
-          npm install &&
-          docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-          unset CIRCLE_PULL_REQUEST &&
-          unset CI_PULL_REQUEST &&
-          unset CI_PULL_REQUESTS &&
-          unset CIRCLE_PULL_REQUESTS &&
-          npx semantic-release &&
-          NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-          ./scripts/docker/approve-image.sh $NEW_VERSION
-        name: Tag and push
-    - run:
-        command: ./scripts/slack/notify_failure.py "staging-release"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  unit_tests:
-    machine:
-      docker_layer_caching: true
-      enabled: true
-    steps:
-    - checkout
-    - setup_node12
-    - install_python_requests
-    - run:
-        command: |
-          npm run lint &&
-          npm run build &&
-          npm run test:unit
-        name: Unit tests
-    - run:
-        command: |
-          ./scripts/slack/notify_failure_on_branch.py "staging-unit-tests-${CIRCLE_SHA1}"
-        name: Notify Slack on failure
-        when: on_fail
-    working_directory: ~/kubernetes-monitor
-  upload_operator:
-    docker:
-    - image: circleci/python:3
-    steps:
-    - attach_workspace:
-        at: snyk-operator
-    - run:
-        command: pip3 install operator-courier==2.1.7
-        name: Install operator-courier
-    - run:
-        command: |
-          export QUAY_TOKEN=$(curl -H "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d "{\"user\": {\"username\": \"${QUAY_USERNAME}\", \"password\": \"${QUAY_PASSWORD}\"}}" | jq -r .token)
-          export OPERATOR_DIR=./snyk-operator/deploy/olm-catalog/snyk-operator/
-          export QUAY_NAMESPACE=snyk-runtime
-          export PACKAGE_NAME=snyk-operator
-          export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
-          operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${PACKAGE_VERSION}" "${QUAY_TOKEN}"
-        name: Upload Operator to Quay
-    working_directory: ~/kubernetes-monitor
+            Packages a new Operator and pushes it to Snyk's fork of
+            the OpenShift community-operators.
+        executor: redhat-openshift/default
+        steps:
+            - checkout
+            - add_ssh_keys:
+                fingerprints:
+                    - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
+            - run:
+                command: |
+                    python -m pip install requests pyyaml PyGithub
+                name: Install required packages
+            - install_python_requests
+            - run:
+                command: |
+                    set -xeo pipefail
+                    LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
+                    echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get last released Operator version
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}
+                    NEW_OPERATOR_VERSION=${LATEST_TAG}
+                    echo "export NEW_OPERATOR_VERSION=${NEW_OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get new Operator version
+            - run:
+                command: |
+                    if [[ "${NEW_OPERATOR_VERSION}" == "${LAST_OPERATOR_VERSION}" ]]; then
+                      echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
+                      exit 1
+                    fi
+                name: End tests early if no new Operator is to be released
+            - run:
+                command: |
+                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+                    cp -r "${OPERATOR_PATH}/" snyk-operator/deploy/olm-catalog/snyk-operator/
+                name: Package Operator Bundle
+            - run:
+                command: |
+                    CURRENT_DIRECTORY=$(pwd)
+                    COMMUNITY_FOLDER_LOCATION="community-operators"
+                    ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+                name: Push new Operator to the fork of the community-operators repository
+            - run:
+                command: |
+                    COMMUNITY_FOLDER_LOCATION="community-operators"
+                    PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+                    export SLACK_PR_URL=${PR_URL}
+                name: Open a Pull Request to the operator-framework/community-operators repository for community-operators
+            - run:
+                command: |
+                    ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}" "${SLACK_PR_URL}"
+                name: Notify Slack on new branch in snyk/community-operators
+            - run:
+                command: |
+                    if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
+                      ./scripts/slack/notify_failure.py "push-new-operator on community-operators"
+                    fi
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    push_operator_to_upstream_community_operators:
+        description: |
+            Packages a new Operator and pushes it to Snyk's fork of
+            the OpenShift upstream-community-operators.
+        executor: redhat-openshift/default
+        steps:
+            - checkout
+            - add_ssh_keys:
+                fingerprints:
+                    - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
+            - run:
+                command: |
+                    python -m pip install requests pyyaml PyGithub
+                name: Install required packages
+            - install_python_requests
+            - run:
+                command: |
+                    set -xeo pipefail
+                    LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
+                    echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get last released Operator version
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}
+                    NEW_OPERATOR_VERSION=${LATEST_TAG}
+                    echo "export NEW_OPERATOR_VERSION=${NEW_OPERATOR_VERSION}" >> $BASH_ENV
+                name: Get new Operator version
+            - run:
+                command: |
+                    if [[ "${NEW_OPERATOR_VERSION}" == "${LAST_OPERATOR_VERSION}" ]]; then
+                      echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
+                      exit 1
+                    fi
+                name: End tests early if no new Operator is to be released
+            - run:
+                command: |
+                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+                    cp -r "${OPERATOR_PATH}/" snyk-operator/deploy/olm-catalog/snyk-operator/
+                name: Package Operator Bundle
+            - run:
+                command: |
+                    CURRENT_DIRECTORY=$(pwd)
+                    COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
+                    ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+                name: Push new Operator to the fork of the upstream-community-operators repository
+            - run:
+                command: |
+                    COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
+                    PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+                    export SLACK_PR_URL=${PR_URL}
+                name: Open a Pull Request to the operator-framework/community-operators repository for upstream-community-operators
+            - run:
+                command: |
+                    ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}" "${SLACK_PR_URL}"
+                name: Notify Slack on new branch in snyk/upstream-community-operators
+            - run:
+                command: |
+                    if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
+                      ./scripts/slack/notify_failure.py "push-new-operator on upstream-community-operators"
+                    fi
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    system_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: |
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt-get update
+                    sudo apt-get install -y wget gnupg
+                    . /etc/os-release
+                    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/x${NAME}_${VERSION_ID}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list"
+                    wget -nv https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/x${NAME}_${VERSION_ID}/Release.key -O- | sudo apt-key add -
+                    sudo apt-get update -qq
+                    sudo apt-get install skopeo
+                name: Install Skopeo
+            - run:
+                command: |
+                    npm run build &&
+                    npm run test:system
+                name: System tests
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    tag_and_push:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: circleci/node:12
+        steps:
+            - checkout
+            - setup_remote_docker
+            - install_python_requests
+            - run:
+                command: |
+                    npm install &&
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+                    unset CIRCLE_PULL_REQUEST &&
+                    unset CI_PULL_REQUEST &&
+                    unset CI_PULL_REQUESTS &&
+                    unset CIRCLE_PULL_REQUESTS &&
+                    npx semantic-release &&
+                    NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
+                    ./scripts/docker/approve-image.sh $NEW_VERSION
+                name: Tag and push
+            - run:
+                command: ./scripts/slack/notify_failure.py "staging-release"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
+    unit_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: |
+                    npm run lint &&
+                    npm run build &&
+                    npm run test:unit
+                name: Unit tests
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
 main_branches_filter:
-  filters:
-    branches:
-      ignore:
-      - staging
-      - master
+    filters:
+        branches:
+            ignore:
+                - staging
+                - master
 master_branch_only_filter:
-  filters:
-    branches:
-      only:
-      - master
+    filters:
+        branches:
+            only:
+                - master
 orbs:
-  redhat-openshift: circleci/redhat-openshift@0.2.0
+    redhat-openshift: circleci/redhat-openshift@0.2.0
 staging_branch_only_filter:
-  filters:
-    branches:
-      only:
-      - staging
+    filters:
+        branches:
+            only:
+                - staging
 version: 2.1
 workflows:
-  MERGE_TO_MASTER:
-    jobs:
-    - publish:
-        filters:
-          branches:
-            only:
-            - master
-    - deploy_prod:
-        filters:
-          branches:
-            only:
-            - master
-        requires:
-        - publish
-  MERGE_TO_STAGING:
-    jobs:
-    - build_image:
-        filters:
-          branches:
-            only:
-            - staging
-    - build_operator:
-        filters:
-          branches:
-            only:
-            - staging
-    - upload_operator:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_operator
-    - unit_tests:
-        filters:
-          branches:
-            only:
-            - staging
-    - system_tests:
-        filters:
-          branches:
-            only:
-            - staging
-    - integration_tests:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-    - integration_tests_helm:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-    - integration_tests_proxy:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-    - eks_integration_tests:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-    - openshift3_integration_tests:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-    - integration_tests_operator_on_k8s:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-        - build_operator
-        - upload_operator
-    - openshift4_integration_tests:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-        - build_operator
-        - upload_operator
-    - tag_and_push:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - build_image
-        - build_operator
-        - unit_tests
-        - system_tests
-        - integration_tests
-        - integration_tests_helm
-        - integration_tests_proxy
-    - deploy_dev:
-        filters:
-          branches:
-            only:
-            - staging
-        requires:
-        - tag_and_push
-  MONTHLY:
-    jobs:
-    - operator_upgrade_tests
-    - push_operator_to_community_operators:
-        requires:
-        - operator_upgrade_tests
-    - push_operator_to_upstream_community_operators:
-        requires:
-        - operator_upgrade_tests
-    triggers:
-    - schedule:
-        cron: 0 5 3 * *
-        filters:
-          branches:
-            only:
-            - master
-  NIGHTLY:
-    jobs:
-    - operator_upgrade_tests
-    triggers:
-    - schedule:
-        cron: 0 1 * * *
-        filters:
-          branches:
-            only:
-            - master
-  PR_TO_STAGING:
-    jobs:
-    - build_image:
-        filters:
-          branches:
-            ignore:
-            - staging
-            - master
-    - build_operator:
-        filters:
-          branches:
-            ignore:
-            - staging
-            - master
-    - unit_tests:
-        filters:
-          branches:
-            ignore:
-            - staging
-            - master
-    - system_tests:
-        filters:
-          branches:
-            ignore:
-            - staging
-            - master
-    - integration_tests:
-        filters:
-          branches:
-            ignore:
-            - staging
-            - master
-        requires:
-        - build_image
-    - integration_tests_helm:
-        filters:
-          branches:
-            ignore:
-            - staging
-            - master
-        requires:
-        - build_image
+    MERGE_TO_MASTER:
+        jobs:
+            - publish:
+                filters:
+                    branches:
+                        only:
+                            - master
+            - deploy_prod:
+                filters:
+                    branches:
+                        only:
+                            - master
+                requires:
+                    - publish
+    MERGE_TO_STAGING:
+        jobs:
+            - build_image:
+                filters:
+                    branches:
+                        only:
+                            - staging
+            - build_and_upload_operator:
+                filters:
+                    branches:
+                        only:
+                            - staging
+            - unit_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+            - system_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+            - integration_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+            - integration_tests_helm:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+            - integration_tests_proxy:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+            - eks_integration_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+            - openshift3_integration_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+            - integration_tests_operator_on_k8s:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+                    - build_and_upload_operator
+            - openshift4_integration_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+                    - build_and_upload_operator
+            - tag_and_push:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+                    - build_and_upload_operator
+                    - unit_tests
+                    - system_tests
+                    - integration_tests
+                    - integration_tests_helm
+                    - integration_tests_proxy
+            - deploy_dev:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - tag_and_push
+    MONTHLY:
+        jobs:
+            - operator_upgrade_tests
+            - push_operator_to_community_operators:
+                requires:
+                    - operator_upgrade_tests
+            - push_operator_to_upstream_community_operators:
+                requires:
+                    - operator_upgrade_tests
+        triggers:
+            - schedule:
+                cron: 0 5 3 * *
+                filters:
+                    branches:
+                        only:
+                            - master
+    NIGHTLY:
+        jobs:
+            - operator_upgrade_tests
+        triggers:
+            - schedule:
+                cron: 0 1 * * *
+                filters:
+                    branches:
+                        only:
+                            - master
+    PR_TO_STAGING:
+        jobs:
+            - build_image:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+            - build_and_upload_operator:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+            - unit_tests:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+            - system_tests:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+            - integration_tests:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+                requires:
+                    - build_image
+            - integration_tests_helm:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+                requires:
+                    - build_image
 
