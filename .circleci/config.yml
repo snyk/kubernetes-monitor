@@ -241,7 +241,7 @@ jobs:
                 name: Operator integration tests on plain k8s
             - run:
                 command: |
-                    scripts/operator/delete_operators_from_quay.py
+                    scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
                 name: Delete Operators from Quay
                 when: always
             - run:
