@@ -17,7 +17,7 @@ steps:
 - run:
     name: Delete Operators from Quay
     command: |
-      scripts/operator/delete_operators_from_quay.py
+      scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
     when: always
 - run:
     command: |
