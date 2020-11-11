@@ -1,5 +1,6 @@
 build_image:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -78,6 +79,7 @@ build_and_upload_operator:
 
 unit_tests:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -99,6 +101,7 @@ unit_tests:
 
 system_tests:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -119,6 +122,7 @@ system_tests:
 
 integration_tests:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -144,6 +148,7 @@ integration_tests:
 
 integration_tests_helm:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -169,6 +174,7 @@ integration_tests_helm:
 
 integration_tests_proxy:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -194,6 +200,7 @@ integration_tests_proxy:
 
 eks_integration_tests:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -223,6 +230,7 @@ eks_integration_tests:
 
 openshift3_integration_tests:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
@@ -247,6 +255,7 @@ openshift3_integration_tests:
 
 openshift4_integration_tests:
   machine:
+    image: ubuntu-2004:202010-01
     enabled: true
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor

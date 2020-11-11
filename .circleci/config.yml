@@ -79,6 +79,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - install_python_requests
@@ -147,6 +148,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - install_python_requests
@@ -174,6 +176,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -198,6 +201,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -222,6 +226,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -251,6 +256,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -275,6 +281,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -298,6 +305,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -699,6 +707,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
@@ -745,6 +754,7 @@ jobs:
         machine:
             docker_layer_caching: true
             enabled: true
+            image: ubuntu-2004:202010-01
         steps:
             - checkout
             - setup_node12
