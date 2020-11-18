@@ -2,6 +2,7 @@ export const kubernetesInternalNamespaces = [
   'kube-node-lease',
   'kube-public',
   'kube-system',
+  'local-path-storage',
   'openshift',
   'openshift-apiserver',
   'openshift-apiserver-operator',
