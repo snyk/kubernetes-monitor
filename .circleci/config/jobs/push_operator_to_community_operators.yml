@@ -70,6 +70,6 @@ steps:
       name: Notify Slack on failure
       command: |
         if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
-          ./scripts/slack/notify_failure.py "push-new-operator on community-operators"
+          ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         fi
       when: on_fail
