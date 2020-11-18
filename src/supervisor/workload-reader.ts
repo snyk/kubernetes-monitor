@@ -5,10 +5,11 @@ import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 import logger = require('../common/logger');
 
+type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
   workloadName: string,
   namespace: string,
-) => Promise<IKubeObjectMetadata | undefined>;
+) => Promise<IKubeObjectMetadataWithoutPodSpec | undefined>;
 
 const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const deploymentResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
@@ -22,14 +23,14 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.Deployment,
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
-    podSpec: deployment.spec.template.spec,
   };
+  return metadata;
 };
 
 const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
@@ -44,14 +45,14 @@ const replicaSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.ReplicaSet,
     objectMeta: replicaSet.metadata,
     specMeta: replicaSet.spec.template.metadata,
     ownerRefs: replicaSet.metadata.ownerReferences,
     revision: replicaSet.status.observedGeneration,
-    podSpec: replicaSet.spec.template.spec,
   };
+  return metadata;
 };
 
 const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
@@ -66,14 +67,14 @@ const statefulSetReader: IWorkloadReaderFunc = async (workloadName, namespace) =
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.StatefulSet,
     objectMeta: statefulSet.metadata,
     specMeta: statefulSet.spec.template.metadata,
     ownerRefs: statefulSet.metadata.ownerReferences,
     revision: statefulSet.status.observedGeneration,
-    podSpec: statefulSet.spec.template.spec,
   };
+  return metadata;
 };
 
 const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
@@ -88,14 +89,14 @@ const daemonSetReader: IWorkloadReaderFunc = async (workloadName, namespace) => 
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.DaemonSet,
     objectMeta: daemonSet.metadata,
     specMeta: daemonSet.spec.template.metadata,
     ownerRefs: daemonSet.metadata.ownerReferences,
     revision: daemonSet.status.observedGeneration,
-    podSpec: daemonSet.spec.template.spec,
   };
+  return metadata;
 };
 
 const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
@@ -109,13 +110,13 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.Job,
     objectMeta: job.metadata,
     specMeta: job.spec.template.metadata,
     ownerRefs: job.metadata.ownerReferences,
-    podSpec: job.spec.template.spec,
   };
+  return metadata;
 };
 
 // Keep an eye on this! We need v1beta1 API for CronJobs.
@@ -133,13 +134,13 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.CronJob,
     objectMeta: cronJob.metadata,
     specMeta: cronJob.spec.jobTemplate.metadata,
     ownerRefs: cronJob.metadata.ownerReferences,
-    podSpec: cronJob.spec.jobTemplate.spec.template.spec,
   };
+  return metadata;
 };
 
 const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
@@ -155,14 +156,14 @@ const replicationControllerReader: IWorkloadReaderFunc = async (workloadName, na
     return undefined;
   }
 
-  return {
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.ReplicationController,
     objectMeta: replicationController.metadata,
     specMeta: replicationController.spec.template.metadata,
     ownerRefs: replicationController.metadata.ownerReferences,
     revision: replicationController.status.observedGeneration,
-    podSpec: replicationController.spec.template.spec,
   };
+  return metadata;
 };
 
 function logIncompleteWorkload(workloadName: string, namespace: string): void {

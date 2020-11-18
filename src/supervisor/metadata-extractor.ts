@@ -1,4 +1,4 @@
-import { V1OwnerReference, V1Pod, V1Container, V1ContainerStatus } from '@kubernetes/client-node';
+import { V1OwnerReference, V1Pod, V1Container, V1ContainerStatus, V1PodSpec } from '@kubernetes/client-node';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { IKubeObjectMetadata } from './types';
@@ -53,6 +53,7 @@ export function buildImageMetadata(
 }
 
 async function findParentWorkload(
+  podSpec: V1PodSpec,
   ownerRefs: V1OwnerReference[] | undefined,
   namespace: string,
 ): Promise<IKubeObjectMetadata | undefined> {
@@ -69,9 +70,14 @@ async function findParentWorkload(
     }
 
     const workloadReader = getWorkloadReader(supportedWorkload.kind);
-    let nextParentMetadata: IKubeObjectMetadata | undefined;
     try {
-      nextParentMetadata = await workloadReader(supportedWorkload.name, namespace);
+      const workloadMetadata = await workloadReader(supportedWorkload.name, namespace);
+      if (workloadMetadata === undefined) {
+        // Could not extract data for the next parent, so return whatever we have so far.
+        return parentMetadata;
+      }
+      parentMetadata = { ...workloadMetadata, podSpec };
+      ownerReferences = parentMetadata.ownerRefs;
     } catch (err) {
       if (
         err &&
@@ -87,14 +93,6 @@ async function findParentWorkload(
       }
       throw err;
     }
-
-    if (nextParentMetadata === undefined) {
-      // Could not extract data for the next parent, so return whatever we have so far.
-      return parentMetadata;
-    }
-
-    parentMetadata = nextParentMetadata;
-    ownerReferences = parentMetadata.ownerRefs;
   }
 
   return undefined;
@@ -151,7 +149,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
   }
 
   const podOwner: IKubeObjectMetadata | undefined = await findParentWorkload(
-    pod.metadata.ownerReferences, pod.metadata.namespace);
+    pod.spec, pod.metadata.ownerReferences, pod.metadata.namespace);
 
   if (podOwner === undefined) {
     logger.info({pod}, 'pod associated with owner, but owner not found. not building metadata.');
