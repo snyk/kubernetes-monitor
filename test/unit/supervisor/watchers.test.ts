@@ -32,6 +32,8 @@ tap.test('isKubernetesInternalNamespace', async (t) => {
     'kube-public is a k8s internal namespace');
   t.ok(watchers.isKubernetesInternalNamespace('kube-system'),
     'kube-system is a k8s internal namespace');
+  t.ok(watchers.isKubernetesInternalNamespace('local-path-storage'),
+    'local-path-storage is a k8s internal namespace');
   t.ok(watchers.isKubernetesInternalNamespace('openshift-apiserver'),
     'openshift-apiserver is a k8s internal namespace');
   t.ok(watchers.isKubernetesInternalNamespace('openshift-apiserver-operator'),
