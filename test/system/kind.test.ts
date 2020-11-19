@@ -105,6 +105,14 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
         'all properties are present in the workload metadata',
       );
       t.ok('agentId' in requestBody, 'agent ID is present in workload payload');
+      
+      const podSpec = requestBody.workloadMetadata.podSpec;
+      const resources = podSpec.containers[0].resources;
+      t.same(resources?.limits, { cpu: '1', memory: '1Gi' });
+
+      const securityContext = podSpec.containers[0].securityContext;
+      t.same(securityContext?.privileged, false);
+      t.same(securityContext?.capabilities?.drop, ['ALL']);
     });
 
   nock('https://kubernetes-upstream.snyk.io')

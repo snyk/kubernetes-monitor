@@ -259,7 +259,7 @@ openshift3_integration_tests:
           npm run test:integration:openshift3:yaml
     - run:
         name: Notify Slack on failure
-        command: ./scripts/slack/notify_failure.py "staging-openshift3-integration-tests-${CIRCLE_SHA1}"
+        command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         when: on_fail
     - store_artifacts:
         path: /tmp/logs/test/integration/openshift3
@@ -320,12 +320,12 @@ tag_and_push:
           unset CI_PULL_REQUEST &&
           unset CI_PULL_REQUESTS &&
           unset CIRCLE_PULL_REQUESTS &&
-          npx semantic-release &&
+          npx semantic-release@17.2.2 &&
           NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
           ./scripts/docker/approve-image.sh $NEW_VERSION
     - run:
         name: Notify Slack on failure
-        command: ./scripts/slack/notify_failure.py "staging-release"
+        command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         when: on_fail
 
 deploy_dev:
@@ -350,7 +350,7 @@ deploy_dev:
               https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
     - run:
         name: Notify Slack on failure
-        command: ./scripts/slack/notify_failure.py "deploy-dev"
+        command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         when: on_fail
 
 ######################## MERGE TO MASTER ########################
@@ -396,7 +396,7 @@ publish:
           python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
     - run:
         name: Notify Slack on failure
-        command: ./scripts/slack/notify_failure.py "master"
+        command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         when: on_fail
 
 deploy_prod:
@@ -420,5 +420,5 @@ deploy_prod:
               https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
     - run:
         name: Notify Slack on failure
-        command: ./scripts/slack/notify_failure.py "deploy-prod"
+        command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         when: on_fail
