@@ -320,7 +320,7 @@ tag_and_push:
           unset CI_PULL_REQUEST &&
           unset CI_PULL_REQUESTS &&
           unset CIRCLE_PULL_REQUESTS &&
-          npx semantic-release &&
+          npx semantic-release@17.2.2 &&
           NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
           ./scripts/docker/approve-image.sh $NEW_VERSION
     - run:
