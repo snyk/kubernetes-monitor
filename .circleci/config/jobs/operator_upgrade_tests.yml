@@ -147,7 +147,7 @@ steps:
 
         REPLACES_VERSION=${OPERATOR_VERSION}
 
-        OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py ${LATEST_TAG} ${LATEST_TAG} ${LATEST_TAG} ${REPLACES_VERSION}
+        OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py "${LATEST_TAG}" "${LATEST_TAG}" "${LATEST_TAG}" "${REPLACES_VERSION}")
 
         export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
 
