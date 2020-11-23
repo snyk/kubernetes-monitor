@@ -1,3 +1,5 @@
+import * as sinon from 'sinon';
+import * as fsExtra from 'fs-extra';
 import * as tap from 'tap';
 import * as nock from 'nock';
 import * as sleep from 'sleep-promise';
@@ -18,6 +20,8 @@ async function tearDown() {
 tap.tearDown(tearDown);
 
 tap.test('Kubernetes-Monitor with KinD', async (t) => {
+
+  const emptyDirSyncStub = sinon.stub(fsExtra, 'emptyDirSync').returns({});
 
   // Start fresh
   try {
@@ -161,6 +165,8 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
 
   // Start the monitor
   require('../../src');
+
+  sinon.assert.called(emptyDirSyncStub);
 
   // TODO: replace with being event driven?
   // will still need SOME timeout 
