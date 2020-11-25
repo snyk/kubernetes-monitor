@@ -72,10 +72,10 @@ kubectl create configmap snyk-monitor-registries-conf -n snyk-monitor --from-fil
 
 ## Installation from Helm repo ##
 
-Add Snyk's Helm repo:
+Add the latest version of Snyk's Helm repo:
 
 ```shell
-helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/
+helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/ --force-update
 ```
 
 Run the following command to launch the Snyk monitor in your cluster:
