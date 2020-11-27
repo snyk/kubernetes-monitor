@@ -167,8 +167,8 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
       const expectedDependencyGraph = JSON.parse(dependencyGraphFixture);
       const sentDependencyGraph = JSON.parse(requestBody.dependencyGraph!);
       t.deepEqual(
-        expectedDependencyGraph,
         sentDependencyGraph,
+        expectedDependencyGraph,
         'dependency graph matches',
       );
     });
