@@ -1,10 +1,17 @@
 import { unlink } from 'fs';
-import * as plugin from 'snyk-docker-plugin';
+import { PluginResponse, scan } from 'snyk-docker-plugin';
+import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import logger = require('../../common/logger');
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
 import { IPullableImage, IScanImage } from './types';
-import { IStaticAnalysisOptions, StaticAnalysisImageType, IScanResult, IPluginOptions } from '../types';
+import { IScanResult } from '../types';
+import {
+  buildDockerPropertiesOnDepTree,
+  DependencyTree,
+  extractFactsFromDockerPluginResponse,
+  LegacyPluginResponse,
+} from './docker-plugin-shim';
 
 export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
   const pulledImages: IPullableImage[] = [];
@@ -65,43 +72,34 @@ export function getImageParts(imageWithTag: string) : {imageName: string, imageT
   };
 }
 
-// Exported for testing
-export function constructStaticAnalysisOptions(
-  fileSystemPath: string,
-): IStaticAnalysisOptions {
-  return {
-    imagePath: fileSystemPath,
-    imageType: StaticAnalysisImageType.DockerArchive,
-  };
-}
-
 export async function scanImages(images: IPullableImage[]): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
-  const dockerfile = undefined;
-
   for (const { imageName, fileSystemPath, imageWithDigest } of images) {
     try {
-      const staticAnalysisOptions = constructStaticAnalysisOptions(fileSystemPath);
-      const options: IPluginOptions = {
-        staticAnalysisOptions,
-        experimental: true,
-      };
+      const shouldIncludeAppVulns = false;
+      const dockerArchivePath = `docker-archive:${fileSystemPath}`;
 
-      const result = await plugin.inspect(imageName, dockerfile, options);
+      const pluginResponse = await scan({
+        path: dockerArchivePath,
+        imageNameAndTag: imageName,
+        'app-vulns': shouldIncludeAppVulns,
+      });
 
-      if (!result || !result.package || !result.package.dependencies) {
+      if (
+        !pluginResponse ||
+        !Array.isArray(pluginResponse.scanResults) ||
+        pluginResponse.scanResults.length === 0
+      ) {
         throw Error('Unexpected empty result from docker-plugin');
       }
+
+      const depTree = await getDependencyTreeFromPluginResponse(pluginResponse, imageName);
 
       const imageParts = getImageParts(imageName);
       const imageDigest = imageWithDigest && getImageParts(imageWithDigest).imageDigest;
 
-      result.imageMetadata = {
-        image: imageParts.imageName,
-        imageTag: imageParts.imageTag,
-        imageDigest,
-      };
+      const result: LegacyPluginResponse = getLegacyPluginResponse(depTree, imageParts, imageDigest);
 
       scannedImages.push({
         image: imageParts.imageName,
@@ -115,4 +113,62 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
   }
 
   return scannedImages;
+}
+
+function getLegacyPluginResponse(
+  depTree: DependencyTree,
+  imageParts: { imageName: string; imageTag: string; imageDigest: string },
+  imageDigest: string | undefined,
+): LegacyPluginResponse {
+  return {
+    package: depTree,
+    manifestFiles: [],
+    plugin: {
+      name: 'snyk-docker-plugin',
+      imageLayers: depTree.docker?.imageLayers || [],
+      dockerImageId:
+        depTree.dockerImageId || depTree.docker?.dockerImageId || '',
+      packageManager: depTree.type,
+      runtime: undefined,
+    },
+    imageMetadata: {
+      image: imageParts.imageName,
+      imageTag: imageParts.imageTag,
+      imageDigest,
+    },
+    hashes: depTree.docker?.hashes || [],
+  };
+}
+
+/**
+ * Converts from the new plugin format back to the old DependencyTree format.
+ * May throw if the expected data is missing.
+ */
+async function getDependencyTreeFromPluginResponse(
+  pluginResponse: PluginResponse,
+  imageName: string,
+): Promise<DependencyTree> {
+  const osDepGraph:
+    | DepGraph
+    | undefined = pluginResponse.scanResults[0].facts.find(
+    (fact) => fact.type === 'depGraph',
+  )?.data;
+
+  if (!osDepGraph) {
+    throw new Error('Missing dependency graph');
+  }
+
+  const depTree = await legacy.graphToDepTree(
+    osDepGraph,
+    osDepGraph.pkgManager.name,
+  );
+  const osScanResultFacts = extractFactsFromDockerPluginResponse(
+    pluginResponse,
+  );
+  const dockerDepTree = buildDockerPropertiesOnDepTree(
+    depTree,
+    osScanResultFacts,
+    imageName,
+  );
+  return dockerDepTree;
 }

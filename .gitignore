@@ -52,3 +52,6 @@ helm
 kubeconfig-integration-test-kind
 snyk-monitor-test-deployment.yaml
 snyk-operator/helm-charts
+
+snyk-monitor-operator-source.yaml
+operator-sdk
