@@ -20,7 +20,7 @@ import * as kubectl from '../helpers/kubectl';
 let integrationId: string;
 let namespace: string;
 
-tap.tearDown(async() => {
+async function teardown(): Promise<void> {
   console.log('Begin removing the snyk-monitor...');
   await setup.removeMonitor();
   console.log('Removed the snyk-monitor!');
@@ -28,6 +28,13 @@ tap.tearDown(async() => {
   console.log('Begin removing "kind" network...');
   await setup.removeUnusedKindNetwork();
   console.log('Removed "kind" network');
+}
+
+tap.tearDown(teardown);
+
+tap.test('teardown any existing environment', async (t) => {
+  await teardown();
+  t.pass('starting from a clean environment');
 });
 
 // Make sure this runs first -- deploying the monitor for the next tests
