@@ -1,20 +1,8 @@
+import { LegacyPluginResponse } from './images/docker-plugin-shim';
+
 export interface IScanResult {
   image: string;
   imageWithDigest?: string;
   imageWithTag: string;
-  pluginResult: any;
-}
-
-export enum StaticAnalysisImageType {
-  DockerArchive = 'docker-archive',
-}
-
-export interface IPluginOptions {
-  staticAnalysisOptions: IStaticAnalysisOptions;
-  experimental: boolean;
-}
-
-export interface IStaticAnalysisOptions {
-  imagePath: string;
-  imageType: StaticAnalysisImageType;
+  pluginResult: LegacyPluginResponse;
 }

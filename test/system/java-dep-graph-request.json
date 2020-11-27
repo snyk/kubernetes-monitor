@@ -22,6 +22,7 @@
       "version": "8",
       "prettyName": "Debian GNU/Linux 8 (jessie)"
     },
+    "type": "deb",
     "packageFormatVersion": "deb:0.0.1",
     "dependencies": {
       "pam/libpam-runtime": {
@@ -2637,7 +2638,38 @@
         }
       }
     },
-    "docker": {}
+    "docker": {
+      "hashes": [
+        "e64376a80a0f713a8e03af9bccdd14f2bd3cd243fb6ea73bf6e9d6317aa481e0",
+        "a2da5231e26564a335a8325db5b5e38ffbd348399a68efac21c0a5e325faccb3"
+      ],
+      "imageLayers": [
+        "a2ae92ffcd29f7ededa0320f4a4fd709a723beae9a4e681696874932db7aee2c.tar",
+        "0eb22bfb707db44a8e5ba46a21b2ac59c83dfa946228f04be511aba313bdc090.tar",
+        "30339f20ced009fc394410ac3360f387351641ed40d6b2a44b0d39098e2e2c40.tar",
+        "ce6c8756685b2bff514e0b28f78eedb671380084555af2b3833e54bb191b262a.tar",
+        "a3483ce177ce1278dd26f992b7c0cfe8b8175dd45bc28fee2628ff2cf063604c.tar",
+        "6ed1a81ba5b6811a62563b80ea12a405ed442a297574de7440beeafe8512a00a.tar",
+        "c3fe59dd955634c3fa1808b8053353f03f4399d9d071be015fdfb98b3e105709.tar",
+        "35c20f26d18852b74cc90afc4fb1995f1af45537a857eef042a227bd8d0822a3.tar"
+      ],
+      "rootFs": [
+        "sha256:a2ae92ffcd29f7ededa0320f4a4fd709a723beae9a4e681696874932db7aee2c",
+        "sha256:0eb22bfb707db44a8e5ba46a21b2ac59c83dfa946228f04be511aba313bdc090",
+        "sha256:30339f20ced009fc394410ac3360f387351641ed40d6b2a44b0d39098e2e2c40",
+        "sha256:ce6c8756685b2bff514e0b28f78eedb671380084555af2b3833e54bb191b262a",
+        "sha256:a3483ce177ce1278dd26f992b7c0cfe8b8175dd45bc28fee2628ff2cf063604c",
+        "sha256:6ed1a81ba5b6811a62563b80ea12a405ed442a297574de7440beeafe8512a00a",
+        "sha256:c3fe59dd955634c3fa1808b8053353f03f4399d9d071be015fdfb98b3e105709",
+        "sha256:35c20f26d18852b74cc90afc4fb1995f1af45537a857eef042a227bd8d0822a3"
+      ],
+      "dockerImageId": "d23bdf5b1b1b1afce5f1d0fd33e7ed8afbc084b594b9ccf742a5b27080d8a4a8",
+      "imageName": "java:latest"
+    },
+    "dockerImageId": "d23bdf5b1b1b1afce5f1d0fd33e7ed8afbc084b594b9ccf742a5b27080d8a4a8",
+    "meta": {
+      "platform": "linux/amd64"
+    }
   },
   "manifestFiles": [],
   "hashes": [

@@ -48,17 +48,6 @@ tap.test('pullImages() skips on missing file system path', async (t) => {
   t.same(result, [], 'expect to skip images missing file system path');
 });
 
-tap.test('constructStaticAnalysisOptions() tests', async (t) => {
-  const somePath = '/var/tmp/file.tar';
-  const options = scannerImages.constructStaticAnalysisOptions(somePath);
-  const expectedResult = {
-    imagePath: somePath,
-    imageType: 'docker-archive',
-  };
-
-  t.deepEqual(options, expectedResult, 'returned options match expectations');
-});
-
 tap.test('extracted image tag tests', async (t) => {
   const imageWithSha = 'nginx@sha256:45b23dee08af5e43a7fea6c4cf9c25ccf269ee113168c19722f87876677c5cb2';
   const imageWithShaResult = scannerImages.getImageParts(imageWithSha);
