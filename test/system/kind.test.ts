@@ -2,6 +2,8 @@ import * as tap from 'tap';
 import * as nock from 'nock';
 import * as sleep from 'sleep-promise';
 import { exec } from 'child-process-promise';
+import { join as pathJoin } from 'path';
+import { readFileSync } from 'fs';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
@@ -156,6 +158,18 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
         'dependencyGraph' in requestBody &&
           typeof requestBody.dependencyGraph === 'string',
         'dependency graph is in payload and has the right type',
+      );
+
+      const dependencyGraphFixture = readFileSync(
+        pathJoin(__dirname, 'java-dep-graph-request.json'),
+        { encoding: 'utf8' },
+      );
+      const expectedDependencyGraph = JSON.parse(dependencyGraphFixture);
+      const sentDependencyGraph = JSON.parse(requestBody.dependencyGraph!);
+      t.deepEqual(
+        sentDependencyGraph,
+        expectedDependencyGraph,
+        'dependency graph matches',
       );
     });
 
