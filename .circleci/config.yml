@@ -613,7 +613,7 @@ jobs:
             - run:
                 command: |
                     OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
-                    cp -r "${OPERATOR_PATH}/" snyk-operator/deploy/olm-catalog/snyk-operator/
+                    echo "export OPERATOR_PATH=${OPERATOR_PATH}" >> $BASH_ENV
                 name: Package Operator Bundle
             - run:
                 command: |
