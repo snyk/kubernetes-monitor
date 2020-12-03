@@ -18,7 +18,6 @@ CURRENT_DIRECTORY=$1
 COMMUNITY_FOLDER_LOCATION=$2
 COMMUNITY_OPERATORS_UPSTREAM_LOCATION="${CURRENT_DIRECTORY}/community-operators"
 DEPLOY_LOCATION="${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}/${COMMUNITY_FOLDER_LOCATION}"
-OPERATOR_LOCATION="${CURRENT_DIRECTORY}/snyk-operator/deploy/olm-catalog/snyk-operator"
 
 # Configure git user and gpg key
 echo "${OPENSHIFT_OPERATOR_SIGNING_KEY_BASE64}" | base64 -d | gpg --import
@@ -44,8 +43,8 @@ git checkout -b snyk/${COMMUNITY_FOLDER_LOCATION}/snyk-operator-v${NEW_OPERATOR_
 mkdir -p  "${DEPLOY_LOCATION}/snyk-operator"
 
 # Copy new release to branch
-cp -r "${OPERATOR_LOCATION}/${NEW_OPERATOR_VERSION}" "${DEPLOY_LOCATION}/snyk-operator/."
-cp "${OPERATOR_LOCATION}/snyk-operator.package.yaml" "${DEPLOY_LOCATION}/snyk-operator/."
+cp -r "${OPERATOR_PATH}/${NEW_OPERATOR_VERSION}" "${DEPLOY_LOCATION}/snyk-operator/."
+cp "${OPERATOR_PATH}/snyk-operator.package.yaml" "${DEPLOY_LOCATION}/snyk-operator/."
 
 # Create the signed commit and push
 git add "${DEPLOY_LOCATION}/snyk-operator/*"
