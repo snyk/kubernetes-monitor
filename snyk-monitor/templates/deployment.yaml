@@ -23,10 +23,18 @@ spec:
       initContainers:
         - name: volume-permissions
           image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
-          command : ['sh', '-c', 'chmod -R 777 /var/tmp']
+          command : ['sh', '-c', 'chmod -R g+rwX /var/tmp || true']
           volumeMounts:
             - name: temporary-storage
               mountPath: "/var/tmp"
+          securityContext:
+            privileged: false
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
       containers:
         - name: {{ include "snyk-monitor.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
