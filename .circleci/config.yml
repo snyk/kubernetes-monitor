@@ -802,6 +802,35 @@ staging_branch_only_filter:
                 - staging
 version: 2.1
 workflows:
+    MANUAL_OPENSHIFT_RELEASE:
+        jobs:
+            - hold:
+                filters:
+                    branches:
+                        only:
+                            - master
+                type: approval
+            - operator_upgrade_tests:
+                filters:
+                    branches:
+                        only:
+                            - master
+                requires:
+                    - hold
+            - push_operator_to_community_operators:
+                filters:
+                    branches:
+                        only:
+                            - master
+                requires:
+                    - operator_upgrade_tests
+            - push_operator_to_upstream_community_operators:
+                filters:
+                    branches:
+                        only:
+                            - master
+                requires:
+                    - operator_upgrade_tests
     MERGE_TO_MASTER:
         jobs:
             - publish:
