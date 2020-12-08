@@ -1,6 +1,9 @@
+import { emptyDirSync } from 'fs-extra';
+
 import * as SourceMapSupport from 'source-map-support';
 
 import * as state from './state';
+import * as config from './common/config';
 import logger = require('./common/logger');
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
@@ -33,6 +36,16 @@ process.on('unhandledRejection', (reason) => {
   }
 });
 
+function cleanUpTempStorage() {
+  const { IMAGE_STORAGE_ROOT } = config;
+  try {
+    emptyDirSync(IMAGE_STORAGE_ROOT);
+    logger.info({}, 'Cleaned temp storage');
+  } catch (err) {
+    logger.error({ err }, 'Error deleting files');
+  }
+};
+
 function monitor(): void {
   try {
     logger.info({cluster: currentClusterName}, 'starting to monitor');
@@ -44,4 +57,5 @@ function monitor(): void {
 }
 
 SourceMapSupport.install();
+cleanUpTempStorage();
 monitor();

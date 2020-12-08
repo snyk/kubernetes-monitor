@@ -20,6 +20,21 @@ spec:
     spec:
       serviceAccountName: {{ include "snyk-monitor.name" . }}
       restartPolicy: Always
+      initContainers:
+        - name: volume-permissions
+          image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
+          command : ['sh', '-c', 'chmod -R g+rwX /var/tmp || true']
+          volumeMounts:
+            - name: temporary-storage
+              mountPath: "/var/tmp"
+          securityContext:
+            privileged: false
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
       containers:
         - name: {{ include "snyk-monitor.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -83,8 +98,13 @@ spec:
               - key: dockercfg.json
                 path: config.json
         - name: temporary-storage
+          {{- if .Values.pvc.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.pvc.name }}
+          {{- else }}
           emptyDir:
             sizeLimit: {{ .Values.temporaryStorageSize }}
+          {{- end }}
         - name: ssl-certs
           configMap:
             name: {{ .Values.certsConfigMap }}
