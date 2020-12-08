@@ -19,8 +19,13 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.37.2
+  tag: 1.40.0
   pullPolicy: Always
+
+# If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
+initContainerImage:
+  repository: busybox
+  tag: latest
 
 # The snyk-monitor requires knowing the cluster name so that it can organise
 # scanned workloads. The Kubernetes API does not provide an API to query this.
@@ -28,8 +33,13 @@ image:
 clusterName: ""
 
 # The snyk-monitor requires disk storage to temporarily pull container images and to scan them for vulnerabilities.
-# This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. The snyk-monitor mounts an emptyDir for storage.
-temporaryStorageSize: 50Gi
+# This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. Unless overridden by the `pvc` value, the snyk-monitor mounts an emptyDir for storage.
+temporaryStorageSize: 50Gi #  Applies to PVC too
+
+# Change to true to use a PVC instead of emptyDir for local storage
+pvc:
+  enabled: false
+  name: 'snyk-monitor-pvc'
 
 # CPU/Mem requests and limits for snyk-monitor
 requests:
