@@ -5,3 +5,4 @@ metadata:
   namespace: marketplace
 spec:
   integrationApi: https://kubernetes-upstream.dev.snyk.io
+  temporaryStorageSize: 20Gi
