@@ -20,7 +20,15 @@ metadata:
             "integrationApi": "",
             "monitorSecrets": "snyk-monitor",
             "scope": "Cluster",
-            "temporaryStorageSize": "50Gi"
+            "temporaryStorageSize": "50Gi",
+            "pvc": {
+              "enabled": false,
+              "name": "snyk-monitor-pvc"
+            },
+            "initContainerImage": {
+              "repository": "busybox",
+              "tag": "latest"
+            }
           }
         }
       ]
@@ -50,6 +58,9 @@ spec:
             version: v1
           - kind: Secret
             name: snyk-monitor
+            version: v1
+          - kind: PersistentVolumeClaim
+            name: snyk-monitor-pvc
             version: v1
         specDescriptors:
           - description: >-
@@ -103,6 +114,30 @@ spec:
             path: image.tag
             x-descriptors:
             - 'urn:alm:descriptor:text'
+          - description: >-
+              True to use a PVC for temporary storage, false to use emptyDir.
+            displayName: PVC enabled
+            path: pvc.enabled
+            x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:booleanSwitch'
+          - description: >-
+              The name of the PVC, when enabled.
+            displayName: PVC name
+            path: pvc.name
+            x-descriptors:
+              - 'urn:alm:descriptor:text'
+          - description: >-
+              The repo to use for initContainer, if overriding.
+            displayName: InitContainer image repo
+            path: initContainerImage.repository
+            x-descriptors:
+              - 'urn:alm:descriptor:text'
+          - description: >-
+              The tag for the initContainer's image.
+            displayName: InitContainer image tag
+            path: initContainerImage.tag
+            x-descriptors:
+              - 'urn:alm:descriptor:text'
   description: |-
     A Kubernetes Operator for creating and managing Snyk Kubernetes controller instances.
 
@@ -142,6 +177,7 @@ spec:
           - secrets
           - services
           - pods
+          - persistentvolumeclaims
           verbs:
           - '*'
         - apiGroups:
