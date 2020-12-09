@@ -35,7 +35,10 @@ export function snykMonitorNamespace(): string {
 }
 
 export async function removeMonitor(): Promise<void> {
-  await dumpLogs();
+  // Credentials may have expired on certain platforms (OpenShift 4), try to regenerate them.
+  await platforms[testPlatform].config().catch(() => undefined);
+  await dumpLogs().catch(() => undefined);
+
   try {
     if (createCluster) {
       await platforms[testPlatform].delete();
