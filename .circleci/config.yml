@@ -407,6 +407,18 @@ jobs:
                 name: Package Operator Bundle and push to Quay
             - run:
                 command: |
+                    set +e
+                    kubectl patch customresourcedefinition snykmonitors.charts.helm.k8s.io -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
+                    kubectl patch snykmonitors.charts.helm.k8s.io snyk-monitor -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
+                    kubectl delete customresourcedefinition snykmonitors.charts.helm.k8s.io
+                    kubectl delete operatorsource snyk-operator -n openshift-marketplace
+                    kubectl delete clusterrolebinding snyk-monitor
+                    kubectl delete clusterrole snyk-monitor
+                    kubectl delete namespace services
+                    kubectl delete namespace snyk-monitor
+                name: Remove existing cluster resources if present
+            - run:
+                command: |
                     set -xo pipefail
                     set +e
 
