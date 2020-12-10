@@ -95,6 +95,8 @@ steps:
         kubectl delete clusterrole snyk-monitor
         kubectl delete namespace services
         kubectl delete namespace snyk-monitor
+        # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
+        true
 
   - run:
       name: Configure snyk-monitor namespace
@@ -219,6 +221,8 @@ steps:
         kubectl delete clusterrole snyk-monitor
 
         kubectl delete ns snyk-monitor
+        # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
+        true
       when: always
 
   - run:

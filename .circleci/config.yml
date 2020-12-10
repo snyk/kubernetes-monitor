@@ -416,6 +416,8 @@ jobs:
                     kubectl delete clusterrole snyk-monitor
                     kubectl delete namespace services
                     kubectl delete namespace snyk-monitor
+                    # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
+                    true
                 name: Remove existing cluster resources if present
             - run:
                 command: |
@@ -533,6 +535,8 @@ jobs:
                     kubectl delete clusterrole snyk-monitor
 
                     kubectl delete ns snyk-monitor
+                    # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
+                    true
                 name: Cleanup
                 when: always
             - run:
