@@ -95,6 +95,8 @@ steps:
         kubectl delete clusterrole snyk-monitor
         kubectl delete namespace services
         kubectl delete namespace snyk-monitor
+        # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
+        true
 
   - run:
       name: Configure snyk-monitor namespace
@@ -170,7 +172,6 @@ steps:
         set +x
         operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
         set -x
-        echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
 
   - run:
       name: Upgrade Operator and check that snyk-monitor also upgraded
@@ -184,7 +185,7 @@ steps:
         VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
           grep "snyk-monitor" | \
           awk 'END { if (NR==0) exit 1; else print $1 }' | \
-          xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..image} | \
+          xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..containers[*].image} | \
           awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
 
         if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
@@ -219,6 +220,8 @@ steps:
         kubectl delete clusterrole snyk-monitor
 
         kubectl delete ns snyk-monitor
+        # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
+        true
       when: always
 
   - run:
