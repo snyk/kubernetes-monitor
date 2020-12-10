@@ -172,7 +172,6 @@ steps:
         set +x
         operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
         set -x
-        echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
 
   - run:
       name: Upgrade Operator and check that snyk-monitor also upgraded
