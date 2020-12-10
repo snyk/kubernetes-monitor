@@ -185,7 +185,7 @@ steps:
         VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
           grep "snyk-monitor" | \
           awk 'END { if (NR==0) exit 1; else print $1 }' | \
-          xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..image} | \
+          xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..containers[*].image} | \
           awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
 
         if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
