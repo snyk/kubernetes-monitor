@@ -2,7 +2,7 @@ import { unlink } from 'fs';
 import { PluginResponse, scan } from 'snyk-docker-plugin';
 import { DepGraph, legacy } from '@snyk/dep-graph';
 
-import logger = require('../../common/logger');
+import { logger } from '../../common/logger';
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
 import { IPullableImage, IScanImage } from './types';
 import { IScanResult } from '../types';

@@ -3,7 +3,7 @@ import { httpOverHttp, httpsOverHttp } from 'tunnel';
 import { Agent, globalAgent as HttpAgent } from 'http';
 import { globalAgent as HttpsAgent } from 'https';
 
-import logger = require('../common/logger');
+import { logger } from '../common/logger';
 
 export function getProxyAgent(
   config: Record<string, any>,

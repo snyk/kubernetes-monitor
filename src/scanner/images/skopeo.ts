@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as sleep from 'sleep-promise';
 
-import logger = require('../../common/logger');
+import { logger } from '../../common/logger';
+import { config } from '../../common/config';
 import * as processWrapper from '../../common/process';
-import * as config from '../../common/config';
 import * as credentials from './credentials';
 import { SkopeoRepositoryType } from './types';
 

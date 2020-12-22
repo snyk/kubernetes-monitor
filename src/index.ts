@@ -2,9 +2,9 @@ import { emptyDirSync } from 'fs-extra';
 
 import * as SourceMapSupport from 'source-map-support';
 
-import * as state from './state';
-import * as config from './common/config';
-import logger = require('./common/logger');
+import { state } from './state';
+import { config } from './common/config';
+import { logger } from './common/logger';
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
 

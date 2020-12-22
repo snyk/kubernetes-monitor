@@ -1,6 +1,6 @@
 import * as aws from 'aws-sdk';
 
-import logger = require('../../common/logger');
+import { logger } from '../../common/logger';
 
 export async function getSourceCredentials(imageSource: string): Promise<string | undefined> {
   if (isEcrSource(imageSource)) {

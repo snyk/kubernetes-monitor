@@ -3,7 +3,7 @@ import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
 import { IKubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
-import logger = require('../common/logger');
+import { logger } from '../common/logger';
 
 const loopingThreshold = 20;
 

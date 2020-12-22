@@ -1,5 +1,5 @@
-import needle = require('needle');
-import sleep = require('sleep-promise');
+import * as needle from 'needle';
+import * as sleep from 'sleep-promise';
 import {
   IWorkloadLocator,
   IWorkloadMetadata,
@@ -9,7 +9,7 @@ import {
   WorkloadMetadataValidator,
   DepGraphsValidator,
 } from './types';
-import config = require('../../src/common/config');
+import { config } from '../../src/common/config';
 
 const UPSTREAM_POLLING_CONFIGURATION = {
   WAIT_BETWEEN_REQUESTS_MS: 5000,
