@@ -1,5 +1,5 @@
 import * as bunyan from 'bunyan';
-import config = require('./config');
+import { config } from './config';
 
 try {
   // Validate if LOG_LEVEL has valid bunyan logging level
@@ -23,4 +23,4 @@ if (process.env.NODE_ENV === 'test') {
   logger.level(bunyan.FATAL + 1);
 }
 
-export = logger;
+export { logger };

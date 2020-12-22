@@ -1,14 +1,14 @@
 import { V1Pod } from '@kubernetes/client-node';
-import async = require('async');
-import config = require('../../../common/config');
-import logger = require('../../../common/logger');
+import * as async from 'async';
+import { logger } from '../../../common/logger';
+import { config } from '../../../common/config';
 import { processWorkload } from '../../../scanner';
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
 import { constructWorkloadMetadata } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
-import state = require('../../../state');
+import { state } from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
 import { deleteWorkload } from './workload';
