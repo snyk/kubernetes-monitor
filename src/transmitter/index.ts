@@ -1,8 +1,8 @@
 import * as needle from 'needle';
 import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import * as sleep from 'sleep-promise';
-import * as config from '../common/config';
-import logger = require('../common/logger');
+import { logger } from '../common/logger';
+import { config } from '../common/config';
 import {
   IDeleteWorkloadPayload,
   IDependencyGraphPayload,

@@ -1,6 +1,6 @@
-import * as lruCache from 'lru-cache';
+import * as LruCache from 'lru-cache';
 
-import config = require('./common/config');
+import { config } from './common/config';
 
 const imagesLruCacheOptions = {
   // limit cache size so we don't exceed memory limit
@@ -22,8 +22,8 @@ const workloadsLruCacheOptions = {
 
 const state = {
   shutdownInProgress: false,
-  imagesAlreadyScanned: new lruCache<string, string>(imagesLruCacheOptions),
-  workloadsAlreadyScanned: new lruCache<string, string>(workloadsLruCacheOptions),
+  imagesAlreadyScanned: new LruCache<string, string>(imagesLruCacheOptions),
+  workloadsAlreadyScanned: new LruCache<string, string>(workloadsLruCacheOptions),
 };
 
-export = state;
+export { state };

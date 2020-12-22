@@ -21,4 +21,4 @@ delete process.env['HTTPS_PROXY'];
 delete process.env['HTTP_PROXY'];
 delete process.env['NO_PROXY'];
 
-export = config;
+export { config };

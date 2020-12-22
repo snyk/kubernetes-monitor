@@ -1,12 +1,12 @@
 import * as tap from 'tap';
-import sinon = require('sinon');
+import * as sinon from 'sinon';
 import * as sleep from 'sleep-promise';
 import * as fs from 'fs';
 import * as YAML from 'yaml';
 import async = require('async');
 
 import { V1PodSpec, V1Pod } from '@kubernetes/client-node';
-import transmitterTypes = require('../../../src/transmitter/types');
+import { IWorkload } from '../../../src/transmitter/types';
 import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
 
 let pushCallCount = 0;
@@ -17,7 +17,7 @@ import * as pod from '../../../src/supervisor/watchers/handlers/pod';
 tap.test('image and workload image cache', async (t) => {
   const podSpecFixture = fs.readFileSync('./test/fixtures/pod-spec.json', 'utf8');
   const podSpec: V1PodSpec = YAML.parse(podSpecFixture);
-  const workloadMetadata: transmitterTypes.IWorkload[] = [
+  const workloadMetadata: IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',

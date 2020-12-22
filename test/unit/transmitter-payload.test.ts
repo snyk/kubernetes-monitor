@@ -1,13 +1,19 @@
 import * as tap from 'tap';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { V1PodSpec } from '@kubernetes/client-node';
 
-import kubeScannerTypes = require('../../src/scanner/types');
-import payload = require('../../src/transmitter/payload');
-import transmitterTypes = require('../../src/transmitter/types');
-import podSpecFixture = require('../fixtures/pod-spec.json');
-import config = require('../../src/common/config');
+import { config } from '../../src/common/config';
+import { IScanResult } from '../../src/scanner/types';
+import * as payload from '../../src/transmitter/payload';
+import { ILocalWorkloadLocator, IWorkload } from '../../src/transmitter/types';
+
+const podSpecFixture = JSON.parse(
+    readFileSync(join(__dirname, '../', 'fixtures', 'pod-spec.json'),{ encoding: 'utf8' })
+) as V1PodSpec;
 
 tap.test('constructDepGraph breaks when workloadMetadata is missing items', async (t) => {
-  const scannedImages: kubeScannerTypes.IScanResult[] = [
+  const scannedImages: IScanResult[] = [
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
@@ -22,7 +28,7 @@ tap.test('constructDepGraph breaks when workloadMetadata is missing items', asyn
     },
   ];
 
-  const workloadMetadata: transmitterTypes.IWorkload[] = [
+  const workloadMetadata: IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',
@@ -46,7 +52,7 @@ tap.test('constructDepGraph breaks when workloadMetadata is missing items', asyn
 });
 
 tap.test('constructDepGraph happy flow', async (t) => {
-  const scannedImages: kubeScannerTypes.IScanResult[] = [
+  const scannedImages: IScanResult[] = [
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
@@ -55,7 +61,7 @@ tap.test('constructDepGraph happy flow', async (t) => {
     },
   ];
 
-  const workloadMetadata: transmitterTypes.IWorkload[] = [
+  const workloadMetadata: IWorkload[] = [
     {
       type: 'type',
       name: 'workloadName',
@@ -108,7 +114,7 @@ tap.test('constructDepGraph happy flow', async (t) => {
 });
 
 tap.test('constructWorkloadMetadata happy flow', async (t) => {
-  const workloadWithImages: transmitterTypes.IWorkload = {
+  const workloadWithImages: IWorkload = {
     type: 'type',
     name: 'workloadName',
     namespace: 'spacename',
@@ -144,7 +150,7 @@ tap.test('constructWorkloadMetadata happy flow', async (t) => {
 });
 
 tap.test('constructDeleteWorkload happy flow', async (t) => {
-  const localWorkloadLocator: transmitterTypes.ILocalWorkloadLocator = {
+  const localWorkloadLocator: ILocalWorkloadLocator = {
     name: 'wl-name',
     namespace: 'wl-namespace',
     type: 'wl-type'

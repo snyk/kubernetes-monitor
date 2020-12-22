@@ -1,7 +1,7 @@
 import * as tap from 'tap';
 
 import {IPullableImage, IScanImage} from '../../../src/scanner/images/types';
-import config = require('../../../src/common/config');
+import { config } from '../../../src/common/config';
 import * as scannerImages from '../../../src/scanner/images';
 
 tap.test('getImagesWithFileSystemPath()', async (t) => {

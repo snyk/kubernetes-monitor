@@ -1,5 +1,5 @@
 import { makeInformer, ADD, DELETE, UPDATE, KubernetesObject } from '@kubernetes/client-node';
-import logger = require('../../../common/logger');
+import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
 import { podWatchHandler, podDeletedHandler } from './pod';
 import { cronJobWatchHandler } from './cron-job';

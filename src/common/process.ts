@@ -1,6 +1,6 @@
 import { spawn, SpawnPromiseResult } from 'child-process-promise';
-import logger = require('./logger');
-import config = require('./config');
+import { logger } from './logger';
+import { config } from './config';
 
 export interface IProcessArgument {
   body: string;

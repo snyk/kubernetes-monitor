@@ -1,6 +1,6 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import { exec } from 'child-process-promise';
-import setup = require('../setup');
+import * as setup from '../setup';
 import * as tap from 'tap';
 import { WorkloadKind } from '../../src/supervisor/types';
 import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';

@@ -3,7 +3,7 @@ import { V1OwnerReference } from '@kubernetes/client-node';
 import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
-import logger = require('../common/logger');
+import { logger } from '../common/logger';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
