@@ -1,0 +1,98 @@
+# Default values for snyk-monitor.
+
+# The snyk-monitor relies on several k8s secrets in order to be configured properly.
+# These secrets are named "snyk-monitor-secrets", though you can change the name.
+# The secrets should be created externally, before applying this Helm chart.
+# The currently used keys within the secret are: "dockercfg.json", "integrationId".
+monitorSecrets: snyk-monitor
+certsConfigMap: snyk-monitor-certs
+registriesConfConfigMap: snyk-monitor-registries-conf
+
+# The ConfigMap to use for loading policies into snyk-monitor.
+workloadPoliciesMap: snyk-monitor-workload-policies
+# A list of Snyk Organization public IDs to let snyk-monitor know in which Organization to auto-import and auto-delete scanned images.
+policyOrgs:
+
+# One of: Cluster, Namespaced
+# Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
+# Namespaced - creates a Role and RoleBinding with the ServiceAccount
+scope: Cluster
+
+# The endpoint that being used to transmit monitored information
+integrationApi: ""
+
+# The registry from which to pull the snyk-monitor image.
+image:
+  image: registry.connect.redhat.com/snyk/kubernetes-monitor:1.64.1
+  pullPolicy: Always
+
+# If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
+initContainerImage:
+  image: registry.access.redhat.com/ubi8-minimal:latest
+  pullPolicy: Always
+
+# The snyk-monitor requires knowing the cluster name so that it can organise
+# scanned workloads. The Kubernetes API does not provide an API to query this.
+# Set the name of the cluster, otherwise the snyk-monitor will set this to a default value.
+clusterName: ""
+
+# The snyk-monitor requires disk storage to temporarily pull container images and to scan them for vulnerabilities.
+# This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. Unless overridden by the `pvc` value, the snyk-monitor mounts an emptyDir for storage.
+temporaryStorageSize: 50Gi #  Applies to PVC too
+
+# Change "enabled" to true to use a PVC instead of emptyDir for local storage.
+# Change "create" to true if you want to create the PVC (useful for first time run).
+pvc:
+  enabled: false
+  name: snyk-monitor-pvc
+  create: false
+  ## snyk-monitor data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClassName: "-"
+
+# Additional annotations for the Kubernetes ServiceAccount
+rbac:
+  serviceAccount:
+    annotations: {}
+
+# Node.js in-container process memory enhancements
+envs:
+  - name: V8_MAX_OLD_SPACE_SIZE
+    value: "2048"
+  - name: UV_THREADPOOL_SIZE
+    value: "24"
+  - name: NODE_OPTIONS
+    value: --max_old_space_size=2048
+
+extraCaCerts: /srv/app/certs/ca.pem
+
+# CPU/Mem requests and limits for snyk-monitor
+requests:
+  cpu: "250m"
+  memory: "400Mi"
+
+limits:
+  cpu: "1"
+  memory: "2Gi"
+
+http_proxy:
+https_proxy:
+no_proxy:
+skip_k8s_jobs:
+
+# Override default (INFO) log level if less verbosity needed
+log_level:
+
+nodeSelector: {}
+
+psp:
+  enabled: false
+  name: ""
+
+# Override the excluded namespaces
+excludedNamespaces:

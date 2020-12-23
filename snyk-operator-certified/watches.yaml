@@ -1,0 +1,9 @@
+# Use the 'create api' subcommand to add watches to this file.
+- group: charts.snyk.io
+  version: v1alpha1
+  kind: SnykMonitor
+  chart: helm-charts/snyk-monitor
+  overrideValues:
+    image.image: $RELATED_IMAGE_DEPLOYMENT
+    initContainerImage.image: $RELATED_IMAGE_DEPLOYMENT_INIT
+# +kubebuilder:scaffold:watch

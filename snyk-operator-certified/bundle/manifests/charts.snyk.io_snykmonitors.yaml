@@ -1,0 +1,82 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: snykmonitors.charts.snyk.io
+spec:
+  group: charts.snyk.io
+  names:
+    kind: SnykMonitor
+    listKind: SnykMonitorList
+    plural: snykmonitors
+    singular: snykmonitor
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: SnykMonitor is the Schema for the snykmonitors API
+      type: object
+      properties:
+        apiVersion:
+          description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
+          type: string
+        kind:
+          description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: Spec defines the desired state of SnykMonitor
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+          properties:
+            monitorSecrets:
+              description: >-
+                The name of the secret object that stores the Snyk controller secrets.
+                The secret needs to contain the following data fields:
+                - integrationId
+                - dockercfg.json
+              type: string
+            image:
+              properties:
+                pullPolicy:
+                  type: string
+                image:
+                  type: string
+              type: object
+            scope:
+              type: string
+            clusterName:
+              type: string
+            integrationApi:
+              type: string
+            temporaryStorageSize:
+              type: string
+            pvc:
+              properties:
+                enabled:
+                  type: boolean
+                name:
+                  type: string
+              type: object
+            initContainerImage:
+              properties:
+                image:
+                  type: string
+                pullPolicy:
+                  type: string
+              type: object
+        status:
+          description: Status defines the observed state of SnykMonitor
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: null
+  storedVersions: null

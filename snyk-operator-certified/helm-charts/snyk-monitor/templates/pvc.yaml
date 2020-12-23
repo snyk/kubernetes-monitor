@@ -1,0 +1,26 @@
+# We create a PVC only if requested.
+{{- if .Values.pvc.enabled }}{{- if .Values.pvc.create }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.pvc.name }}
+  labels:
+    app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
+    helm.sh/chart: {{ include "snyk-monitor.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.temporaryStorageSize }}
+  {{- if .Values.pvc.storageClassName }}
+  {{- if (eq "-" .Values.pvc.storageClassName) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.pvc.storageClassName }}"
+  {{- end }}
+  {{- end }}
+{{- end }}{{- end }}
