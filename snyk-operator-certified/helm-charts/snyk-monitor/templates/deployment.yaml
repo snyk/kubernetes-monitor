@@ -23,7 +23,7 @@ spec:
       initContainers:
         - name: volume-permissions
           image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
-          command: ['sh', '-c', 'chmod -R g+rwX /var/tmp || true']
+          command : ['sh', '-c', 'chmod -R g+rwX /var/tmp || true']
           volumeMounts:
             - name: temporary-storage
               mountPath: "/var/tmp"
@@ -75,11 +75,6 @@ spec:
             value: {{ .Values.no_proxy }}
           - name: LOG_LEVEL
             value: {{ .Values.log_level }}
-          - name: SKIP_K8S_JOBS
-            value: {{ .Values.skip_k8s_jobs }}
-          {{- with .Values.envs }}
-          {{- toYaml . | trim | nindent 10 -}}
-          {{ end }}
           resources:
             requests:
               cpu: {{ .Values.requests.cpu }}

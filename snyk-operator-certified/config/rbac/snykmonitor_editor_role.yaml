@@ -1,0 +1,24 @@
+# permissions for end users to edit snykmonitors.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: snykmonitor-editor-role
+rules:
+- apiGroups:
+  - charts.snyk.io
+  resources:
+  - snykmonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - charts.snyk.io
+  resources:
+  - snykmonitors/status
+  verbs:
+  - get

@@ -1,0 +1,14 @@
+{{ if .Values.pvc.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.pvc.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.temporaryStorageSize }}
+  storageClassName: {{ .Values.pvc.storageClassName }}
+{{ end }}

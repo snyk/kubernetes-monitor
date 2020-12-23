@@ -1,0 +1,65 @@
+# Default values for snyk-monitor.
+
+# The snyk-monitor relies on several k8s secrets in order to be configured properly.
+# These secrets are named "snyk-monitor-secrets", though you can change the name.
+# The secrets should be created externally, before applying this Helm chart.
+# The currently used keys within the secret are: "dockercfg.json", "integrationId".
+monitorSecrets: snyk-monitor
+certsConfigMap: snyk-monitor-certs
+registriesConfConfigMap: snyk-monitor-registries-conf
+
+# One of: Cluster, Namespaced
+# Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
+# Namespaced - creates a Role and RoleBinding with the ServiceAccount
+scope: Cluster
+
+# The endpoint that being used to transmit monitored information
+integrationApi: ""
+
+# The registry from which to pull the snyk-monitor image.
+image:
+  repository: docker.io/snyk/kubernetes-monitor
+  tag: 1.40.3
+  pullPolicy: Always
+
+# If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
+initContainerImage:
+  repository: registry.access.redhat.com/ubi8-minimal
+  tag: latest
+
+# The snyk-monitor requires knowing the cluster name so that it can organise
+# scanned workloads. The Kubernetes API does not provide an API to query this.
+# Set the name of the cluster, otherwise the snyk-monitor will set this to a default value.
+clusterName: ""
+
+# The snyk-monitor requires disk storage to temporarily pull container images and to scan them for vulnerabilities.
+# This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. Unless overridden by the `pvc` value, the snyk-monitor mounts an emptyDir for storage.
+temporaryStorageSize: 50Gi #  Applies to PVC too
+
+# Change to true to use a PVC instead of emptyDir for local storage
+pvc:
+  enabled: false
+  name: snyk-monitor
+  storageClassName: null
+
+# CPU/Mem requests and limits for snyk-monitor
+requests:
+  cpu: '250m'
+  memory: '400Mi'
+
+limits:
+  cpu: '1'
+  memory: '2Gi'
+
+http_proxy:
+https_proxy:
+no_proxy:
+
+# Override default (INFO) log level if less verbosity needed
+log_level:
+
+nodeSelector: {}
+
+psp:
+  enabled: false
+  name: ""

@@ -4,8 +4,8 @@ import { IDeployer, IImageOptions } from './types';
 import * as kubectl from '../../helpers/kubectl';
 
 // The event we want to find is:
-// Pulling image "docker.io/snyk/kubernetes-operator:{tag}"
-const PULL_KUBERNETES_OPERATOR_EVENT = 'Pulling image "docker.io/snyk/kubernetes-operator:';
+// Pulling image "gcr.io/snyk-k8s-fixtures/kubernetes-operator:{tag}"
+const PULL_KUBERNETES_OPERATOR_EVENT = 'Pulling image "gcr.io/snyk-k8s-fixtures/kubernetes-operator:';
 export const operatorDeployer: IDeployer = {
   deploy: deployKubernetesMonitor,
 };
