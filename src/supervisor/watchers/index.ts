@@ -1,8 +1,8 @@
 import { makeInformer, ADD } from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
 
-import config = require('../../common/config');
-import logger = require('../../common/logger');
+import { logger } from '../../common/logger';
+import { config } from '../../common/config';
 import { WorkloadKind } from '../types';
 import { setupInformer } from './handlers';
 import { kubeConfig, k8sApi } from '../cluster';

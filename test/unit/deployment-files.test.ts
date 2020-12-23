@@ -2,7 +2,7 @@ import * as tap from 'tap';
 import { parse } from 'yaml';
 import { readFileSync } from 'fs';
 import { V1Deployment } from '@kubernetes/client-node';
-import * as snykConfig from '../../src/common/config';
+import { config } from '../../src/common/config';
 import {
   validateSecureConfiguration,
   validateVolumeMounts,
@@ -14,7 +14,7 @@ import {
  */
 
 tap.test('ensure the security properties of the deployment files are unchanged', async (t) => {
-  t.same(snykConfig.IMAGE_STORAGE_ROOT, '/var/tmp', 'the snyk-monitor points to the correct mounted path');
+  t.same(config.IMAGE_STORAGE_ROOT, '/var/tmp', 'the snyk-monitor points to the correct mounted path');
 
   const deploymentFiles = ['./snyk-monitor-deployment.yaml'];
 

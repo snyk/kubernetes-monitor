@@ -1,4 +1,4 @@
-import logger = require('../common/logger');
+import { logger } from '../common/logger';
 import { pullImages, removePulledImages, getImagesWithFileSystemPath, scanImages, getImageParts } from './images';
 import { deleteWorkload, sendDepGraph } from '../transmitter';
 import { constructDeleteWorkload, constructDepGraph } from '../transmitter/payload';

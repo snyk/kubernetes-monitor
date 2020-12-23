@@ -1,4 +1,4 @@
-import config = require('../common/config');
+import { config } from '../common/config';
 import { currentClusterName } from '../supervisor/cluster';
 import { IScanResult } from '../scanner/types';
 import {
