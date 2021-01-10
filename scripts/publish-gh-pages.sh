@@ -28,9 +28,9 @@ sed -i "s/IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING/${NEW_TAG}/g" ./snyk-monitor/values
 sed -i "s/IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING/${NEW_TAG}/g" ./snyk-monitor-deployment.yaml
 
 echo building new helm release
-./helm init --client-only
-./helm package snyk-monitor --version ${NEW_TAG}
-./helm repo index .
+helm init --client-only
+helm package snyk-monitor --version ${NEW_TAG}
+helm repo index .
 
 echo publishing to gh-pages
 git add index.yaml

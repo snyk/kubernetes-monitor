@@ -365,6 +365,7 @@ publish:
     - checkout
     - setup_remote_docker
     - install_python_requests
+    - install_helm
     - run:
         name: Publish
         command: |
