@@ -75,6 +75,9 @@ spec:
             value: {{ .Values.no_proxy }}
           - name: LOG_LEVEL
             value: {{ .Values.log_level }}
+          {{- with .Values.envs }}
+          {{- toYaml . | trim | nindent 10 -}}
+          {{ end }}
           resources:
             requests:
               cpu: {{ .Values.requests.cpu }}
