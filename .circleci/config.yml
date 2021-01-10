@@ -1,4 +1,16 @@
 commands:
+    install_helm:
+        description: Install requests library
+        steps:
+            - run:
+                command: |
+                    export DEBIAN_FRONTEND=noninteractive
+                    curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+                    sudo apt-get install -y apt-transport-https
+                    echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+                    sudo apt-get update -qq
+                    sudo apt-get install -y helm
+                name: Install Helm
     install_python_requests:
         description: Install requests library
         steps:
@@ -556,6 +568,7 @@ jobs:
             - checkout
             - setup_remote_docker
             - install_python_requests
+            - install_helm
             - run:
                 command: |
                     LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
