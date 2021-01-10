@@ -41,6 +41,15 @@ pvc:
   enabled: false
   name: 'snyk-monitor-pvc'
 
+# Node.js in-container process memory enhancements
+envs:
+  - name: V8_MAX_OLD_SPACE_SIZE
+    value: '2048'
+  - name: UV_THREADPOOL_SIZE
+    value: '24'
+  - name: NODE_OPTIONS
+    value: --max_old_space_size=2048
+
 # CPU/Mem requests and limits for snyk-monitor
 requests:
   cpu: '250m'
