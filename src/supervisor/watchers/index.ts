@@ -26,6 +26,11 @@ function setupWatchesForNamespace(namespace: string): void {
   logger.info({namespace}, 'setting up namespace watch');
 
   for (const workloadKind of Object.values(WorkloadKind)) {
+    // Disable handling events for k8s Jobs for debug purposes
+    if (config.SKIP_K8S_JOBS === true && workloadKind === WorkloadKind.Job) {
+      continue;
+    }
+
     try {
       setupInformer(namespace, workloadKind);
     } catch (error) {
