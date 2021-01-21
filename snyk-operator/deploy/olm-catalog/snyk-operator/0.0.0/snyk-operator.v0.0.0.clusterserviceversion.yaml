@@ -23,7 +23,8 @@ metadata:
             "temporaryStorageSize": "50Gi",
             "pvc": {
               "enabled": false,
-              "name": "snyk-monitor-pvc"
+              "name": "snyk-monitor-pvc",
+              "storageClassName": null
             },
             "initContainerImage": {
               "repository": "busybox",
@@ -124,6 +125,12 @@ spec:
               The name of the PVC, when enabled.
             displayName: PVC name
             path: pvc.name
+            x-descriptors:
+              - 'urn:alm:descriptor:text'
+          - description: >-
+              The name of the StorageClass to use for the PVC, when enabled.
+            displayName: PVC StorageClass name
+            path: pvc.storageClassName
             x-descriptors:
               - 'urn:alm:descriptor:text'
           - description: >-
