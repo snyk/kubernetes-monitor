@@ -40,6 +40,7 @@ temporaryStorageSize: 50Gi #  Applies to PVC too
 pvc:
   enabled: false
   name: 'snyk-monitor-pvc'
+  storageClassName: null
 
 # Node.js in-container process memory enhancements
 envs:
