@@ -23,6 +23,7 @@ rules:
   - namespaces
   verbs:
   - watch
+  - get
 - apiGroups:
   - ""
   resources:

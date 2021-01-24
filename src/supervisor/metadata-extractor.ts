@@ -4,15 +4,23 @@ import { currentClusterName } from './cluster';
 import { IKubeObjectMetadata } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
 import { logger } from '../common/logger';
+import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
+import { k8sApi } from './cluster';
 
 const loopingThreshold = 20;
 
+async function getNamesapceAnnotations(namespace: string) : Promise<any> {
+  const namespaceResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.coreClient.readNamespace(namespace) );
+  return namespaceResult.body.metadata?.annotations ?? {};
+} 
+
 // Constructs the workload metadata based on a variety of k8s properties.
 // https://www.notion.so/snyk/Kubernetes-workload-fields-we-should-collect-c60c8f0395f241978282173f4c133a34
-export function buildImageMetadata(
+export async function buildImageMetadata(
   workloadMeta: IKubeObjectMetadata,
   containerStatuses: V1ContainerStatus[],
-  ): IWorkload[] {
+  ): Promise<IWorkload[]> {
   const { kind, objectMeta, specMeta, revision, podSpec } = workloadMeta;
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
@@ -25,6 +33,8 @@ export function buildImageMetadata(
   for (const containerStatus of containerStatuses) {
     containerNameToStatus[containerStatus.name] = containerStatus;
   }
+
+  const namespaceAnnotations = await getNamesapceAnnotations(workloadMeta.objectMeta.namespace ?? "");
 
   const images: IWorkload[] = [];
   for (const containerStatus of containerStatuses) {
@@ -46,6 +56,7 @@ export function buildImageMetadata(
       cluster: currentClusterName,
       revision,
       podSpec,
+      namespaceAnnotations,
     } as IWorkload);
   }
 
@@ -135,7 +146,7 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
   // do not need to be read with the API (we already have their meta+spec)
   // so just return the information directly.
   if (!isAssociatedWithParent) {
-    return buildImageMetadata({
+    return await buildImageMetadata({
       kind: 'Pod', // Reading pod.kind may be undefined, so use this
       objectMeta: pod.metadata,
       // Notice the pod.metadata repeats; this is because pods
@@ -156,5 +167,5 @@ export async function buildMetadataForWorkload(pod: V1Pod): Promise<IWorkload[] 
     return undefined;
   }
 
-  return buildImageMetadata(podOwner, pod.status.containerStatuses);
+  return await buildImageMetadata(podOwner, pod.status.containerStatuses);
 }

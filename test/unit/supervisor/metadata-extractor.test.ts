@@ -72,7 +72,7 @@ tap.test('buildImageMetadata', async (t) => {
     podSpec: deploymentObject.spec!.template.spec!,
   };
 
-  const imageMetadataResult = metadataExtractor.buildImageMetadata(
+  const imageMetadataResult = await metadataExtractor.buildImageMetadata(
     deploymentWeirdWrapper,
     podObject.status!.containerStatuses!,
   );
