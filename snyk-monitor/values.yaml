@@ -39,7 +39,8 @@ temporaryStorageSize: 50Gi #  Applies to PVC too
 # Change to true to use a PVC instead of emptyDir for local storage
 pvc:
   enabled: false
-  name: 'snyk-monitor-pvc'
+  name: snyk-monitor-pvc
+  storageClassName: null
 
 # Node.js in-container process memory enhancements
 envs:
