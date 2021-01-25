@@ -19,7 +19,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.40.3
+  tag: 1.41.0
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -39,7 +39,8 @@ temporaryStorageSize: 50Gi #  Applies to PVC too
 # Change to true to use a PVC instead of emptyDir for local storage
 pvc:
   enabled: false
-  name: 'snyk-monitor-pvc'
+  name: snyk-monitor-pvc
+  storageClassName: null
 
 # Node.js in-container process memory enhancements
 envs:
