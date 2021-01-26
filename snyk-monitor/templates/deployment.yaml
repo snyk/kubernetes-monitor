@@ -76,7 +76,7 @@ spec:
           - name: LOG_LEVEL
             value: {{ .Values.log_level }}
           - name: SKIP_K8S_JOBS
-            value: {{ .Values.skip_k8s_jobs }}
+            value: {{ quote .Values.skip_k8s_jobs }}
           {{- with .Values.envs }}
           {{- toYaml . | trim | nindent 10 -}}
           {{ end }}
@@ -120,5 +120,8 @@ spec:
             optional: true
       {{- with .Values.nodeSelector }}
       nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
