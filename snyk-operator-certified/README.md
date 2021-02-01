@@ -61,7 +61,7 @@ metadata:
   namespace: snyk-monitor
 spec:
   channel: stable
-  name: snyk-operator-certified # this has changed, used to be "snyk-operator"
+  name: snyk-operator-marketplace # this has changed, used to be "snyk-operator"
   installPlanApproval: Automatic
   source: snyk-operator
   sourceNamespace: openshift-marketplace

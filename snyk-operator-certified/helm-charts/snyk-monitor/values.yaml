@@ -18,19 +18,18 @@ integrationApi: ""
 
 # The registry from which to pull the snyk-monitor image.
 image:
-  repository: docker.io/snyk/kubernetes-monitor
-  tag: 1.40.3
+  image: registry.connect.redhat.com/snyk/kubernetes-monitor:1.40.3
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
 initContainerImage:
-  repository: registry.access.redhat.com/ubi8-minimal
-  tag: latest
+  image: registry.access.redhat.com/ubi8-minimal:latest
+  pullPolicy: Always
 
 # The snyk-monitor requires knowing the cluster name so that it can organise
 # scanned workloads. The Kubernetes API does not provide an API to query this.
 # Set the name of the cluster, otherwise the snyk-monitor will set this to a default value.
-clusterName: ""
+clusterName: "OpenShift cluster"
 
 # The snyk-monitor requires disk storage to temporarily pull container images and to scan them for vulnerabilities.
 # This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. Unless overridden by the `pvc` value, the snyk-monitor mounts an emptyDir for storage.

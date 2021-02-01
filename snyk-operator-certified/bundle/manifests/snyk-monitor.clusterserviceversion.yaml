@@ -11,12 +11,7 @@ metadata:
             "name": "snyk-monitor"
           },
           "spec": {
-            "clusterName": "",
-            "image": {
-              "pullPolicy": "Always",
-              "repository": "docker.io/snyk/kubernetes-monitor",
-              "tag": "1.40.3"
-            },
+            "clusterName": "Default cluster",
             "integrationApi": "",
             "monitorSecrets": "snyk-monitor",
             "scope": "Cluster",
@@ -24,10 +19,6 @@ metadata:
             "pvc": {
               "enabled": false,
               "name": "snyk-monitor"
-            },
-            "initContainerImage": {
-              "repository": "registry.access.redhat.com/ubi8-minimal",
-              "tag": "latest"
             }
           }
         }
@@ -35,14 +26,14 @@ metadata:
     capabilities: Basic Install
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.hub.docker.com/snyk/kubernetes-operator:1.40.3-pre1
+    containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.40.3
     createdAt: "2020-08-28T15:20:21Z"
     description: A Kubernetes Operator for creating and managing Snyk controller instances.
     operators.operatorframework.io/builder: operator-sdk-v1.3.0
     operators.operatorframework.io/project_layout: helm.sdk.operatorframework.io/v1
     repository: https://github.com/docker.io/snyk/kubernetes-monitor
     support: Snyk Ltd.
-  name: snyk-operator-certified.v1.40.3
+  name: snyk-operator-marketplace.v1.41.0
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -62,17 +53,17 @@ spec:
             name: snyk-monitor
             version: v1
         specDescriptors:
-          - description: "The name of the secret object that stores the Snyk controller secrets. The secret needs to contain the following data fields: - integrationId - dockercfg.json"
+          - description: "The name of the secret object that stores the Snyk controller secrets, defaults to snyk-monitor. The secret needs to contain the following data fields: integrationId, dockercfg.json"
             displayName: Snyk controller Secret name
             path: monitorSecrets
             x-descriptors:
               - urn:alm:descriptor:io.kubernetes:Secret
-          - description: The name of the cluster that will be displayed in Snyk.
-            displayName: Cluster Name
+          - description: The name of the cluster that will be displayed in Snyk. Defaults to "Default cluster".
+            displayName: Cluster name
             path: clusterName
             x-descriptors:
               - urn:alm:descriptor:text
-          - description: "Whether the Snyk controller scans images in the whole cluster or in a specific namespace. Valid values are: Cluster, Namespaced."
+          - description: "Whether the Snyk controller scans images in the whole cluster or in a specific namespace. Valid values are: Cluster, Namespaced. Defaults to scanning the whole cluster."
             displayName: Scope
             path: scope
             x-descriptors:
@@ -82,24 +73,29 @@ spec:
             path: integrationApi
             x-descriptors:
               - urn:alm:descriptor:text
-          - description: How much disk storage to reserve for the Snyk controller.
-            displayName: Temporary Storage Size
+          - description: How much disk storage to reserve for the Snyk controller. Defaults to 50Gi.
+            displayName: Temporary storage size
             path: temporaryStorageSize
             x-descriptors:
               - urn:alm:descriptor:text
-          - description: Pull policy for the image.
-            displayName: Image Pull Policy
+          - description: Pull policy for the Snyk controller image. Defaults to Always.
+            displayName: Image pull policy
             path: image.pullPolicy
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
-          - description: The registry repository for the Snyk controller's image.
-            displayName: Image repository
-            path: image.repository
+          - description: The registry repository name and tag for the Snyk controller image.
+            displayName: Image repository name and tag
+            path: image.image
             x-descriptors:
               - urn:alm:descriptor:text
-          - description: The tag for the Snyk controller's image.
-            displayName: Image tag
-            path: image.tag
+          - description: Pull policy for the init container image. Defaults to Always.
+            displayName: Init container image pull policy
+            path: initContainerImage.pullPolicy
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
+          - description: The registry repository name and tag for the Snyk controller init container image.
+            displayName: Init container image repository name and tag
+            path: initContainerImage.image
             x-descriptors:
               - urn:alm:descriptor:text
         version: v1alpha1
@@ -229,7 +225,7 @@ spec:
                   control-plane: controller-manager
               spec:
                 containers:
-                  - image: registry.hub.docker.com/snyk/kubernetes-operator:1.40.3-pre1
+                  - image: registry.connect.redhat.com/snyk/kubernetes-operator:1.40.3
                     name: operator
                     resources:
                       limits:
@@ -238,6 +234,21 @@ spec:
                       requests:
                         cpu: 100m
                         memory: 100Mi
+                    env:
+                      - name: WATCH_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: POD_NAME
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.name
+                      - name: OPERATOR_NAME
+                        value: snyk-operator
+                      - name: RELATED_IMAGE_DEPLOYMENT
+                        value: registry.connect.redhat.com/snyk/kubernetes-monitor:1.40.3
+                      - name: RELATED_IMAGE_DEPLOYMENT_INIT
+                        value: registry.access.redhat.com/ubi8-minimal:latest
                   - args:
                       - --secure-listen-address=0.0.0.0:8443
                       - --upstream=http://127.0.0.1:8080/
@@ -287,4 +298,4 @@ spec:
   maturity: stable
   provider:
     name: Snyk Ltd.
-  version: 1.40.3
+  version: 1.41.0

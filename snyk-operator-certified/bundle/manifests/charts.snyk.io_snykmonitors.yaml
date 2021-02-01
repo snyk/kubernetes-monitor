@@ -41,9 +41,7 @@ spec:
               properties:
                 pullPolicy:
                   type: string
-                repository:
-                  type: string
-                tag:
+                image:
                   type: string
               type: object
             scope:
@@ -63,9 +61,9 @@ spec:
               type: object
             initContainerImage:
               properties:
-                repository:
+                image:
                   type: string
-                tag:
+                pullPolicy:
                   type: string
               type: object
         status:

@@ -22,8 +22,8 @@ spec:
       restartPolicy: Always
       initContainers:
         - name: volume-permissions
-          image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
-          command : ['sh', '-c', 'chmod -R g+rwX /var/tmp || true']
+          image: "{{ .Values.initContainerImage.image }}"
+          command: ['sh', '-c', 'chmod -R g+rwX /var/tmp || true']
           volumeMounts:
             - name: temporary-storage
               mountPath: "/var/tmp"
@@ -37,7 +37,7 @@ spec:
                 - ALL
       containers:
         - name: {{ include "snyk-monitor.name" . }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.image }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File

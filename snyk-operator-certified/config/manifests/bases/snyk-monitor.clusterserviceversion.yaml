@@ -35,7 +35,7 @@ metadata:
     capabilities: Basic Install
     categories: Developer Tools, Security
     certified: "true"
-    containerImage: registry.hub.docker.com/snyk/kubernetes-operator:1.40.3-pre1
+    containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.40.3
     createdAt: "2020-08-28T15:20:21Z"
     description: A Kubernetes Operator for creating and managing Snyk controller instances.
     operators.operatorframework.io/builder: operator-sdk-v1.3.0
