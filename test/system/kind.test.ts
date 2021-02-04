@@ -122,7 +122,7 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
     });
 
   nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/dependency-graph')
+    .post('/api/v1/scan-results')
     .times(1)
     .replyWithError({
       code: 'ECONNRESET',
@@ -130,11 +130,51 @@ tap.test('Kubernetes-Monitor with KinD', async (t) => {
     });
 
   nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/dependency-graph')
+    .post('/api/v1/scan-results')
     .times(1)
     .replyWithError({
       code: 'EAI_AGAIN',
       message: 'getaddrinfo EAI_AGAIN kubernetes-upstream.snyk.io',
+    });
+
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/scan-results')
+    .times(1)
+    // Reply with an error (500) so that we can see that snyk-monitor falls back to sending to the /dependency-graph API.
+    .reply(500, (uri, requestBody: transmitterTypes.ScanResultsPayload) => {
+      t.ok('metadata' in requestBody, 'metadata is present in scan results payload');
+      // TODO: this is weird, why is agentId present in two places?
+      t.ok('agentId' in requestBody, 'agent ID is present in scan results payload');
+      t.ok(
+        'metadata' in requestBody && 'agentId' in requestBody.metadata,
+        'agent ID is present in scan results payload',
+      );
+      t.ok('imageLocator' in requestBody, 'image locator is present in scan results payload');
+      t.ok(
+        'cluster' in requestBody.imageLocator &&
+          'name' in requestBody.imageLocator &&
+          'imageId' in requestBody.imageLocator &&
+          'namespace' in requestBody.imageLocator &&
+          'type' in requestBody.imageLocator &&
+          'userLocator' in requestBody.imageLocator,
+        'all properties are present in the image locator',
+      );
+      t.ok(
+        'scanResults' in requestBody &&
+          Array.isArray(requestBody.scanResults),
+        'scan results is in payload and has the right type',
+      );
+
+      const scanResultsFixture = readFileSync(
+        pathJoin(__dirname, 'java-scan-results-request.json'),
+        { encoding: 'utf8' },
+      );
+      const expectedScanResults = JSON.parse(scanResultsFixture);
+      t.deepEqual(
+        requestBody.scanResults,
+        expectedScanResults,
+        'scan results match',
+      );
     });
 
   nock('https://kubernetes-upstream.snyk.io')

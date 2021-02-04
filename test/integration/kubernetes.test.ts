@@ -1,5 +1,6 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import { exec } from 'child-process-promise';
+import { Fact, FactType } from 'snyk-docker-plugin';
 import * as setup from '../setup';
 import * as tap from 'tap';
 import { WorkloadKind } from '../../src/supervisor/types';
@@ -8,7 +9,7 @@ import {
   validateUpstreamStoredData,
   validateUpstreamStoredMetadata,
   getUpstreamResponseBody,
-  validateUpstreamStoredDepGraphs,
+  validateUpstreamStoredScanResults,
 } from '../helpers/kubernetes-upstream';
 import {
   validateSecureConfiguration,
@@ -99,7 +100,7 @@ tap.test('create local container registry and push an image', async (t) => {
 });
 
 tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
-  t.plan(7);
+  t.plan(8);
 
   console.log(`Begin polling kubernetes-upstream for the expected workloads with integration ID ${integrationId}...`);
 
@@ -126,21 +127,39 @@ tap.test('snyk-monitor sends data to kubernetes-upstream', async (t) => {
   };
 
   // We don't want to spam kubernetes-upstream with requests; do it infrequently
-  const depGraphTestResult = await validateUpstreamStoredData(
+  const workloadTestResult = await validateUpstreamStoredData(
     validatorFn, `api/v2/workloads/${integrationId}/Default cluster/services`);
-  t.ok(depGraphTestResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
+  t.ok(workloadTestResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
   const workloadMetadataResult = await validateUpstreamStoredMetadata(metaValidator,
     `api/v1/workload/${integrationId}/Default cluster/services/Deployment/redis`);
   t.ok(workloadMetadataResult, 'snyk-monitor sent expected metadata in the expected timeframe');
 
-  const busyboxDepGraphPath = `api/v1/dependency-graphs/${integrationId}/Default%20cluster/services/Deployment/busybox`;
-  const depGraphScratchImage = await getUpstreamResponseBody(busyboxDepGraphPath);
-  t.ok('dependencyGraphResults' in depGraphScratchImage, 'upstream response contains dep graph results');
-  t.ok('busybox' in depGraphScratchImage.dependencyGraphResults, 'busybox was scanned');
-  const busyboxPluginResult = JSON.parse(depGraphScratchImage.dependencyGraphResults.busybox);
-  t.same(busyboxPluginResult.package.packageFormatVersion, 'linux:0.0.1', 'the version of the package format');
-  t.same(busyboxPluginResult.package.targetOS, {name: 'unknown', version: '0.0', prettyName: ''}, 'busybox operating system unknown');
-  t.same(busyboxPluginResult.plugin.packageManager, 'linux', 'linux is the default package manager for scratch containers');
+  const busyboxScanResultsPath = `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/busybox`;
+  const scanResultsScratchImage = await getUpstreamResponseBody(busyboxScanResultsPath);
+  t.ok('workloadScanResults' in scanResultsScratchImage, 'upstream response contains scan results');
+  t.ok('busybox' in scanResultsScratchImage.workloadScanResults, 'busybox was scanned');
+
+  const busyboxPluginResult = scanResultsScratchImage.workloadScanResults.busybox;
+  t.ok(Array.isArray(busyboxPluginResult), 'received a collection of scan results for busybox');
+
+  const osScanResult = busyboxPluginResult[0];
+  t.ok(
+    Array.isArray(osScanResult.facts) &&
+      containsFacts(osScanResult.facts, [
+        'depGraph',
+        'imageId',
+        'imageLayers',
+        'rootFs',
+      ]),
+    'contains scanned artifacts',
+  );
+  // This affects project identity so it's important to check for it!
+  t.same(
+    osScanResult.target.image,
+    'busybox@sha256:95cf004f559831017cdf4628aaf1bb30133677be8702a8c5f2994629f637a209',
+    'matches the expected scan result target',
+  );
+  t.same(osScanResult.identity.type, 'linux', 'linux is the default package manager for scratch containers');
 });
 
 tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async (t) => {
@@ -160,14 +179,14 @@ tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding a
         workload.type === WorkloadKind.Deployment) !== undefined;
   };
 
-  const depGraphsValidatorFn = (depGraphs?: {
+  const scanResultsValidatorFn = (workloadScanResults?: {
     node?: object;
     openjdk?: object;
   }) => {
     return (
-      depGraphs !== undefined &&
-      depGraphs.node !== undefined &&
-      depGraphs.openjdk !== undefined
+      workloadScanResults !== undefined &&
+      workloadScanResults.node !== undefined &&
+      workloadScanResults.openjdk !== undefined
     );
   };
 
@@ -175,43 +194,43 @@ tap.test('snyk-monitor sends binary hashes to kubernetes-upstream after adding a
     workloadLocatorValidatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(testResult, 'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
 
-  const depGraphsResult = await validateUpstreamStoredDepGraphs(
-    depGraphsValidatorFn, `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`
+  const isWorkloadStored = await validateUpstreamStoredScanResults(
+    scanResultsValidatorFn, `api/v1/scan-results/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`
   );
-  t.ok(depGraphsResult, 'snyk-monitor sent expected dependency graphs to kubernetes-upstream in the expected timeframe');
+  t.ok(isWorkloadStored, 'snyk-monitor sent expected scan results to kubernetes-upstream in the expected timeframe');
 
-  const depGraphResult = await getUpstreamResponseBody(
-    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
-  t.ok('dependencyGraphResults' in depGraphResult,
-    'expected dependencyGraphResults field to exist in /dependency-graphs response');
+  const scanResultsResponse = await getUpstreamResponseBody(
+    `api/v1/scan-results/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  t.ok('workloadScanResults' in scanResultsResponse,
+    'expected workloadScanResults field to exist in /scan-results response');
 
-  const nodePluginResult = JSON.parse(depGraphResult.dependencyGraphResults.node);
-  t.ok('imageMetadata' in nodePluginResult,
-    'snyk-monitor sent expected data to kubernetes-upstream in the expected timeframe');
-  t.ok('hashes' in nodePluginResult, 'snyk-docker-plugin contains key-binary hashes');
-  t.equals(nodePluginResult.hashes.length, 1, 'one key-binary hash found in node image');
+  const nodePluginResult = scanResultsResponse.workloadScanResults.node;
+  const nodeOsScanResult = nodePluginResult[0];
+  const nodeHashes = nodeOsScanResult.facts.find((fact) => fact.type === 'keyBinariesHashes').data;
+  t.equals(nodeHashes.length, 1, 'one key-binary hash found in node image');
   t.equals(
-    nodePluginResult.hashes[0],
+    nodeHashes[0],
     '6d5847d3cd69dfdaaf9dd2aa8a3d30b1a9b3bfa529a1f5c902a511e1aa0b8f55',
     'SHA256 for whatever Node is on node:lts-alpine3.11',
   );
 
-  const openjdkPluginResult = JSON.parse(depGraphResult.dependencyGraphResults.openjdk);
-  t.ok('hashes' in openjdkPluginResult, 'snyk-docker-plugin contains key-binary hashes');
-  t.equals(openjdkPluginResult.hashes.length, 2, 'two openjdk hashes found in node image');
+  const openjdkPluginResult = scanResultsResponse.workloadScanResults.openjdk;
+  const openjdkOsScanResult = openjdkPluginResult[0];
+  const openjdkHashes = openjdkOsScanResult.facts.find((fact) => fact.type === 'keyBinariesHashes').data;
+  t.equals(openjdkHashes.length, 2, 'two openjdk hashes found in node image');
   const expectedHashes = [
     '99503bfc6faed2da4fd35f36a5698d62676f886fb056fb353064cc78b1186195',
     '00a90dcce9ca53be1630a21538590cfe15676f57bfe8cf55de0099ee80bbeec4'
   ];
   t.deepEquals(
-    openjdkPluginResult.hashes,
+    openjdkHashes,
     expectedHashes,
     'hashes for openjdk found',
   );
 });
 
 tap.test('snyk-monitor pulls images from a private gcr.io registry and sends data to kubernetes-upstream', async (t) => {
-  t.plan(3);
+  t.plan(4);
 
   const deploymentName = 'debian-gcr-io';
   const namespace = 'services';
@@ -232,12 +251,23 @@ tap.test('snyk-monitor pulls images from a private gcr.io registry and sends dat
     validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(testResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
 
-  const depGraphResult = await getUpstreamResponseBody(
-    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
-  t.ok('dependencyGraphResults' in depGraphResult,
-    'expected dependencyGraphResults field to exist in /dependency-graphs response');
-  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
-    'snyk-monitor sent expected data to upstream in the expected timeframe');
+  const scanResultsResponse = await getUpstreamResponseBody(
+    `api/v1/scan-results/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  t.ok('workloadScanResults' in scanResultsResponse,
+    'expected workloadScanResults field to exist in /scan-results response');
+  const scanResults = scanResultsResponse.workloadScanResults[imageName];
+  t.ok(
+    Array.isArray(scanResults) &&
+      containsFacts(scanResults[0].facts, [
+        'depGraph',
+        'imageId',
+        'imageLayers',
+        'rootFs',
+        'imageOsReleasePrettyName',
+      ]),
+    'snyk-monitor sent expected data to upstream in the expected timeframe',
+  );
+  t.same(scanResults[0].identity.type, 'deb', 'expected scan result identity');
 });
 
 tap.test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-upstream', async (t) => {
@@ -267,11 +297,11 @@ tap.test('snyk-monitor pulls images from a private ECR and sends data to kuberne
     validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(testResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
 
-  const depGraphResult = await getUpstreamResponseBody(
-    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
-  t.ok('dependencyGraphResults' in depGraphResult,
-    'expected dependencyGraphResults field to exist in /dependency-graphs response');
-  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
+  const scanResultsResponse = await getUpstreamResponseBody(
+    `api/v1/scan-results/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  t.ok('workloadScanResults' in scanResultsResponse,
+    'expected workloadScanResults field to exist in /scan-results response');
+  t.ok(Array.isArray(scanResultsResponse.workloadScanResults[imageName]),
     'snyk-monitor sent expected data to upstream in the expected timeframe');
 });
 
@@ -286,7 +316,7 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
     t.pass('Not testing local container registry because we\'re not running in KinD');
     return;
   }
-  t.plan(3);
+  t.plan(4);
 
   const deploymentName = 'python-local';
   const namespace = 'services';
@@ -311,13 +341,26 @@ tap.test('snyk-monitor pulls images from a local registry and sends data to kube
     validatorFn, `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`);
   t.ok(testResult, 'snyk-monitor sent expected data to upstream in the expected timeframe');
 
-  const depGraphResult = await getUpstreamResponseBody(
-    `api/v1/dependency-graphs/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
+  const scanResultsResponse = await getUpstreamResponseBody(
+    `api/v1/scan-results/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentName}`);
 
-  t.ok('dependencyGraphResults' in depGraphResult,
-  'expected dependencyGraphResults field to exist in /dependency-graphs response');
-  t.ok('imageMetadata' in JSON.parse(depGraphResult.dependencyGraphResults[imageName]),
-    'snyk-monitor sent expected data to upstream in the expected time frame');
+  t.ok(
+    'workloadScanResults' in scanResultsResponse,
+    'expected workloadScanResults field to exist in /scan-results response',
+  );
+  const scanResults = scanResultsResponse.workloadScanResults[imageName];
+  t.ok(
+    Array.isArray(scanResults) &&
+      containsFacts(scanResults[0].facts, [
+        'depGraph',
+        'imageId',
+        'imageLayers',
+        'rootFs',
+        'imageOsReleasePrettyName',
+      ]),
+    'snyk-monitor sent expected data to upstream in the expected time frame',
+  );
+  t.same(scanResults[0].identity.type, 'deb', 'expected scan result identity');
 });
 
 tap.test('snyk-monitor sends deleted workload to kubernetes-upstream', async (t) => {
@@ -448,3 +491,7 @@ tap.test('notify upstream of deleted pods that have no OwnerReference', async (t
     'snyk-monitor sends deleted workloads to upstream for pods without OwnerReference',
   );
 });
+
+function containsFacts(facts: Fact[], factTypes: FactType[]): boolean {
+  return facts.every((fact) => factTypes.includes(fact.type));
+}

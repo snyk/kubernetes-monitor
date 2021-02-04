@@ -106,6 +106,7 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
         imageWithTag: imageName,
         imageWithDigest: imageWithDigest,
         pluginResult: result,
+        scanResults: pluginResponse.scanResults,
       });
     } catch (error) {
       logger.warn({error, image: imageName}, 'failed to scan image');

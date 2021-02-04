@@ -1,0 +1,4370 @@
+[
+  {
+    "facts": [
+      {
+        "type": "depGraph",
+        "data": {
+          "schemaVersion": "1.2.0",
+          "pkgManager": {
+            "name": "deb",
+            "repositories": [{ "alias": "debian:8" }]
+          },
+          "pkgs": [
+            {
+              "id": "docker-image|java@latest",
+              "info": { "name": "docker-image|java", "version": "latest" }
+            },
+            {
+              "id": "acl@2.2.52-2",
+              "info": { "name": "acl", "version": "2.2.52-2" }
+            },
+            {
+              "id": "adduser@3.113+nmu3",
+              "info": { "name": "adduser", "version": "3.113+nmu3" }
+            },
+            {
+              "id": "gcc-4.9/libstdc++6@4.9.2-10",
+              "info": { "name": "gcc-4.9/libstdc++6", "version": "4.9.2-10" }
+            },
+            {
+              "id": "apt/libapt-pkg4.12@1.0.9.8.4",
+              "info": { "name": "apt/libapt-pkg4.12", "version": "1.0.9.8.4" }
+            },
+            {
+              "id": "debian-archive-keyring@2014.3",
+              "info": { "name": "debian-archive-keyring", "version": "2014.3" }
+            },
+            {
+              "id": "gnupg@1.4.18-7+deb8u3",
+              "info": { "name": "gnupg", "version": "1.4.18-7+deb8u3" }
+            },
+            {
+              "id": "apt@1.0.9.8.4",
+              "info": { "name": "apt", "version": "1.0.9.8.4" }
+            },
+            {
+              "id": "avahi/libavahi-glib1@0.6.31-5",
+              "info": { "name": "avahi/libavahi-glib1", "version": "0.6.31-5" }
+            },
+            {
+              "id": "base-files@8+deb8u7",
+              "info": { "name": "base-files", "version": "8+deb8u7" }
+            },
+            {
+              "id": "cdebconf/libdebconfclient0@0.192",
+              "info": {
+                "name": "cdebconf/libdebconfclient0",
+                "version": "0.192"
+              }
+            },
+            {
+              "id": "base-passwd@3.5.37",
+              "info": { "name": "base-passwd", "version": "3.5.37" }
+            },
+            {
+              "id": "mawk@1.3.3-17",
+              "info": { "name": "mawk", "version": "1.3.3-17" }
+            },
+            {
+              "id": "dash/dash@0.5.7-4+b1",
+              "info": { "name": "dash/dash", "version": "0.5.7-4+b1" }
+            },
+            {
+              "id": "ncurses/libncurses5@5.9+20140913-1+b1",
+              "info": {
+                "name": "ncurses/libncurses5",
+                "version": "5.9+20140913-1+b1"
+              }
+            },
+            {
+              "id": "bash@4.3-11+deb8u1",
+              "info": { "name": "bash", "version": "4.3-11+deb8u1" }
+            },
+            {
+              "id": "bzip2/bzip2@1.0.6-7+b3",
+              "info": { "name": "bzip2/bzip2", "version": "1.0.6-7+b3" }
+            },
+            {
+              "id": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1",
+              "info": {
+                "name": "python2.7/libpython2.7-stdlib",
+                "version": "2.7.9-2+deb8u1"
+              }
+            },
+            {
+              "id": "python-defaults/libpython-stdlib@2.7.9-1",
+              "info": {
+                "name": "python-defaults/libpython-stdlib",
+                "version": "2.7.9-1"
+              }
+            },
+            {
+              "id": "python2.7/python2.7-minimal@2.7.9-2+deb8u1",
+              "info": {
+                "name": "python2.7/python2.7-minimal",
+                "version": "2.7.9-2+deb8u1"
+              }
+            },
+            {
+              "id": "python-defaults/python-minimal@2.7.9-1",
+              "info": {
+                "name": "python-defaults/python-minimal",
+                "version": "2.7.9-1"
+              }
+            },
+            {
+              "id": "mime-support@3.58",
+              "info": { "name": "mime-support", "version": "3.58" }
+            },
+            {
+              "id": "ncurses/libncursesw5@5.9+20140913-1+b1",
+              "info": {
+                "name": "ncurses/libncursesw5",
+                "version": "5.9+20140913-1+b1"
+              }
+            },
+            {
+              "id": "openssl/libssl1.0.0@1.0.1t-1+deb8u5",
+              "info": {
+                "name": "openssl/libssl1.0.0",
+                "version": "1.0.1t-1+deb8u5"
+              }
+            },
+            {
+              "id": "python2.7/libpython2.7-minimal@2.7.9-2+deb8u1",
+              "info": {
+                "name": "python2.7/libpython2.7-minimal",
+                "version": "2.7.9-2+deb8u1"
+              }
+            },
+            {
+              "id": "readline6/libreadline6@6.3-8+b3",
+              "info": {
+                "name": "readline6/libreadline6",
+                "version": "6.3-8+b3"
+              }
+            },
+            {
+              "id": "sqlite3/libsqlite3-0@3.8.7.1-1+deb8u2",
+              "info": {
+                "name": "sqlite3/libsqlite3-0",
+                "version": "3.8.7.1-1+deb8u2"
+              }
+            },
+            {
+              "id": "python2.7@2.7.9-2+deb8u1",
+              "info": { "name": "python2.7", "version": "2.7.9-2+deb8u1" }
+            },
+            {
+              "id": "python-defaults/python@2.7.9-1",
+              "info": { "name": "python-defaults/python", "version": "2.7.9-1" }
+            },
+            {
+              "id": "six/python-six@1.8.0-1",
+              "info": { "name": "six/python-six", "version": "1.8.0-1" }
+            },
+            {
+              "id": "configobj/python-configobj@5.0.6-1",
+              "info": {
+                "name": "configobj/python-configobj",
+                "version": "5.0.6-1"
+              }
+            },
+            {
+              "id": "bzr/python-bzrlib@2.6.0+bzr6595-6",
+              "info": {
+                "name": "bzr/python-bzrlib",
+                "version": "2.6.0+bzr6595-6"
+              }
+            },
+            {
+              "id": "bzr@2.6.0+bzr6595-6",
+              "info": { "name": "bzr", "version": "2.6.0+bzr6595-6" }
+            },
+            {
+              "id": "ca-certificates@20141019+deb8u2",
+              "info": {
+                "name": "ca-certificates",
+                "version": "20141019+deb8u2"
+              }
+            },
+            {
+              "id": "openssl@1.0.1t-1+deb8u5",
+              "info": { "name": "openssl", "version": "1.0.1t-1+deb8u5" }
+            },
+            {
+              "id": "nss/libnss3@2:3.26-1+debu8u1",
+              "info": { "name": "nss/libnss3", "version": "2:3.26-1+debu8u1" }
+            },
+            {
+              "id": "avahi/libavahi-client3@0.6.31-5",
+              "info": {
+                "name": "avahi/libavahi-client3",
+                "version": "0.6.31-5"
+              }
+            },
+            {
+              "id": "avahi/libavahi-common3@0.6.31-5",
+              "info": {
+                "name": "avahi/libavahi-common3",
+                "version": "0.6.31-5"
+              }
+            },
+            {
+              "id": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4",
+              "info": {
+                "name": "gnutls28/libgnutls-deb0-28",
+                "version": "3.3.8-6+deb8u4"
+              }
+            },
+            {
+              "id": "e2fsprogs/libcomerr2@1.42.12-2+b1",
+              "info": {
+                "name": "e2fsprogs/libcomerr2",
+                "version": "1.42.12-2+b1"
+              }
+            },
+            {
+              "id": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2",
+              "info": {
+                "name": "krb5/libk5crypto3",
+                "version": "1.12.1+dfsg-19+deb8u2"
+              }
+            },
+            {
+              "id": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2",
+              "info": {
+                "name": "krb5/libkrb5-3",
+                "version": "1.12.1+dfsg-19+deb8u2"
+              }
+            },
+            {
+              "id": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2",
+              "info": {
+                "name": "krb5/libgssapi-krb5-2",
+                "version": "1.12.1+dfsg-19+deb8u2"
+              }
+            },
+            {
+              "id": "cups/libcups2@1.7.5-11+deb8u1",
+              "info": { "name": "cups/libcups2", "version": "1.7.5-11+deb8u1" }
+            },
+            {
+              "id": "java-common@0.52",
+              "info": { "name": "java-common", "version": "0.52" }
+            },
+            {
+              "id": "lcms2/liblcms2-2@2.6-3+b3",
+              "info": { "name": "lcms2/liblcms2-2", "version": "2.6-3+b3" }
+            },
+            {
+              "id": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12",
+              "info": {
+                "name": "libjpeg-turbo/libjpeg62-turbo",
+                "version": "1:1.3.1-12"
+              }
+            },
+            {
+              "id": "libxi/libxi6@2:1.7.4-1+b2",
+              "info": { "name": "libxi/libxi6", "version": "2:1.7.4-1+b2" }
+            },
+            {
+              "id": "libxrender/libxrender1@1:0.9.8-1+b1",
+              "info": {
+                "name": "libxrender/libxrender1",
+                "version": "1:0.9.8-1+b1"
+              }
+            },
+            {
+              "id": "xorg/x11-common@1:7.7+7",
+              "info": { "name": "xorg/x11-common", "version": "1:7.7+7" }
+            },
+            {
+              "id": "libxtst/libxtst6@2:1.2.2-1+b1",
+              "info": { "name": "libxtst/libxtst6", "version": "2:1.2.2-1+b1" }
+            },
+            {
+              "id": "nspr/libnspr4@2:4.12-1+debu8u1",
+              "info": { "name": "nspr/libnspr4", "version": "2:4.12-1+debu8u1" }
+            },
+            {
+              "id": "pcsc-lite/libpcsclite1@1.8.13-1+deb8u1",
+              "info": {
+                "name": "pcsc-lite/libpcsclite1",
+                "version": "1.8.13-1+deb8u1"
+              }
+            },
+            {
+              "id": "insserv@1.14.0-5",
+              "info": { "name": "insserv", "version": "1.14.0-5" }
+            },
+            {
+              "id": "startpar@0.59-3",
+              "info": { "name": "startpar", "version": "0.59-3" }
+            },
+            {
+              "id": "sysvinit/sysvinit-utils@2.88dsf-59",
+              "info": {
+                "name": "sysvinit/sysvinit-utils",
+                "version": "2.88dsf-59"
+              }
+            },
+            {
+              "id": "sysvinit/sysv-rc@2.88dsf-59",
+              "info": { "name": "sysvinit/sysv-rc", "version": "2.88dsf-59" }
+            },
+            {
+              "id": "util-linux/libblkid1@2.25.2-6",
+              "info": { "name": "util-linux/libblkid1", "version": "2.25.2-6" }
+            },
+            {
+              "id": "util-linux/libmount1@2.25.2-6",
+              "info": { "name": "util-linux/libmount1", "version": "2.25.2-6" }
+            },
+            {
+              "id": "util-linux/libsmartcols1@2.25.2-6",
+              "info": {
+                "name": "util-linux/libsmartcols1",
+                "version": "2.25.2-6"
+              }
+            },
+            {
+              "id": "util-linux/mount@2.25.2-6",
+              "info": { "name": "util-linux/mount", "version": "2.25.2-6" }
+            },
+            {
+              "id": "sysvinit/initscripts@2.88dsf-59",
+              "info": {
+                "name": "sysvinit/initscripts",
+                "version": "2.88dsf-59"
+              }
+            },
+            {
+              "id": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1",
+              "info": {
+                "name": "openjdk-8/openjdk-8-jre-headless",
+                "version": "8u111-b14-2~bpo8+1"
+              }
+            },
+            {
+              "id": "ca-certificates-java@20140324",
+              "info": { "name": "ca-certificates-java", "version": "20140324" }
+            },
+            {
+              "id": "cryptsetup/libcryptsetup4@2:1.6.6-5",
+              "info": {
+                "name": "cryptsetup/libcryptsetup4",
+                "version": "2:1.6.6-5"
+              }
+            },
+            {
+              "id": "libidn/libidn11@1.29-1+deb8u2",
+              "info": { "name": "libidn/libidn11", "version": "1.29-1+deb8u2" }
+            },
+            {
+              "id": "libgcrypt20@1.6.3-2+deb8u2",
+              "info": { "name": "libgcrypt20", "version": "1.6.3-2+deb8u2" }
+            },
+            {
+              "id": "libssh2/libssh2-1@1.4.3-4.1+deb8u1",
+              "info": {
+                "name": "libssh2/libssh2-1",
+                "version": "1.4.3-4.1+deb8u1"
+              }
+            },
+            {
+              "id": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2",
+              "info": {
+                "name": "openldap/libldap-2.4-2",
+                "version": "2.4.40+dfsg-1+deb8u2"
+              }
+            },
+            {
+              "id": "nettle/libhogweed2@2.7.1-5+deb8u2",
+              "info": {
+                "name": "nettle/libhogweed2",
+                "version": "2.7.1-5+deb8u2"
+              }
+            },
+            {
+              "id": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1",
+              "info": {
+                "name": "rtmpdump/librtmp1",
+                "version": "2.4+20150115.gita107cef-1"
+              }
+            },
+            {
+              "id": "curl/libcurl3@7.38.0-4+deb8u5",
+              "info": { "name": "curl/libcurl3", "version": "7.38.0-4+deb8u5" }
+            },
+            {
+              "id": "curl@7.38.0-4+deb8u5",
+              "info": { "name": "curl", "version": "7.38.0-4+deb8u5" }
+            },
+            {
+              "id": "liblocale-gettext-perl/liblocale-gettext-perl@1.05-8+b1",
+              "info": {
+                "name": "liblocale-gettext-perl/liblocale-gettext-perl",
+                "version": "1.05-8+b1"
+              }
+            },
+            {
+              "id": "libtext-charwidth-perl/libtext-charwidth-perl@0.04-7+b3",
+              "info": {
+                "name": "libtext-charwidth-perl/libtext-charwidth-perl",
+                "version": "0.04-7+b3"
+              }
+            },
+            {
+              "id": "libtext-iconv-perl/libtext-iconv-perl@1.7-5+b2",
+              "info": {
+                "name": "libtext-iconv-perl/libtext-iconv-perl",
+                "version": "1.7-5+b2"
+              }
+            },
+            {
+              "id": "libtext-wrapi18n-perl@0.06-7",
+              "info": { "name": "libtext-wrapi18n-perl", "version": "0.06-7" }
+            },
+            {
+              "id": "debconf/debconf-i18n@1.5.56",
+              "info": { "name": "debconf/debconf-i18n", "version": "1.5.56" }
+            },
+            {
+              "id": "gnupg/gpgv@1.4.18-7+deb8u3",
+              "info": { "name": "gnupg/gpgv", "version": "1.4.18-7+deb8u3" }
+            },
+            {
+              "id": "diffutils/diffutils@1:3.3-1+b1",
+              "info": { "name": "diffutils/diffutils", "version": "1:3.3-1+b1" }
+            },
+            {
+              "id": "e2fsprogs/e2fslibs@1.42.12-2+b1",
+              "info": {
+                "name": "e2fsprogs/e2fslibs",
+                "version": "1.42.12-2+b1"
+              }
+            },
+            {
+              "id": "e2fsprogs/libss2@1.42.12-2+b1",
+              "info": { "name": "e2fsprogs/libss2", "version": "1.42.12-2+b1" }
+            },
+            {
+              "id": "util-linux@2.25.2-6",
+              "info": { "name": "util-linux", "version": "2.25.2-6" }
+            },
+            {
+              "id": "e2fsprogs/e2fsprogs@1.42.12-2+b1",
+              "info": {
+                "name": "e2fsprogs/e2fsprogs",
+                "version": "1.42.12-2+b1"
+              }
+            },
+            {
+              "id": "elfutils/libelf1@0.159-4.2",
+              "info": { "name": "elfutils/libelf1", "version": "0.159-4.2" }
+            },
+            {
+              "id": "findutils/findutils@4.4.2-9+b1",
+              "info": { "name": "findutils/findutils", "version": "4.4.2-9+b1" }
+            },
+            {
+              "id": "fonts-dejavu/fonts-dejavu-extra@2.34-1",
+              "info": {
+                "name": "fonts-dejavu/fonts-dejavu-extra",
+                "version": "2.34-1"
+              }
+            },
+            {
+              "id": "gcc-4.8/gcc-4.8-base@4.8.4-1",
+              "info": { "name": "gcc-4.8/gcc-4.8-base", "version": "4.8.4-1" }
+            },
+            {
+              "id": "gconf/gconf-service@3.2.6-3",
+              "info": { "name": "gconf/gconf-service", "version": "3.2.6-3" }
+            },
+            {
+              "id": "gconf/gconf2@3.2.6-3",
+              "info": { "name": "gconf/gconf2", "version": "3.2.6-3" }
+            },
+            {
+              "id": "gconf/libgconf-2-4@3.2.6-3",
+              "info": { "name": "gconf/libgconf-2-4", "version": "3.2.6-3" }
+            },
+            {
+              "id": "gconf/libgconf2-4@3.2.6-3",
+              "info": { "name": "gconf/libgconf2-4", "version": "3.2.6-3" }
+            },
+            {
+              "id": "curl/libcurl3-gnutls@7.38.0-4+deb8u5",
+              "info": {
+                "name": "curl/libcurl3-gnutls",
+                "version": "7.38.0-4+deb8u5"
+              }
+            },
+            {
+              "id": "git/git-man@1:2.1.4-2.1+deb8u2",
+              "info": { "name": "git/git-man", "version": "1:2.1.4-2.1+deb8u2" }
+            },
+            {
+              "id": "gdbm/libgdbm3@1.8.3-13.1",
+              "info": { "name": "gdbm/libgdbm3", "version": "1.8.3-13.1" }
+            },
+            {
+              "id": "perl/perl-modules@5.20.2-3+deb8u6",
+              "info": {
+                "name": "perl/perl-modules",
+                "version": "5.20.2-3+deb8u6"
+              }
+            },
+            {
+              "id": "perl@5.20.2-3+deb8u6",
+              "info": { "name": "perl", "version": "5.20.2-3+deb8u6" }
+            },
+            {
+              "id": "liberror-perl@0.17-1.1",
+              "info": { "name": "liberror-perl", "version": "0.17-1.1" }
+            },
+            {
+              "id": "git@1:2.1.4-2.1+deb8u2",
+              "info": { "name": "git", "version": "1:2.1.4-2.1+deb8u2" }
+            },
+            {
+              "id": "glib2.0/libglib2.0-data@2.42.1-1",
+              "info": {
+                "name": "glib2.0/libglib2.0-data",
+                "version": "2.42.1-1"
+              }
+            },
+            {
+              "id": "glibc/libc-bin@2.19-18+deb8u7",
+              "info": { "name": "glibc/libc-bin", "version": "2.19-18+deb8u7" }
+            },
+            {
+              "id": "gnome-mime-data@2.18.0-1",
+              "info": { "name": "gnome-mime-data", "version": "2.18.0-1" }
+            },
+            {
+              "id": "avahi/libavahi-common-data@0.6.31-5",
+              "info": {
+                "name": "avahi/libavahi-common-data",
+                "version": "0.6.31-5"
+              }
+            },
+            {
+              "id": "dbus-glib/libdbus-glib-1-2@0.102-1",
+              "info": {
+                "name": "dbus-glib/libdbus-glib-1-2",
+                "version": "0.102-1"
+              }
+            },
+            {
+              "id": "gconf/gconf2-common@3.2.6-3",
+              "info": { "name": "gconf/gconf2-common", "version": "3.2.6-3" }
+            },
+            {
+              "id": "libxml2@2.9.1+dfsg1-5+deb8u4",
+              "info": { "name": "libxml2", "version": "2.9.1+dfsg1-5+deb8u4" }
+            },
+            {
+              "id": "cyrus-sasl2/libsasl2-modules-db@2.1.26.dfsg1-13+deb8u1",
+              "info": {
+                "name": "cyrus-sasl2/libsasl2-modules-db",
+                "version": "2.1.26.dfsg1-13+deb8u1"
+              }
+            },
+            {
+              "id": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1",
+              "info": {
+                "name": "cyrus-sasl2/libsasl2-2",
+                "version": "2.1.26.dfsg1-13+deb8u1"
+              }
+            },
+            {
+              "id": "libtasn1-6@4.2-3+deb8u2",
+              "info": { "name": "libtasn1-6", "version": "4.2-3+deb8u2" }
+            },
+            {
+              "id": "p11-kit/libp11-kit0@0.20.7-1",
+              "info": { "name": "p11-kit/libp11-kit0", "version": "0.20.7-1" }
+            },
+            {
+              "id": "libcap-ng/libcap-ng0@0.7.4-2",
+              "info": { "name": "libcap-ng/libcap-ng0", "version": "0.7.4-2" }
+            },
+            {
+              "id": "libgpg-error/libgpg-error0@1.17-3",
+              "info": {
+                "name": "libgpg-error/libgpg-error0",
+                "version": "1.17-3"
+              }
+            },
+            {
+              "id": "systemd/libsystemd0@215-17+deb8u6",
+              "info": {
+                "name": "systemd/libsystemd0",
+                "version": "215-17+deb8u6"
+              }
+            },
+            {
+              "id": "dbus@1.8.22-0+deb8u1",
+              "info": { "name": "dbus", "version": "1.8.22-0+deb8u1" }
+            },
+            {
+              "id": "dbus/dbus-x11@1.8.22-0+deb8u1",
+              "info": { "name": "dbus/dbus-x11", "version": "1.8.22-0+deb8u1" }
+            },
+            {
+              "id": "psmisc@22.21-2",
+              "info": { "name": "psmisc", "version": "22.21-2" }
+            },
+            {
+              "id": "shared-mime-info@1.3-1",
+              "info": { "name": "shared-mime-info", "version": "1.3-1" }
+            },
+            {
+              "id": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6",
+              "info": {
+                "name": "gnome-vfs/libgnomevfs2-common",
+                "version": "1:2.24.4-6"
+              }
+            },
+            {
+              "id": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1",
+              "info": {
+                "name": "gnome-vfs/libgnomevfs2-0",
+                "version": "1:2.24.4-6+b1"
+              }
+            },
+            {
+              "id": "gnome-vfs/libgnomevfs2-extra@1:2.24.4-6+b1",
+              "info": {
+                "name": "gnome-vfs/libgnomevfs2-extra",
+                "version": "1:2.24.4-6+b1"
+              }
+            },
+            {
+              "id": "libusb/libusb-0.1-4@2:0.1.12-25",
+              "info": {
+                "name": "libusb/libusb-0.1-4",
+                "version": "2:0.1.12-25"
+              }
+            },
+            {
+              "id": "readline6/readline-common@6.3-8",
+              "info": {
+                "name": "readline6/readline-common",
+                "version": "6.3-8"
+              }
+            },
+            {
+              "id": "grep@2.20-4.1",
+              "info": { "name": "grep", "version": "2.20-4.1" }
+            },
+            {
+              "id": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1",
+              "info": {
+                "name": "gtk+2.0/libgtk2.0-0",
+                "version": "2.24.25-3+deb8u1"
+              }
+            },
+            {
+              "id": "gtk+2.0/libgtk2.0-common@2.24.25-3+deb8u1",
+              "info": {
+                "name": "gtk+2.0/libgtk2.0-common",
+                "version": "2.24.25-3+deb8u1"
+              }
+            },
+            {
+              "id": "gtk+2.0/libgtk2.0-bin@2.24.25-3+deb8u1",
+              "info": {
+                "name": "gtk+2.0/libgtk2.0-bin",
+                "version": "2.24.25-3+deb8u1"
+              }
+            },
+            {
+              "id": "gzip@1.6-4",
+              "info": { "name": "gzip", "version": "1.6-4" }
+            },
+            {
+              "id": "hicolor-icon-theme@0.13-1",
+              "info": { "name": "hicolor-icon-theme", "version": "0.13-1" }
+            },
+            {
+              "id": "hostname@3.15",
+              "info": { "name": "hostname", "version": "3.15" }
+            },
+            {
+              "id": "netbase@5.3",
+              "info": { "name": "netbase", "version": "5.3" }
+            },
+            {
+              "id": "inetutils/inetutils-ping@2:1.9.2.39.3a460-3",
+              "info": {
+                "name": "inetutils/inetutils-ping",
+                "version": "2:1.9.2.39.3a460-3"
+              }
+            },
+            {
+              "id": "slang2/libslang2@2.3.0-2",
+              "info": { "name": "slang2/libslang2", "version": "2.3.0-2" }
+            },
+            {
+              "id": "tzdata@2016j-0+deb8u1",
+              "info": { "name": "tzdata", "version": "2016j-0+deb8u1" }
+            },
+            {
+              "id": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1",
+              "info": {
+                "name": "lvm2/dmsetup",
+                "version": "2:1.02.90-2.2+deb8u1"
+              }
+            },
+            {
+              "id": "systemd/libudev1@215-17+deb8u6",
+              "info": { "name": "systemd/libudev1", "version": "215-17+deb8u6" }
+            },
+            {
+              "id": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1",
+              "info": {
+                "name": "lvm2/libdevmapper1.02.1",
+                "version": "2:1.02.90-2.2+deb8u1"
+              }
+            },
+            {
+              "id": "kmod/libkmod2@18-3",
+              "info": { "name": "kmod/libkmod2", "version": "18-3" }
+            },
+            {
+              "id": "libcap2@1:2.24-8",
+              "info": { "name": "libcap2", "version": "1:2.24-8" }
+            },
+            {
+              "id": "libcap2/libcap2-bin@1:2.24-8",
+              "info": { "name": "libcap2/libcap2-bin", "version": "1:2.24-8" }
+            },
+            {
+              "id": "procps/libprocps3@2:3.3.9-9",
+              "info": { "name": "procps/libprocps3", "version": "2:3.3.9-9" }
+            },
+            {
+              "id": "procps@2:3.3.9-9",
+              "info": { "name": "procps", "version": "2:3.3.9-9" }
+            },
+            {
+              "id": "systemd/udev@215-17+deb8u6",
+              "info": { "name": "systemd/udev", "version": "215-17+deb8u6" }
+            },
+            {
+              "id": "systemd@215-17+deb8u6",
+              "info": { "name": "systemd", "version": "215-17+deb8u6" }
+            },
+            {
+              "id": "systemd/systemd-sysv@215-17+deb8u6",
+              "info": {
+                "name": "systemd/systemd-sysv",
+                "version": "215-17+deb8u6"
+              }
+            },
+            {
+              "id": "init-system-helpers/init@1.22",
+              "info": { "name": "init-system-helpers/init", "version": "1.22" }
+            },
+            {
+              "id": "iproute2@3.16.0-2",
+              "info": { "name": "iproute2", "version": "3.16.0-2" }
+            },
+            {
+              "id": "libbonobo/libbonobo2-0@2.32.1-3",
+              "info": {
+                "name": "libbonobo/libbonobo2-0",
+                "version": "2.32.1-3"
+              }
+            },
+            {
+              "id": "alsa-lib/libasound2-data@1.0.28-1",
+              "info": {
+                "name": "alsa-lib/libasound2-data",
+                "version": "1.0.28-1"
+              }
+            },
+            {
+              "id": "alsa-lib/libasound2@1.0.28-1",
+              "info": { "name": "alsa-lib/libasound2", "version": "1.0.28-1" }
+            },
+            {
+              "id": "libogg/libogg0@1.3.2-1",
+              "info": { "name": "libogg/libogg0", "version": "1.3.2-1" }
+            },
+            {
+              "id": "libtool/libltdl7@2.4.2-1.11+b1",
+              "info": { "name": "libtool/libltdl7", "version": "2.4.2-1.11+b1" }
+            },
+            {
+              "id": "libvorbis/libvorbis0a@1.3.4-2",
+              "info": { "name": "libvorbis/libvorbis0a", "version": "1.3.4-2" }
+            },
+            {
+              "id": "libvorbis/libvorbisfile3@1.3.4-2",
+              "info": {
+                "name": "libvorbis/libvorbisfile3",
+                "version": "1.3.4-2"
+              }
+            },
+            {
+              "id": "tdb/libtdb1@1.3.6-0+deb8u1",
+              "info": { "name": "tdb/libtdb1", "version": "1.3.6-0+deb8u1" }
+            },
+            {
+              "id": "libcanberra/libcanberra0@0.30-2.1",
+              "info": {
+                "name": "libcanberra/libcanberra0",
+                "version": "0.30-2.1"
+              }
+            },
+            {
+              "id": "libdrm/libdrm-intel1@2.4.58-2",
+              "info": { "name": "libdrm/libdrm-intel1", "version": "2.4.58-2" }
+            },
+            {
+              "id": "libdrm/libdrm-nouveau2@2.4.58-2",
+              "info": {
+                "name": "libdrm/libdrm-nouveau2",
+                "version": "2.4.58-2"
+              }
+            },
+            {
+              "id": "libdrm/libdrm-radeon1@2.4.58-2",
+              "info": { "name": "libdrm/libdrm-radeon1", "version": "2.4.58-2" }
+            },
+            {
+              "id": "libgnome/libgnome-2-0@2.32.1-5",
+              "info": { "name": "libgnome/libgnome-2-0", "version": "2.32.1-5" }
+            },
+            {
+              "id": "libgnome/libgnome2-bin@2.32.1-5",
+              "info": {
+                "name": "libgnome/libgnome2-bin",
+                "version": "2.32.1-5"
+              }
+            },
+            {
+              "id": "libgnome/libgnome2-0@2.32.1-5",
+              "info": { "name": "libgnome/libgnome2-0", "version": "2.32.1-5" }
+            },
+            {
+              "id": "libbonobo/libbonobo2-common@2.32.1-3",
+              "info": {
+                "name": "libbonobo/libbonobo2-common",
+                "version": "2.32.1-3"
+              }
+            },
+            {
+              "id": "orbit2/liborbit-2-0@1:2.14.19-0.3",
+              "info": {
+                "name": "orbit2/liborbit-2-0",
+                "version": "1:2.14.19-0.3"
+              }
+            },
+            {
+              "id": "libgnome/libgnome2-common@2.32.1-5",
+              "info": {
+                "name": "libgnome/libgnome2-common",
+                "version": "2.32.1-5"
+              }
+            },
+            {
+              "id": "popt/libpopt0@1.16-10",
+              "info": { "name": "popt/libpopt0", "version": "1.16-10" }
+            },
+            {
+              "id": "libice/libice-dev@2:1.0.9-1+b1",
+              "info": { "name": "libice/libice-dev", "version": "2:1.0.9-1+b1" }
+            },
+            {
+              "id": "libpciaccess/libpciaccess0@0.13.2-3+b1",
+              "info": {
+                "name": "libpciaccess/libpciaccess0",
+                "version": "0.13.2-3+b1"
+              }
+            },
+            {
+              "id": "libpthread-stubs/libpthread-stubs0-dev@0.3-4",
+              "info": {
+                "name": "libpthread-stubs/libpthread-stubs0-dev",
+                "version": "0.3-4"
+              }
+            },
+            {
+              "id": "libsm/libsm-dev@2:1.2.2-1+b1",
+              "info": { "name": "libsm/libsm-dev", "version": "2:1.2.2-1+b1" }
+            },
+            {
+              "id": "libx11/libx11-dev@2:1.6.2-3",
+              "info": { "name": "libx11/libx11-dev", "version": "2:1.6.2-3" }
+            },
+            {
+              "id": "libx11/libx11-doc@2:1.6.2-3",
+              "info": { "name": "libx11/libx11-doc", "version": "2:1.6.2-3" }
+            },
+            {
+              "id": "libxau/libxau-dev@1:1.0.8-1",
+              "info": { "name": "libxau/libxau-dev", "version": "1:1.0.8-1" }
+            },
+            {
+              "id": "libxcb/libxcb1-dev@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb1-dev", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1",
+              "info": {
+                "name": "libxdmcp/libxdmcp-dev",
+                "version": "1:1.1.1-1+b1"
+              }
+            },
+            {
+              "id": "libice/libice6@2:1.0.9-1+b1",
+              "info": { "name": "libice/libice6", "version": "2:1.0.9-1+b1" }
+            },
+            {
+              "id": "x11proto-core/x11proto-core-dev@7.0.26-1",
+              "info": {
+                "name": "x11proto-core/x11proto-core-dev",
+                "version": "7.0.26-1"
+              }
+            },
+            {
+              "id": "libsm/libsm6@2:1.2.2-1+b1",
+              "info": { "name": "libsm/libsm6", "version": "2:1.2.2-1+b1" }
+            },
+            {
+              "id": "xorg-sgml-doctools@1:1.11-1",
+              "info": { "name": "xorg-sgml-doctools", "version": "1:1.11-1" }
+            },
+            {
+              "id": "x11proto-input/x11proto-input-dev@2.3.1-1",
+              "info": {
+                "name": "x11proto-input/x11proto-input-dev",
+                "version": "2.3.1-1"
+              }
+            },
+            {
+              "id": "x11proto-kb/x11proto-kb-dev@1.0.6-2",
+              "info": {
+                "name": "x11proto-kb/x11proto-kb-dev",
+                "version": "1.0.6-2"
+              }
+            },
+            {
+              "id": "xtrans/xtrans-dev@1.3.4-1",
+              "info": { "name": "xtrans/xtrans-dev", "version": "1.3.4-1" }
+            },
+            {
+              "id": "libxt/libxt6@1:1.1.4-1+b1",
+              "info": { "name": "libxt/libxt6", "version": "1:1.1.4-1+b1" }
+            },
+            {
+              "id": "libxt/libxt-dev@1:1.1.4-1+b1",
+              "info": { "name": "libxt/libxt-dev", "version": "1:1.1.4-1+b1" }
+            },
+            {
+              "id": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10",
+              "info": {
+                "name": "llvm-toolchain-3.5/libllvm3.5",
+                "version": "1:3.5-10"
+              }
+            },
+            {
+              "id": "explorercanvas/libjs-excanvas@0.r3-3",
+              "info": {
+                "name": "explorercanvas/libjs-excanvas",
+                "version": "0.r3-3"
+              }
+            },
+            {
+              "id": "mercurial/mercurial-common@3.1.2-2+deb8u3",
+              "info": {
+                "name": "mercurial/mercurial-common",
+                "version": "3.1.2-2+deb8u3"
+              }
+            },
+            {
+              "id": "mercurial@3.1.2-2+deb8u3",
+              "info": { "name": "mercurial", "version": "3.1.2-2+deb8u3" }
+            },
+            {
+              "id": "libdrm/libdrm2@2.4.58-2",
+              "info": { "name": "libdrm/libdrm2", "version": "2.4.58-2" }
+            },
+            {
+              "id": "libedit/libedit2@3.1-20140620-2",
+              "info": {
+                "name": "libedit/libedit2",
+                "version": "3.1-20140620-2"
+              }
+            },
+            {
+              "id": "mesa/libgl1-mesa-dri@10.3.2-1+deb8u1",
+              "info": {
+                "name": "mesa/libgl1-mesa-dri",
+                "version": "10.3.2-1+deb8u1"
+              }
+            },
+            {
+              "id": "acl/libacl1@2.2.52-2",
+              "info": { "name": "acl/libacl1", "version": "2.2.52-2" }
+            },
+            {
+              "id": "attr/libattr1@1:2.4.47-2",
+              "info": { "name": "attr/libattr1", "version": "1:2.4.47-2" }
+            },
+            {
+              "id": "audit/libaudit-common@1:2.4-1",
+              "info": { "name": "audit/libaudit-common", "version": "1:2.4-1" }
+            },
+            {
+              "id": "audit/libaudit1@1:2.4-1+b1",
+              "info": { "name": "audit/libaudit1", "version": "1:2.4-1+b1" }
+            },
+            {
+              "id": "bzip2/libbz2-1.0@1.0.6-7+b3",
+              "info": { "name": "bzip2/libbz2-1.0", "version": "1.0.6-7+b3" }
+            },
+            {
+              "id": "coreutils@8.23-4",
+              "info": { "name": "coreutils", "version": "8.23-4" }
+            },
+            {
+              "id": "db5.3/libdb5.3@5.3.28-9",
+              "info": { "name": "db5.3/libdb5.3", "version": "5.3.28-9" }
+            },
+            {
+              "id": "dbus/libdbus-1-3@1.8.22-0+deb8u1",
+              "info": {
+                "name": "dbus/libdbus-1-3",
+                "version": "1.8.22-0+deb8u1"
+              }
+            },
+            {
+              "id": "debconf@1.5.56",
+              "info": { "name": "debconf", "version": "1.5.56" }
+            },
+            {
+              "id": "debianutils/debianutils@4.4+b1",
+              "info": { "name": "debianutils/debianutils", "version": "4.4+b1" }
+            },
+            {
+              "id": "dpkg@1.17.27",
+              "info": { "name": "dpkg", "version": "1.17.27" }
+            },
+            {
+              "id": "expat/libexpat1@2.1.0-6+deb8u3",
+              "info": { "name": "expat/libexpat1", "version": "2.1.0-6+deb8u3" }
+            },
+            {
+              "id": "fontconfig/fontconfig-config@2.11.0-6.3+deb8u1",
+              "info": {
+                "name": "fontconfig/fontconfig-config",
+                "version": "2.11.0-6.3+deb8u1"
+              }
+            },
+            {
+              "id": "fontconfig/libfontconfig1@2.11.0-6.3+deb8u1",
+              "info": {
+                "name": "fontconfig/libfontconfig1",
+                "version": "2.11.0-6.3+deb8u1"
+              }
+            },
+            {
+              "id": "fonts-dejavu/fonts-dejavu-core@2.34-1",
+              "info": {
+                "name": "fonts-dejavu/fonts-dejavu-core",
+                "version": "2.34-1"
+              }
+            },
+            {
+              "id": "freetype/libfreetype6@2.5.2-3+deb8u1",
+              "info": {
+                "name": "freetype/libfreetype6",
+                "version": "2.5.2-3+deb8u1"
+              }
+            },
+            {
+              "id": "gcc-4.9/gcc-4.9-base@4.9.2-10",
+              "info": { "name": "gcc-4.9/gcc-4.9-base", "version": "4.9.2-10" }
+            },
+            {
+              "id": "gcc-4.9/libgcc1@1:4.9.2-10",
+              "info": { "name": "gcc-4.9/libgcc1", "version": "1:4.9.2-10" }
+            },
+            {
+              "id": "glib2.0/libglib2.0-0@2.42.1-1+b1",
+              "info": {
+                "name": "glib2.0/libglib2.0-0",
+                "version": "2.42.1-1+b1"
+              }
+            },
+            {
+              "id": "glibc/libc6@2.19-18+deb8u7",
+              "info": { "name": "glibc/libc6", "version": "2.19-18+deb8u7" }
+            },
+            {
+              "id": "glibc/multiarch-support@2.19-18+deb8u7",
+              "info": {
+                "name": "glibc/multiarch-support",
+                "version": "2.19-18+deb8u7"
+              }
+            },
+            {
+              "id": "gmp/libgmp10@2:6.0.0+dfsg-6",
+              "info": { "name": "gmp/libgmp10", "version": "2:6.0.0+dfsg-6" }
+            },
+            {
+              "id": "keyutils/libkeyutils1@1.5.9-5+b1",
+              "info": {
+                "name": "keyutils/libkeyutils1",
+                "version": "1.5.9-5+b1"
+              }
+            },
+            {
+              "id": "krb5/libkrb5support0@1.12.1+dfsg-19+deb8u2",
+              "info": {
+                "name": "krb5/libkrb5support0",
+                "version": "1.12.1+dfsg-19+deb8u2"
+              }
+            },
+            {
+              "id": "libffi/libffi6@3.1-2+b2",
+              "info": { "name": "libffi/libffi6", "version": "3.1-2+b2" }
+            },
+            {
+              "id": "libpng/libpng12-0@1.2.50-2+deb8u3",
+              "info": {
+                "name": "libpng/libpng12-0",
+                "version": "1.2.50-2+deb8u3"
+              }
+            },
+            {
+              "id": "libselinux/libselinux1@2.3-2",
+              "info": { "name": "libselinux/libselinux1", "version": "2.3-2" }
+            },
+            {
+              "id": "libsemanage/libsemanage-common@2.3-1",
+              "info": {
+                "name": "libsemanage/libsemanage-common",
+                "version": "2.3-1"
+              }
+            },
+            {
+              "id": "libsemanage/libsemanage1@2.3-1+b1",
+              "info": {
+                "name": "libsemanage/libsemanage1",
+                "version": "2.3-1+b1"
+              }
+            },
+            {
+              "id": "libsepol/libsepol1@2.3-2",
+              "info": { "name": "libsepol/libsepol1", "version": "2.3-2" }
+            },
+            {
+              "id": "libx11/libx11-6@2:1.6.2-3",
+              "info": { "name": "libx11/libx11-6", "version": "2:1.6.2-3" }
+            },
+            {
+              "id": "libx11/libx11-data@2:1.6.2-3",
+              "info": { "name": "libx11/libx11-data", "version": "2:1.6.2-3" }
+            },
+            {
+              "id": "libxau/libxau6@1:1.0.8-1",
+              "info": { "name": "libxau/libxau6", "version": "1:1.0.8-1" }
+            },
+            {
+              "id": "libxcb/libxcb1@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb1", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "libxdmcp/libxdmcp6@1:1.1.1-1+b1",
+              "info": {
+                "name": "libxdmcp/libxdmcp6",
+                "version": "1:1.1.1-1+b1"
+              }
+            },
+            {
+              "id": "libxext/libxext6@2:1.3.3-1",
+              "info": { "name": "libxext/libxext6", "version": "2:1.3.3-1" }
+            },
+            {
+              "id": "lsb/lsb-base@4.1+Debian13+nmu1",
+              "info": { "name": "lsb/lsb-base", "version": "4.1+Debian13+nmu1" }
+            },
+            {
+              "id": "ncurses/libtinfo5@5.9+20140913-1+b1",
+              "info": {
+                "name": "ncurses/libtinfo5",
+                "version": "5.9+20140913-1+b1"
+              }
+            },
+            {
+              "id": "nettle/libnettle4@2.7.1-5+deb8u2",
+              "info": {
+                "name": "nettle/libnettle4",
+                "version": "2.7.1-5+deb8u2"
+              }
+            },
+            {
+              "id": "pam/libpam-modules@1.1.8-3.1+deb8u2",
+              "info": {
+                "name": "pam/libpam-modules",
+                "version": "1.1.8-3.1+deb8u2"
+              }
+            },
+            {
+              "id": "pam/libpam-modules-bin@1.1.8-3.1+deb8u2",
+              "info": {
+                "name": "pam/libpam-modules-bin",
+                "version": "1.1.8-3.1+deb8u2"
+              }
+            },
+            {
+              "id": "pam/libpam0g@1.1.8-3.1+deb8u2",
+              "info": { "name": "pam/libpam0g", "version": "1.1.8-3.1+deb8u2" }
+            },
+            {
+              "id": "pcre3/libpcre3@2:8.35-3.3+deb8u4",
+              "info": {
+                "name": "pcre3/libpcre3",
+                "version": "2:8.35-3.3+deb8u4"
+              }
+            },
+            {
+              "id": "perl/perl-base@5.20.2-3+deb8u6",
+              "info": { "name": "perl/perl-base", "version": "5.20.2-3+deb8u6" }
+            },
+            {
+              "id": "sensible-utils@0.0.9",
+              "info": { "name": "sensible-utils", "version": "0.0.9" }
+            },
+            {
+              "id": "shadow/passwd@1:4.2-3+deb8u1",
+              "info": { "name": "shadow/passwd", "version": "1:4.2-3+deb8u1" }
+            },
+            {
+              "id": "tar@1.27.1-2+deb8u1",
+              "info": { "name": "tar", "version": "1.27.1-2+deb8u1" }
+            },
+            {
+              "id": "ucf@3.0030",
+              "info": { "name": "ucf", "version": "3.0030" }
+            },
+            {
+              "id": "ustr/libustr-1.0-1@1.0.4-3+b2",
+              "info": { "name": "ustr/libustr-1.0-1", "version": "1.0.4-3+b2" }
+            },
+            {
+              "id": "util-linux/libuuid1@2.25.2-6",
+              "info": { "name": "util-linux/libuuid1", "version": "2.25.2-6" }
+            },
+            {
+              "id": "xz-utils/liblzma5@5.1.1alpha+20120614-2+b3",
+              "info": {
+                "name": "xz-utils/liblzma5",
+                "version": "5.1.1alpha+20120614-2+b3"
+              }
+            },
+            {
+              "id": "zlib/zlib1g@1:1.2.8.dfsg-2+b1",
+              "info": { "name": "zlib/zlib1g", "version": "1:1.2.8.dfsg-2+b1" }
+            },
+            {
+              "id": "meta-common-packages@meta",
+              "info": { "name": "meta-common-packages", "version": "meta" }
+            },
+            {
+              "id": "ncurses/ncurses-base@5.9+20140913-1",
+              "info": {
+                "name": "ncurses/ncurses-base",
+                "version": "5.9+20140913-1"
+              }
+            },
+            {
+              "id": "ncurses/ncurses-bin@5.9+20140913-1+b1",
+              "info": {
+                "name": "ncurses/ncurses-bin",
+                "version": "5.9+20140913-1+b1"
+              }
+            },
+            {
+              "id": "openjdk-8/openjdk-8-jdk-headless@8u111-b14-2~bpo8+1",
+              "info": {
+                "name": "openjdk-8/openjdk-8-jdk-headless",
+                "version": "8u111-b14-2~bpo8+1"
+              }
+            },
+            {
+              "id": "giflib/libgif4@4.1.6-11+deb8u1",
+              "info": { "name": "giflib/libgif4", "version": "4.1.6-11+deb8u1" }
+            },
+            {
+              "id": "atk1.0/libatk1.0-data@2.14.0-1",
+              "info": { "name": "atk1.0/libatk1.0-data", "version": "2.14.0-1" }
+            },
+            {
+              "id": "atk1.0/libatk1.0-0@2.14.0-1",
+              "info": { "name": "atk1.0/libatk1.0-0", "version": "2.14.0-1" }
+            },
+            {
+              "id": "libxcb/libxcb-render0@1.10-3+b1",
+              "info": {
+                "name": "libxcb/libxcb-render0",
+                "version": "1.10-3+b1"
+              }
+            },
+            {
+              "id": "libxcb/libxcb-shm0@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb-shm0", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "pixman/libpixman-1-0@0.32.6-3",
+              "info": { "name": "pixman/libpixman-1-0", "version": "0.32.6-3" }
+            },
+            {
+              "id": "cairo/libcairo2@1.14.0-2.1+deb8u2",
+              "info": {
+                "name": "cairo/libcairo2",
+                "version": "1.14.0-2.1+deb8u2"
+              }
+            },
+            {
+              "id": "gdk-pixbuf/libgdk-pixbuf2.0-common@2.31.1-2+deb8u5",
+              "info": {
+                "name": "gdk-pixbuf/libgdk-pixbuf2.0-common",
+                "version": "2.31.1-2+deb8u5"
+              }
+            },
+            {
+              "id": "jasper/libjasper1@1.900.1-debian1-2.4+deb8u1",
+              "info": {
+                "name": "jasper/libjasper1",
+                "version": "1.900.1-debian1-2.4+deb8u1"
+              }
+            },
+            {
+              "id": "jbigkit/libjbig0@2.1-3.1",
+              "info": { "name": "jbigkit/libjbig0", "version": "2.1-3.1" }
+            },
+            {
+              "id": "tiff/libtiff5@4.0.3-12.3+deb8u2",
+              "info": {
+                "name": "tiff/libtiff5",
+                "version": "4.0.3-12.3+deb8u2"
+              }
+            },
+            {
+              "id": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5",
+              "info": {
+                "name": "gdk-pixbuf/libgdk-pixbuf2.0-0",
+                "version": "2.31.1-2+deb8u5"
+              }
+            },
+            {
+              "id": "libxcomposite/libxcomposite1@1:0.4.4-1",
+              "info": {
+                "name": "libxcomposite/libxcomposite1",
+                "version": "1:0.4.4-1"
+              }
+            },
+            {
+              "id": "libxfixes/libxfixes3@1:5.0.1-2+b2",
+              "info": {
+                "name": "libxfixes/libxfixes3",
+                "version": "1:5.0.1-2+b2"
+              }
+            },
+            {
+              "id": "libxcursor/libxcursor1@1:1.1.14-1+b1",
+              "info": {
+                "name": "libxcursor/libxcursor1",
+                "version": "1:1.1.14-1+b1"
+              }
+            },
+            {
+              "id": "libxdamage/libxdamage1@1:1.1.4-2+b1",
+              "info": {
+                "name": "libxdamage/libxdamage1",
+                "version": "1:1.1.4-2+b1"
+              }
+            },
+            {
+              "id": "libxinerama/libxinerama1@2:1.1.3-1+b1",
+              "info": {
+                "name": "libxinerama/libxinerama1",
+                "version": "2:1.1.3-1+b1"
+              }
+            },
+            {
+              "id": "libxrandr/libxrandr2@2:1.4.2-1+b1",
+              "info": {
+                "name": "libxrandr/libxrandr2",
+                "version": "2:1.4.2-1+b1"
+              }
+            },
+            {
+              "id": "fontconfig@2.11.0-6.3+deb8u1",
+              "info": { "name": "fontconfig", "version": "2.11.0-6.3+deb8u1" }
+            },
+            {
+              "id": "libdatrie/libdatrie1@0.2.8-1",
+              "info": { "name": "libdatrie/libdatrie1", "version": "0.2.8-1" }
+            },
+            {
+              "id": "libthai/libthai-data@0.1.21-1",
+              "info": { "name": "libthai/libthai-data", "version": "0.1.21-1" }
+            },
+            {
+              "id": "libthai/libthai0@0.1.21-1",
+              "info": { "name": "libthai/libthai0", "version": "0.1.21-1" }
+            },
+            {
+              "id": "pango1.0/libpango-1.0-0@1.36.8-3",
+              "info": {
+                "name": "pango1.0/libpango-1.0-0",
+                "version": "1.36.8-3"
+              }
+            },
+            {
+              "id": "graphite2/libgraphite2-3@1.3.6-1~deb8u1",
+              "info": {
+                "name": "graphite2/libgraphite2-3",
+                "version": "1.3.6-1~deb8u1"
+              }
+            },
+            {
+              "id": "harfbuzz/libharfbuzz0b@0.9.35-2",
+              "info": {
+                "name": "harfbuzz/libharfbuzz0b",
+                "version": "0.9.35-2"
+              }
+            },
+            {
+              "id": "pango1.0/libpangoft2-1.0-0@1.36.8-3",
+              "info": {
+                "name": "pango1.0/libpangoft2-1.0-0",
+                "version": "1.36.8-3"
+              }
+            },
+            {
+              "id": "pango1.0/libpangocairo-1.0-0@1.36.8-3",
+              "info": {
+                "name": "pango1.0/libpangocairo-1.0-0",
+                "version": "1.36.8-3"
+              }
+            },
+            {
+              "id": "java-atk-wrapper/libatk-wrapper-java@0.30.5-1",
+              "info": {
+                "name": "java-atk-wrapper/libatk-wrapper-java",
+                "version": "0.30.5-1"
+              }
+            },
+            {
+              "id": "java-atk-wrapper/libatk-wrapper-java-jni@0.30.5-1",
+              "info": {
+                "name": "java-atk-wrapper/libatk-wrapper-java-jni",
+                "version": "0.30.5-1"
+              }
+            },
+            {
+              "id": "libx11/libx11-xcb1@2:1.6.2-3",
+              "info": { "name": "libx11/libx11-xcb1", "version": "2:1.6.2-3" }
+            },
+            {
+              "id": "libxcb/libxcb-dri2-0@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb-dri2-0", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "libxcb/libxcb-dri3-0@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb-dri3-0", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "libxcb/libxcb-glx0@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb-glx0", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "libxcb/libxcb-present0@1.10-3+b1",
+              "info": {
+                "name": "libxcb/libxcb-present0",
+                "version": "1.10-3+b1"
+              }
+            },
+            {
+              "id": "libxcb/libxcb-sync1@1.10-3+b1",
+              "info": { "name": "libxcb/libxcb-sync1", "version": "1.10-3+b1" }
+            },
+            {
+              "id": "libxshmfence/libxshmfence1@1.1-4",
+              "info": {
+                "name": "libxshmfence/libxshmfence1",
+                "version": "1.1-4"
+              }
+            },
+            {
+              "id": "libxxf86vm/libxxf86vm1@1:1.1.3-1+b1",
+              "info": {
+                "name": "libxxf86vm/libxxf86vm1",
+                "version": "1:1.1.3-1+b1"
+              }
+            },
+            {
+              "id": "mesa/libglapi-mesa@10.3.2-1+deb8u1",
+              "info": {
+                "name": "mesa/libglapi-mesa",
+                "version": "10.3.2-1+deb8u1"
+              }
+            },
+            {
+              "id": "mesa/libgl1-mesa-glx@10.3.2-1+deb8u1",
+              "info": {
+                "name": "mesa/libgl1-mesa-glx",
+                "version": "10.3.2-1+deb8u1"
+              }
+            },
+            {
+              "id": "json-c/libjson-c2@0.11-4",
+              "info": { "name": "json-c/libjson-c2", "version": "0.11-4" }
+            },
+            {
+              "id": "libasyncns/libasyncns0@0.8-5",
+              "info": { "name": "libasyncns/libasyncns0", "version": "0.8-5" }
+            },
+            {
+              "id": "flac/libflac8@1.3.0-3",
+              "info": { "name": "flac/libflac8", "version": "1.3.0-3" }
+            },
+            {
+              "id": "libvorbis/libvorbisenc2@1.3.4-2",
+              "info": {
+                "name": "libvorbis/libvorbisenc2",
+                "version": "1.3.4-2"
+              }
+            },
+            {
+              "id": "libsndfile/libsndfile1@1.0.25-9.1+deb8u1",
+              "info": {
+                "name": "libsndfile/libsndfile1",
+                "version": "1.0.25-9.1+deb8u1"
+              }
+            },
+            {
+              "id": "tcp-wrappers/libwrap0@7.6.q-25",
+              "info": { "name": "tcp-wrappers/libwrap0", "version": "7.6.q-25" }
+            },
+            {
+              "id": "pulseaudio/libpulse0@5.0-13",
+              "info": { "name": "pulseaudio/libpulse0", "version": "5.0-13" }
+            },
+            {
+              "id": "openjdk-8/openjdk-8-jre@8u111-b14-2~bpo8+1",
+              "info": {
+                "name": "openjdk-8/openjdk-8-jre",
+                "version": "8u111-b14-2~bpo8+1"
+              }
+            },
+            {
+              "id": "openjdk-8/openjdk-8-jdk@8u111-b14-2~bpo8+1",
+              "info": {
+                "name": "openjdk-8/openjdk-8-jdk",
+                "version": "8u111-b14-2~bpo8+1"
+              }
+            },
+            {
+              "id": "libbsd/libbsd0@0.7.0-2",
+              "info": { "name": "libbsd/libbsd0", "version": "0.7.0-2" }
+            },
+            {
+              "id": "openssh/openssh-client@1:6.7p1-5+deb8u3",
+              "info": {
+                "name": "openssh/openssh-client",
+                "version": "1:6.7p1-5+deb8u3"
+              }
+            },
+            {
+              "id": "pam/libpam-runtime@1.1.8-3.1+deb8u2",
+              "info": {
+                "name": "pam/libpam-runtime",
+                "version": "1.1.8-3.1+deb8u2"
+              }
+            },
+            {
+              "id": "s2tc/libtxc-dxtn-s2tc0@0~git20131104-1.1",
+              "info": {
+                "name": "s2tc/libtxc-dxtn-s2tc0",
+                "version": "0~git20131104-1.1"
+              }
+            },
+            {
+              "id": "sed@4.2.2-4+deb8u1",
+              "info": { "name": "sed", "version": "4.2.2-4+deb8u1" }
+            },
+            {
+              "id": "sgml-base@1.26+nmu4",
+              "info": { "name": "sgml-base", "version": "1.26+nmu4" }
+            },
+            {
+              "id": "shadow/login@1:4.2-3+deb8u1",
+              "info": { "name": "shadow/login", "version": "1:4.2-3+deb8u1" }
+            },
+            {
+              "id": "apr-util/libaprutil1@1.5.4-1",
+              "info": { "name": "apr-util/libaprutil1", "version": "1.5.4-1" }
+            },
+            {
+              "id": "apr/libapr1@1.5.1-3",
+              "info": { "name": "apr/libapr1", "version": "1.5.1-3" }
+            },
+            {
+              "id": "serf/libserf-1-1@1.3.8-1",
+              "info": { "name": "serf/libserf-1-1", "version": "1.3.8-1" }
+            },
+            {
+              "id": "subversion/libsvn1@1.8.10-6+deb8u4",
+              "info": {
+                "name": "subversion/libsvn1",
+                "version": "1.8.10-6+deb8u4"
+              }
+            },
+            {
+              "id": "subversion@1.8.10-6+deb8u4",
+              "info": { "name": "subversion", "version": "1.8.10-6+deb8u4" }
+            },
+            {
+              "id": "tcp-wrappers/tcpd@7.6.q-25",
+              "info": { "name": "tcp-wrappers/tcpd", "version": "7.6.q-25" }
+            },
+            {
+              "id": "unzip@6.0-16+deb8u2",
+              "info": { "name": "unzip", "version": "6.0-16+deb8u2" }
+            },
+            {
+              "id": "util-linux/bsdutils@1:2.25.2-6",
+              "info": { "name": "util-linux/bsdutils", "version": "1:2.25.2-6" }
+            },
+            {
+              "id": "icu/libicu52@52.1-8+deb8u4",
+              "info": { "name": "icu/libicu52", "version": "52.1-8+deb8u4" }
+            },
+            {
+              "id": "libpsl/libpsl0@0.5.1-1",
+              "info": { "name": "libpsl/libpsl0", "version": "0.5.1-1" }
+            },
+            {
+              "id": "wget@1.16-1+deb8u1",
+              "info": { "name": "wget", "version": "1.16-1+deb8u1" }
+            },
+            {
+              "id": "xdg-user-dirs@0.15-2",
+              "info": { "name": "xdg-user-dirs", "version": "0.15-2" }
+            },
+            {
+              "id": "xml-core@0.13+nmu2",
+              "info": { "name": "xml-core", "version": "0.13+nmu2" }
+            },
+            {
+              "id": "xz-utils/xz-utils@5.1.1alpha+20120614-2+b3",
+              "info": {
+                "name": "xz-utils/xz-utils",
+                "version": "5.1.1alpha+20120614-2+b3"
+              }
+            }
+          ],
+          "graph": {
+            "rootNodeId": "root-node",
+            "nodes": [
+              {
+                "nodeId": "root-node",
+                "pkgId": "docker-image|java@latest",
+                "deps": [
+                  { "nodeId": "acl@2.2.52-2" },
+                  { "nodeId": "adduser@3.113+nmu3" },
+                  { "nodeId": "apt@1.0.9.8.4" },
+                  { "nodeId": "apt/libapt-pkg4.12@1.0.9.8.4|2" },
+                  { "nodeId": "avahi/libavahi-glib1@0.6.31-5|1" },
+                  { "nodeId": "base-files@8+deb8u7|1" },
+                  { "nodeId": "base-passwd@3.5.37" },
+                  { "nodeId": "bash@4.3-11+deb8u1" },
+                  { "nodeId": "bzip2/bzip2@1.0.6-7+b3" },
+                  { "nodeId": "bzr@2.6.0+bzr6595-6" },
+                  { "nodeId": "ca-certificates@20141019+deb8u2|1" },
+                  { "nodeId": "ca-certificates-java@20140324" },
+                  { "nodeId": "cdebconf/libdebconfclient0@0.192" },
+                  { "nodeId": "cryptsetup/libcryptsetup4@2:1.6.6-5|1" },
+                  { "nodeId": "curl@7.38.0-4+deb8u5" },
+                  { "nodeId": "dash/dash@0.5.7-4+b1" },
+                  { "nodeId": "debconf/debconf-i18n@1.5.56" },
+                  { "nodeId": "debian-archive-keyring@2014.3|2" },
+                  { "nodeId": "diffutils/diffutils@1:3.3-1+b1" },
+                  { "nodeId": "e2fsprogs/e2fslibs@1.42.12-2+b1" },
+                  { "nodeId": "e2fsprogs/e2fsprogs@1.42.12-2+b1" },
+                  { "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" },
+                  { "nodeId": "e2fsprogs/libss2@1.42.12-2+b1|2" },
+                  { "nodeId": "elfutils/libelf1@0.159-4.2" },
+                  { "nodeId": "findutils/findutils@4.4.2-9+b1" },
+                  { "nodeId": "fonts-dejavu/fonts-dejavu-extra@2.34-1" },
+                  { "nodeId": "gcc-4.8/gcc-4.8-base@4.8.4-1" },
+                  { "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" },
+                  { "nodeId": "gconf/gconf-service@3.2.6-3|1" },
+                  { "nodeId": "gconf/gconf2@3.2.6-3|1" },
+                  { "nodeId": "gconf/libgconf2-4@3.2.6-3" },
+                  { "nodeId": "git@1:2.1.4-2.1+deb8u2" },
+                  { "nodeId": "glib2.0/libglib2.0-data@2.42.1-1" },
+                  { "nodeId": "glibc/libc-bin@2.19-18+deb8u7" },
+                  { "nodeId": "gnome-mime-data@2.18.0-1" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1|1" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6|2" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-extra@1:2.24.4-6+b1" },
+                  { "nodeId": "gnupg@1.4.18-7+deb8u3|2" },
+                  { "nodeId": "gnupg/gpgv@1.4.18-7+deb8u3" },
+                  { "nodeId": "grep@2.20-4.1" },
+                  { "nodeId": "gtk+2.0/libgtk2.0-bin@2.24.25-3+deb8u1" },
+                  { "nodeId": "gzip@1.6-4" },
+                  { "nodeId": "hicolor-icon-theme@0.13-1" },
+                  { "nodeId": "hostname@3.15" },
+                  { "nodeId": "inetutils/inetutils-ping@2:1.9.2.39.3a460-3" },
+                  { "nodeId": "init-system-helpers/init@1.22" },
+                  { "nodeId": "insserv@1.14.0-5" },
+                  { "nodeId": "iproute2@3.16.0-2" },
+                  { "nodeId": "kmod/libkmod2@18-3" },
+                  { "nodeId": "libbonobo/libbonobo2-0@2.32.1-3|1" },
+                  { "nodeId": "libcanberra/libcanberra0@0.30-2.1|1" },
+                  { "nodeId": "libcap2@1:2.24-8" },
+                  { "nodeId": "libcap2/libcap2-bin@1:2.24-8|2" },
+                  { "nodeId": "libdrm/libdrm-intel1@2.4.58-2|1" },
+                  { "nodeId": "libdrm/libdrm-nouveau2@2.4.58-2|1" },
+                  { "nodeId": "libdrm/libdrm-radeon1@2.4.58-2|1" },
+                  { "nodeId": "libgcrypt20@1.6.3-2+deb8u2|1" },
+                  { "nodeId": "libgnome/libgnome-2-0@2.32.1-5|1" },
+                  { "nodeId": "libgnome/libgnome2-0@2.32.1-5" },
+                  { "nodeId": "libgnome/libgnome2-bin@2.32.1-5|2" },
+                  { "nodeId": "libgnome/libgnome2-common@2.32.1-5|2" },
+                  { "nodeId": "libgpg-error/libgpg-error0@1.17-3" },
+                  { "nodeId": "libice/libice-dev@2:1.0.9-1+b1|1" },
+                  {
+                    "nodeId": "liblocale-gettext-perl/liblocale-gettext-perl@1.05-8+b1"
+                  },
+                  { "nodeId": "libpciaccess/libpciaccess0@0.13.2-3+b1" },
+                  { "nodeId": "libpthread-stubs/libpthread-stubs0-dev@0.3-4" },
+                  { "nodeId": "libsm/libsm-dev@2:1.2.2-1+b1|1" },
+                  {
+                    "nodeId": "libtext-charwidth-perl/libtext-charwidth-perl@0.04-7+b3"
+                  },
+                  {
+                    "nodeId": "libtext-iconv-perl/libtext-iconv-perl@1.7-5+b2"
+                  },
+                  { "nodeId": "libtext-wrapi18n-perl@0.06-7|2" },
+                  { "nodeId": "libusb/libusb-0.1-4@2:0.1.12-25" },
+                  { "nodeId": "libx11/libx11-dev@2:1.6.2-3|1" },
+                  { "nodeId": "libx11/libx11-doc@2:1.6.2-3" },
+                  { "nodeId": "libxau/libxau-dev@1:1.0.8-1|1" },
+                  { "nodeId": "libxcb/libxcb1-dev@1.10-3+b1|1" },
+                  { "nodeId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1|1" },
+                  { "nodeId": "libxt/libxt-dev@1:1.1.4-1+b1" },
+                  { "nodeId": "libxt/libxt6@1:1.1.4-1+b1|2" },
+                  { "nodeId": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10|1" },
+                  { "nodeId": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1|2" },
+                  {
+                    "nodeId": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1|2"
+                  },
+                  { "nodeId": "mawk@1.3.3-17" },
+                  { "nodeId": "mercurial@3.1.2-2+deb8u3" },
+                  { "nodeId": "mesa/libgl1-mesa-dri@10.3.2-1+deb8u1" },
+                  { "nodeId": "meta-common-packages@meta" },
+                  { "nodeId": "ncurses/libncurses5@5.9+20140913-1+b1" },
+                  { "nodeId": "ncurses/libncursesw5@5.9+20140913-1+b1" },
+                  { "nodeId": "ncurses/ncurses-base@5.9+20140913-1" },
+                  { "nodeId": "ncurses/ncurses-bin@5.9+20140913-1+b1" },
+                  { "nodeId": "netbase@5.3" },
+                  { "nodeId": "openjdk-8/openjdk-8-jdk@8u111-b14-2~bpo8+1" },
+                  { "nodeId": "openssh/openssh-client@1:6.7p1-5+deb8u3" },
+                  { "nodeId": "pam/libpam-runtime@1.1.8-3.1+deb8u2" },
+                  { "nodeId": "popt/libpopt0@1.16-10" },
+                  { "nodeId": "procps@2:3.3.9-9|2" },
+                  { "nodeId": "procps/libprocps3@2:3.3.9-9" },
+                  { "nodeId": "readline6/libreadline6@6.3-8+b3|1" },
+                  { "nodeId": "readline6/readline-common@6.3-8" },
+                  { "nodeId": "s2tc/libtxc-dxtn-s2tc0@0~git20131104-1.1" },
+                  { "nodeId": "sed@4.2.2-4+deb8u1" },
+                  { "nodeId": "sgml-base@1.26+nmu4|1" },
+                  { "nodeId": "shadow/login@1:4.2-3+deb8u1" },
+                  { "nodeId": "slang2/libslang2@2.3.0-2" },
+                  { "nodeId": "startpar@0.59-3" },
+                  { "nodeId": "subversion@1.8.10-6+deb8u4" },
+                  { "nodeId": "systemd@215-17+deb8u6|2" },
+                  { "nodeId": "systemd/libsystemd0@215-17+deb8u6|2" },
+                  { "nodeId": "systemd/libudev1@215-17+deb8u6" },
+                  { "nodeId": "systemd/systemd-sysv@215-17+deb8u6|2" },
+                  { "nodeId": "systemd/udev@215-17+deb8u6|2" },
+                  { "nodeId": "sysvinit/initscripts@2.88dsf-59|2" },
+                  { "nodeId": "sysvinit/sysv-rc@2.88dsf-59|2" },
+                  { "nodeId": "sysvinit/sysvinit-utils@2.88dsf-59|1" },
+                  { "nodeId": "tcp-wrappers/tcpd@7.6.q-25" },
+                  { "nodeId": "tzdata@2016j-0+deb8u1" },
+                  { "nodeId": "unzip@6.0-16+deb8u2" },
+                  { "nodeId": "util-linux@2.25.2-6|1" },
+                  { "nodeId": "util-linux/bsdutils@1:2.25.2-6" },
+                  { "nodeId": "util-linux/libblkid1@2.25.2-6" },
+                  { "nodeId": "util-linux/libmount1@2.25.2-6|2" },
+                  { "nodeId": "util-linux/libsmartcols1@2.25.2-6" },
+                  { "nodeId": "util-linux/mount@2.25.2-6|2" },
+                  { "nodeId": "wget@1.16-1+deb8u1" },
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" },
+                  { "nodeId": "x11proto-input/x11proto-input-dev@2.3.1-1|2" },
+                  { "nodeId": "x11proto-kb/x11proto-kb-dev@1.0.6-2" },
+                  { "nodeId": "xdg-user-dirs@0.15-2" },
+                  { "nodeId": "xml-core@0.13+nmu2" },
+                  { "nodeId": "xorg-sgml-doctools@1:1.11-1" },
+                  { "nodeId": "xtrans/xtrans-dev@1.3.4-1" },
+                  { "nodeId": "xz-utils/xz-utils@5.1.1alpha+20120614-2+b3" }
+                ]
+              },
+              { "nodeId": "acl@2.2.52-2", "pkgId": "acl@2.2.52-2", "deps": [] },
+              {
+                "nodeId": "adduser@3.113+nmu3",
+                "pkgId": "adduser@3.113+nmu3",
+                "deps": []
+              },
+              {
+                "nodeId": "gcc-4.9/libstdc++6@4.9.2-10",
+                "pkgId": "gcc-4.9/libstdc++6@4.9.2-10",
+                "deps": []
+              },
+              {
+                "nodeId": "apt/libapt-pkg4.12@1.0.9.8.4|1",
+                "pkgId": "apt/libapt-pkg4.12@1.0.9.8.4",
+                "deps": [{ "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" }]
+              },
+              {
+                "nodeId": "apt/libapt-pkg4.12@1.0.9.8.4|2",
+                "pkgId": "apt/libapt-pkg4.12@1.0.9.8.4",
+                "deps": []
+              },
+              {
+                "nodeId": "debian-archive-keyring@2014.3|1",
+                "pkgId": "debian-archive-keyring@2014.3",
+                "deps": []
+              },
+              {
+                "nodeId": "debian-archive-keyring@2014.3|2",
+                "pkgId": "debian-archive-keyring@2014.3",
+                "deps": [{ "nodeId": "gnupg/gpgv@1.4.18-7+deb8u3" }]
+              },
+              {
+                "nodeId": "gnupg@1.4.18-7+deb8u3|1",
+                "pkgId": "gnupg@1.4.18-7+deb8u3",
+                "deps": []
+              },
+              {
+                "nodeId": "gnupg@1.4.18-7+deb8u3|2",
+                "pkgId": "gnupg@1.4.18-7+deb8u3",
+                "deps": [
+                  { "nodeId": "gnupg/gpgv@1.4.18-7+deb8u3" },
+                  { "nodeId": "libusb/libusb-0.1-4@2:0.1.12-25" },
+                  { "nodeId": "readline6/libreadline6@6.3-8+b3|2" }
+                ]
+              },
+              {
+                "nodeId": "apt@1.0.9.8.4",
+                "pkgId": "apt@1.0.9.8.4",
+                "deps": [
+                  { "nodeId": "apt/libapt-pkg4.12@1.0.9.8.4|1" },
+                  { "nodeId": "debian-archive-keyring@2014.3|1" },
+                  { "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" },
+                  { "nodeId": "gnupg@1.4.18-7+deb8u3|1" }
+                ]
+              },
+              {
+                "nodeId": "avahi/libavahi-glib1@0.6.31-5|1",
+                "pkgId": "avahi/libavahi-glib1@0.6.31-5",
+                "deps": []
+              },
+              {
+                "nodeId": "avahi/libavahi-glib1@0.6.31-5|2",
+                "pkgId": "avahi/libavahi-glib1@0.6.31-5",
+                "deps": [{ "nodeId": "avahi/libavahi-common3@0.6.31-5|1" }]
+              },
+              {
+                "nodeId": "base-files@8+deb8u7|1",
+                "pkgId": "base-files@8+deb8u7",
+                "deps": []
+              },
+              {
+                "nodeId": "base-files@8+deb8u7|2",
+                "pkgId": "base-files@8+deb8u7",
+                "deps": [{ "nodeId": "mawk@1.3.3-17" }]
+              },
+              {
+                "nodeId": "cdebconf/libdebconfclient0@0.192",
+                "pkgId": "cdebconf/libdebconfclient0@0.192",
+                "deps": []
+              },
+              {
+                "nodeId": "base-passwd@3.5.37",
+                "pkgId": "base-passwd@3.5.37",
+                "deps": [{ "nodeId": "cdebconf/libdebconfclient0@0.192" }]
+              },
+              {
+                "nodeId": "mawk@1.3.3-17",
+                "pkgId": "mawk@1.3.3-17",
+                "deps": []
+              },
+              {
+                "nodeId": "dash/dash@0.5.7-4+b1",
+                "pkgId": "dash/dash@0.5.7-4+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "ncurses/libncurses5@5.9+20140913-1+b1",
+                "pkgId": "ncurses/libncurses5@5.9+20140913-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "bash@4.3-11+deb8u1",
+                "pkgId": "bash@4.3-11+deb8u1",
+                "deps": [
+                  { "nodeId": "base-files@8+deb8u7|2" },
+                  { "nodeId": "dash/dash@0.5.7-4+b1" },
+                  { "nodeId": "ncurses/libncurses5@5.9+20140913-1+b1" }
+                ]
+              },
+              {
+                "nodeId": "bzip2/bzip2@1.0.6-7+b3",
+                "pkgId": "bzip2/bzip2@1.0.6-7+b3",
+                "deps": []
+              },
+              {
+                "nodeId": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1|1",
+                "pkgId": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1|2",
+                "pkgId": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1",
+                "deps": [
+                  { "nodeId": "mime-support@3.58" },
+                  { "nodeId": "ncurses/libncursesw5@5.9+20140913-1+b1" },
+                  { "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5" },
+                  { "nodeId": "python2.7/libpython2.7-minimal@2.7.9-2+deb8u1" },
+                  { "nodeId": "readline6/libreadline6@6.3-8+b3|1" },
+                  { "nodeId": "sqlite3/libsqlite3-0@3.8.7.1-1+deb8u2" }
+                ]
+              },
+              {
+                "nodeId": "python-defaults/libpython-stdlib@2.7.9-1",
+                "pkgId": "python-defaults/libpython-stdlib@2.7.9-1",
+                "deps": [
+                  { "nodeId": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1|1" }
+                ]
+              },
+              {
+                "nodeId": "python2.7/python2.7-minimal@2.7.9-2+deb8u1|1",
+                "pkgId": "python2.7/python2.7-minimal@2.7.9-2+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "python2.7/python2.7-minimal@2.7.9-2+deb8u1|2",
+                "pkgId": "python2.7/python2.7-minimal@2.7.9-2+deb8u1",
+                "deps": [
+                  { "nodeId": "python2.7/libpython2.7-minimal@2.7.9-2+deb8u1" }
+                ]
+              },
+              {
+                "nodeId": "python-defaults/python-minimal@2.7.9-1",
+                "pkgId": "python-defaults/python-minimal@2.7.9-1",
+                "deps": [
+                  { "nodeId": "python2.7/python2.7-minimal@2.7.9-2+deb8u1|1" }
+                ]
+              },
+              {
+                "nodeId": "mime-support@3.58",
+                "pkgId": "mime-support@3.58",
+                "deps": []
+              },
+              {
+                "nodeId": "ncurses/libncursesw5@5.9+20140913-1+b1",
+                "pkgId": "ncurses/libncursesw5@5.9+20140913-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5",
+                "pkgId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5",
+                "deps": []
+              },
+              {
+                "nodeId": "python2.7/libpython2.7-minimal@2.7.9-2+deb8u1",
+                "pkgId": "python2.7/libpython2.7-minimal@2.7.9-2+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "readline6/libreadline6@6.3-8+b3|1",
+                "pkgId": "readline6/libreadline6@6.3-8+b3",
+                "deps": []
+              },
+              {
+                "nodeId": "readline6/libreadline6@6.3-8+b3|2",
+                "pkgId": "readline6/libreadline6@6.3-8+b3",
+                "deps": [{ "nodeId": "readline6/readline-common@6.3-8" }]
+              },
+              {
+                "nodeId": "sqlite3/libsqlite3-0@3.8.7.1-1+deb8u2",
+                "pkgId": "sqlite3/libsqlite3-0@3.8.7.1-1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "python2.7@2.7.9-2+deb8u1",
+                "pkgId": "python2.7@2.7.9-2+deb8u1",
+                "deps": [
+                  { "nodeId": "mime-support@3.58" },
+                  {
+                    "nodeId": "python2.7/libpython2.7-stdlib@2.7.9-2+deb8u1|2"
+                  },
+                  { "nodeId": "python2.7/python2.7-minimal@2.7.9-2+deb8u1|2" }
+                ]
+              },
+              {
+                "nodeId": "python-defaults/python@2.7.9-1|1",
+                "pkgId": "python-defaults/python@2.7.9-1",
+                "deps": [
+                  { "nodeId": "python-defaults/libpython-stdlib@2.7.9-1" },
+                  { "nodeId": "python-defaults/python-minimal@2.7.9-1" },
+                  { "nodeId": "python2.7@2.7.9-2+deb8u1" }
+                ]
+              },
+              {
+                "nodeId": "python-defaults/python@2.7.9-1|2",
+                "pkgId": "python-defaults/python@2.7.9-1",
+                "deps": []
+              },
+              {
+                "nodeId": "six/python-six@1.8.0-1",
+                "pkgId": "six/python-six@1.8.0-1",
+                "deps": []
+              },
+              {
+                "nodeId": "configobj/python-configobj@5.0.6-1",
+                "pkgId": "configobj/python-configobj@5.0.6-1",
+                "deps": [
+                  { "nodeId": "python-defaults/python@2.7.9-1|1" },
+                  { "nodeId": "six/python-six@1.8.0-1" }
+                ]
+              },
+              {
+                "nodeId": "bzr/python-bzrlib@2.6.0+bzr6595-6",
+                "pkgId": "bzr/python-bzrlib@2.6.0+bzr6595-6",
+                "deps": [
+                  { "nodeId": "configobj/python-configobj@5.0.6-1" },
+                  { "nodeId": "python-defaults/python@2.7.9-1|2" }
+                ]
+              },
+              {
+                "nodeId": "bzr@2.6.0+bzr6595-6",
+                "pkgId": "bzr@2.6.0+bzr6595-6",
+                "deps": [{ "nodeId": "bzr/python-bzrlib@2.6.0+bzr6595-6" }]
+              },
+              {
+                "nodeId": "ca-certificates@20141019+deb8u2|1",
+                "pkgId": "ca-certificates@20141019+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "ca-certificates@20141019+deb8u2|2",
+                "pkgId": "ca-certificates@20141019+deb8u2",
+                "deps": [{ "nodeId": "openssl@1.0.1t-1+deb8u5" }]
+              },
+              {
+                "nodeId": "openssl@1.0.1t-1+deb8u5",
+                "pkgId": "openssl@1.0.1t-1+deb8u5",
+                "deps": [{ "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5" }]
+              },
+              {
+                "nodeId": "nss/libnss3@2:3.26-1+debu8u1|1",
+                "pkgId": "nss/libnss3@2:3.26-1+debu8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "nss/libnss3@2:3.26-1+debu8u1|2",
+                "pkgId": "nss/libnss3@2:3.26-1+debu8u1",
+                "deps": [
+                  { "nodeId": "nspr/libnspr4@2:4.12-1+debu8u1" },
+                  { "nodeId": "sqlite3/libsqlite3-0@3.8.7.1-1+deb8u2" }
+                ]
+              },
+              {
+                "nodeId": "avahi/libavahi-client3@0.6.31-5|1",
+                "pkgId": "avahi/libavahi-client3@0.6.31-5",
+                "deps": []
+              },
+              {
+                "nodeId": "avahi/libavahi-client3@0.6.31-5|2",
+                "pkgId": "avahi/libavahi-client3@0.6.31-5",
+                "deps": [{ "nodeId": "avahi/libavahi-common3@0.6.31-5|2" }]
+              },
+              {
+                "nodeId": "avahi/libavahi-common3@0.6.31-5|1",
+                "pkgId": "avahi/libavahi-common3@0.6.31-5",
+                "deps": []
+              },
+              {
+                "nodeId": "avahi/libavahi-common3@0.6.31-5|2",
+                "pkgId": "avahi/libavahi-common3@0.6.31-5",
+                "deps": [{ "nodeId": "avahi/libavahi-common-data@0.6.31-5" }]
+              },
+              {
+                "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|1",
+                "pkgId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4",
+                "deps": []
+              },
+              {
+                "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|2",
+                "pkgId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4",
+                "deps": [
+                  { "nodeId": "libtasn1-6@4.2-3+deb8u2" },
+                  { "nodeId": "nettle/libhogweed2@2.7.1-5+deb8u2" },
+                  { "nodeId": "p11-kit/libp11-kit0@0.20.7-1" }
+                ]
+              },
+              {
+                "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1",
+                "pkgId": "e2fsprogs/libcomerr2@1.42.12-2+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2",
+                "pkgId": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2|1",
+                "pkgId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2",
+                "deps": [
+                  { "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" },
+                  { "nodeId": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2" }
+                ]
+              },
+              {
+                "nodeId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2|2",
+                "pkgId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|1",
+                "pkgId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2",
+                "deps": [
+                  { "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" },
+                  { "nodeId": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2" },
+                  { "nodeId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2|1" }
+                ]
+              },
+              {
+                "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|2",
+                "pkgId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "cups/libcups2@1.7.5-11+deb8u1|1",
+                "pkgId": "cups/libcups2@1.7.5-11+deb8u1",
+                "deps": [
+                  { "nodeId": "avahi/libavahi-client3@0.6.31-5|1" },
+                  { "nodeId": "avahi/libavahi-common3@0.6.31-5|1" },
+                  { "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|1" },
+                  { "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|1" }
+                ]
+              },
+              {
+                "nodeId": "cups/libcups2@1.7.5-11+deb8u1|2",
+                "pkgId": "cups/libcups2@1.7.5-11+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "java-common@0.52",
+                "pkgId": "java-common@0.52",
+                "deps": []
+              },
+              {
+                "nodeId": "lcms2/liblcms2-2@2.6-3+b3",
+                "pkgId": "lcms2/liblcms2-2@2.6-3+b3",
+                "deps": []
+              },
+              {
+                "nodeId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12",
+                "pkgId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12",
+                "deps": []
+              },
+              {
+                "nodeId": "libxi/libxi6@2:1.7.4-1+b2",
+                "pkgId": "libxi/libxi6@2:1.7.4-1+b2",
+                "deps": []
+              },
+              {
+                "nodeId": "libxrender/libxrender1@1:0.9.8-1+b1",
+                "pkgId": "libxrender/libxrender1@1:0.9.8-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "xorg/x11-common@1:7.7+7",
+                "pkgId": "xorg/x11-common@1:7.7+7",
+                "deps": []
+              },
+              {
+                "nodeId": "libxtst/libxtst6@2:1.2.2-1+b1|1",
+                "pkgId": "libxtst/libxtst6@2:1.2.2-1+b1",
+                "deps": [
+                  { "nodeId": "libxi/libxi6@2:1.7.4-1+b2" },
+                  { "nodeId": "xorg/x11-common@1:7.7+7" }
+                ]
+              },
+              {
+                "nodeId": "libxtst/libxtst6@2:1.2.2-1+b1|2",
+                "pkgId": "libxtst/libxtst6@2:1.2.2-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "nspr/libnspr4@2:4.12-1+debu8u1",
+                "pkgId": "nspr/libnspr4@2:4.12-1+debu8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "pcsc-lite/libpcsclite1@1.8.13-1+deb8u1",
+                "pkgId": "pcsc-lite/libpcsclite1@1.8.13-1+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "insserv@1.14.0-5",
+                "pkgId": "insserv@1.14.0-5",
+                "deps": []
+              },
+              {
+                "nodeId": "startpar@0.59-3",
+                "pkgId": "startpar@0.59-3",
+                "deps": []
+              },
+              {
+                "nodeId": "sysvinit/sysvinit-utils@2.88dsf-59|1",
+                "pkgId": "sysvinit/sysvinit-utils@2.88dsf-59",
+                "deps": []
+              },
+              {
+                "nodeId": "sysvinit/sysvinit-utils@2.88dsf-59|2",
+                "pkgId": "sysvinit/sysvinit-utils@2.88dsf-59",
+                "deps": [{ "nodeId": "startpar@0.59-3" }]
+              },
+              {
+                "nodeId": "sysvinit/sysv-rc@2.88dsf-59|1",
+                "pkgId": "sysvinit/sysv-rc@2.88dsf-59",
+                "deps": [
+                  { "nodeId": "insserv@1.14.0-5" },
+                  { "nodeId": "startpar@0.59-3" },
+                  { "nodeId": "sysvinit/sysvinit-utils@2.88dsf-59|1" }
+                ]
+              },
+              {
+                "nodeId": "sysvinit/sysv-rc@2.88dsf-59|2",
+                "pkgId": "sysvinit/sysv-rc@2.88dsf-59",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux/libblkid1@2.25.2-6",
+                "pkgId": "util-linux/libblkid1@2.25.2-6",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux/libmount1@2.25.2-6|1",
+                "pkgId": "util-linux/libmount1@2.25.2-6",
+                "deps": [{ "nodeId": "util-linux/libblkid1@2.25.2-6" }]
+              },
+              {
+                "nodeId": "util-linux/libmount1@2.25.2-6|2",
+                "pkgId": "util-linux/libmount1@2.25.2-6",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux/libsmartcols1@2.25.2-6",
+                "pkgId": "util-linux/libsmartcols1@2.25.2-6",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux/mount@2.25.2-6|1",
+                "pkgId": "util-linux/mount@2.25.2-6",
+                "deps": [
+                  { "nodeId": "util-linux/libmount1@2.25.2-6|1" },
+                  { "nodeId": "util-linux/libsmartcols1@2.25.2-6" }
+                ]
+              },
+              {
+                "nodeId": "util-linux/mount@2.25.2-6|2",
+                "pkgId": "util-linux/mount@2.25.2-6",
+                "deps": []
+              },
+              {
+                "nodeId": "sysvinit/initscripts@2.88dsf-59|1",
+                "pkgId": "sysvinit/initscripts@2.88dsf-59",
+                "deps": [
+                  { "nodeId": "sysvinit/sysv-rc@2.88dsf-59|1" },
+                  { "nodeId": "sysvinit/sysvinit-utils@2.88dsf-59|2" },
+                  { "nodeId": "util-linux/mount@2.25.2-6|1" }
+                ]
+              },
+              {
+                "nodeId": "sysvinit/initscripts@2.88dsf-59|2",
+                "pkgId": "sysvinit/initscripts@2.88dsf-59",
+                "deps": []
+              },
+              {
+                "nodeId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1|1",
+                "pkgId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1",
+                "deps": [
+                  { "nodeId": "cups/libcups2@1.7.5-11+deb8u1|1" },
+                  { "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" },
+                  { "nodeId": "java-common@0.52" },
+                  { "nodeId": "lcms2/liblcms2-2@2.6-3+b3" },
+                  { "nodeId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12" },
+                  { "nodeId": "libxi/libxi6@2:1.7.4-1+b2" },
+                  { "nodeId": "libxrender/libxrender1@1:0.9.8-1+b1" },
+                  { "nodeId": "libxtst/libxtst6@2:1.2.2-1+b1|1" },
+                  { "nodeId": "nss/libnss3@2:3.26-1+debu8u1|2" },
+                  { "nodeId": "pcsc-lite/libpcsclite1@1.8.13-1+deb8u1" },
+                  { "nodeId": "sysvinit/initscripts@2.88dsf-59|1" }
+                ]
+              },
+              {
+                "nodeId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1|2",
+                "pkgId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1",
+                "deps": []
+              },
+              {
+                "nodeId": "ca-certificates-java@20140324",
+                "pkgId": "ca-certificates-java@20140324",
+                "deps": [
+                  { "nodeId": "ca-certificates@20141019+deb8u2|2" },
+                  { "nodeId": "nss/libnss3@2:3.26-1+debu8u1|1" },
+                  {
+                    "nodeId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1|1"
+                  }
+                ]
+              },
+              {
+                "nodeId": "cryptsetup/libcryptsetup4@2:1.6.6-5|1",
+                "pkgId": "cryptsetup/libcryptsetup4@2:1.6.6-5",
+                "deps": []
+              },
+              {
+                "nodeId": "cryptsetup/libcryptsetup4@2:1.6.6-5|2",
+                "pkgId": "cryptsetup/libcryptsetup4@2:1.6.6-5",
+                "deps": [
+                  { "nodeId": "libgcrypt20@1.6.3-2+deb8u2|1" },
+                  { "nodeId": "libgpg-error/libgpg-error0@1.17-3" },
+                  { "nodeId": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1|1" }
+                ]
+              },
+              {
+                "nodeId": "libidn/libidn11@1.29-1+deb8u2",
+                "pkgId": "libidn/libidn11@1.29-1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "libgcrypt20@1.6.3-2+deb8u2|1",
+                "pkgId": "libgcrypt20@1.6.3-2+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "libgcrypt20@1.6.3-2+deb8u2|2",
+                "pkgId": "libgcrypt20@1.6.3-2+deb8u2",
+                "deps": [{ "nodeId": "libgpg-error/libgpg-error0@1.17-3" }]
+              },
+              {
+                "nodeId": "libssh2/libssh2-1@1.4.3-4.1+deb8u1|1",
+                "pkgId": "libssh2/libssh2-1@1.4.3-4.1+deb8u1",
+                "deps": [{ "nodeId": "libgcrypt20@1.6.3-2+deb8u2|1" }]
+              },
+              {
+                "nodeId": "libssh2/libssh2-1@1.4.3-4.1+deb8u1|2",
+                "pkgId": "libssh2/libssh2-1@1.4.3-4.1+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|1",
+                "pkgId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|2",
+                "pkgId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2",
+                "deps": [
+                  {
+                    "nodeId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1|1"
+                  },
+                  { "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|2" }
+                ]
+              },
+              {
+                "nodeId": "nettle/libhogweed2@2.7.1-5+deb8u2",
+                "pkgId": "nettle/libhogweed2@2.7.1-5+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1|1",
+                "pkgId": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1",
+                "deps": [
+                  { "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|1" },
+                  { "nodeId": "nettle/libhogweed2@2.7.1-5+deb8u2" }
+                ]
+              },
+              {
+                "nodeId": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1|2",
+                "pkgId": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1",
+                "deps": []
+              },
+              {
+                "nodeId": "curl/libcurl3@7.38.0-4+deb8u5",
+                "pkgId": "curl/libcurl3@7.38.0-4+deb8u5",
+                "deps": [
+                  { "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" },
+                  { "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2" },
+                  { "nodeId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "libidn/libidn11@1.29-1+deb8u2" },
+                  { "nodeId": "libssh2/libssh2-1@1.4.3-4.1+deb8u1|1" },
+                  { "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|1" },
+                  { "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5" },
+                  { "nodeId": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1|1" }
+                ]
+              },
+              {
+                "nodeId": "curl@7.38.0-4+deb8u5",
+                "pkgId": "curl@7.38.0-4+deb8u5",
+                "deps": [{ "nodeId": "curl/libcurl3@7.38.0-4+deb8u5" }]
+              },
+              {
+                "nodeId": "liblocale-gettext-perl/liblocale-gettext-perl@1.05-8+b1",
+                "pkgId": "liblocale-gettext-perl/liblocale-gettext-perl@1.05-8+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libtext-charwidth-perl/libtext-charwidth-perl@0.04-7+b3",
+                "pkgId": "libtext-charwidth-perl/libtext-charwidth-perl@0.04-7+b3",
+                "deps": []
+              },
+              {
+                "nodeId": "libtext-iconv-perl/libtext-iconv-perl@1.7-5+b2",
+                "pkgId": "libtext-iconv-perl/libtext-iconv-perl@1.7-5+b2",
+                "deps": []
+              },
+              {
+                "nodeId": "libtext-wrapi18n-perl@0.06-7|1",
+                "pkgId": "libtext-wrapi18n-perl@0.06-7",
+                "deps": [
+                  {
+                    "nodeId": "libtext-charwidth-perl/libtext-charwidth-perl@0.04-7+b3"
+                  }
+                ]
+              },
+              {
+                "nodeId": "libtext-wrapi18n-perl@0.06-7|2",
+                "pkgId": "libtext-wrapi18n-perl@0.06-7",
+                "deps": []
+              },
+              {
+                "nodeId": "debconf/debconf-i18n@1.5.56",
+                "pkgId": "debconf/debconf-i18n@1.5.56",
+                "deps": [
+                  {
+                    "nodeId": "liblocale-gettext-perl/liblocale-gettext-perl@1.05-8+b1"
+                  },
+                  {
+                    "nodeId": "libtext-charwidth-perl/libtext-charwidth-perl@0.04-7+b3"
+                  },
+                  {
+                    "nodeId": "libtext-iconv-perl/libtext-iconv-perl@1.7-5+b2"
+                  },
+                  { "nodeId": "libtext-wrapi18n-perl@0.06-7|1" }
+                ]
+              },
+              {
+                "nodeId": "gnupg/gpgv@1.4.18-7+deb8u3",
+                "pkgId": "gnupg/gpgv@1.4.18-7+deb8u3",
+                "deps": []
+              },
+              {
+                "nodeId": "diffutils/diffutils@1:3.3-1+b1",
+                "pkgId": "diffutils/diffutils@1:3.3-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "e2fsprogs/e2fslibs@1.42.12-2+b1",
+                "pkgId": "e2fsprogs/e2fslibs@1.42.12-2+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "e2fsprogs/libss2@1.42.12-2+b1|1",
+                "pkgId": "e2fsprogs/libss2@1.42.12-2+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "e2fsprogs/libss2@1.42.12-2+b1|2",
+                "pkgId": "e2fsprogs/libss2@1.42.12-2+b1",
+                "deps": [{ "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" }]
+              },
+              {
+                "nodeId": "util-linux@2.25.2-6|1",
+                "pkgId": "util-linux@2.25.2-6",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux@2.25.2-6|2",
+                "pkgId": "util-linux@2.25.2-6",
+                "deps": [
+                  { "nodeId": "ncurses/libncurses5@5.9+20140913-1+b1" },
+                  { "nodeId": "slang2/libslang2@2.3.0-2" },
+                  { "nodeId": "sysvinit/initscripts@2.88dsf-59|2" },
+                  { "nodeId": "tzdata@2016j-0+deb8u1" },
+                  { "nodeId": "util-linux/libblkid1@2.25.2-6" },
+                  { "nodeId": "util-linux/libmount1@2.25.2-6|2" },
+                  { "nodeId": "util-linux/libsmartcols1@2.25.2-6" }
+                ]
+              },
+              {
+                "nodeId": "e2fsprogs/e2fsprogs@1.42.12-2+b1",
+                "pkgId": "e2fsprogs/e2fsprogs@1.42.12-2+b1",
+                "deps": [
+                  { "nodeId": "e2fsprogs/e2fslibs@1.42.12-2+b1" },
+                  { "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" },
+                  { "nodeId": "e2fsprogs/libss2@1.42.12-2+b1|1" },
+                  { "nodeId": "util-linux@2.25.2-6|1" },
+                  { "nodeId": "util-linux/libblkid1@2.25.2-6" }
+                ]
+              },
+              {
+                "nodeId": "elfutils/libelf1@0.159-4.2",
+                "pkgId": "elfutils/libelf1@0.159-4.2",
+                "deps": []
+              },
+              {
+                "nodeId": "findutils/findutils@4.4.2-9+b1",
+                "pkgId": "findutils/findutils@4.4.2-9+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "fonts-dejavu/fonts-dejavu-extra@2.34-1",
+                "pkgId": "fonts-dejavu/fonts-dejavu-extra@2.34-1",
+                "deps": []
+              },
+              {
+                "nodeId": "gcc-4.8/gcc-4.8-base@4.8.4-1",
+                "pkgId": "gcc-4.8/gcc-4.8-base@4.8.4-1",
+                "deps": []
+              },
+              {
+                "nodeId": "gconf/gconf-service@3.2.6-3|1",
+                "pkgId": "gconf/gconf-service@3.2.6-3",
+                "deps": []
+              },
+              {
+                "nodeId": "gconf/gconf-service@3.2.6-3|2",
+                "pkgId": "gconf/gconf-service@3.2.6-3",
+                "deps": [
+                  { "nodeId": "dbus-glib/libdbus-glib-1-2@0.102-1" },
+                  { "nodeId": "gconf/gconf2-common@3.2.6-3" },
+                  { "nodeId": "gconf/libgconf-2-4@3.2.6-3|2" },
+                  { "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4" },
+                  { "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|2" }
+                ]
+              },
+              {
+                "nodeId": "gconf/gconf2@3.2.6-3|1",
+                "pkgId": "gconf/gconf2@3.2.6-3",
+                "deps": []
+              },
+              {
+                "nodeId": "gconf/gconf2@3.2.6-3|2",
+                "pkgId": "gconf/gconf2@3.2.6-3",
+                "deps": [
+                  { "nodeId": "dbus/dbus-x11@1.8.22-0+deb8u1" },
+                  { "nodeId": "gconf/gconf-service@3.2.6-3|1" },
+                  { "nodeId": "gconf/libgconf-2-4@3.2.6-3|1" },
+                  { "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4" },
+                  { "nodeId": "psmisc@22.21-2" }
+                ]
+              },
+              {
+                "nodeId": "gconf/libgconf-2-4@3.2.6-3|1",
+                "pkgId": "gconf/libgconf-2-4@3.2.6-3",
+                "deps": []
+              },
+              {
+                "nodeId": "gconf/libgconf-2-4@3.2.6-3|2",
+                "pkgId": "gconf/libgconf-2-4@3.2.6-3",
+                "deps": [
+                  { "nodeId": "dbus-glib/libdbus-glib-1-2@0.102-1" },
+                  { "nodeId": "gconf/gconf2-common@3.2.6-3" }
+                ]
+              },
+              {
+                "nodeId": "gconf/libgconf2-4@3.2.6-3",
+                "pkgId": "gconf/libgconf2-4@3.2.6-3",
+                "deps": [
+                  { "nodeId": "gconf/gconf-service@3.2.6-3|1" },
+                  { "nodeId": "gconf/libgconf-2-4@3.2.6-3|1" }
+                ]
+              },
+              {
+                "nodeId": "curl/libcurl3-gnutls@7.38.0-4+deb8u5",
+                "pkgId": "curl/libcurl3-gnutls@7.38.0-4+deb8u5",
+                "deps": [
+                  { "nodeId": "e2fsprogs/libcomerr2@1.42.12-2+b1" },
+                  { "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|1" },
+                  { "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "krb5/libk5crypto3@1.12.1+dfsg-19+deb8u2" },
+                  { "nodeId": "krb5/libkrb5-3@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "libidn/libidn11@1.29-1+deb8u2" },
+                  { "nodeId": "libssh2/libssh2-1@1.4.3-4.1+deb8u1|2" },
+                  { "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|1" },
+                  { "nodeId": "rtmpdump/librtmp1@2.4+20150115.gita107cef-1|2" }
+                ]
+              },
+              {
+                "nodeId": "git/git-man@1:2.1.4-2.1+deb8u2",
+                "pkgId": "git/git-man@1:2.1.4-2.1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "gdbm/libgdbm3@1.8.3-13.1",
+                "pkgId": "gdbm/libgdbm3@1.8.3-13.1",
+                "deps": []
+              },
+              {
+                "nodeId": "perl/perl-modules@5.20.2-3+deb8u6",
+                "pkgId": "perl/perl-modules@5.20.2-3+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "perl@5.20.2-3+deb8u6|1",
+                "pkgId": "perl@5.20.2-3+deb8u6",
+                "deps": [
+                  { "nodeId": "gdbm/libgdbm3@1.8.3-13.1" },
+                  { "nodeId": "perl/perl-modules@5.20.2-3+deb8u6" }
+                ]
+              },
+              {
+                "nodeId": "perl@5.20.2-3+deb8u6|2",
+                "pkgId": "perl@5.20.2-3+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "liberror-perl@0.17-1.1",
+                "pkgId": "liberror-perl@0.17-1.1",
+                "deps": [{ "nodeId": "perl@5.20.2-3+deb8u6|1" }]
+              },
+              {
+                "nodeId": "git@1:2.1.4-2.1+deb8u2",
+                "pkgId": "git@1:2.1.4-2.1+deb8u2",
+                "deps": [
+                  { "nodeId": "curl/libcurl3-gnutls@7.38.0-4+deb8u5" },
+                  { "nodeId": "git/git-man@1:2.1.4-2.1+deb8u2" },
+                  { "nodeId": "liberror-perl@0.17-1.1" },
+                  { "nodeId": "perl/perl-modules@5.20.2-3+deb8u6" }
+                ]
+              },
+              {
+                "nodeId": "glib2.0/libglib2.0-data@2.42.1-1",
+                "pkgId": "glib2.0/libglib2.0-data@2.42.1-1",
+                "deps": []
+              },
+              {
+                "nodeId": "glibc/libc-bin@2.19-18+deb8u7",
+                "pkgId": "glibc/libc-bin@2.19-18+deb8u7",
+                "deps": []
+              },
+              {
+                "nodeId": "gnome-mime-data@2.18.0-1",
+                "pkgId": "gnome-mime-data@2.18.0-1",
+                "deps": []
+              },
+              {
+                "nodeId": "avahi/libavahi-common-data@0.6.31-5",
+                "pkgId": "avahi/libavahi-common-data@0.6.31-5",
+                "deps": []
+              },
+              {
+                "nodeId": "dbus-glib/libdbus-glib-1-2@0.102-1",
+                "pkgId": "dbus-glib/libdbus-glib-1-2@0.102-1",
+                "deps": []
+              },
+              {
+                "nodeId": "gconf/gconf2-common@3.2.6-3",
+                "pkgId": "gconf/gconf2-common@3.2.6-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4",
+                "pkgId": "libxml2@2.9.1+dfsg1-5+deb8u4",
+                "deps": []
+              },
+              {
+                "nodeId": "cyrus-sasl2/libsasl2-modules-db@2.1.26.dfsg1-13+deb8u1",
+                "pkgId": "cyrus-sasl2/libsasl2-modules-db@2.1.26.dfsg1-13+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1|1",
+                "pkgId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1",
+                "deps": [
+                  {
+                    "nodeId": "cyrus-sasl2/libsasl2-modules-db@2.1.26.dfsg1-13+deb8u1"
+                  }
+                ]
+              },
+              {
+                "nodeId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1|2",
+                "pkgId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "libtasn1-6@4.2-3+deb8u2",
+                "pkgId": "libtasn1-6@4.2-3+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "p11-kit/libp11-kit0@0.20.7-1",
+                "pkgId": "p11-kit/libp11-kit0@0.20.7-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libcap-ng/libcap-ng0@0.7.4-2",
+                "pkgId": "libcap-ng/libcap-ng0@0.7.4-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libgpg-error/libgpg-error0@1.17-3",
+                "pkgId": "libgpg-error/libgpg-error0@1.17-3",
+                "deps": []
+              },
+              {
+                "nodeId": "systemd/libsystemd0@215-17+deb8u6|1",
+                "pkgId": "systemd/libsystemd0@215-17+deb8u6",
+                "deps": [{ "nodeId": "libgcrypt20@1.6.3-2+deb8u2|2" }]
+              },
+              {
+                "nodeId": "systemd/libsystemd0@215-17+deb8u6|2",
+                "pkgId": "systemd/libsystemd0@215-17+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "dbus@1.8.22-0+deb8u1",
+                "pkgId": "dbus@1.8.22-0+deb8u1",
+                "deps": [
+                  { "nodeId": "adduser@3.113+nmu3" },
+                  { "nodeId": "libcap-ng/libcap-ng0@0.7.4-2" },
+                  { "nodeId": "systemd/libsystemd0@215-17+deb8u6|1" }
+                ]
+              },
+              {
+                "nodeId": "dbus/dbus-x11@1.8.22-0+deb8u1",
+                "pkgId": "dbus/dbus-x11@1.8.22-0+deb8u1",
+                "deps": [{ "nodeId": "dbus@1.8.22-0+deb8u1" }]
+              },
+              {
+                "nodeId": "psmisc@22.21-2",
+                "pkgId": "psmisc@22.21-2",
+                "deps": []
+              },
+              {
+                "nodeId": "shared-mime-info@1.3-1|1",
+                "pkgId": "shared-mime-info@1.3-1",
+                "deps": [{ "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4" }]
+              },
+              {
+                "nodeId": "shared-mime-info@1.3-1|2",
+                "pkgId": "shared-mime-info@1.3-1",
+                "deps": []
+              },
+              {
+                "nodeId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6|1",
+                "pkgId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6",
+                "deps": [
+                  { "nodeId": "gconf/gconf2@3.2.6-3|2" },
+                  { "nodeId": "gnome-mime-data@2.18.0-1" },
+                  { "nodeId": "shared-mime-info@1.3-1|1" }
+                ]
+              },
+              {
+                "nodeId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6|2",
+                "pkgId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6",
+                "deps": []
+              },
+              {
+                "nodeId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1|1",
+                "pkgId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1",
+                "deps": [
+                  { "nodeId": "avahi/libavahi-client3@0.6.31-5|2" },
+                  { "nodeId": "avahi/libavahi-common3@0.6.31-5|1" },
+                  { "nodeId": "avahi/libavahi-glib1@0.6.31-5|2" },
+                  { "nodeId": "dbus-glib/libdbus-glib-1-2@0.102-1" },
+                  { "nodeId": "gconf/gconf-service@3.2.6-3|2" },
+                  { "nodeId": "gconf/libgconf-2-4@3.2.6-3|1" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6|1" },
+                  { "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|1" },
+                  { "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4" }
+                ]
+              },
+              {
+                "nodeId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1|2",
+                "pkgId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "gnome-vfs/libgnomevfs2-extra@1:2.24.4-6+b1",
+                "pkgId": "gnome-vfs/libgnomevfs2-extra@1:2.24.4-6+b1",
+                "deps": [
+                  { "nodeId": "gconf/gconf-service@3.2.6-3|1" },
+                  { "nodeId": "gconf/libgconf-2-4@3.2.6-3|1" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1|2" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-common@1:2.24.4-6|2" },
+                  { "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4" }
+                ]
+              },
+              {
+                "nodeId": "libusb/libusb-0.1-4@2:0.1.12-25",
+                "pkgId": "libusb/libusb-0.1-4@2:0.1.12-25",
+                "deps": []
+              },
+              {
+                "nodeId": "readline6/readline-common@6.3-8",
+                "pkgId": "readline6/readline-common@6.3-8",
+                "deps": []
+              },
+              {
+                "nodeId": "grep@2.20-4.1",
+                "pkgId": "grep@2.20-4.1",
+                "deps": []
+              },
+              {
+                "nodeId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1|1",
+                "pkgId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1|2",
+                "pkgId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1",
+                "deps": [
+                  { "nodeId": "atk1.0/libatk1.0-0@2.14.0-1|1" },
+                  { "nodeId": "cairo/libcairo2@1.14.0-2.1+deb8u2|1" },
+                  { "nodeId": "cups/libcups2@1.7.5-11+deb8u1|2" },
+                  {
+                    "nodeId": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5|1"
+                  },
+                  { "nodeId": "gtk+2.0/libgtk2.0-common@2.24.25-3+deb8u1" },
+                  { "nodeId": "libxcomposite/libxcomposite1@1:0.4.4-1" },
+                  { "nodeId": "libxcursor/libxcursor1@1:1.1.14-1+b1" },
+                  { "nodeId": "libxdamage/libxdamage1@1:1.1.4-2+b1|1" },
+                  { "nodeId": "libxfixes/libxfixes3@1:5.0.1-2+b2" },
+                  { "nodeId": "libxi/libxi6@2:1.7.4-1+b2" },
+                  { "nodeId": "libxinerama/libxinerama1@2:1.1.3-1+b1" },
+                  { "nodeId": "libxrandr/libxrandr2@2:1.4.2-1+b1|1" },
+                  { "nodeId": "libxrender/libxrender1@1:0.9.8-1+b1" },
+                  { "nodeId": "pango1.0/libpango-1.0-0@1.36.8-3|1" },
+                  { "nodeId": "pango1.0/libpangocairo-1.0-0@1.36.8-3|1" },
+                  { "nodeId": "pango1.0/libpangoft2-1.0-0@1.36.8-3|2" },
+                  { "nodeId": "shared-mime-info@1.3-1|2" }
+                ]
+              },
+              {
+                "nodeId": "gtk+2.0/libgtk2.0-common@2.24.25-3+deb8u1",
+                "pkgId": "gtk+2.0/libgtk2.0-common@2.24.25-3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "gtk+2.0/libgtk2.0-bin@2.24.25-3+deb8u1",
+                "pkgId": "gtk+2.0/libgtk2.0-bin@2.24.25-3+deb8u1",
+                "deps": [
+                  { "nodeId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1|1" },
+                  { "nodeId": "gtk+2.0/libgtk2.0-common@2.24.25-3+deb8u1" }
+                ]
+              },
+              { "nodeId": "gzip@1.6-4", "pkgId": "gzip@1.6-4", "deps": [] },
+              {
+                "nodeId": "hicolor-icon-theme@0.13-1",
+                "pkgId": "hicolor-icon-theme@0.13-1",
+                "deps": []
+              },
+              {
+                "nodeId": "hostname@3.15",
+                "pkgId": "hostname@3.15",
+                "deps": []
+              },
+              { "nodeId": "netbase@5.3", "pkgId": "netbase@5.3", "deps": [] },
+              {
+                "nodeId": "inetutils/inetutils-ping@2:1.9.2.39.3a460-3",
+                "pkgId": "inetutils/inetutils-ping@2:1.9.2.39.3a460-3",
+                "deps": [{ "nodeId": "netbase@5.3" }]
+              },
+              {
+                "nodeId": "slang2/libslang2@2.3.0-2",
+                "pkgId": "slang2/libslang2@2.3.0-2",
+                "deps": []
+              },
+              {
+                "nodeId": "tzdata@2016j-0+deb8u1",
+                "pkgId": "tzdata@2016j-0+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1|1",
+                "pkgId": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1",
+                "deps": [{ "nodeId": "util-linux@2.25.2-6|2" }]
+              },
+              {
+                "nodeId": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1|2",
+                "pkgId": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "systemd/libudev1@215-17+deb8u6",
+                "pkgId": "systemd/libudev1@215-17+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1|1",
+                "pkgId": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1",
+                "deps": [
+                  { "nodeId": "lvm2/dmsetup@2:1.02.90-2.2+deb8u1|1" },
+                  { "nodeId": "systemd/libudev1@215-17+deb8u6" }
+                ]
+              },
+              {
+                "nodeId": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1|2",
+                "pkgId": "lvm2/libdevmapper1.02.1@2:1.02.90-2.2+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "kmod/libkmod2@18-3",
+                "pkgId": "kmod/libkmod2@18-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libcap2@1:2.24-8",
+                "pkgId": "libcap2@1:2.24-8",
+                "deps": []
+              },
+              {
+                "nodeId": "libcap2/libcap2-bin@1:2.24-8|1",
+                "pkgId": "libcap2/libcap2-bin@1:2.24-8",
+                "deps": []
+              },
+              {
+                "nodeId": "libcap2/libcap2-bin@1:2.24-8|2",
+                "pkgId": "libcap2/libcap2-bin@1:2.24-8",
+                "deps": [{ "nodeId": "libcap2@1:2.24-8" }]
+              },
+              {
+                "nodeId": "procps/libprocps3@2:3.3.9-9",
+                "pkgId": "procps/libprocps3@2:3.3.9-9",
+                "deps": []
+              },
+              {
+                "nodeId": "procps@2:3.3.9-9|1",
+                "pkgId": "procps@2:3.3.9-9",
+                "deps": [
+                  { "nodeId": "ncurses/libncurses5@5.9+20140913-1+b1" },
+                  { "nodeId": "ncurses/libncursesw5@5.9+20140913-1+b1" },
+                  { "nodeId": "procps/libprocps3@2:3.3.9-9" },
+                  { "nodeId": "sysvinit/initscripts@2.88dsf-59|2" }
+                ]
+              },
+              {
+                "nodeId": "procps@2:3.3.9-9|2",
+                "pkgId": "procps@2:3.3.9-9",
+                "deps": []
+              },
+              {
+                "nodeId": "systemd/udev@215-17+deb8u6|1",
+                "pkgId": "systemd/udev@215-17+deb8u6",
+                "deps": [
+                  { "nodeId": "adduser@3.113+nmu3" },
+                  { "nodeId": "kmod/libkmod2@18-3" },
+                  { "nodeId": "procps@2:3.3.9-9|1" },
+                  { "nodeId": "systemd/libudev1@215-17+deb8u6" },
+                  { "nodeId": "util-linux@2.25.2-6|1" },
+                  { "nodeId": "util-linux/libblkid1@2.25.2-6" }
+                ]
+              },
+              {
+                "nodeId": "systemd/udev@215-17+deb8u6|2",
+                "pkgId": "systemd/udev@215-17+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "systemd@215-17+deb8u6|1",
+                "pkgId": "systemd@215-17+deb8u6",
+                "deps": [
+                  { "nodeId": "acl@2.2.52-2" },
+                  { "nodeId": "adduser@3.113+nmu3" },
+                  { "nodeId": "cryptsetup/libcryptsetup4@2:1.6.6-5|2" },
+                  { "nodeId": "kmod/libkmod2@18-3" },
+                  { "nodeId": "libcap2@1:2.24-8" },
+                  { "nodeId": "libcap2/libcap2-bin@1:2.24-8|1" },
+                  { "nodeId": "libgcrypt20@1.6.3-2+deb8u2|1" },
+                  { "nodeId": "systemd/libsystemd0@215-17+deb8u6|2" },
+                  { "nodeId": "systemd/udev@215-17+deb8u6|1" },
+                  { "nodeId": "sysvinit/initscripts@2.88dsf-59|2" },
+                  { "nodeId": "sysvinit/sysv-rc@2.88dsf-59|2" },
+                  { "nodeId": "util-linux@2.25.2-6|1" },
+                  { "nodeId": "util-linux/libblkid1@2.25.2-6" },
+                  { "nodeId": "util-linux/mount@2.25.2-6|2" }
+                ]
+              },
+              {
+                "nodeId": "systemd@215-17+deb8u6|2",
+                "pkgId": "systemd@215-17+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "systemd/systemd-sysv@215-17+deb8u6|1",
+                "pkgId": "systemd/systemd-sysv@215-17+deb8u6",
+                "deps": [{ "nodeId": "systemd@215-17+deb8u6|1" }]
+              },
+              {
+                "nodeId": "systemd/systemd-sysv@215-17+deb8u6|2",
+                "pkgId": "systemd/systemd-sysv@215-17+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "init-system-helpers/init@1.22",
+                "pkgId": "init-system-helpers/init@1.22",
+                "deps": [{ "nodeId": "systemd/systemd-sysv@215-17+deb8u6|1" }]
+              },
+              {
+                "nodeId": "iproute2@3.16.0-2",
+                "pkgId": "iproute2@3.16.0-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libbonobo/libbonobo2-0@2.32.1-3|1",
+                "pkgId": "libbonobo/libbonobo2-0@2.32.1-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libbonobo/libbonobo2-0@2.32.1-3|2",
+                "pkgId": "libbonobo/libbonobo2-0@2.32.1-3",
+                "deps": [
+                  { "nodeId": "libbonobo/libbonobo2-common@2.32.1-3" },
+                  { "nodeId": "libxml2@2.9.1+dfsg1-5+deb8u4" },
+                  { "nodeId": "orbit2/liborbit-2-0@1:2.14.19-0.3" }
+                ]
+              },
+              {
+                "nodeId": "alsa-lib/libasound2-data@1.0.28-1",
+                "pkgId": "alsa-lib/libasound2-data@1.0.28-1",
+                "deps": []
+              },
+              {
+                "nodeId": "alsa-lib/libasound2@1.0.28-1|1",
+                "pkgId": "alsa-lib/libasound2@1.0.28-1",
+                "deps": [{ "nodeId": "alsa-lib/libasound2-data@1.0.28-1" }]
+              },
+              {
+                "nodeId": "alsa-lib/libasound2@1.0.28-1|2",
+                "pkgId": "alsa-lib/libasound2@1.0.28-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libogg/libogg0@1.3.2-1",
+                "pkgId": "libogg/libogg0@1.3.2-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libtool/libltdl7@2.4.2-1.11+b1",
+                "pkgId": "libtool/libltdl7@2.4.2-1.11+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libvorbis/libvorbis0a@1.3.4-2|1",
+                "pkgId": "libvorbis/libvorbis0a@1.3.4-2",
+                "deps": [{ "nodeId": "libogg/libogg0@1.3.2-1" }]
+              },
+              {
+                "nodeId": "libvorbis/libvorbis0a@1.3.4-2|2",
+                "pkgId": "libvorbis/libvorbis0a@1.3.4-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libvorbis/libvorbisfile3@1.3.4-2",
+                "pkgId": "libvorbis/libvorbisfile3@1.3.4-2",
+                "deps": [
+                  { "nodeId": "libogg/libogg0@1.3.2-1" },
+                  { "nodeId": "libvorbis/libvorbis0a@1.3.4-2|2" }
+                ]
+              },
+              {
+                "nodeId": "tdb/libtdb1@1.3.6-0+deb8u1",
+                "pkgId": "tdb/libtdb1@1.3.6-0+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "libcanberra/libcanberra0@0.30-2.1|1",
+                "pkgId": "libcanberra/libcanberra0@0.30-2.1",
+                "deps": [
+                  { "nodeId": "alsa-lib/libasound2@1.0.28-1|1" },
+                  { "nodeId": "libogg/libogg0@1.3.2-1" },
+                  { "nodeId": "libtool/libltdl7@2.4.2-1.11+b1" },
+                  { "nodeId": "libvorbis/libvorbis0a@1.3.4-2|1" },
+                  { "nodeId": "libvorbis/libvorbisfile3@1.3.4-2" },
+                  { "nodeId": "tdb/libtdb1@1.3.6-0+deb8u1" }
+                ]
+              },
+              {
+                "nodeId": "libcanberra/libcanberra0@0.30-2.1|2",
+                "pkgId": "libcanberra/libcanberra0@0.30-2.1",
+                "deps": []
+              },
+              {
+                "nodeId": "libdrm/libdrm-intel1@2.4.58-2|1",
+                "pkgId": "libdrm/libdrm-intel1@2.4.58-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libdrm/libdrm-intel1@2.4.58-2|2",
+                "pkgId": "libdrm/libdrm-intel1@2.4.58-2",
+                "deps": [
+                  { "nodeId": "libdrm/libdrm2@2.4.58-2" },
+                  { "nodeId": "libpciaccess/libpciaccess0@0.13.2-3+b1" }
+                ]
+              },
+              {
+                "nodeId": "libdrm/libdrm-nouveau2@2.4.58-2|1",
+                "pkgId": "libdrm/libdrm-nouveau2@2.4.58-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libdrm/libdrm-nouveau2@2.4.58-2|2",
+                "pkgId": "libdrm/libdrm-nouveau2@2.4.58-2",
+                "deps": [{ "nodeId": "libdrm/libdrm2@2.4.58-2" }]
+              },
+              {
+                "nodeId": "libdrm/libdrm-radeon1@2.4.58-2|1",
+                "pkgId": "libdrm/libdrm-radeon1@2.4.58-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libdrm/libdrm-radeon1@2.4.58-2|2",
+                "pkgId": "libdrm/libdrm-radeon1@2.4.58-2",
+                "deps": [{ "nodeId": "libdrm/libdrm2@2.4.58-2" }]
+              },
+              {
+                "nodeId": "libgnome/libgnome-2-0@2.32.1-5|1",
+                "pkgId": "libgnome/libgnome-2-0@2.32.1-5",
+                "deps": []
+              },
+              {
+                "nodeId": "libgnome/libgnome-2-0@2.32.1-5|2",
+                "pkgId": "libgnome/libgnome-2-0@2.32.1-5",
+                "deps": [
+                  { "nodeId": "gconf/gconf-service@3.2.6-3|1" },
+                  { "nodeId": "gconf/libgconf-2-4@3.2.6-3|1" },
+                  { "nodeId": "gnome-vfs/libgnomevfs2-0@1:2.24.4-6+b1|2" },
+                  { "nodeId": "libbonobo/libbonobo2-0@2.32.1-3|2" },
+                  { "nodeId": "libcanberra/libcanberra0@0.30-2.1|2" },
+                  { "nodeId": "libgnome/libgnome2-common@2.32.1-5|1" },
+                  { "nodeId": "orbit2/liborbit-2-0@1:2.14.19-0.3" },
+                  { "nodeId": "popt/libpopt0@1.16-10" }
+                ]
+              },
+              {
+                "nodeId": "libgnome/libgnome2-bin@2.32.1-5|1",
+                "pkgId": "libgnome/libgnome2-bin@2.32.1-5",
+                "deps": []
+              },
+              {
+                "nodeId": "libgnome/libgnome2-bin@2.32.1-5|2",
+                "pkgId": "libgnome/libgnome2-bin@2.32.1-5",
+                "deps": [{ "nodeId": "libgnome/libgnome-2-0@2.32.1-5|2" }]
+              },
+              {
+                "nodeId": "libgnome/libgnome2-0@2.32.1-5",
+                "pkgId": "libgnome/libgnome2-0@2.32.1-5",
+                "deps": [
+                  { "nodeId": "libgnome/libgnome-2-0@2.32.1-5|1" },
+                  { "nodeId": "libgnome/libgnome2-bin@2.32.1-5|1" }
+                ]
+              },
+              {
+                "nodeId": "libbonobo/libbonobo2-common@2.32.1-3",
+                "pkgId": "libbonobo/libbonobo2-common@2.32.1-3",
+                "deps": []
+              },
+              {
+                "nodeId": "orbit2/liborbit-2-0@1:2.14.19-0.3",
+                "pkgId": "orbit2/liborbit-2-0@1:2.14.19-0.3",
+                "deps": []
+              },
+              {
+                "nodeId": "libgnome/libgnome2-common@2.32.1-5|1",
+                "pkgId": "libgnome/libgnome2-common@2.32.1-5",
+                "deps": []
+              },
+              {
+                "nodeId": "libgnome/libgnome2-common@2.32.1-5|2",
+                "pkgId": "libgnome/libgnome2-common@2.32.1-5",
+                "deps": [{ "nodeId": "gconf/gconf2@3.2.6-3|1" }]
+              },
+              {
+                "nodeId": "popt/libpopt0@1.16-10",
+                "pkgId": "popt/libpopt0@1.16-10",
+                "deps": []
+              },
+              {
+                "nodeId": "libice/libice-dev@2:1.0.9-1+b1|1",
+                "pkgId": "libice/libice-dev@2:1.0.9-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libice/libice-dev@2:1.0.9-1+b1|2",
+                "pkgId": "libice/libice-dev@2:1.0.9-1+b1",
+                "deps": [
+                  { "nodeId": "libice/libice6@2:1.0.9-1+b1|1" },
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" }
+                ]
+              },
+              {
+                "nodeId": "libpciaccess/libpciaccess0@0.13.2-3+b1",
+                "pkgId": "libpciaccess/libpciaccess0@0.13.2-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libpthread-stubs/libpthread-stubs0-dev@0.3-4",
+                "pkgId": "libpthread-stubs/libpthread-stubs0-dev@0.3-4",
+                "deps": []
+              },
+              {
+                "nodeId": "libsm/libsm-dev@2:1.2.2-1+b1|1",
+                "pkgId": "libsm/libsm-dev@2:1.2.2-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libsm/libsm-dev@2:1.2.2-1+b1|2",
+                "pkgId": "libsm/libsm-dev@2:1.2.2-1+b1",
+                "deps": [
+                  { "nodeId": "libice/libice-dev@2:1.0.9-1+b1|2" },
+                  { "nodeId": "libsm/libsm6@2:1.2.2-1+b1|1" },
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" }
+                ]
+              },
+              {
+                "nodeId": "libx11/libx11-dev@2:1.6.2-3|1",
+                "pkgId": "libx11/libx11-dev@2:1.6.2-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libx11/libx11-dev@2:1.6.2-3|2",
+                "pkgId": "libx11/libx11-dev@2:1.6.2-3",
+                "deps": [
+                  { "nodeId": "libxau/libxau-dev@1:1.0.8-1|2" },
+                  { "nodeId": "libxcb/libxcb1-dev@1.10-3+b1|2" },
+                  { "nodeId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1|2" },
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" },
+                  { "nodeId": "x11proto-input/x11proto-input-dev@2.3.1-1|1" },
+                  { "nodeId": "x11proto-kb/x11proto-kb-dev@1.0.6-2" },
+                  { "nodeId": "xtrans/xtrans-dev@1.3.4-1" }
+                ]
+              },
+              {
+                "nodeId": "libx11/libx11-doc@2:1.6.2-3",
+                "pkgId": "libx11/libx11-doc@2:1.6.2-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libxau/libxau-dev@1:1.0.8-1|1",
+                "pkgId": "libxau/libxau-dev@1:1.0.8-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxau/libxau-dev@1:1.0.8-1|2",
+                "pkgId": "libxau/libxau-dev@1:1.0.8-1",
+                "deps": [
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|2" }
+                ]
+              },
+              {
+                "nodeId": "libxcb/libxcb1-dev@1.10-3+b1|1",
+                "pkgId": "libxcb/libxcb1-dev@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb1-dev@1.10-3+b1|2",
+                "pkgId": "libxcb/libxcb1-dev@1.10-3+b1",
+                "deps": [
+                  { "nodeId": "libpthread-stubs/libpthread-stubs0-dev@0.3-4" },
+                  { "nodeId": "libxau/libxau-dev@1:1.0.8-1|1" },
+                  { "nodeId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1|1" }
+                ]
+              },
+              {
+                "nodeId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1|1",
+                "pkgId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1|2",
+                "pkgId": "libxdmcp/libxdmcp-dev@1:1.1.1-1+b1",
+                "deps": [
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" }
+                ]
+              },
+              {
+                "nodeId": "libice/libice6@2:1.0.9-1+b1|1",
+                "pkgId": "libice/libice6@2:1.0.9-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libice/libice6@2:1.0.9-1+b1|2",
+                "pkgId": "libice/libice6@2:1.0.9-1+b1",
+                "deps": [{ "nodeId": "xorg/x11-common@1:7.7+7" }]
+              },
+              {
+                "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1",
+                "pkgId": "x11proto-core/x11proto-core-dev@7.0.26-1",
+                "deps": []
+              },
+              {
+                "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|2",
+                "pkgId": "x11proto-core/x11proto-core-dev@7.0.26-1",
+                "deps": [{ "nodeId": "xorg-sgml-doctools@1:1.11-1" }]
+              },
+              {
+                "nodeId": "libsm/libsm6@2:1.2.2-1+b1|1",
+                "pkgId": "libsm/libsm6@2:1.2.2-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libsm/libsm6@2:1.2.2-1+b1|2",
+                "pkgId": "libsm/libsm6@2:1.2.2-1+b1",
+                "deps": [{ "nodeId": "libice/libice6@2:1.0.9-1+b1|1" }]
+              },
+              {
+                "nodeId": "xorg-sgml-doctools@1:1.11-1",
+                "pkgId": "xorg-sgml-doctools@1:1.11-1",
+                "deps": []
+              },
+              {
+                "nodeId": "x11proto-input/x11proto-input-dev@2.3.1-1|1",
+                "pkgId": "x11proto-input/x11proto-input-dev@2.3.1-1",
+                "deps": [
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" }
+                ]
+              },
+              {
+                "nodeId": "x11proto-input/x11proto-input-dev@2.3.1-1|2",
+                "pkgId": "x11proto-input/x11proto-input-dev@2.3.1-1",
+                "deps": []
+              },
+              {
+                "nodeId": "x11proto-kb/x11proto-kb-dev@1.0.6-2",
+                "pkgId": "x11proto-kb/x11proto-kb-dev@1.0.6-2",
+                "deps": []
+              },
+              {
+                "nodeId": "xtrans/xtrans-dev@1.3.4-1",
+                "pkgId": "xtrans/xtrans-dev@1.3.4-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxt/libxt6@1:1.1.4-1+b1|1",
+                "pkgId": "libxt/libxt6@1:1.1.4-1+b1",
+                "deps": [
+                  { "nodeId": "libice/libice6@2:1.0.9-1+b1|1" },
+                  { "nodeId": "libsm/libsm6@2:1.2.2-1+b1|1" }
+                ]
+              },
+              {
+                "nodeId": "libxt/libxt6@1:1.1.4-1+b1|2",
+                "pkgId": "libxt/libxt6@1:1.1.4-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxt/libxt-dev@1:1.1.4-1+b1",
+                "pkgId": "libxt/libxt-dev@1:1.1.4-1+b1",
+                "deps": [
+                  { "nodeId": "libsm/libsm-dev@2:1.2.2-1+b1|2" },
+                  { "nodeId": "libx11/libx11-dev@2:1.6.2-3|2" },
+                  { "nodeId": "libxt/libxt6@1:1.1.4-1+b1|1" },
+                  { "nodeId": "x11proto-core/x11proto-core-dev@7.0.26-1|1" }
+                ]
+              },
+              {
+                "nodeId": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10|1",
+                "pkgId": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10",
+                "deps": []
+              },
+              {
+                "nodeId": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10|2",
+                "pkgId": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10",
+                "deps": [
+                  { "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" },
+                  { "nodeId": "libedit/libedit2@3.1-20140620-2|1" }
+                ]
+              },
+              {
+                "nodeId": "explorercanvas/libjs-excanvas@0.r3-3",
+                "pkgId": "explorercanvas/libjs-excanvas@0.r3-3",
+                "deps": []
+              },
+              {
+                "nodeId": "mercurial/mercurial-common@3.1.2-2+deb8u3",
+                "pkgId": "mercurial/mercurial-common@3.1.2-2+deb8u3",
+                "deps": [
+                  { "nodeId": "explorercanvas/libjs-excanvas@0.r3-3" },
+                  { "nodeId": "python-defaults/python@2.7.9-1|2" }
+                ]
+              },
+              {
+                "nodeId": "mercurial@3.1.2-2+deb8u3",
+                "pkgId": "mercurial@3.1.2-2+deb8u3",
+                "deps": [
+                  { "nodeId": "mercurial/mercurial-common@3.1.2-2+deb8u3" },
+                  { "nodeId": "python-defaults/python@2.7.9-1|2" }
+                ]
+              },
+              {
+                "nodeId": "libdrm/libdrm2@2.4.58-2",
+                "pkgId": "libdrm/libdrm2@2.4.58-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libedit/libedit2@3.1-20140620-2|1",
+                "pkgId": "libedit/libedit2@3.1-20140620-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libedit/libedit2@3.1-20140620-2|2",
+                "pkgId": "libedit/libedit2@3.1-20140620-2",
+                "deps": [{ "nodeId": "libbsd/libbsd0@0.7.0-2" }]
+              },
+              {
+                "nodeId": "mesa/libgl1-mesa-dri@10.3.2-1+deb8u1",
+                "pkgId": "mesa/libgl1-mesa-dri@10.3.2-1+deb8u1",
+                "deps": [
+                  { "nodeId": "elfutils/libelf1@0.159-4.2" },
+                  { "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" },
+                  { "nodeId": "libdrm/libdrm-intel1@2.4.58-2|2" },
+                  { "nodeId": "libdrm/libdrm-nouveau2@2.4.58-2|2" },
+                  { "nodeId": "libdrm/libdrm-radeon1@2.4.58-2|2" },
+                  { "nodeId": "libdrm/libdrm2@2.4.58-2" },
+                  { "nodeId": "llvm-toolchain-3.5/libllvm3.5@1:3.5-10|2" }
+                ]
+              },
+              {
+                "nodeId": "acl/libacl1@2.2.52-2",
+                "pkgId": "acl/libacl1@2.2.52-2",
+                "deps": []
+              },
+              {
+                "nodeId": "attr/libattr1@1:2.4.47-2",
+                "pkgId": "attr/libattr1@1:2.4.47-2",
+                "deps": []
+              },
+              {
+                "nodeId": "audit/libaudit-common@1:2.4-1",
+                "pkgId": "audit/libaudit-common@1:2.4-1",
+                "deps": []
+              },
+              {
+                "nodeId": "audit/libaudit1@1:2.4-1+b1",
+                "pkgId": "audit/libaudit1@1:2.4-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "bzip2/libbz2-1.0@1.0.6-7+b3",
+                "pkgId": "bzip2/libbz2-1.0@1.0.6-7+b3",
+                "deps": []
+              },
+              {
+                "nodeId": "coreutils@8.23-4",
+                "pkgId": "coreutils@8.23-4",
+                "deps": []
+              },
+              {
+                "nodeId": "db5.3/libdb5.3@5.3.28-9",
+                "pkgId": "db5.3/libdb5.3@5.3.28-9",
+                "deps": []
+              },
+              {
+                "nodeId": "dbus/libdbus-1-3@1.8.22-0+deb8u1",
+                "pkgId": "dbus/libdbus-1-3@1.8.22-0+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "debconf@1.5.56",
+                "pkgId": "debconf@1.5.56",
+                "deps": []
+              },
+              {
+                "nodeId": "debianutils/debianutils@4.4+b1",
+                "pkgId": "debianutils/debianutils@4.4+b1",
+                "deps": []
+              },
+              { "nodeId": "dpkg@1.17.27", "pkgId": "dpkg@1.17.27", "deps": [] },
+              {
+                "nodeId": "expat/libexpat1@2.1.0-6+deb8u3",
+                "pkgId": "expat/libexpat1@2.1.0-6+deb8u3",
+                "deps": []
+              },
+              {
+                "nodeId": "fontconfig/fontconfig-config@2.11.0-6.3+deb8u1",
+                "pkgId": "fontconfig/fontconfig-config@2.11.0-6.3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "fontconfig/libfontconfig1@2.11.0-6.3+deb8u1",
+                "pkgId": "fontconfig/libfontconfig1@2.11.0-6.3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "fonts-dejavu/fonts-dejavu-core@2.34-1",
+                "pkgId": "fonts-dejavu/fonts-dejavu-core@2.34-1",
+                "deps": []
+              },
+              {
+                "nodeId": "freetype/libfreetype6@2.5.2-3+deb8u1",
+                "pkgId": "freetype/libfreetype6@2.5.2-3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "gcc-4.9/gcc-4.9-base@4.9.2-10",
+                "pkgId": "gcc-4.9/gcc-4.9-base@4.9.2-10",
+                "deps": []
+              },
+              {
+                "nodeId": "gcc-4.9/libgcc1@1:4.9.2-10",
+                "pkgId": "gcc-4.9/libgcc1@1:4.9.2-10",
+                "deps": []
+              },
+              {
+                "nodeId": "glib2.0/libglib2.0-0@2.42.1-1+b1",
+                "pkgId": "glib2.0/libglib2.0-0@2.42.1-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "glibc/libc6@2.19-18+deb8u7",
+                "pkgId": "glibc/libc6@2.19-18+deb8u7",
+                "deps": []
+              },
+              {
+                "nodeId": "glibc/multiarch-support@2.19-18+deb8u7",
+                "pkgId": "glibc/multiarch-support@2.19-18+deb8u7",
+                "deps": []
+              },
+              {
+                "nodeId": "gmp/libgmp10@2:6.0.0+dfsg-6",
+                "pkgId": "gmp/libgmp10@2:6.0.0+dfsg-6",
+                "deps": []
+              },
+              {
+                "nodeId": "keyutils/libkeyutils1@1.5.9-5+b1",
+                "pkgId": "keyutils/libkeyutils1@1.5.9-5+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "krb5/libkrb5support0@1.12.1+dfsg-19+deb8u2",
+                "pkgId": "krb5/libkrb5support0@1.12.1+dfsg-19+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "libffi/libffi6@3.1-2+b2",
+                "pkgId": "libffi/libffi6@3.1-2+b2",
+                "deps": []
+              },
+              {
+                "nodeId": "libpng/libpng12-0@1.2.50-2+deb8u3",
+                "pkgId": "libpng/libpng12-0@1.2.50-2+deb8u3",
+                "deps": []
+              },
+              {
+                "nodeId": "libselinux/libselinux1@2.3-2",
+                "pkgId": "libselinux/libselinux1@2.3-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libsemanage/libsemanage-common@2.3-1",
+                "pkgId": "libsemanage/libsemanage-common@2.3-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libsemanage/libsemanage1@2.3-1+b1",
+                "pkgId": "libsemanage/libsemanage1@2.3-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libsepol/libsepol1@2.3-2",
+                "pkgId": "libsepol/libsepol1@2.3-2",
+                "deps": []
+              },
+              {
+                "nodeId": "libx11/libx11-6@2:1.6.2-3",
+                "pkgId": "libx11/libx11-6@2:1.6.2-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libx11/libx11-data@2:1.6.2-3",
+                "pkgId": "libx11/libx11-data@2:1.6.2-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libxau/libxau6@1:1.0.8-1",
+                "pkgId": "libxau/libxau6@1:1.0.8-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb1@1.10-3+b1",
+                "pkgId": "libxcb/libxcb1@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxdmcp/libxdmcp6@1:1.1.1-1+b1",
+                "pkgId": "libxdmcp/libxdmcp6@1:1.1.1-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxext/libxext6@2:1.3.3-1",
+                "pkgId": "libxext/libxext6@2:1.3.3-1",
+                "deps": []
+              },
+              {
+                "nodeId": "lsb/lsb-base@4.1+Debian13+nmu1",
+                "pkgId": "lsb/lsb-base@4.1+Debian13+nmu1",
+                "deps": []
+              },
+              {
+                "nodeId": "ncurses/libtinfo5@5.9+20140913-1+b1",
+                "pkgId": "ncurses/libtinfo5@5.9+20140913-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "nettle/libnettle4@2.7.1-5+deb8u2",
+                "pkgId": "nettle/libnettle4@2.7.1-5+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "pam/libpam-modules@1.1.8-3.1+deb8u2",
+                "pkgId": "pam/libpam-modules@1.1.8-3.1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "pam/libpam-modules-bin@1.1.8-3.1+deb8u2",
+                "pkgId": "pam/libpam-modules-bin@1.1.8-3.1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "pam/libpam0g@1.1.8-3.1+deb8u2",
+                "pkgId": "pam/libpam0g@1.1.8-3.1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "pcre3/libpcre3@2:8.35-3.3+deb8u4",
+                "pkgId": "pcre3/libpcre3@2:8.35-3.3+deb8u4",
+                "deps": []
+              },
+              {
+                "nodeId": "perl/perl-base@5.20.2-3+deb8u6",
+                "pkgId": "perl/perl-base@5.20.2-3+deb8u6",
+                "deps": []
+              },
+              {
+                "nodeId": "sensible-utils@0.0.9",
+                "pkgId": "sensible-utils@0.0.9",
+                "deps": []
+              },
+              {
+                "nodeId": "shadow/passwd@1:4.2-3+deb8u1",
+                "pkgId": "shadow/passwd@1:4.2-3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "tar@1.27.1-2+deb8u1",
+                "pkgId": "tar@1.27.1-2+deb8u1",
+                "deps": []
+              },
+              { "nodeId": "ucf@3.0030", "pkgId": "ucf@3.0030", "deps": [] },
+              {
+                "nodeId": "ustr/libustr-1.0-1@1.0.4-3+b2",
+                "pkgId": "ustr/libustr-1.0-1@1.0.4-3+b2",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux/libuuid1@2.25.2-6",
+                "pkgId": "util-linux/libuuid1@2.25.2-6",
+                "deps": []
+              },
+              {
+                "nodeId": "xz-utils/liblzma5@5.1.1alpha+20120614-2+b3",
+                "pkgId": "xz-utils/liblzma5@5.1.1alpha+20120614-2+b3",
+                "deps": []
+              },
+              {
+                "nodeId": "zlib/zlib1g@1:1.2.8.dfsg-2+b1",
+                "pkgId": "zlib/zlib1g@1:1.2.8.dfsg-2+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "meta-common-packages@meta",
+                "pkgId": "meta-common-packages@meta",
+                "deps": [
+                  { "nodeId": "acl/libacl1@2.2.52-2" },
+                  { "nodeId": "attr/libattr1@1:2.4.47-2" },
+                  { "nodeId": "audit/libaudit-common@1:2.4-1" },
+                  { "nodeId": "audit/libaudit1@1:2.4-1+b1" },
+                  { "nodeId": "bzip2/libbz2-1.0@1.0.6-7+b3" },
+                  { "nodeId": "coreutils@8.23-4" },
+                  { "nodeId": "db5.3/libdb5.3@5.3.28-9" },
+                  { "nodeId": "dbus/libdbus-1-3@1.8.22-0+deb8u1" },
+                  { "nodeId": "debconf@1.5.56" },
+                  { "nodeId": "debianutils/debianutils@4.4+b1" },
+                  { "nodeId": "dpkg@1.17.27" },
+                  { "nodeId": "expat/libexpat1@2.1.0-6+deb8u3" },
+                  {
+                    "nodeId": "fontconfig/fontconfig-config@2.11.0-6.3+deb8u1"
+                  },
+                  { "nodeId": "fontconfig/libfontconfig1@2.11.0-6.3+deb8u1" },
+                  { "nodeId": "fonts-dejavu/fonts-dejavu-core@2.34-1" },
+                  { "nodeId": "freetype/libfreetype6@2.5.2-3+deb8u1" },
+                  { "nodeId": "gcc-4.9/gcc-4.9-base@4.9.2-10" },
+                  { "nodeId": "gcc-4.9/libgcc1@1:4.9.2-10" },
+                  { "nodeId": "glib2.0/libglib2.0-0@2.42.1-1+b1" },
+                  { "nodeId": "glibc/libc6@2.19-18+deb8u7" },
+                  { "nodeId": "glibc/multiarch-support@2.19-18+deb8u7" },
+                  { "nodeId": "gmp/libgmp10@2:6.0.0+dfsg-6" },
+                  { "nodeId": "keyutils/libkeyutils1@1.5.9-5+b1" },
+                  { "nodeId": "krb5/libkrb5support0@1.12.1+dfsg-19+deb8u2" },
+                  { "nodeId": "libffi/libffi6@3.1-2+b2" },
+                  { "nodeId": "libpng/libpng12-0@1.2.50-2+deb8u3" },
+                  { "nodeId": "libselinux/libselinux1@2.3-2" },
+                  { "nodeId": "libsemanage/libsemanage-common@2.3-1" },
+                  { "nodeId": "libsemanage/libsemanage1@2.3-1+b1" },
+                  { "nodeId": "libsepol/libsepol1@2.3-2" },
+                  { "nodeId": "libx11/libx11-6@2:1.6.2-3" },
+                  { "nodeId": "libx11/libx11-data@2:1.6.2-3" },
+                  { "nodeId": "libxau/libxau6@1:1.0.8-1" },
+                  { "nodeId": "libxcb/libxcb1@1.10-3+b1" },
+                  { "nodeId": "libxdmcp/libxdmcp6@1:1.1.1-1+b1" },
+                  { "nodeId": "libxext/libxext6@2:1.3.3-1" },
+                  { "nodeId": "lsb/lsb-base@4.1+Debian13+nmu1" },
+                  { "nodeId": "ncurses/libtinfo5@5.9+20140913-1+b1" },
+                  { "nodeId": "nettle/libnettle4@2.7.1-5+deb8u2" },
+                  { "nodeId": "pam/libpam-modules@1.1.8-3.1+deb8u2" },
+                  { "nodeId": "pam/libpam-modules-bin@1.1.8-3.1+deb8u2" },
+                  { "nodeId": "pam/libpam0g@1.1.8-3.1+deb8u2" },
+                  { "nodeId": "pcre3/libpcre3@2:8.35-3.3+deb8u4" },
+                  { "nodeId": "perl/perl-base@5.20.2-3+deb8u6" },
+                  { "nodeId": "sensible-utils@0.0.9" },
+                  { "nodeId": "shadow/passwd@1:4.2-3+deb8u1" },
+                  { "nodeId": "tar@1.27.1-2+deb8u1" },
+                  { "nodeId": "ucf@3.0030" },
+                  { "nodeId": "ustr/libustr-1.0-1@1.0.4-3+b2" },
+                  { "nodeId": "util-linux/libuuid1@2.25.2-6" },
+                  { "nodeId": "xz-utils/liblzma5@5.1.1alpha+20120614-2+b3" },
+                  { "nodeId": "zlib/zlib1g@1:1.2.8.dfsg-2+b1" }
+                ]
+              },
+              {
+                "nodeId": "ncurses/ncurses-base@5.9+20140913-1",
+                "pkgId": "ncurses/ncurses-base@5.9+20140913-1",
+                "deps": []
+              },
+              {
+                "nodeId": "ncurses/ncurses-bin@5.9+20140913-1+b1",
+                "pkgId": "ncurses/ncurses-bin@5.9+20140913-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "openjdk-8/openjdk-8-jdk-headless@8u111-b14-2~bpo8+1",
+                "pkgId": "openjdk-8/openjdk-8-jdk-headless@8u111-b14-2~bpo8+1",
+                "deps": [
+                  {
+                    "nodeId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1|2"
+                  }
+                ]
+              },
+              {
+                "nodeId": "giflib/libgif4@4.1.6-11+deb8u1",
+                "pkgId": "giflib/libgif4@4.1.6-11+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "atk1.0/libatk1.0-data@2.14.0-1",
+                "pkgId": "atk1.0/libatk1.0-data@2.14.0-1",
+                "deps": []
+              },
+              {
+                "nodeId": "atk1.0/libatk1.0-0@2.14.0-1|1",
+                "pkgId": "atk1.0/libatk1.0-0@2.14.0-1",
+                "deps": [{ "nodeId": "atk1.0/libatk1.0-data@2.14.0-1" }]
+              },
+              {
+                "nodeId": "atk1.0/libatk1.0-0@2.14.0-1|2",
+                "pkgId": "atk1.0/libatk1.0-0@2.14.0-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-render0@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-render0@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-shm0@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-shm0@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "pixman/libpixman-1-0@0.32.6-3",
+                "pkgId": "pixman/libpixman-1-0@0.32.6-3",
+                "deps": []
+              },
+              {
+                "nodeId": "cairo/libcairo2@1.14.0-2.1+deb8u2|1",
+                "pkgId": "cairo/libcairo2@1.14.0-2.1+deb8u2",
+                "deps": [
+                  { "nodeId": "libxcb/libxcb-render0@1.10-3+b1" },
+                  { "nodeId": "libxcb/libxcb-shm0@1.10-3+b1" },
+                  { "nodeId": "libxrender/libxrender1@1:0.9.8-1+b1" },
+                  { "nodeId": "pixman/libpixman-1-0@0.32.6-3" }
+                ]
+              },
+              {
+                "nodeId": "cairo/libcairo2@1.14.0-2.1+deb8u2|2",
+                "pkgId": "cairo/libcairo2@1.14.0-2.1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "gdk-pixbuf/libgdk-pixbuf2.0-common@2.31.1-2+deb8u5",
+                "pkgId": "gdk-pixbuf/libgdk-pixbuf2.0-common@2.31.1-2+deb8u5",
+                "deps": []
+              },
+              {
+                "nodeId": "jasper/libjasper1@1.900.1-debian1-2.4+deb8u1",
+                "pkgId": "jasper/libjasper1@1.900.1-debian1-2.4+deb8u1",
+                "deps": [
+                  { "nodeId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12" }
+                ]
+              },
+              {
+                "nodeId": "jbigkit/libjbig0@2.1-3.1",
+                "pkgId": "jbigkit/libjbig0@2.1-3.1",
+                "deps": []
+              },
+              {
+                "nodeId": "tiff/libtiff5@4.0.3-12.3+deb8u2",
+                "pkgId": "tiff/libtiff5@4.0.3-12.3+deb8u2",
+                "deps": [
+                  { "nodeId": "jbigkit/libjbig0@2.1-3.1" },
+                  { "nodeId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12" }
+                ]
+              },
+              {
+                "nodeId": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5|1",
+                "pkgId": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5",
+                "deps": [
+                  {
+                    "nodeId": "gdk-pixbuf/libgdk-pixbuf2.0-common@2.31.1-2+deb8u5"
+                  },
+                  { "nodeId": "jasper/libjasper1@1.900.1-debian1-2.4+deb8u1" },
+                  { "nodeId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12" },
+                  { "nodeId": "tiff/libtiff5@4.0.3-12.3+deb8u2" }
+                ]
+              },
+              {
+                "nodeId": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5|2",
+                "pkgId": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcomposite/libxcomposite1@1:0.4.4-1",
+                "pkgId": "libxcomposite/libxcomposite1@1:0.4.4-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxfixes/libxfixes3@1:5.0.1-2+b2",
+                "pkgId": "libxfixes/libxfixes3@1:5.0.1-2+b2",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcursor/libxcursor1@1:1.1.14-1+b1",
+                "pkgId": "libxcursor/libxcursor1@1:1.1.14-1+b1",
+                "deps": [
+                  { "nodeId": "libxfixes/libxfixes3@1:5.0.1-2+b2" },
+                  { "nodeId": "libxrender/libxrender1@1:0.9.8-1+b1" }
+                ]
+              },
+              {
+                "nodeId": "libxdamage/libxdamage1@1:1.1.4-2+b1|1",
+                "pkgId": "libxdamage/libxdamage1@1:1.1.4-2+b1",
+                "deps": [{ "nodeId": "libxfixes/libxfixes3@1:5.0.1-2+b2" }]
+              },
+              {
+                "nodeId": "libxdamage/libxdamage1@1:1.1.4-2+b1|2",
+                "pkgId": "libxdamage/libxdamage1@1:1.1.4-2+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxinerama/libxinerama1@2:1.1.3-1+b1",
+                "pkgId": "libxinerama/libxinerama1@2:1.1.3-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxrandr/libxrandr2@2:1.4.2-1+b1|1",
+                "pkgId": "libxrandr/libxrandr2@2:1.4.2-1+b1",
+                "deps": [{ "nodeId": "libxrender/libxrender1@1:0.9.8-1+b1" }]
+              },
+              {
+                "nodeId": "libxrandr/libxrandr2@2:1.4.2-1+b1|2",
+                "pkgId": "libxrandr/libxrandr2@2:1.4.2-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "fontconfig@2.11.0-6.3+deb8u1",
+                "pkgId": "fontconfig@2.11.0-6.3+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "libdatrie/libdatrie1@0.2.8-1",
+                "pkgId": "libdatrie/libdatrie1@0.2.8-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libthai/libthai-data@0.1.21-1",
+                "pkgId": "libthai/libthai-data@0.1.21-1",
+                "deps": []
+              },
+              {
+                "nodeId": "libthai/libthai0@0.1.21-1",
+                "pkgId": "libthai/libthai0@0.1.21-1",
+                "deps": [
+                  { "nodeId": "libdatrie/libdatrie1@0.2.8-1" },
+                  { "nodeId": "libthai/libthai-data@0.1.21-1" }
+                ]
+              },
+              {
+                "nodeId": "pango1.0/libpango-1.0-0@1.36.8-3|1",
+                "pkgId": "pango1.0/libpango-1.0-0@1.36.8-3",
+                "deps": [
+                  { "nodeId": "fontconfig@2.11.0-6.3+deb8u1" },
+                  { "nodeId": "libthai/libthai0@0.1.21-1" }
+                ]
+              },
+              {
+                "nodeId": "pango1.0/libpango-1.0-0@1.36.8-3|2",
+                "pkgId": "pango1.0/libpango-1.0-0@1.36.8-3",
+                "deps": []
+              },
+              {
+                "nodeId": "graphite2/libgraphite2-3@1.3.6-1~deb8u1",
+                "pkgId": "graphite2/libgraphite2-3@1.3.6-1~deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "harfbuzz/libharfbuzz0b@0.9.35-2",
+                "pkgId": "harfbuzz/libharfbuzz0b@0.9.35-2",
+                "deps": [
+                  { "nodeId": "graphite2/libgraphite2-3@1.3.6-1~deb8u1" }
+                ]
+              },
+              {
+                "nodeId": "pango1.0/libpangoft2-1.0-0@1.36.8-3|1",
+                "pkgId": "pango1.0/libpangoft2-1.0-0@1.36.8-3",
+                "deps": [
+                  { "nodeId": "harfbuzz/libharfbuzz0b@0.9.35-2" },
+                  { "nodeId": "pango1.0/libpango-1.0-0@1.36.8-3|2" }
+                ]
+              },
+              {
+                "nodeId": "pango1.0/libpangoft2-1.0-0@1.36.8-3|2",
+                "pkgId": "pango1.0/libpangoft2-1.0-0@1.36.8-3",
+                "deps": []
+              },
+              {
+                "nodeId": "pango1.0/libpangocairo-1.0-0@1.36.8-3|1",
+                "pkgId": "pango1.0/libpangocairo-1.0-0@1.36.8-3",
+                "deps": [
+                  { "nodeId": "cairo/libcairo2@1.14.0-2.1+deb8u2|2" },
+                  { "nodeId": "pango1.0/libpango-1.0-0@1.36.8-3|2" },
+                  { "nodeId": "pango1.0/libpangoft2-1.0-0@1.36.8-3|1" }
+                ]
+              },
+              {
+                "nodeId": "pango1.0/libpangocairo-1.0-0@1.36.8-3|2",
+                "pkgId": "pango1.0/libpangocairo-1.0-0@1.36.8-3",
+                "deps": []
+              },
+              {
+                "nodeId": "java-atk-wrapper/libatk-wrapper-java@0.30.5-1",
+                "pkgId": "java-atk-wrapper/libatk-wrapper-java@0.30.5-1",
+                "deps": []
+              },
+              {
+                "nodeId": "java-atk-wrapper/libatk-wrapper-java-jni@0.30.5-1",
+                "pkgId": "java-atk-wrapper/libatk-wrapper-java-jni@0.30.5-1",
+                "deps": [
+                  { "nodeId": "atk1.0/libatk1.0-0@2.14.0-1|2" },
+                  { "nodeId": "cairo/libcairo2@1.14.0-2.1+deb8u2|2" },
+                  {
+                    "nodeId": "gdk-pixbuf/libgdk-pixbuf2.0-0@2.31.1-2+deb8u5|2"
+                  },
+                  { "nodeId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1|1" },
+                  { "nodeId": "java-atk-wrapper/libatk-wrapper-java@0.30.5-1" },
+                  { "nodeId": "pango1.0/libpango-1.0-0@1.36.8-3|2" },
+                  { "nodeId": "pango1.0/libpangocairo-1.0-0@1.36.8-3|2" }
+                ]
+              },
+              {
+                "nodeId": "libx11/libx11-xcb1@2:1.6.2-3",
+                "pkgId": "libx11/libx11-xcb1@2:1.6.2-3",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-dri2-0@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-dri2-0@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-dri3-0@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-dri3-0@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-glx0@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-glx0@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-present0@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-present0@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxcb/libxcb-sync1@1.10-3+b1",
+                "pkgId": "libxcb/libxcb-sync1@1.10-3+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "libxshmfence/libxshmfence1@1.1-4",
+                "pkgId": "libxshmfence/libxshmfence1@1.1-4",
+                "deps": []
+              },
+              {
+                "nodeId": "libxxf86vm/libxxf86vm1@1:1.1.3-1+b1",
+                "pkgId": "libxxf86vm/libxxf86vm1@1:1.1.3-1+b1",
+                "deps": []
+              },
+              {
+                "nodeId": "mesa/libglapi-mesa@10.3.2-1+deb8u1",
+                "pkgId": "mesa/libglapi-mesa@10.3.2-1+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "mesa/libgl1-mesa-glx@10.3.2-1+deb8u1",
+                "pkgId": "mesa/libgl1-mesa-glx@10.3.2-1+deb8u1",
+                "deps": [
+                  { "nodeId": "libdrm/libdrm2@2.4.58-2" },
+                  { "nodeId": "libx11/libx11-xcb1@2:1.6.2-3" },
+                  { "nodeId": "libxcb/libxcb-dri2-0@1.10-3+b1" },
+                  { "nodeId": "libxcb/libxcb-dri3-0@1.10-3+b1" },
+                  { "nodeId": "libxcb/libxcb-glx0@1.10-3+b1" },
+                  { "nodeId": "libxcb/libxcb-present0@1.10-3+b1" },
+                  { "nodeId": "libxcb/libxcb-sync1@1.10-3+b1" },
+                  { "nodeId": "libxdamage/libxdamage1@1:1.1.4-2+b1|2" },
+                  { "nodeId": "libxfixes/libxfixes3@1:5.0.1-2+b2" },
+                  { "nodeId": "libxshmfence/libxshmfence1@1.1-4" },
+                  { "nodeId": "libxxf86vm/libxxf86vm1@1:1.1.3-1+b1" },
+                  { "nodeId": "mesa/libglapi-mesa@10.3.2-1+deb8u1" },
+                  { "nodeId": "systemd/libudev1@215-17+deb8u6" }
+                ]
+              },
+              {
+                "nodeId": "json-c/libjson-c2@0.11-4",
+                "pkgId": "json-c/libjson-c2@0.11-4",
+                "deps": []
+              },
+              {
+                "nodeId": "libasyncns/libasyncns0@0.8-5",
+                "pkgId": "libasyncns/libasyncns0@0.8-5",
+                "deps": []
+              },
+              {
+                "nodeId": "flac/libflac8@1.3.0-3",
+                "pkgId": "flac/libflac8@1.3.0-3",
+                "deps": [{ "nodeId": "libogg/libogg0@1.3.2-1" }]
+              },
+              {
+                "nodeId": "libvorbis/libvorbisenc2@1.3.4-2",
+                "pkgId": "libvorbis/libvorbisenc2@1.3.4-2",
+                "deps": [
+                  { "nodeId": "libogg/libogg0@1.3.2-1" },
+                  { "nodeId": "libvorbis/libvorbis0a@1.3.4-2|2" }
+                ]
+              },
+              {
+                "nodeId": "libsndfile/libsndfile1@1.0.25-9.1+deb8u1",
+                "pkgId": "libsndfile/libsndfile1@1.0.25-9.1+deb8u1",
+                "deps": [
+                  { "nodeId": "flac/libflac8@1.3.0-3" },
+                  { "nodeId": "libvorbis/libvorbisenc2@1.3.4-2" }
+                ]
+              },
+              {
+                "nodeId": "tcp-wrappers/libwrap0@7.6.q-25",
+                "pkgId": "tcp-wrappers/libwrap0@7.6.q-25",
+                "deps": []
+              },
+              {
+                "nodeId": "pulseaudio/libpulse0@5.0-13",
+                "pkgId": "pulseaudio/libpulse0@5.0-13",
+                "deps": [
+                  { "nodeId": "json-c/libjson-c2@0.11-4" },
+                  { "nodeId": "libasyncns/libasyncns0@0.8-5" },
+                  { "nodeId": "libcap2@1:2.24-8" },
+                  { "nodeId": "libice/libice6@2:1.0.9-1+b1|2" },
+                  { "nodeId": "libsm/libsm6@2:1.2.2-1+b1|2" },
+                  { "nodeId": "libsndfile/libsndfile1@1.0.25-9.1+deb8u1" },
+                  { "nodeId": "libx11/libx11-xcb1@2:1.6.2-3" },
+                  { "nodeId": "libxtst/libxtst6@2:1.2.2-1+b1|2" },
+                  { "nodeId": "systemd/libsystemd0@215-17+deb8u6|2" },
+                  { "nodeId": "tcp-wrappers/libwrap0@7.6.q-25" }
+                ]
+              },
+              {
+                "nodeId": "openjdk-8/openjdk-8-jre@8u111-b14-2~bpo8+1",
+                "pkgId": "openjdk-8/openjdk-8-jre@8u111-b14-2~bpo8+1",
+                "deps": [
+                  { "nodeId": "alsa-lib/libasound2@1.0.28-1|2" },
+                  { "nodeId": "giflib/libgif4@4.1.6-11+deb8u1" },
+                  { "nodeId": "gtk+2.0/libgtk2.0-0@2.24.25-3+deb8u1|2" },
+                  {
+                    "nodeId": "java-atk-wrapper/libatk-wrapper-java-jni@0.30.5-1"
+                  },
+                  { "nodeId": "libjpeg-turbo/libjpeg62-turbo@1:1.3.1-12" },
+                  { "nodeId": "libxinerama/libxinerama1@2:1.1.3-1+b1" },
+                  { "nodeId": "libxrandr/libxrandr2@2:1.4.2-1+b1|2" },
+                  { "nodeId": "mesa/libgl1-mesa-glx@10.3.2-1+deb8u1" },
+                  {
+                    "nodeId": "openjdk-8/openjdk-8-jre-headless@8u111-b14-2~bpo8+1|2"
+                  },
+                  { "nodeId": "pulseaudio/libpulse0@5.0-13" }
+                ]
+              },
+              {
+                "nodeId": "openjdk-8/openjdk-8-jdk@8u111-b14-2~bpo8+1",
+                "pkgId": "openjdk-8/openjdk-8-jdk@8u111-b14-2~bpo8+1",
+                "deps": [
+                  {
+                    "nodeId": "openjdk-8/openjdk-8-jdk-headless@8u111-b14-2~bpo8+1"
+                  },
+                  { "nodeId": "openjdk-8/openjdk-8-jre@8u111-b14-2~bpo8+1" }
+                ]
+              },
+              {
+                "nodeId": "libbsd/libbsd0@0.7.0-2",
+                "pkgId": "libbsd/libbsd0@0.7.0-2",
+                "deps": []
+              },
+              {
+                "nodeId": "openssh/openssh-client@1:6.7p1-5+deb8u3",
+                "pkgId": "openssh/openssh-client@1:6.7p1-5+deb8u3",
+                "deps": [
+                  { "nodeId": "adduser@3.113+nmu3" },
+                  { "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "libedit/libedit2@3.1-20140620-2|2" },
+                  { "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5" }
+                ]
+              },
+              {
+                "nodeId": "pam/libpam-runtime@1.1.8-3.1+deb8u2",
+                "pkgId": "pam/libpam-runtime@1.1.8-3.1+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "s2tc/libtxc-dxtn-s2tc0@0~git20131104-1.1",
+                "pkgId": "s2tc/libtxc-dxtn-s2tc0@0~git20131104-1.1",
+                "deps": [{ "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" }]
+              },
+              {
+                "nodeId": "sed@4.2.2-4+deb8u1",
+                "pkgId": "sed@4.2.2-4+deb8u1",
+                "deps": []
+              },
+              {
+                "nodeId": "sgml-base@1.26+nmu4|1",
+                "pkgId": "sgml-base@1.26+nmu4",
+                "deps": [{ "nodeId": "perl@5.20.2-3+deb8u6|2" }]
+              },
+              {
+                "nodeId": "sgml-base@1.26+nmu4|2",
+                "pkgId": "sgml-base@1.26+nmu4",
+                "deps": []
+              },
+              {
+                "nodeId": "shadow/login@1:4.2-3+deb8u1",
+                "pkgId": "shadow/login@1:4.2-3+deb8u1",
+                "deps": [{ "nodeId": "pam/libpam-runtime@1.1.8-3.1+deb8u2" }]
+              },
+              {
+                "nodeId": "apr-util/libaprutil1@1.5.4-1|1",
+                "pkgId": "apr-util/libaprutil1@1.5.4-1",
+                "deps": []
+              },
+              {
+                "nodeId": "apr-util/libaprutil1@1.5.4-1|2",
+                "pkgId": "apr-util/libaprutil1@1.5.4-1",
+                "deps": [
+                  { "nodeId": "apr/libapr1@1.5.1-3" },
+                  { "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5" }
+                ]
+              },
+              {
+                "nodeId": "apr/libapr1@1.5.1-3",
+                "pkgId": "apr/libapr1@1.5.1-3",
+                "deps": []
+              },
+              {
+                "nodeId": "serf/libserf-1-1@1.3.8-1",
+                "pkgId": "serf/libserf-1-1@1.3.8-1",
+                "deps": [
+                  { "nodeId": "apr-util/libaprutil1@1.5.4-1|1" },
+                  { "nodeId": "apr/libapr1@1.5.1-3" },
+                  { "nodeId": "krb5/libgssapi-krb5-2@1.12.1+dfsg-19+deb8u2|2" },
+                  { "nodeId": "openssl/libssl1.0.0@1.0.1t-1+deb8u5" }
+                ]
+              },
+              {
+                "nodeId": "subversion/libsvn1@1.8.10-6+deb8u4",
+                "pkgId": "subversion/libsvn1@1.8.10-6+deb8u4",
+                "deps": [
+                  { "nodeId": "apr-util/libaprutil1@1.5.4-1|2" },
+                  { "nodeId": "apr/libapr1@1.5.1-3" },
+                  {
+                    "nodeId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1|2"
+                  },
+                  { "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|1" },
+                  { "nodeId": "serf/libserf-1-1@1.3.8-1" },
+                  { "nodeId": "sqlite3/libsqlite3-0@3.8.7.1-1+deb8u2" }
+                ]
+              },
+              {
+                "nodeId": "subversion@1.8.10-6+deb8u4",
+                "pkgId": "subversion@1.8.10-6+deb8u4",
+                "deps": [
+                  { "nodeId": "apr-util/libaprutil1@1.5.4-1|1" },
+                  { "nodeId": "apr/libapr1@1.5.1-3" },
+                  {
+                    "nodeId": "cyrus-sasl2/libsasl2-2@2.1.26.dfsg1-13+deb8u1|2"
+                  },
+                  { "nodeId": "openldap/libldap-2.4-2@2.4.40+dfsg-1+deb8u2|1" },
+                  { "nodeId": "subversion/libsvn1@1.8.10-6+deb8u4" }
+                ]
+              },
+              {
+                "nodeId": "tcp-wrappers/tcpd@7.6.q-25",
+                "pkgId": "tcp-wrappers/tcpd@7.6.q-25",
+                "deps": [{ "nodeId": "tcp-wrappers/libwrap0@7.6.q-25" }]
+              },
+              {
+                "nodeId": "unzip@6.0-16+deb8u2",
+                "pkgId": "unzip@6.0-16+deb8u2",
+                "deps": []
+              },
+              {
+                "nodeId": "util-linux/bsdutils@1:2.25.2-6",
+                "pkgId": "util-linux/bsdutils@1:2.25.2-6",
+                "deps": [{ "nodeId": "systemd/libsystemd0@215-17+deb8u6|2" }]
+              },
+              {
+                "nodeId": "icu/libicu52@52.1-8+deb8u4",
+                "pkgId": "icu/libicu52@52.1-8+deb8u4",
+                "deps": [{ "nodeId": "gcc-4.9/libstdc++6@4.9.2-10" }]
+              },
+              {
+                "nodeId": "libpsl/libpsl0@0.5.1-1",
+                "pkgId": "libpsl/libpsl0@0.5.1-1",
+                "deps": [{ "nodeId": "icu/libicu52@52.1-8+deb8u4" }]
+              },
+              {
+                "nodeId": "wget@1.16-1+deb8u1",
+                "pkgId": "wget@1.16-1+deb8u1",
+                "deps": [
+                  { "nodeId": "gnutls28/libgnutls-deb0-28@3.3.8-6+deb8u4|1" },
+                  { "nodeId": "libidn/libidn11@1.29-1+deb8u2" },
+                  { "nodeId": "libpsl/libpsl0@0.5.1-1" }
+                ]
+              },
+              {
+                "nodeId": "xdg-user-dirs@0.15-2",
+                "pkgId": "xdg-user-dirs@0.15-2",
+                "deps": []
+              },
+              {
+                "nodeId": "xml-core@0.13+nmu2",
+                "pkgId": "xml-core@0.13+nmu2",
+                "deps": [
+                  { "nodeId": "sed@4.2.2-4+deb8u1" },
+                  { "nodeId": "sgml-base@1.26+nmu4|2" }
+                ]
+              },
+              {
+                "nodeId": "xz-utils/xz-utils@5.1.1alpha+20120614-2+b3",
+                "pkgId": "xz-utils/xz-utils@5.1.1alpha+20120614-2+b3",
+                "deps": []
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "keyBinariesHashes",
+        "data": [
+          "e64376a80a0f713a8e03af9bccdd14f2bd3cd243fb6ea73bf6e9d6317aa481e0",
+          "a2da5231e26564a335a8325db5b5e38ffbd348399a68efac21c0a5e325faccb3"
+        ]
+      },
+      {
+        "type": "imageId",
+        "data": "d23bdf5b1b1b1afce5f1d0fd33e7ed8afbc084b594b9ccf742a5b27080d8a4a8"
+      },
+      {
+        "type": "imageLayers",
+        "data": [
+          "a2ae92ffcd29f7ededa0320f4a4fd709a723beae9a4e681696874932db7aee2c.tar",
+          "0eb22bfb707db44a8e5ba46a21b2ac59c83dfa946228f04be511aba313bdc090.tar",
+          "30339f20ced009fc394410ac3360f387351641ed40d6b2a44b0d39098e2e2c40.tar",
+          "ce6c8756685b2bff514e0b28f78eedb671380084555af2b3833e54bb191b262a.tar",
+          "a3483ce177ce1278dd26f992b7c0cfe8b8175dd45bc28fee2628ff2cf063604c.tar",
+          "6ed1a81ba5b6811a62563b80ea12a405ed442a297574de7440beeafe8512a00a.tar",
+          "c3fe59dd955634c3fa1808b8053353f03f4399d9d071be015fdfb98b3e105709.tar",
+          "35c20f26d18852b74cc90afc4fb1995f1af45537a857eef042a227bd8d0822a3.tar"
+        ]
+      },
+      {
+        "type": "rootFs",
+        "data": [
+          "sha256:a2ae92ffcd29f7ededa0320f4a4fd709a723beae9a4e681696874932db7aee2c",
+          "sha256:0eb22bfb707db44a8e5ba46a21b2ac59c83dfa946228f04be511aba313bdc090",
+          "sha256:30339f20ced009fc394410ac3360f387351641ed40d6b2a44b0d39098e2e2c40",
+          "sha256:ce6c8756685b2bff514e0b28f78eedb671380084555af2b3833e54bb191b262a",
+          "sha256:a3483ce177ce1278dd26f992b7c0cfe8b8175dd45bc28fee2628ff2cf063604c",
+          "sha256:6ed1a81ba5b6811a62563b80ea12a405ed442a297574de7440beeafe8512a00a",
+          "sha256:c3fe59dd955634c3fa1808b8053353f03f4399d9d071be015fdfb98b3e105709",
+          "sha256:35c20f26d18852b74cc90afc4fb1995f1af45537a857eef042a227bd8d0822a3"
+        ]
+      },
+      {
+        "type": "imageOsReleasePrettyName",
+        "data": "Debian GNU/Linux 8 (jessie)"
+      }
+    ],
+    "target": { "image": "docker-image|java" },
+    "identity": { "type": "deb", "args": { "platform": "linux/amd64" } }
+  }
+]

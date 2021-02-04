@@ -1,7 +1,7 @@
 import { logger } from '../common/logger';
 import { pullImages, removePulledImages, getImagesWithFileSystemPath, scanImages, getImageParts } from './images';
-import { deleteWorkload, sendDepGraph } from '../transmitter';
-import { constructDeleteWorkload, constructDepGraph } from '../transmitter/payload';
+import { deleteWorkload, sendDepGraph, sendScanResults } from '../transmitter';
+import { constructDeleteWorkload, constructDepGraph, constructScanResults } from '../transmitter/payload';
 import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { IPullableImage, IScanImage } from './images/types';
 
@@ -79,8 +79,12 @@ async function scanImagesAndSendResults(
 
   logger.info({workloadName, imageCount: scannedImages.length}, 'successfully scanned images');
 
-  const depGraphPayloads = constructDepGraph(scannedImages, workloadMetadata);
-  await sendDepGraph(...depGraphPayloads);
+  const scanResultsPayloads = constructScanResults(scannedImages, workloadMetadata);
+  const success = await sendScanResults(scanResultsPayloads);
+  if (!success) {
+    const depGraphPayloads = constructDepGraph(scannedImages, workloadMetadata);
+    await sendDepGraph(...depGraphPayloads);
+  }
 
   const pulledImagesNames = pulledImages.map((image) => image.imageName);
   const pulledImageMetadata = workloadMetadata.filter((meta) =>
