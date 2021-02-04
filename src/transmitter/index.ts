@@ -5,10 +5,11 @@ import { logger } from '../common/logger';
 import { config } from '../common/config';
 import {
   IDeleteWorkloadPayload,
-  IDependencyGraphPayload,
   IWorkloadMetadataPayload,
   IResponseWithAttempts,
   IRequestError,
+  ScanResultsPayload,
+  IDependencyGraphPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
 
@@ -30,6 +31,27 @@ export async function sendDepGraph(...payloads: IDependencyGraphPayload[]): Prom
       logger.error({error, payload: payloadWithoutDepGraph}, 'could not send the dependency scan result upstream');
     }
   }
+}
+
+export async function sendScanResults(payloads: ScanResultsPayload[]): Promise<boolean> {
+  for (const payload of payloads) {
+    // Intentionally removing scan results as they would be too big to log
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { scanResults, ...payloadWithoutScanResults } = payload;
+    try {
+      const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/scan-results`, payload);
+      if (!isSuccessStatusCode(response.statusCode)) {
+        throw new Error(`${response.statusCode} ${response.statusMessage}`);
+      } else {
+        logger.info({payload: payloadWithoutScanResults, attempt}, 'scan results sent upstream successfully');
+      }
+    } catch (error) {
+      logger.error({error, payload: payloadWithoutScanResults}, 'could not send the scan results upstream');
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): Promise<void> {
