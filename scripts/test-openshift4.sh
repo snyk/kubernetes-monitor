@@ -66,4 +66,4 @@ if [ "${CI}" != "true" ]; then
   python3 scripts/operator/main.py
 fi
 
-DEPLOYMENT_TYPE=OperatorOS TEST_PLATFORM=openshift4 CREATE_CLUSTER=false tap test/integration/kubernetes.test.ts --timeout=900
+DEPLOYMENT_TYPE=OperatorOS TEST_PLATFORM=openshift4 CREATE_CLUSTER=false jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts
