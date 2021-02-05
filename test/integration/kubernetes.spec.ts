@@ -1,6 +1,6 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import { exec } from 'child-process-promise';
-import { Fact } from 'snyk-docker-plugin';
+import { Fact, ScanResult } from 'snyk-docker-plugin';
 import * as setup from '../setup';
 import { WorkloadKind } from '../../src/supervisor/types';
 import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
@@ -45,6 +45,7 @@ test('deploy sample workloads', async () => {
     kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/scratch-deployment.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/consul-deployment.yaml'),
     kubectl.createPodFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
   ]);
 });
@@ -99,7 +100,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return (
       workloads !== undefined &&
-      workloads.length === 6 &&
+      workloads.length === 7 &&
       workloads.find(
         (workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
       ) !== undefined &&
@@ -118,6 +119,9 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
       ) !== undefined &&
       workloads.find(
         (workload) => workload.name === 'centos' && workload.type === WorkloadKind.Deployment,
+      ) !== undefined &&
+      workloads.find(
+        (workload) => workload.name === 'consul' && workload.type === WorkloadKind.Deployment,
       ) !== undefined
     );
   };
@@ -167,6 +171,24 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
 
   expect(osScanResult.target.image).toEqual('docker-image|busybox');
   expect(osScanResult.identity.type).toEqual('linux');
+
+  const scanResultsConsulDeployment = await getUpstreamResponseBody(
+    `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/consul`,
+  );
+  expect(scanResultsConsulDeployment.workloadScanResults['snyk/runtime-fixtures']).toEqual<ScanResult[]>(
+    [
+      {
+        identity: { type: 'apk', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|snyk/runtime-fixtures' },
+      },
+      {
+        identity: { type: 'gomodules', targetFile: '/bin/consul' },
+        facts: expect.arrayContaining([{ type: 'depGraph', data: expect.any(Object) }]),
+        target: { image: 'docker-image|snyk/runtime-fixtures' },
+      },
+    ],
+  );
 });
 
 test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async () => {

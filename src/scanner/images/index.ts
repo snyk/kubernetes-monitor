@@ -77,7 +77,7 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
 
   for (const { imageName, fileSystemPath, imageWithDigest } of images) {
     try {
-      const shouldIncludeAppVulns = false;
+      const shouldIncludeAppVulns = true;
       const dockerArchivePath = `docker-archive:${fileSystemPath}`;
 
       const pluginResponse = await scan({
