@@ -1,4 +1,4 @@
-import { makeInformer, ADD, DELETE, UPDATE, KubernetesObject } from '@kubernetes/client-node';
+import { makeInformer, ADD, DELETE, ERROR, UPDATE, KubernetesObject } from '@kubernetes/client-node';
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
 import { podWatchHandler, podDeletedHandler } from './pod';
@@ -12,6 +12,7 @@ import { statefulSetWatchHandler } from './stateful-set';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { ECONNRESET_ERROR_CODE } from '../types';
 
 /**
  * This map is used in combination with the kubernetes-client Informer API
@@ -108,6 +109,20 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
   };
 
   const informer = makeInformer<KubernetesObject>(kubeConfig, namespacedEndpoint, loggedListMethod);
+
+  informer.on(ERROR, (err) => {
+    // Types from client library insists that callback is of type KubernetesObject
+    if ((err as any).code === ECONNRESET_ERROR_CODE) {
+      logger.debug(`informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`);
+
+      // Restart informer after 1sec
+      setTimeout(() => {
+        informer.start();
+      }, 1000);
+    } else {
+      logger.error({ err }, 'unexpected informer error event occurred');
+    }
+  });
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(informerVerb, async (watchedWorkload) => {
