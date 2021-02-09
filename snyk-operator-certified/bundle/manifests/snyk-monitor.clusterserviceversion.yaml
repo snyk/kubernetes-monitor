@@ -1,6 +1,11 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
+  labels:
+    app.kubernetes.io/instance: snyk-operator-marketplace
+    app.kubernetes.io/version: 1.41.0
+    app.kubernetes.io/name: snyk-operator-marketplace
+    app.kubernetes.io/managed-by: snyk-operator-marketplace
   annotations:
     alm-examples: |-
       [
@@ -8,7 +13,18 @@ metadata:
           "apiVersion": "charts.snyk.io/v1alpha1",
           "kind": "SnykMonitor",
           "metadata": {
-            "name": "snyk-monitor"
+            "name": "snyk-monitor",
+            "labels": {
+              "app.kubernetes.io/instance": "snyk-monitor",
+              "app.kubernetes.io/version": "1.40.3",
+              "app.kubernetes.io/name": "snyk-monitor",
+              "app.kubernetes.io/managed-by": "snyk-operator"
+            },
+            "annotations": {
+              "productID": "snyk-operator-marketplace",
+              "productName": "snyk-operator-marketplace",
+              "productVersion": "1.41.0"
+            }
           },
           "spec": {
             "clusterName": "Default cluster",
@@ -26,8 +42,11 @@ metadata:
     capabilities: Basic Install
     categories: Developer Tools
     certified: "true"
+    productID: snyk-operator-marketplace
+    productName: snyk-operator-marketplace
+    productVersion: 1.41.0
     containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.40.3
-    createdAt: "2020-08-28T15:20:21Z"
+    createdAt: "2021-02-09T00:20:21Z"
     description: A Kubernetes Operator for creating and managing Snyk controller instances.
     operators.operatorframework.io/builder: operator-sdk-v1.3.0
     operators.operatorframework.io/project_layout: helm.sdk.operatorframework.io/v1
@@ -234,6 +253,14 @@ spec:
                       requests:
                         cpu: 100m
                         memory: 100Mi
+                    securityContext:
+                      privileged: false
+                      runAsNonRoot: true
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
+                      capabilities:
+                        drop:
+                          - ALL
                     env:
                       - name: WATCH_NAMESPACE
                         valueFrom:
@@ -259,8 +286,31 @@ spec:
                     ports:
                       - containerPort: 8443
                         name: https
-                    resources: {}
+                    resources:
+                      limits:
+                        cpu: 100m
+                        memory: 100Mi
+                      requests:
+                        cpu: 100m
+                        memory: 100Mi
+                    securityContext:
+                      privileged: false
+                      runAsNonRoot: true
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
+                      capabilities:
+                        drop:
+                          - ALL
                 serviceAccountName: snyk-operator
+                affinity:
+                  nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      nodeSelectorTerms:
+                        - matchExpressions:
+                            - key: kubernetes.io/arch
+                              operator: In
+                              values:
+                                - amd64
                 terminationGracePeriodSeconds: 10
     strategy: deployment
   installModes:
