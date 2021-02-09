@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as sleep from 'sleep-promise';
 import * as uuidv4 from 'uuid/v4';
-import { exec } from 'child-process-promise';
 
 import platforms, { getKubernetesVersionForPlatform } from './platforms';
 import deployers from './deployers';
 import { IImageOptions } from './deployers/types';
 import * as kubectl from '../helpers/kubectl';
+import { execWrapper as exec } from '../helpers/exec';
 
 const testPlatform = process.env['TEST_PLATFORM'] || 'kind';
 const createCluster = process.env['CREATE_CLUSTER'] === 'true';

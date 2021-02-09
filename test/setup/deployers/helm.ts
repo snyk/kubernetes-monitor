@@ -1,8 +1,8 @@
-import { exec } from 'child-process-promise';
 import { platform } from 'os';
+import { existsSync, chmodSync } from 'fs';
 
 import { IDeployer, IImageOptions } from './types';
-import { existsSync, chmodSync } from 'fs';
+import { execWrapper as exec } from '../../helpers/exec';
 
 const helmVersion = '3.0.0';
 const helmPath = './helm';

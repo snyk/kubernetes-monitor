@@ -1,4 +1,4 @@
-import { exec } from 'child-process-promise';
+import { execWrapper as exec } from './exec';
 import { chmodSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';

@@ -1,7 +1,7 @@
-import { exec } from 'child-process-promise';
 import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
+import { execWrapper as exec } from '../../helpers/exec';
 
 const clusterName = 'kind';
 
