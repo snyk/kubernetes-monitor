@@ -25,7 +25,7 @@ export async function getUpstreamResponseBody(
   return responseBody;
 }
 
-export async function validateUpstreamStoredDepGraphs(
+export async function validateUpstreamStoredScanResults(
   validatorFn: DepGraphsValidator,
   relativeUrl: string,
   remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
@@ -33,7 +33,7 @@ export async function validateUpstreamStoredDepGraphs(
   while (remainingChecks > 0) {
     console.log(`Pinging upstream for existing data (${remainingChecks} checks remaining)...`);
     const responseBody = await getUpstreamResponseBody(relativeUrl);
-    const depGraphs = responseBody?.dependencyGraphResults;
+    const depGraphs = responseBody?.workloadScanResults;
     const result = validatorFn(depGraphs);
     if (result) {
       return true;

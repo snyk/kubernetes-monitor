@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul
+  namespace: services
+  labels:
+    app.kubernetes.io/name: consul
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: consul
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: consul
+    spec:
+      containers:
+      - image: snyk/runtime-fixtures:consul
+        imagePullPolicy: Always
+        name: consul
+        command: ['/bin/sleep']
+        args: ['9999999']
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+              - ALL

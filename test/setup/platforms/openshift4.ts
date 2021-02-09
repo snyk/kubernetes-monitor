@@ -1,5 +1,4 @@
 import { Writable } from 'stream';
-import { exec } from 'child-process-promise';
 import { chmodSync, writeFileSync, existsSync } from 'fs';
 import { platform, tmpdir } from 'os';
 import { resolve } from 'path';
@@ -7,6 +6,7 @@ import * as needle from 'needle';
 
 import { throwIfEnvironmentVariableUnset } from './helpers';
 import * as kubectl from '../../helpers/kubectl';
+import { execWrapper as exec } from '../../helpers/exec';
 
 const OPENSHIFT_CLI_VERSION = '4.3.0';
 
