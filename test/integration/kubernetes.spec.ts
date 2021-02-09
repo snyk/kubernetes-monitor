@@ -1,5 +1,4 @@
 import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
-import { exec } from 'child-process-promise';
 import { Fact, ScanResult } from 'snyk-docker-plugin';
 import * as setup from '../setup';
 import { WorkloadKind } from '../../src/supervisor/types';
@@ -11,6 +10,7 @@ import {
   validateUpstreamStoredScanResults,
 } from '../helpers/kubernetes-upstream';
 import * as kubectl from '../helpers/kubectl';
+import { execWrapper as exec } from '../helpers/exec';
 
 let integrationId: string;
 let namespace: string;
