@@ -1,10 +1,11 @@
 import * as fsExtra from 'fs-extra';
 import * as nock from 'nock';
-import { exec } from 'child-process-promise';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
 import * as transmitterTypes from '../../src/transmitter/types';
+import { execWrapper as exec } from '../helpers/exec';
+
 /**
  * TODO graceful shutdown
  * We abruptly close the connection to the K8s API server during shutdown, which can result in exceptions.

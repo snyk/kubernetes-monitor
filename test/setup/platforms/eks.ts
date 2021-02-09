@@ -1,7 +1,6 @@
-import { exec } from 'child-process-promise';
-
 import { throwIfEnvironmentVariableUnset } from './helpers';
 import * as kubectl from '../../helpers/kubectl';
+import { execWrapper as exec } from '../../helpers/exec';
 
 export async function validateRequiredEnvironment(): Promise<void> {
   console.log(
