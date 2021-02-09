@@ -157,6 +157,30 @@ By default, `snyk-monitor` uses an emptyDir for temporary storage. If you prefer
 The PVC's name defaults to `snyk-monitor-pvc`. If you prefer to override this, then use the following value:
 * `pvc.name`
 
+
+# Installation from Helm repo
+Add the latest version of Snyk's Helm repo:
+
+```
+helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/ --force-update
+```
+
+Run the following command to launch the Snyk monitor in your cluster:
+
+```
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
+```
+
+To better organise the data scanned inside your cluster, the monitor requires a cluster name to be set. Replace the value of clusterName with the name of your cluster.
+
+
+## Scanning a specific namespace
+Update the vakues.yaml with scope as Namespaced
+```
+scope: Namespaced
+```
+
+
 ## Terms and conditions ##
 
 *The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*
