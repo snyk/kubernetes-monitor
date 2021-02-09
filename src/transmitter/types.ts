@@ -1,5 +1,6 @@
 import { V1PodSpec } from '@kubernetes/client-node';
 import { NeedleResponse } from 'needle';
+import { ScanResult } from 'snyk-docker-plugin';
 
 interface StringMap { [key: string]: string; }
 
@@ -38,6 +39,14 @@ export interface IDependencyGraphPayload {
   imageLocator: IImageLocator;
   agentId: string;
   dependencyGraph?: string;
+  metadata: IKubernetesMonitorMetadata;
+}
+
+export interface ScanResultsPayload {
+  imageLocator: IImageLocator;
+  agentId: string;
+  scanResults: ScanResult[];
+  /** @deprecated TODO: This should be sent in a separate API. */
   metadata: IKubernetesMonitorMetadata;
 }
 

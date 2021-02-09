@@ -12,19 +12,21 @@ const podSpecFixture = JSON.parse(
     readFileSync(join(__dirname, '../', 'fixtures', 'pod-spec.json'),{ encoding: 'utf8' })
 ) as V1PodSpec;
 
-tap.test('constructDepGraph breaks when workloadMetadata is missing items', async (t) => {
+tap.test('constructScanResults breaks when workloadMetadata is missing items', async (t) => {
   const scannedImages: IScanResult[] = [
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
       imageWithDigest: 'myImage@sha256:idontcarewhatissha',
       pluginResult: 'whatever1' as any,
+      scanResults: [],
     },
     {
       image: 'anotherImage',
       imageWithTag: 'anotherImage:1.2.3-alpha',
       imageWithDigest: 'myImage@sha256:somuchdifferentsha256',
       pluginResult: 'whatever3' as any,
+      scanResults: [],
     },
   ];
 
@@ -47,17 +49,20 @@ tap.test('constructDepGraph breaks when workloadMetadata is missing items', asyn
     },
   ];
 
-  t.throws(() => payload.constructDepGraph(scannedImages, workloadMetadata),
-    'constructDepGraph throws when workloadMetadata is missing items from scannedImages');
+  t.throws(() => payload.constructScanResults(scannedImages, workloadMetadata),
+    'constructScanResults throws when workloadMetadata is missing items from scannedImages');
 });
 
-tap.test('constructDepGraph happy flow', async (t) => {
+tap.test('constructScanResults happy flow', async (t) => {
   const scannedImages: IScanResult[] = [
     {
       image: 'myImage',
       imageWithTag: 'myImage:tag',
       imageWithDigest: 'myImage@sha256:idontcarewhatissha',
       pluginResult: 'whatever1' as any,
+      scanResults: [
+        { facts: [], identity: { type: 'foo' }, target: { image: 'foo' } },
+      ],
     },
   ];
 
@@ -89,11 +94,15 @@ tap.test('constructDepGraph happy flow', async (t) => {
   config.NAMESPACE = 'b7';
   config.MONITOR_VERSION = '1.2.3';
 
-  const payloads = payload.constructDepGraph(scannedImages, workloadMetadata);
+  const payloads = payload.constructScanResults(scannedImages, workloadMetadata);
 
   t.equals(payloads.length, 1, 'one payload to send upstream');
   const firstPayload = payloads[0];
-  t.equals(firstPayload.dependencyGraph, JSON.stringify('whatever1'), 'dependency graph present in payload');
+  t.deepEqual(
+    firstPayload.scanResults,
+    [{ facts: [], identity: { type: 'foo' }, target: { image: 'foo' } }],
+    'scan results present in payload',
+  );
   t.equals(firstPayload.imageLocator.cluster, 'grapefruit', 'cluster present in payload');
   t.equals(firstPayload.imageLocator.imageId, 'myImage', 'image ID present in payload');
   t.equals(firstPayload.imageLocator.name, 'workloadName', 'workload name present in payload');
