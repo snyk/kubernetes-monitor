@@ -27,7 +27,7 @@
   "license": "private",
   "private": true,
   "dependencies": {
-    "@kubernetes/client-node": "^0.13.2",
+    "@kubernetes/client-node": "^0.14.0",
     "@snyk/dep-graph": "^1.21.0",
     "@types/async": "^3.2.3",
     "@types/child-process-promise": "^2.2.1",
