@@ -29,7 +29,6 @@
   "dependencies": {
     "@kubernetes/client-node": "^0.14.0",
     "@snyk/dep-graph": "^1.21.0",
-    "@types/async": "^3.2.3",
     "@types/child-process-promise": "^2.2.1",
     "@types/lru-cache": "^5.1.0",
     "@types/needle": "^2.0.4",
@@ -56,6 +55,7 @@
     "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^2.22.0",
     "@typescript-eslint/parser": "^2.22.0",
+    "@types/async": "^3.2.5",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "jest": "^26.6.3",
