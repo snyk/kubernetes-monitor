@@ -1,0 +1,11 @@
+{{ if .Values.excludeNamespaces }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-excluded-namespaces
+data:
+  namespaces: |-
+    {{- range .Values.excludeNamespaces }}
+    {{ . }}
+    {{- end }}
+{{ end }}

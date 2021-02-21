@@ -73,3 +73,6 @@ nodeSelector: {}
 psp:
   enabled: false
   name: ""
+
+excludeNamespaces:
+  - some_namespace

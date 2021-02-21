@@ -53,6 +53,14 @@ export function isKubernetesInternalNamespace(namespace: string): boolean {
   return kubernetesInternalNamespaces.includes(namespace);
 }
 
+export function isExcludedNamespace(namespace: string): boolean {
+  if (!config.EXCLUDED_NAMESPACES) {
+    return false;
+  }
+
+  return config.EXCLUDED_NAMESPACES.includes(namespace);
+}
+
 function setupWatchesForCluster(): void {
   const informer = makeInformer(
     kubeConfig,
@@ -85,7 +93,7 @@ function setupWatchesForCluster(): void {
   informer.on(ADD, (namespace: V1Namespace) => {
     try {
       const namespaceName = extractNamespaceName(namespace);
-      if (isKubernetesInternalNamespace(namespaceName)) {
+      if (isKubernetesInternalNamespace(namespaceName) || isExcludedNamespace(namespaceName)) {
         // disregard namespaces internal to kubernetes
         logger.info({namespaceName}, 'ignoring blacklisted namespace');
         return;
