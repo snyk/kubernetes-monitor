@@ -1,10 +1,18 @@
 import * as fsExtra from 'fs-extra';
 import * as nock from 'nock';
+import { copyFile, readFile, mkdir, exists } from 'fs';
+import { promisify } from 'util';
+import { resolve as resolvePath } from 'path';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
 import * as transmitterTypes from '../../src/transmitter/types';
 import { execWrapper as exec } from '../helpers/exec';
+
+const copyFileAsync = promisify(copyFile);
+const readFileAsync = promisify(readFile);
+const mkdirAsync = promisify(mkdir);
+const existsAsync = promisify(exists);
 
 /**
  * TODO graceful shutdown
@@ -61,9 +69,37 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
 
   // Services
   await Promise.all([
-    kubectl.applyK8sYaml('./test/fixtures/java-deployment.yaml'),
+    kubectl.applyK8sYaml(resolvePath('./test/fixtures/java-deployment.yaml')),
     kubectl.waitForDeployment('java', 'services'),
   ]);
+
+  // Create a copy of the policy file fixture in the location that snyk-monitor is expecting to load it from.
+  const regoPolicyFixturePath = resolvePath('./test/fixtures/workload-auto-import.rego');
+  const expectedPoliciesPath = resolvePath('/var/tmp/policies');
+  if (!(await existsAsync(expectedPoliciesPath))) {
+    await mkdirAsync(expectedPoliciesPath);
+  }
+  await copyFileAsync(
+    regoPolicyFixturePath,
+    resolvePath(expectedPoliciesPath, 'workload-auto-import.rego'),
+  );
+
+  const regoPolicyContents = await readFileAsync(regoPolicyFixturePath, 'utf8');
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/policy')
+    .times(1)
+    .reply(200, (uri, requestBody: transmitterTypes.WorkloadAutoImportPolicyPayload) => {
+      try {
+        expect(requestBody).toEqual<transmitterTypes.WorkloadAutoImportPolicyPayload>({
+          agentId: expect.any(String),
+          cluster: expect.any(String),
+          userLocator: expect.any(String),
+          policy: regoPolicyContents,
+        });
+      } catch (error) {
+        jestDoneCallback(error);
+      }
+    });
 
   // Setup nocks
   nock(/https\:\/\/127\.0\.0\.1\:\d+/, { allowUnmocked: true })

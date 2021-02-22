@@ -34,6 +34,8 @@ spec:
           mountPath: "/srv/app/certs"
         - name: registries-conf
           mountPath: "/srv/app/.config/containers"
+        - name: workload-policies
+          mountPath: "/var/tmp/policies"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -114,5 +116,9 @@ spec:
       - name: registries-conf
         configMap:
           name: snyk-monitor-registries-conf
+          optional: true
+      - name: workload-policies
+        configMap:
+          name: snyk-monitor-workload-policies
           optional: true
       serviceAccountName: snyk-monitor
