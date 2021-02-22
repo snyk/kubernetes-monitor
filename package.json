@@ -20,7 +20,7 @@
     "prepare": "npm run build",
     "build": "tsc",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
-    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
+    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect-brk .'",
     "lint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")"
   },
   "author": "snyk.io",

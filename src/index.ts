@@ -7,6 +7,7 @@ import { config } from './common/config';
 import { logger } from './common/logger';
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
+import { loadAndSendWorkloadAutoImportPolicy } from './common/policy';
 
 process.on('uncaughtException', (err) => {
   if (state.shutdownInProgress) {
@@ -58,4 +59,9 @@ function monitor(): void {
 
 SourceMapSupport.install();
 cleanUpTempStorage();
-monitor();
+
+// Allow running in an async context
+setImmediate(async function setUpAndMonitor(): Promise<void> {
+  await loadAndSendWorkloadAutoImportPolicy();
+  monitor();
+});
