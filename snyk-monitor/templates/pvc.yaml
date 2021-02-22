@@ -13,5 +13,11 @@ spec:
   resources:
     requests:
       storage: {{ .Values.temporaryStorageSize }}
-  storageClassName: {{ .Values.pvc.storageClassName }}
+  {{- if .Values.pvc.storageClassName }}
+  {{- if (eq "-" .Values.pvc.storageClassName) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.pvc.storageClassName }}"
+  {{- end }}
+  {{- end }}
 {{- end }}{{- end }}
