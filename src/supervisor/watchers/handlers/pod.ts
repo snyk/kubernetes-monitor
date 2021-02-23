@@ -77,6 +77,17 @@ metadataToSendQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload metadata send task');
 });
 
+setInterval(() => {
+  try {
+    const queueDataToReport: {[key: string]: any} = {};
+    queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
+    queueDataToReport.metadataToSendLength = metadataToSendQueue.length();
+    logger.info(queueDataToReport, 'queue sizes report');
+  } catch (err) {
+    logger.warn({err}, 'failed logging queue sizes');
+  }
+}, config.QUEUE_LENGTH_LOG_FREQUENCY_MINUTES * 60 * 1000).unref();
+
 /** Enqueue the workload's images to be scanned if they have not yet been processed. */
 function handleReadyPod(workloadMetadata: IWorkload[]): void {
   const imagesToScan: IWorkload[] = [];
