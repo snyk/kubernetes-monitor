@@ -39,26 +39,14 @@ async function queueWorkerWorkloadScan(task, callback): Promise<void> {
 
 const workloadsToScanQueue = async.queue(queueWorkerWorkloadScan, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
 
-async function queueWorkerMetadataSender(task, callback): Promise<void> {
-  const {workloadMetadataPayload} = task;
-  await sendWorkloadMetadata(workloadMetadataPayload);
-}
-
-const metadataToSendQueue = async.queue(queueWorkerMetadataSender, config.METADATA_TO_SEND_QUEUE_WORKER_COUNT);
-
 workloadsToScanQueue.error(function(err, task) {
   logger.error({err, task}, 'error processing a workload in the pod handler 1');
-});
-
-metadataToSendQueue.error(function(err, task) {
-  logger.error({err, task}, 'error processing a workload metadata send task');
 });
 
 setInterval(() => {
   try {
     const queueDataToReport: {[key: string]: any} = {};
     queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
-    queueDataToReport.metadataToSendLength = metadataToSendQueue.length();
     logger.info(queueDataToReport, 'queue sizes report');
   } catch (err) {
     logger.warn({err}, 'failed logging queue sizes');
@@ -114,7 +102,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadRevision = workloadMember.revision ? workloadMember.revision.toString() : ''; // this is actually the observed generation
     if (state.workloadsAlreadyScanned.get(workloadKey) !== workloadRevision) { // either not exists or different
       state.workloadsAlreadyScanned.set(workloadKey, workloadRevision); // empty string takes zero bytes and is !== undefined
-      metadataToSendQueue.push({workloadMetadataPayload});
+      await sendWorkloadMetadata(workloadMetadataPayload);
     }
 
     handleReadyPod(workloadMetadata);
