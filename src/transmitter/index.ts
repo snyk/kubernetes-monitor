@@ -31,7 +31,7 @@ const upstreamUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM
 // the number of requests in flight to Homebase at any one time.
 const reqQueue = queue(async function(req: HomebaseRequest) {
   return await retryRequest(req.method, req.url, req.payload);
-}, 2);
+}, config.REQUEST_QUEUE_LENGTH);
 
 export async function sendDepGraph(...payloads: IDependencyGraphPayload[]): Promise<void> {
   for (const payload of payloads) {
