@@ -1,3 +1,4 @@
+import { queue } from 'async';
 import * as needle from 'needle';
 import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import * as sleep from 'sleep-promise';
@@ -13,7 +14,6 @@ import {
   WorkloadAutoImportPolicyPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
-import { queue } from 'async';
 
 interface HomebaseRequest {
   method: NeedleHttpVerbs;
@@ -46,7 +46,6 @@ export async function sendDepGraph(...payloads: IDependencyGraphPayload[]): Prom
       };
 
       const { response, attempt } = await reqQueue.pushAsync(request);
-      // const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/dependency-graph`, payload);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -71,7 +70,6 @@ export async function sendScanResults(payloads: ScanResultsPayload[]): Promise<b
       };
 
       const { response, attempt } = await reqQueue.pushAsync(request);
-      // const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/scan-results`, payload);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -97,7 +95,6 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): P
       };
 
       const { response, attempt } = await reqQueue.pushAsync(request);
-      // const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/workload`, payload);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -141,7 +138,6 @@ export async function deleteWorkload(payload: IDeleteWorkloadPayload): Promise<v
     };
 
     const { response, attempt } = await reqQueue.pushAsync(request);
-    // const {response, attempt} = await retryRequest('delete', `${upstreamUrl}/api/v1/workload`, payload);
     if (response.statusCode === 404) {
       // TODO: maybe we're still building it?
       const msg = 'attempted to delete a workload the Upstream service could not find';

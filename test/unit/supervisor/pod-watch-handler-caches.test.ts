@@ -47,14 +47,14 @@ tap.test('image and workload image cache', async (t) => {
   const podObject: V1Pod = YAML.parse(podFixture);
   await pod.podWatchHandler(podObject);
   await sleep(500);
-  t.equals(pushCallCount, 2, 'pushed data to send');
+  t.equals(pushCallCount, 1, 'pushed data to send');
 
   await pod.podWatchHandler(podObject);
   await sleep(500);
-  t.equals(pushCallCount, 2, 'cached info, no data pushed to send');
+  t.equals(pushCallCount, 1, 'cached info, no data pushed to send');
 
   workloadMetadata[0].imageId = 'newImageName';
   await pod.podWatchHandler(podObject);
   await sleep(1000);
-  t.equals(pushCallCount, 3, 'new image parsed, workload is cached');
+  t.equals(pushCallCount, 2, 'new image parsed, workload is cached');
 });
