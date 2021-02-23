@@ -40,7 +40,14 @@ temporaryStorageSize: 50Gi #  Applies to PVC too
 pvc:
   enabled: false
   name: snyk-monitor-pvc
-  storageClassName: null
+  ## snyk-monitor data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClassName: "-"
 
 # Node.js in-container process memory enhancements
 envs:
