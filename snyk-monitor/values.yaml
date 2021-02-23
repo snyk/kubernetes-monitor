@@ -19,7 +19,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.47.0
+  tag: 1.47.1
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -40,7 +40,14 @@ temporaryStorageSize: 50Gi #  Applies to PVC too
 pvc:
   enabled: false
   name: snyk-monitor-pvc
-  storageClassName: null
+  ## snyk-monitor data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClassName: "-"
 
 # Node.js in-container process memory enhancements
 envs:
