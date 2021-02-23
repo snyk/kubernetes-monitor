@@ -69,7 +69,7 @@ function handleReadyPod(workloadMetadata: IWorkload[]): void {
   const imagesToScan: IWorkload[] = [];
   const imageKeys: string[] = [];
   for (const image of workloadMetadata) {
-    const imageKey = `${image.namespace}/${image.type}/${image.name}/${image.imageId}`;
+    const imageKey = `${image.namespace}/${image.type}/${image.uid}/${image.imageId}`;
     if (state.imagesAlreadyScanned.get(imageKey) !== undefined) {
       continue;
     }
@@ -110,7 +110,7 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadMember = workloadMetadata[0];
     const workloadMetadataPayload = constructWorkloadMetadata(workloadMember);
     const workloadLocator = workloadMetadataPayload.workloadLocator;
-    const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadLocator.name}`;
+    const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadMember.uid}`;
     const workloadRevision = workloadMember.revision ? workloadMember.revision.toString() : ''; // this is actually the observed generation
     if (state.workloadsAlreadyScanned.get(workloadKey) !== workloadRevision) { // either not exists or different
       state.workloadsAlreadyScanned.set(workloadKey, workloadRevision); // empty string takes zero bytes and is !== undefined
