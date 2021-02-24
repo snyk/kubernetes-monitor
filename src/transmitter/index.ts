@@ -10,6 +10,7 @@ import {
   IRequestError,
   ScanResultsPayload,
   IDependencyGraphPayload,
+  WorkloadAutoImportPolicyPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
 
@@ -67,6 +68,30 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): P
     } catch (error) {
       logger.error({error, workloadLocator: payload.workloadLocator}, 'could not send workload metadata upstream');
     }
+}
+
+export async function sendWorkloadAutoImportPolicy(payload: WorkloadAutoImportPolicyPayload): Promise<void> {
+  try {
+    logger.info(
+      { userLocator: payload.userLocator, cluster: payload.cluster, agentId: payload.agentId },
+      'attempting to send workload auto-import policy',
+    );
+
+    const { response, attempt } = await retryRequest('post', `${upstreamUrl}/api/v1/policy`, payload);
+    if (!isSuccessStatusCode(response.statusCode)) {
+      throw new Error(`${response.statusCode} ${response.statusMessage}`);
+    }
+
+    logger.info(
+      { userLocator: payload.userLocator, cluster: payload.cluster, agentId: payload.agentId, attempt },
+      'workload auto-import policy sent upstream successfully',
+    );
+  } catch (error) {
+    logger.error(
+      { error, userLocator: payload.userLocator, cluster: payload.cluster, agentId: payload.agentId },
+      'could not send workload auto-import policy',
+    );
+  }
 }
 
 export async function deleteWorkload(payload: IDeleteWorkloadPayload): Promise<void> {
