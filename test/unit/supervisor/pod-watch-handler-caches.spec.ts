@@ -1,20 +1,18 @@
-import * as tap from 'tap';
-import * as sinon from 'sinon';
-import * as sleep from 'sleep-promise';
+import * as async from 'async';
 import * as fs from 'fs';
+import * as sleep from 'sleep-promise';
 import * as YAML from 'yaml';
-import async = require('async');
 
 import { V1PodSpec, V1Pod } from '@kubernetes/client-node';
 import { IWorkload } from '../../../src/transmitter/types';
 import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
 
 let pushCallCount = 0;
-sinon.stub(async, 'queue').returns({ error: () => { }, push: () => pushCallCount++ } as any);
+const asyncQueueSpy = jest.spyOn(async, 'queue').mockReturnValue({ error: () => {}, push: () => pushCallCount++ } as any);
 
 import * as pod from '../../../src/supervisor/watchers/handlers/pod';
 
-tap.test('image and workload image cache', async (t) => {
+describe('image and workload image cache', () => {
   const podSpecFixture = fs.readFileSync('./test/fixtures/pod-spec.json', 'utf8');
   const podSpec: V1PodSpec = YAML.parse(podSpecFixture);
   const workloadMetadata: IWorkload[] = [
@@ -36,25 +34,33 @@ tap.test('image and workload image cache', async (t) => {
     },
   ];
 
-  sinon.stub(metadataExtractor, 'buildMetadataForWorkload').resolves(workloadMetadata);
 
-  t.teardown(() => {
-    (async['queue'] as any).restore();
-    (metadataExtractor['buildMetadataForWorkload'] as any).restore();
+  const buildMetadataSpy = jest.spyOn(metadataExtractor, 'buildMetadataForWorkload').mockResolvedValue(workloadMetadata);
+
+  afterAll(() => {
+    asyncQueueSpy.mockRestore();
+    buildMetadataSpy.mockRestore();
   });
 
   const podFixture = fs.readFileSync('./test/fixtures/sidecar-containers/pod.yaml', 'utf8');
   const podObject: V1Pod = YAML.parse(podFixture);
-  await pod.podWatchHandler(podObject);
-  await sleep(500);
-  t.equals(pushCallCount, 1, 'pushed data to send');
 
-  await pod.podWatchHandler(podObject);
-  await sleep(500);
-  t.equals(pushCallCount, 1, 'cached info, no data pushed to send');
+  it('pushed data to send', async () => {
+    await pod.podWatchHandler(podObject);
+    await sleep(500);
+    expect(pushCallCount).toEqual(1);
+  });
 
-  workloadMetadata[0].imageId = 'newImageName';
-  await pod.podWatchHandler(podObject);
-  await sleep(1000);
-  t.equals(pushCallCount, 2, 'new image parsed, workload is cached');
+  it('cached info, no data pushed to send', async () => {
+    await pod.podWatchHandler(podObject);
+    await sleep(500);
+    expect(pushCallCount).toEqual(1);
+  });
+
+  it('new image parsed, workload is cached', async () => {
+    workloadMetadata[0].imageId = 'newImageName';
+    await pod.podWatchHandler(podObject);
+    await sleep(1000);
+    expect(pushCallCount).toEqual(2);
+  });
 });
