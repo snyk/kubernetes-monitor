@@ -1,3 +1,4 @@
+import { queue } from 'async';
 import * as needle from 'needle';
 import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import * as sleep from 'sleep-promise';
@@ -14,7 +15,23 @@ import {
 } from './types';
 import { getProxyAgent } from './proxy';
 
+interface HomebaseRequest {
+  method: NeedleHttpVerbs;
+  url: string;
+  payload:
+    IDependencyGraphPayload |
+    ScanResultsPayload |
+    IWorkloadMetadataPayload |
+    IDeleteWorkloadPayload;
+}
+
 const upstreamUrl = config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
+
+// Async queue wraps around the call to retryRequest in order to limit
+// the number of requests in flight to Homebase at any one time.
+const reqQueue = queue(async function(req: HomebaseRequest) {
+  return await retryRequest(req.method, req.url, req.payload);
+}, config.REQUEST_QUEUE_LENGTH);
 
 export async function sendDepGraph(...payloads: IDependencyGraphPayload[]): Promise<void> {
   for (const payload of payloads) {
@@ -22,7 +39,13 @@ export async function sendDepGraph(...payloads: IDependencyGraphPayload[]): Prom
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { dependencyGraph, ...payloadWithoutDepGraph } = payload;
     try {
-      const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/dependency-graph`, payload);
+      const request: HomebaseRequest = {
+        method: 'post',
+        url: `${upstreamUrl}/api/v1/dependency-graph`,
+        payload: payload,
+      };
+
+      const { response, attempt } = await reqQueue.pushAsync(request);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -40,7 +63,13 @@ export async function sendScanResults(payloads: ScanResultsPayload[]): Promise<b
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { scanResults, ...payloadWithoutScanResults } = payload;
     try {
-      const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/scan-results`, payload);
+      const request: HomebaseRequest = {
+        method: 'post',
+        url: `${upstreamUrl}/api/v1/scan-results`,
+        payload: payload,
+      };
+
+      const { response, attempt } = await reqQueue.pushAsync(request);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -59,7 +88,13 @@ export async function sendWorkloadMetadata(payload: IWorkloadMetadataPayload): P
     try {
       logger.info({workloadLocator: payload.workloadLocator}, 'attempting to send workload metadata upstream');
 
-      const {response, attempt} = await retryRequest('post', `${upstreamUrl}/api/v1/workload`, payload);
+      const request: HomebaseRequest = {
+        method: 'post',
+        url: `${upstreamUrl}/api/v1/workload`,
+        payload: payload,
+      };
+
+      const { response, attempt } = await reqQueue.pushAsync(request);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -96,7 +131,13 @@ export async function sendWorkloadAutoImportPolicy(payload: WorkloadAutoImportPo
 
 export async function deleteWorkload(payload: IDeleteWorkloadPayload): Promise<void> {
   try {
-    const {response, attempt} = await retryRequest('delete', `${upstreamUrl}/api/v1/workload`, payload);
+    const request: HomebaseRequest = {
+      method: 'delete',
+      url: `${upstreamUrl}/api/v1/workload`,
+      payload: payload,
+    };
+
+    const { response, attempt } = await reqQueue.pushAsync(request);
     if (response.statusCode === 404) {
       // TODO: maybe we're still building it?
       const msg = 'attempted to delete a workload the Upstream service could not find';
