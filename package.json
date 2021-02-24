@@ -4,8 +4,9 @@
   "main": "dist/index.js",
   "scripts": {
     "pretest": "./scripts/docker/build-image.sh",
-    "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration:kind:helm",
-    "test:unit": "NODE_ENV=test tap test/unit --timeout=300",
+    "test": "npm run lint && npm run build && npm run test:unit:tap && npm run test:unit:jest && npm run test:integration:kind:helm",
+    "test:unit:tap": "NODE_ENV=test tap test/unit/*.test.ts test/unit/**/*.test.ts --timeout=300",
+    "test:unit:jest": "jest --logHeapUsage --ci test/unit",
     "test:system": "jest --logHeapUsage --ci --maxWorkers=1 test/system",
     "test:integration:kind:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:kind:helm": "DEPLOYMENT_TYPE=Helm TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
@@ -20,7 +21,7 @@
     "prepare": "npm run build",
     "build": "tsc",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
-    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
+    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect-brk .'",
     "lint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")"
   },
   "author": "snyk.io",
@@ -29,7 +30,6 @@
   "dependencies": {
     "@kubernetes/client-node": "^0.14.0",
     "@snyk/dep-graph": "^1.21.0",
-    "@types/async": "^3.2.3",
     "@types/child-process-promise": "^2.2.1",
     "@types/lru-cache": "^5.1.0",
     "@types/needle": "^2.0.4",
@@ -56,6 +56,7 @@
     "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^2.22.0",
     "@typescript-eslint/parser": "^2.22.0",
+    "@types/async": "^3.2.5",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "jest": "^26.6.3",

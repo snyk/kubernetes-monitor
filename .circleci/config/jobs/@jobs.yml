@@ -92,7 +92,8 @@ unit_tests:
         command: |
           npm run lint &&
           npm run build &&
-          npm run test:unit
+          npm run test:unit:tap &&
+          npm run test:unit:jest
     - run:
         name: Notify Slack on failure
         command: |

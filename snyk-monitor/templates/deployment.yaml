@@ -49,6 +49,9 @@ spec:
             mountPath: "/var/tmp"
           - name: ssl-certs
             mountPath: "/srv/app/certs"
+          - name: workload-policies
+            mountPath: "/var/tmp/policies"
+            readOnly: true
           - name: registries-conf
             mountPath: "/srv/app/.config/containers"
           env:
@@ -113,6 +116,10 @@ spec:
         - name: ssl-certs
           configMap:
             name: {{ .Values.certsConfigMap }}
+            optional: true
+        - name: workload-policies
+          configMap:
+            name: {{ .Values.workloadPoliciesMap }}
             optional: true
         - name: registries-conf
           configMap:
