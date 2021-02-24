@@ -7,6 +7,7 @@
 monitorSecrets: snyk-monitor
 certsConfigMap: snyk-monitor-certs
 registriesConfConfigMap: snyk-monitor-registries-conf
+workloadPoliciesMap: snyk-monitor-workload-policies
 
 # One of: Cluster, Namespaced
 # Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
@@ -19,7 +20,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.47.1
+  tag: 1.49.0
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.

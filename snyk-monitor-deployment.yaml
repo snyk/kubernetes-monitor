@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.47.1
+      - image: snyk/kubernetes-monitor:1.49.0
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -34,6 +34,8 @@ spec:
           mountPath: "/srv/app/certs"
         - name: registries-conf
           mountPath: "/srv/app/.config/containers"
+        - name: workload-policies
+          mountPath: "/var/tmp/policies"
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -59,7 +61,7 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.47.1
+            value: 1.49.0
           - name: HOME
             value: /srv/app
           - name: HTTP_PROXY
@@ -114,5 +116,9 @@ spec:
       - name: registries-conf
         configMap:
           name: snyk-monitor-registries-conf
+          optional: true
+      - name: workload-policies
+        configMap:
+          name: snyk-monitor-workload-policies
           optional: true
       serviceAccountName: snyk-monitor
