@@ -4,8 +4,9 @@
   "main": "dist/index.js",
   "scripts": {
     "pretest": "./scripts/docker/build-image.sh",
-    "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration:kind:helm",
-    "test:unit": "NODE_ENV=test tap test/unit --timeout=300",
+    "test": "npm run lint && npm run build && npm run test:unit:tap && npm run test:unit:jest && npm run test:integration:kind:helm",
+    "test:unit:tap": "NODE_ENV=test tap test/unit/*.test.ts test/unit/**/*.test.ts --timeout=300",
+    "test:unit:jest": "jest --logHeapUsage --ci test/unit",
     "test:system": "jest --logHeapUsage --ci --maxWorkers=1 test/system",
     "test:integration:kind:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:kind:helm": "DEPLOYMENT_TYPE=Helm TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
