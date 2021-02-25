@@ -50,7 +50,7 @@ spec:
           - name: ssl-certs
             mountPath: "/srv/app/certs"
           - name: workload-policies
-            mountPath: "/var/tmp/policies"
+            mountPath: "/tmp/policies"
             readOnly: true
           - name: registries-conf
             mountPath: "/srv/app/.config/containers"

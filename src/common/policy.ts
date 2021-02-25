@@ -13,8 +13,7 @@ export async function loadAndSendWorkloadAutoImportPolicy(): Promise<void> {
   try {
     /** This path is set in snyk-monitor during installation/deployment and is defined in the Helm chart. */
     const userProvidedRegoPolicyPath = resolvePath(
-      config.IMAGE_STORAGE_ROOT,
-      'policies',
+      config.POLICIES_STORAGE_ROOT,
       'workload-auto-import.rego',
     );
     if (!existsSync(userProvidedRegoPolicyPath)) {
