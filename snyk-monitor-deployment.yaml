@@ -35,7 +35,8 @@ spec:
         - name: registries-conf
           mountPath: "/srv/app/.config/containers"
         - name: workload-policies
-          mountPath: "/var/tmp/policies"
+          mountPath: "/tmp/policies"
+          readOnly: true
         env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:

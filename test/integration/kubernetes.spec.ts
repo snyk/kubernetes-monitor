@@ -516,6 +516,11 @@ test('snyk-monitor secure configuration is as expected', async () => {
           mountPath: '/srv/app/.docker',
           readOnly: true,
         }),
+        expect.objectContaining({
+          name: 'workload-policies',
+          mountPath: '/tmp/policies',
+          readOnly: true,
+        }),
       ]),
       env: expect.arrayContaining([{ name: 'HOME', value: '/srv/app' }]),
     }),

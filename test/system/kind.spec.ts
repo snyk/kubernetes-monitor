@@ -25,6 +25,7 @@ const existsAsync = promisify(exists);
  *   Error: Client network socket disconnected before secure TLS connection was established
  */
 import { state as kubernetesMonitorState } from '../../src/state';
+import { tmpdir } from 'os';
 
 async function tearDown() {
   console.log('Begin removing the snyk-monitor...');
@@ -75,7 +76,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
 
   // Create a copy of the policy file fixture in the location that snyk-monitor is expecting to load it from.
   const regoPolicyFixturePath = resolvePath('./test/fixtures/workload-auto-import.rego');
-  const expectedPoliciesPath = resolvePath('/var/tmp/policies');
+  const expectedPoliciesPath = resolvePath('/tmp/policies');
   if (!(await existsAsync(expectedPoliciesPath))) {
     await mkdirAsync(expectedPoliciesPath);
   }
