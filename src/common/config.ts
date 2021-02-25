@@ -9,6 +9,7 @@ config.AGENT_ID = uuidv4();
 config.INTEGRATION_ID = config.INTEGRATION_ID.trim();
 config.CLUSTER_NAME = config.CLUSTER_NAME || 'Default cluster';
 config.IMAGE_STORAGE_ROOT = '/var/tmp';
+config.POLICIES_STORAGE_ROOT = '/tmp/policies';
 
 /**
  * Important: we delete the following env vars because we don't want to proxy requests to the Kubernetes API server.
