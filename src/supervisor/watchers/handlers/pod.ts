@@ -47,9 +47,9 @@ setInterval(() => {
   try {
     const queueDataToReport: {[key: string]: any} = {};
     queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
-    logger.info(queueDataToReport, 'queue sizes report');
+    logger.debug(queueDataToReport, 'queue sizes report');
   } catch (err) {
-    logger.warn({err}, 'failed logging queue sizes');
+    logger.debug({err}, 'failed logging queue sizes');
   }
 }, config.QUEUE_LENGTH_LOG_FREQUENCY_MINUTES * 60 * 1000).unref();
 
