@@ -3,7 +3,7 @@
 from tempfile import mkdtemp
 from os import mkdir
 from datetime import datetime
-from shutil import copy
+from shutil import copy, copytree
 from sys import argv
 
 
@@ -45,6 +45,13 @@ def createOperatorFromTemplate(new_version: str, new_operator_tag: str, new_moni
         updated_manifest = f.read().replace('0.0.0', new_version)
     with open(new_manifest_path, "w") as f:
         f.write(updated_manifest)
+
+    copytree("snyk-operator/certified-operator",
+             new_operator_dir + "/" + "certified-operator")
+    copy(new_csv_path, new_operator_dir + "/" + "certified-operator/bundle/manifests" +
+         "/" + "snyk-operator.v" + new_version + ".clusterserviceversion.yaml")
+    copy(new_crd_path, new_operator_dir + "/" + "certified-operator/bundle/manifests" +
+         "/" + "snykmonitors.charts.helm.k8s.io.crd.yaml")
 
     return new_operator_dir
 

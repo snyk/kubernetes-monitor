@@ -44,3 +44,7 @@ snyk-operator
 
 snyk-monitor-operator-source.yaml
 operator-sdk
+__pycache__
+opm
+.operator_version
+snyk-monitor-catalog-source.yaml

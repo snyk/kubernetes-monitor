@@ -10,11 +10,8 @@ export const operatorDeployer: IDeployer = {
 async function deployKubernetesMonitor(
   _imageOptions: IImageOptions,
 ): Promise<void> {
-  const overriddenOperatorSource = 'snyk-monitor-operator-source.yaml';
-  createTestOperatorSource(
-    overriddenOperatorSource,
-    process.env['QUAY_USERNAME']!,
-  );
+  const overriddenOperatorSource = 'snyk-monitor-catalog-source.yaml';
+  createTestOperatorSource(overriddenOperatorSource);
 
   await kubectl.applyK8sYaml(overriddenOperatorSource);
   await kubectl.applyK8sYaml('./test/fixtures/operator/installation.yaml');
@@ -24,16 +21,22 @@ async function deployKubernetesMonitor(
   await kubectl.applyK8sYaml('./test/fixtures/operator/custom-resource.yaml');
 }
 
-function createTestOperatorSource(newYamlPath: string, username: string): void {
-  console.log('Creating YAML OperatorSource...');
-  const originalDeploymentYaml = readFileSync(
-    './test/fixtures/operator/operator-source.yaml',
+function createTestOperatorSource(newYamlPath: string): void {
+  console.log('Creating YAML CatalogSource...');
+  const operatorVersion = readFileSync('.operator_version', 'utf8');
+  const originalCatalogSourceYaml = readFileSync(
+    './test/fixtures/operator/catalog-source.yaml',
     'utf8',
   );
-  const deployment = parse(originalDeploymentYaml);
+  const catalogSource: { spec: { image: string } } = parse(
+    originalCatalogSourceYaml,
+  );
 
-  deployment.spec.registryNamespace = username;
+  catalogSource.spec.image = catalogSource.spec.image.replace(
+    'TAG_OVERRIDE',
+    operatorVersion,
+  );
 
-  writeFileSync(newYamlPath, stringify(deployment));
-  console.log('Created YAML OperatorSource');
+  writeFileSync(newYamlPath, stringify(catalogSource));
+  console.log('Created YAML CatalogSource');
 }

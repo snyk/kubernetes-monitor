@@ -14,20 +14,23 @@ The following environment variables:
 - DOCKERHUB_PASSWORD
 """
 
-from os import environ
+from os import environ, remove
 from hashlib import sha1
 from datetime import datetime
+from shutil import rmtree
 from subprocess import call
-from get_quay_token import getQuayToken
+from download_operator_package_manager import downloadOperatorPackageManager
 from create_operator_and_push import createOperatorAndPushToDockerHub
 from package_operator_bundle import createOperatorFromTemplate
-from upload_operator_bundle_to_quay import uploadOperatorBundleToQuay
 from download_operator_sdk import downloadOperatorSdk
-
+from create_operator_bundle_and_index_and_push import createOperatorBundleAndIndexAndPushToDockerHub
 
 if __name__ == '__main__':
     random_digest = sha1(str(datetime.now()).encode("utf-8")).hexdigest()
     operator_version = "0.0.1-" + random_digest
+
+    with open(".operator_version", "w") as f:
+        f.write(operator_version)
 
     try:
         new_monitor_tag = environ['KUBERNETES_MONITOR_IMAGE_TAG']
@@ -39,17 +42,10 @@ if __name__ == '__main__':
         call(["docker", "build", "-t", monitor_name_and_tag, "."])
         call(["docker", "push", monitor_name_and_tag])
 
-    print("Authenticating to Quay")
-    quay_username = environ['QUAY_USERNAME']
-    quay_password = environ['QUAY_PASSWORD']
-    quay_token = getQuayToken(
-        "https://quay.io/cnr/api/v1/users/login",
-        quay_username,
-        quay_password
-    )
-
     print("Downloading Operator SDK")
     downloadOperatorSdk()
+    print("Downloading Operator Package Manager")
+    downloadOperatorPackageManager()
     call(["pip3", "install", "operator-courier==2.1.7"])
 
     print("Creating Operator image and pushing to DockerHub")
@@ -58,12 +54,17 @@ if __name__ == '__main__':
     createOperatorAndPushToDockerHub(
         operator_version, new_monitor_tag, dockerhub_user, dockerhub_password)
 
-    new_version = new_operator_tag = operator_version
+    new_operator_tag = operator_version
 
     print("Creating Operator bundle")
     operator_path = createOperatorFromTemplate(
         operator_version, new_operator_tag, new_monitor_tag)
-    print("Pushing Operator bundle to Quay")
-    uploadOperatorBundleToQuay(
-        operator_path, "snyk-runtime-local", "snyk-operator", operator_version, quay_token)
-    print("Operator version " + operator_version + " has been pushed to Quay")
+    print("Pushing Operator bundle")
+    createOperatorBundleAndIndexAndPushToDockerHub(
+        operator_path, new_operator_tag, dockerhub_user, dockerhub_password)
+    print("Operator version " + operator_version +
+          " has been pushed to Docker Hub")
+
+    # rmtree(operator_path)
+    # remove("operator-sdk")
+    # remove("opm")
