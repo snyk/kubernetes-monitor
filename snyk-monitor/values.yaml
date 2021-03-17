@@ -65,7 +65,7 @@ requests:
   memory: '400Mi'
 
 limits:
-  cpu: '2'
+  cpu: '1'
   memory: '2Gi'
 
 http_proxy:
