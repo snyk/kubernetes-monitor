@@ -1,18 +1,19 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build skopeo inside a temporary container
 #---------------------------------------------------------------------
-FROM golang:1.13.1-alpine3.10 AS skopeo-build
+FROM fedora:32 AS skopeo-build
 
-RUN apk --no-cache add git make gcc musl-dev ostree-dev go-md2man
-RUN git clone --depth 1 -b 'v0.2.0' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+RUN dnf install -y golang git make
+RUN dnf install -y go-md2man gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
+RUN git clone --depth 1 -b 'v1.2.2' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
 RUN cd $GOPATH/src/github.com/containers/skopeo \
-  && make binary-local-static DISABLE_CGO=1 \
+  && make bin/skopeo DISABLE_CGO=1 \
   && make install
 
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi8/ubi:latest
+FROM registry.access.redhat.com/ubi8/ubi:8.3
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
