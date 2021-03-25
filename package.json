@@ -10,6 +10,7 @@
   "author": "snyk.io",
   "main": "dist/index.js",
   "scripts": {
+    "local": "./scripts/local-testing.sh",
     "pretest": "./scripts/docker/build-image.sh",
     "test": "npm run lint && npm run build && npm run test:unit:tap && npm run test:unit:jest && npm run test:integration:kind:helm",
     "test:unit:tap": "NODE_ENV=test tap test/unit/*.test.ts test/unit/**/*.test.ts --timeout=300",
