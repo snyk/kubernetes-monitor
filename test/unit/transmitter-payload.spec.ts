@@ -1,4 +1,3 @@
-import * as tap from 'tap';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { V1PodSpec } from '@kubernetes/client-node';
@@ -6,13 +5,13 @@ import { V1PodSpec } from '@kubernetes/client-node';
 import { config } from '../../src/common/config';
 import { IScanResult } from '../../src/scanner/types';
 import * as payload from '../../src/transmitter/payload';
-import { ILocalWorkloadLocator, IWorkload } from '../../src/transmitter/types';
+import { IDeleteWorkloadPayload, IImageLocator, ILocalWorkloadLocator, IWorkload, IWorkloadLocator, IWorkloadMetadata } from '../../src/transmitter/types';
 
 const podSpecFixture = JSON.parse(
     readFileSync(join(__dirname, '../', 'fixtures', 'pod-spec.json'),{ encoding: 'utf8' })
 ) as V1PodSpec;
 
-tap.test('constructScanResults breaks when workloadMetadata is missing items', async (t) => {
+test('constructScanResults breaks when workloadMetadata is missing items', async () => {
   const scannedImages: IScanResult[] = [
     {
       image: 'myImage',
@@ -49,11 +48,10 @@ tap.test('constructScanResults breaks when workloadMetadata is missing items', a
     },
   ];
 
-  t.throws(() => payload.constructScanResults(scannedImages, workloadMetadata),
-    'constructScanResults throws when workloadMetadata is missing items from scannedImages');
+  expect(() => payload.constructScanResults(scannedImages, workloadMetadata)).toThrow();
 });
 
-tap.test('constructScanResults happy flow', async (t) => {
+test('constructScanResults happy flow', async () => {
   const scannedImages: IScanResult[] = [
     {
       image: 'myImage',
@@ -95,34 +93,31 @@ tap.test('constructScanResults happy flow', async (t) => {
   config.MONITOR_VERSION = '1.2.3';
 
   const payloads = payload.constructScanResults(scannedImages, workloadMetadata);
+  expect(payloads).toHaveLength(1);
 
-  t.equals(payloads.length, 1, 'one payload to send upstream');
   const firstPayload = payloads[0];
-  t.deepEqual(
-    firstPayload.scanResults,
-    [{ facts: [], identity: { type: 'foo' }, target: { image: 'foo' } }],
-    'scan results present in payload',
+  expect(firstPayload.scanResults).toEqual([
+    { facts: [], identity: { type: 'foo' }, target: { image: 'foo' } },
+  ]);
+  expect(firstPayload.imageLocator).toEqual(
+    expect.objectContaining<Partial<IImageLocator>>({
+      cluster: 'grapefruit',
+      imageId: 'myImage',
+      name: 'workloadName',
+      type: 'type',
+    }),
   );
-  t.equals(firstPayload.imageLocator.cluster, 'grapefruit', 'cluster present in payload');
-  t.equals(firstPayload.imageLocator.imageId, 'myImage', 'image ID present in payload');
-  t.equals(firstPayload.imageLocator.name, 'workloadName', 'workload name present in payload');
-  t.equals(firstPayload.imageLocator.type, 'type', 'workload type present in payload');
-
-  t.deepEqual(
-    firstPayload.metadata,
-    {
-      agentId: config.AGENT_ID,
-      namespace: 'b7',
-      version: '1.2.3'
-    },
-    'metadata is correctly returned in payload'
-  );
+  expect(firstPayload.metadata).toEqual({
+    agentId: config.AGENT_ID,
+    namespace: 'b7',
+    version: '1.2.3',
+  });
 
   config.NAMESPACE = backups.namespace;
   config.MONITOR_VERSION = backups.version;
 });
 
-tap.test('constructWorkloadMetadata happy flow', async (t) => {
+test('constructWorkloadMetadata happy flow', async () => {
   const workloadWithImages: IWorkload = {
     type: 'type',
     name: 'workloadName',
@@ -141,38 +136,47 @@ tap.test('constructWorkloadMetadata happy flow', async (t) => {
   };
 
   const workloadMetadataPayload = payload.constructWorkloadMetadata(workloadWithImages);
+  expect(workloadMetadataPayload.workloadLocator).toEqual(
+    expect.objectContaining<Partial<IWorkloadLocator>>({
+      cluster: 'grapefruit',
+      namespace: 'spacename',
+      name: 'workloadName',
+      type: 'type',
+    }),
+  );
 
-  t.equals(workloadMetadataPayload.workloadLocator.cluster, 'grapefruit', 'cluster present in payload');
-  t.equals(workloadMetadataPayload.workloadLocator.namespace, 'spacename', 'image ID present in payload');
-  t.equals(workloadMetadataPayload.workloadLocator.name, 'workloadName', 'workload name present in payload');
-  t.equals(workloadMetadataPayload.workloadLocator.type, 'type', 'workload type present in payload');
-  t.equals(workloadMetadataPayload.workloadMetadata.revision, 1, 'revision present in metadata');
-  t.ok('podSpec' in workloadMetadataPayload.workloadMetadata, 'podSpec present in metadata');
-  t.equals(workloadMetadataPayload.workloadMetadata.podSpec.containers[0].resources!.limits!.memory!, '2Gi',
-   'memory limit present in metadata');
-  t.equals(workloadMetadataPayload.workloadMetadata.podSpec.serviceAccountName, 'snyk-monitor',
-   'service account name present in metadata');
-  t.ok('annotations' in workloadMetadataPayload.workloadMetadata, 'annotations present in metadata');
-  t.ok('specAnnotations' in workloadMetadataPayload.workloadMetadata, 'specAnnotations present in metadata');
-  t.ok('labels' in workloadMetadataPayload.workloadMetadata, 'labels present in metadata');
-  t.ok('specLabels' in workloadMetadataPayload.workloadMetadata, 'specLabels present in metadata');
+  expect(workloadMetadataPayload.workloadMetadata).toEqual(
+    expect.objectContaining<Partial<IWorkloadMetadata>>({
+      podSpec: expect.any(Object),
+      annotations: undefined,
+      specAnnotations: undefined,
+      labels: undefined,
+      specLabels: undefined,
+    }),
+  );
+  expect(workloadMetadataPayload.workloadMetadata.revision).toEqual(1);
+
+  expect(workloadMetadataPayload.workloadMetadata.podSpec.containers[0].resources?.limits?.memory).toEqual('2Gi');
+  expect(workloadMetadataPayload.workloadMetadata.podSpec.serviceAccountName).toEqual('snyk-monitor');
 });
 
-tap.test('constructDeleteWorkload happy flow', async (t) => {
+test('constructDeleteWorkload happy flow', async () => {
   const localWorkloadLocator: ILocalWorkloadLocator = {
     name: 'wl-name',
     namespace: 'wl-namespace',
     type: 'wl-type'
   };
   const deleteWorkloadPayload = payload.constructDeleteWorkload(localWorkloadLocator);
+  expect(deleteWorkloadPayload).toEqual<IDeleteWorkloadPayload>({
+    workloadLocator: expect.any(Object),
+    agentId: expect.any(String),
+  });
 
-  t.ok('workloadLocator' in deleteWorkloadPayload, 'workloadLocator present in payload');
-  t.ok('agentId' in deleteWorkloadPayload, 'agentId present in payload');
-
-  t.ok('userLocator' in deleteWorkloadPayload.workloadLocator, 'userLocator present in workloadLocator');
-  t.ok('cluster' in deleteWorkloadPayload.workloadLocator, 'cluster present in workloadLocator');
-
-  t.equals(deleteWorkloadPayload.workloadLocator.name, 'wl-name', 'matched workload name');
-  t.equals(deleteWorkloadPayload.workloadLocator.namespace, 'wl-namespace', 'matched workload namespace');
-  t.equals(deleteWorkloadPayload.workloadLocator.type, 'wl-type', 'matched workload type');
+  expect(deleteWorkloadPayload.workloadLocator).toEqual<IWorkloadLocator>({
+    userLocator: expect.any(String),
+    cluster: expect.any(String),
+    name: 'wl-name',
+    namespace: 'wl-namespace',
+    type: 'wl-type',
+  });
 });
