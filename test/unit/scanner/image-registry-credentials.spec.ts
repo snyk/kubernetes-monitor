@@ -1,7 +1,7 @@
 import * as credentials from '../../../src/scanner/images/credentials';
 
 describe('ECR image parsing tests', () => {
-  test('ecrRegionFromFullImageName()', async () => {
+  test.concurrent('ecrRegionFromFullImageName()', async () => {
     const imageFullNameTemplate = 'aws_account_id.dkr.ecr.region.amazonaws.com/my-web-app:latest';
     const ecrRegionTemplate = credentials.ecrRegionFromFullImageName(imageFullNameTemplate);
     expect(ecrRegionTemplate).toEqual('region');
@@ -16,7 +16,7 @@ describe('ECR image parsing tests', () => {
     expect(() => {credentials.ecrRegionFromFullImageName('aws_account_id.dkr.ecr.region.amazonaws.com');}).toThrow();
   });
 
-  test('isEcrSource()', async () => {
+  test.concurrent('isEcrSource()', async () => {
     const sourceCredentialsForRandomImageName = credentials.isEcrSource('derka');
     expect(sourceCredentialsForRandomImageName).toEqual(false);
 
