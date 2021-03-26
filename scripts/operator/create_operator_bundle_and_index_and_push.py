@@ -3,6 +3,7 @@
 from os import chdir, environ, getcwd
 from subprocess import call
 from shutil import copy
+from sys import argv
 
 
 def createOperatorBundleAndIndexAndPushToDockerHub(operator_path: str, new_operator_tag: str, dockerhub_user: str, dockerhub_password: str) -> None:
@@ -24,3 +25,9 @@ def createOperatorBundleAndIndexAndPushToDockerHub(operator_path: str, new_opera
           ":" + new_operator_tag, "--tag", "snyk/kubernetes-operator-index" + ":" + new_operator_tag])
     call(["docker", "push", "snyk/kubernetes-operator-index" + ":" + new_operator_tag])
     chdir(return_dir)
+
+
+if __name__ == '__main__':
+    _, operator_path, new_operator_tag, dockerhub_user, dockerhub_password = argv
+    createOperatorBundleAndIndexAndPushToDockerHub(
+        operator_path, new_operator_tag, dockerhub_user, dockerhub_password)

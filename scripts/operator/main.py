@@ -14,10 +14,9 @@ The following environment variables:
 - DOCKERHUB_PASSWORD
 """
 
-from os import environ, remove
+from os import environ, remove, getcwd
 from hashlib import sha1
 from datetime import datetime
-from shutil import rmtree
 from subprocess import call
 from download_operator_package_manager import downloadOperatorPackageManager
 from create_operator_and_push import createOperatorAndPushToDockerHub
@@ -29,7 +28,7 @@ if __name__ == '__main__':
     random_digest = sha1(str(datetime.now()).encode("utf-8")).hexdigest()
     operator_version = "0.0.1-" + random_digest
 
-    with open(".operator_version", "w") as f:
+    with open(getcwd() + "/" + ".operator_version", "w") as f:
         f.write(operator_version)
 
     try:
@@ -46,7 +45,6 @@ if __name__ == '__main__':
     downloadOperatorSdk()
     print("Downloading Operator Package Manager")
     downloadOperatorPackageManager()
-    call(["pip3", "install", "operator-courier==2.1.7"])
 
     print("Creating Operator image and pushing to DockerHub")
     dockerhub_user = environ['DOCKERHUB_USER']
@@ -65,6 +63,5 @@ if __name__ == '__main__':
     print("Operator version " + operator_version +
           " has been pushed to Docker Hub")
 
-    # rmtree(operator_path)
-    # remove("operator-sdk")
-    # remove("opm")
+    remove("operator-sdk")
+    remove("opm")

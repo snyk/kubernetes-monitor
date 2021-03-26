@@ -23,7 +23,8 @@ async function deployKubernetesMonitor(
 
 function createTestOperatorSource(newYamlPath: string): void {
   console.log('Creating YAML CatalogSource...');
-  const operatorVersion = readFileSync('.operator_version', 'utf8');
+  const operatorVersion =
+    process.env.OPERATOR_VERSION ?? readFileSync('./.operator_version', 'utf8');
   const originalCatalogSourceYaml = readFileSync(
     './test/fixtures/operator/catalog-source.yaml',
     'utf8',

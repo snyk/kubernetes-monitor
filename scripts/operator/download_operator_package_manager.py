@@ -18,7 +18,8 @@ def downloadOperatorPackageManager() -> None:
         opm = get(
             "https://github.com/operator-framework/operator-registry/releases/download/v1.16.1/darwin-amd64-opm")
     else:
-        raise RuntimeError("Unsupported system " + current_sys)
+        opm = get(
+            "https://github.com/operator-framework/operator-registry/releases/download/v1.16.1/linux-amd64-opm")
 
     with open(operator_package_manager_path, "wb") as f:
         f.write(opm.content)
