@@ -2,7 +2,7 @@ import * as scanner from '../../../src/scanner';
 import { IWorkload } from '../../../src/transmitter/types';
 
 describe('scanner module tests', () => {
-  test('getUniqueImages()', async () => {
+  test.concurrent('getUniqueImages()', async () => {
     const workload: Partial<IWorkload>[] = [
       // 1.DCR
       {

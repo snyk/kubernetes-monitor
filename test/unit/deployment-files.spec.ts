@@ -7,19 +7,24 @@ import { config } from '../../src/common/config';
  * Note that these checks are also performed at runtime on the deployed snyk-monitor, see the integration tests.
  */
 
-test('ensure the security properties of the deployment files are unchanged', async () => {
-  expect(config.IMAGE_STORAGE_ROOT).toEqual('/var/tmp');
+describe('deployment files tests', () => {
+  test.concurrent(
+    'ensure the security properties of the deployment files are unchanged',
+    async () => {
+      expect(config.IMAGE_STORAGE_ROOT).toEqual('/var/tmp');
 
-  const deploymentFiles = ['./snyk-monitor-deployment.yaml'];
+      const deploymentFiles = ['./snyk-monitor-deployment.yaml'];
 
-  for (const filePath of deploymentFiles) {
-    const fileContent = readFileSync(filePath, 'utf8');
-    const deployment: V1Deployment = parse(fileContent);
+      for (const filePath of deploymentFiles) {
+        const fileContent = readFileSync(filePath, 'utf8');
+        const deployment: V1Deployment = parse(fileContent);
 
-    validateSecureConfiguration(deployment);
-    validateVolumeMounts(deployment);
-    validateEnvironmentVariables(deployment);
-  }
+        validateSecureConfiguration(deployment);
+        validateVolumeMounts(deployment);
+        validateEnvironmentVariables(deployment);
+      }
+    },
+  );
 });
 
 export function validateEnvironmentVariables(deployment: V1Deployment) {

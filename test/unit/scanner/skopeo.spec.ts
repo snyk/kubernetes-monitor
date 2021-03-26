@@ -1,7 +1,7 @@
 import * as skopeo from '../../../src/scanner/images/skopeo';
 
 describe('skopeo module tests', () => {
-  test('getCredentialParameters()', async () => {
+  test.concurrent('getCredentialParameters()', async () => {
     const noCredentials = undefined;
     const credentialParametersForNoCredentials = skopeo.getCredentialParameters(noCredentials);
     expect(credentialParametersForNoCredentials).toEqual([]);
