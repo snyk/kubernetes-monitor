@@ -48,6 +48,7 @@ def createOperatorFromTemplate(new_version: str, new_operator_tag: str, new_moni
 
     copytree("snyk-operator/certified-operator",
              new_operator_dir + "/" + "certified-operator")
+    mkdir(new_operator_dir + "/" + "certified-operator/bundle/manifests")
     copy(new_csv_path, new_operator_dir + "/" + "certified-operator/bundle/manifests" +
          "/" + "snyk-operator.v" + new_version + ".clusterserviceversion.yaml")
     copy(new_crd_path, new_operator_dir + "/" + "certified-operator/bundle/manifests" +
