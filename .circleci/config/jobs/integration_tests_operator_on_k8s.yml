@@ -15,11 +15,6 @@ steps:
       .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
     name: Operator integration tests on plain k8s
 - run:
-    name: Delete Operators from Quay
-    command: |
-      scripts/operator/delete_operators_from_quay.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}"
-    when: always
-- run:
     command: |
       ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
     name: Notify Slack on failure

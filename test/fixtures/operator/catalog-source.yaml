@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: snyk-operator
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: docker.io/snyk/kubernetes-operator-index:TAG_OVERRIDE
+  displayName: Snyk Operator Bundle
+  publisher: Snyk Ltd.
+  updateStrategy:
+    registryPoll:
+      interval: 1m

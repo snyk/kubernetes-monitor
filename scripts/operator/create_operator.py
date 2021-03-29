@@ -23,7 +23,7 @@ from os import mkdir, path, getcwd
 from tempfile import mkdtemp
 from subprocess import call
 from os import chdir
-from shutil import copy, copytree, rmtree
+from shutil import copy, copytree
 
 
 def createOperatorAndBuildOperatorImage(operator_name_and_tag: str, monitor_tag: str) -> None:
@@ -55,8 +55,6 @@ def createOperatorAndBuildOperatorImage(operator_name_and_tag: str, monitor_tag:
     chdir(new_operator_dir)
     call([operator_sdk_path, "build", operator_name_and_tag])
     chdir(return_path)
-
-    rmtree(new_operator_dir)
 
 
 if __name__ == '__main__':
