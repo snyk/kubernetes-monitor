@@ -1,7 +1,5 @@
-# We create a PVC only if the default PVC name has not changed.
-# If the name has changed, it means our users want to use their own pre-provisioned PVC.
-# In such cases it would be an error to create a PVC as it would result in a conflict - the PVC already exists.
-{{- if .Values.pvc.enabled }}{{- if eq .Values.pvc.name "snyk-monitor-pvc" }}
+# We create a PVC only if requested.
+{{- if .Values.pvc.enabled }}{{- if .Values.pvc.create }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:

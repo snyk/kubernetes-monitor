@@ -37,10 +37,12 @@ clusterName: ""
 # This value controls how much disk storage _at most_ may be allocated for the snyk-monitor. Unless overridden by the `pvc` value, the snyk-monitor mounts an emptyDir for storage.
 temporaryStorageSize: 50Gi #  Applies to PVC too
 
-# Change to true to use a PVC instead of emptyDir for local storage
+# Change "enabled" to true to use a PVC instead of emptyDir for local storage.
+# Change "create" to true if you want to create the PVC (useful for first time run).
 pvc:
   enabled: false
   name: snyk-monitor-pvc
+  create: false
   ## snyk-monitor data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning

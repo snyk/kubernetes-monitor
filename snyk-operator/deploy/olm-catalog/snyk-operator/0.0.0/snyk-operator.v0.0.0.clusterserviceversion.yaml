@@ -23,6 +23,7 @@ metadata:
             "temporaryStorageSize": "50Gi",
             "pvc": {
               "enabled": false,
+              "create": false,
               "name": "snyk-monitor-pvc",
               "storageClassName": null
             },
@@ -119,6 +120,12 @@ spec:
               True to use a PVC for temporary storage, false to use emptyDir.
             displayName: PVC enabled
             path: pvc.enabled
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:booleanSwitch"
+          - description: >-
+              True to create the PVC, false to reference it (in cases it already exists).
+            displayName: Create PVC
+            path: pvc.create
             x-descriptors:
               - "urn:alm:descriptor:com.tectonic.ui:booleanSwitch"
           - description: >-
