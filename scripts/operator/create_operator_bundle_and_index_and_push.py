@@ -6,7 +6,7 @@ from shutil import copy
 from sys import argv
 
 
-def createOperatorBundleAndIndexAndPushToDockerHub(operator_path: str, new_operator_tag: str, dockerhub_user: str, dockerhub_password: str) -> None:
+def createOperatorBundleAndIndexAndPushToDockerHub(operator_path: str, new_operator_tag: str, dockerhub_user: str, dockerhub_password: str, previous_tag: str = None) -> None:
     current_dir = getcwd()
     opm_copy_path = operator_path + "/" + "certified-operator/opm"
     copy(current_dir + "/" + "opm", opm_copy_path)
@@ -21,13 +21,21 @@ def createOperatorBundleAndIndexAndPushToDockerHub(operator_path: str, new_opera
     call(["make", "bundle-build"])
     call(["docker", "push", "snyk/kubernetes-operator-bundle" + ":" + new_operator_tag])
 
-    call([opm_copy_path, "index", "add", "-c", "docker", "--bundles", "snyk/kubernetes-operator-bundle" +
-          ":" + new_operator_tag, "--tag", "snyk/kubernetes-operator-index" + ":" + new_operator_tag])
+    if previous_tag == None:
+        call([opm_copy_path, "index", "add", "-u", "docker", "--bundles", "docker.io/snyk/kubernetes-operator-bundle" +
+             ":" + new_operator_tag, "--tag", "docker.io/snyk/kubernetes-operator-index" + ":" + new_operator_tag])
+    else:
+        call([opm_copy_path, "index", "add", "-u", "docker", "--mode", "semver", "--bundles", "docker.io/snyk/kubernetes-operator-bundle" + ":" + new_operator_tag,
+             "--from-index", "docker.io/snyk/kubernetes-operator-index" + ":" + previous_tag, "--tag", "docker.io/snyk/kubernetes-operator-index" + ":" + new_operator_tag])
     call(["docker", "push", "snyk/kubernetes-operator-index" + ":" + new_operator_tag])
     chdir(return_dir)
 
 
 if __name__ == '__main__':
-    _, operator_path, new_operator_tag, dockerhub_user, dockerhub_password = argv
+    operator_path = argv[1]
+    new_operator_tag = argv[2]
+    dockerhub_user = argv[3]
+    dockerhub_password = argv[4]
+    previous_tag = argv[5] if len(argv) == 6 else None
     createOperatorBundleAndIndexAndPushToDockerHub(
-        operator_path, new_operator_tag, dockerhub_user, dockerhub_password)
+        operator_path, new_operator_tag, dockerhub_user, dockerhub_password, previous_tag)
