@@ -33,6 +33,7 @@ async function deployKubernetesMonitor(
       '--set nodeSelector."kubernetes\\.io/os"=linux ' +
       '--set psp.enabled=true ' + 
       '--set pvc.enabled=true ' +
+      '--set pvc.create=true ' +
       '--set log_level="INFO"'
   );
   console.log(`Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`);
