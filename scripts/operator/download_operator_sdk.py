@@ -21,7 +21,8 @@ def downloadOperatorSdk() -> None:
         sdk = get(
             "https://github.com/operator-framework/operator-sdk/releases/download/v0.15.1/operator-sdk-v0.15.1-x86_64-apple-darwin")
     else:
-        raise RuntimeError("Unsupported system " + current_sys)
+        sdk = get(
+            "https://github.com/operator-framework/operator-sdk/releases/download/v0.15.1/operator-sdk-v0.15.1-x86_64-linux-gnu")
 
     with open(operator_sdk_path, "wb") as f:
         f.write(sdk.content)

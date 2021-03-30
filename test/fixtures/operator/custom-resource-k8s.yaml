@@ -8,3 +8,4 @@ spec:
   temporaryStorageSize: 20Gi
   pvc:
     enabled: true
+    create: true

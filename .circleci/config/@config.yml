@@ -79,11 +79,6 @@ workflows:
             - build_image
             - build_and_upload_operator
           <<: *staging_branch_only_filter
-      - delete_operators_from_quay:
-          requires:
-            - integration_tests_operator_on_k8s
-            - openshift4_integration_tests
-          <<: *staging_branch_only_filter
       - tag_and_push:
           requires:
             - build_image

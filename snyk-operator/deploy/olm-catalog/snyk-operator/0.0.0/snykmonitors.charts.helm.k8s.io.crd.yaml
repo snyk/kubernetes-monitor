@@ -50,6 +50,8 @@ spec:
               properties:
                 enabled:
                   type: boolean
+                create:
+                  type: boolean
                 name:
                   type: string
                 storageClassName:

@@ -140,10 +140,19 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
 
 By default, `snyk-monitor` uses an emptyDir for temporary storage. If you prefer to have a PVC that uses a statically or
  dynamically provisioned PV that you have created, then set the following value
-* `pvc.enabled` `true`
+* `pvc.enabled`=`true`
+
+If you would also like to create the PVC (if not using an existing one) then set the following value
+* `pvc.create`=`true`
 
 The PVC's name defaults to `snyk-monitor-pvc`. If you prefer to override this, then use the following value:
 * `pvc.name`
+
+For example, run the following for first-time setup:
+`--set pvc.enabled=true --pvc.create=true`
+
+And run the following for subsequent upgrades:
+`--set pvc.enabled=true`
 
 ## PodSecurityPolicies
 **This should not be used when installing on OpenShift.**
