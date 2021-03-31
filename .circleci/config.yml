@@ -333,23 +333,29 @@ jobs:
             - checkout
             - run:
                 command: |
-                    sudo apt install -y uuid-runtime
+                    sudo apt update
+                    sudo apt install -y uuid-runtime make
                     python -m pip install requests pyyaml
-                    python -m pip install operator-courier==2.1.7
+                    python scripts/operator/download_operator_sdk.py
+                    # The machine executor uses an old debian version, the latest OPM 1.16.1 requires a later version of GLIBC that the current machine cannot have.
+                    # So instead of using the (currently) latest version, we have to use an older one that references an older GLIBC.
+                    OPM_VERSION=v1.13.0 python scripts/operator/download_operator_package_manager.py
+                    curl -L https://github.com/openshift/okd/releases/download/4.7.0-0.okd-2021-03-28-152009/openshift-client-linux-4.7.0-0.okd-2021-03-28-152009.tar.gz | tar xfz - -- oc
+                    sudo mv oc /usr/local/bin/oc
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                 name: Install required packages
             - install_python_requests
-            - run:
-                command: echo "${OPENSHIFT4_ETC_HOSTS_ENTRY}" | sudo tee -a /etc/hosts
-                description: "The test cluster returns URLs that are local only to the cluster (e.g. https://api.crc.testing).\nThese URLs don't make sense for the public internet, so we add a little hack in /etc/hosts \nthat makes the URLs point to the IP address of the test cluster, allowing us to reach back to it.\n"
-                name: Update /etc/hosts with an entry to the OpenShift cluster
-            - redhat-openshift/login-and-update-kubeconfig:
-                insecure-skip-tls-verify: true
-                openshift-platform-version: 4.x
-                password: $OPENSHIFT4_PASSWORD
-                server-address: $OPENSHIFT4_CLUSTER_URL
-                username: $OPENSHIFT4_USER
+            - setup_remote_docker
+            - run: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
             - run:
                 command: |
+                    oc login --token="${OPENSHIFT4_PASSWORD}" --server="${OPENSHIFT4_CLUSTER_URL}" --kubeconfig="$(pwd)/kubeconfig"
+                    echo "export KUBECONFIG=$(pwd)/kubeconfig" >> $BASH_ENV
+                name: Login and update KUBECONFIG
+            - run:
+                command: |
+                    source $BASH_ENV
                     set -xeo pipefail
 
                     OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
@@ -359,6 +365,7 @@ jobs:
                 name: Get last released Operator version
             - run:
                 command: |
+                    source $BASH_ENV
                     LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
                     LATEST_TAG=${LATEST_TAG_WITH_V:1}
                     echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
@@ -367,6 +374,7 @@ jobs:
                 name: Get latest snyk-monitor tag
             - run:
                 command: |
+                    source $BASH_ENV
                     if [[ "${LATEST_TAG}" == "${OPERATOR_VERSION}" ]]; then
                       echo "export NOTHING_TO_TEST=true" >> $BASH_ENV
                       exit 1
@@ -374,31 +382,27 @@ jobs:
                 name: End tests early if no new Operator is to be released
             - run:
                 command: |
+                    source $BASH_ENV
                     set -xeo pipefail
 
-                    # Package Operator Bundle to be uploaded to Quay.io
+                    # Package Operator Bundle to be uploaded to Docker Hub
                     SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
                     SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
-                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py  $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG)
+                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG)
 
-                    QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
-
-                    QUAY_NAMESPACE=snyk-runtime
-                    PACKAGE_NAME=snyk-operator
-
-                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${OPERATOR_VERSION}" "${QUAY_TOKEN}"
+                    python scripts/operator/create_operator_bundle_and_index_and_push.py $OPERATOR_DIR $OPERATOR_VERSION $DOCKERHUB_USER $DOCKERHUB_PASSWORD
                 description: |
                     Even though the Operator is released to the community-operators repo,
                     we can reproduce it locally using our packaged scripts. This also helps us
                     test the upgrade by pushing all tested Operators to our Quay repo.
-                name: Package Operator Bundle and push to Quay
+                name: Package Operator Bundle and push to Docker Hub
             - run:
                 command: |
                     set +e
                     kubectl patch customresourcedefinition snykmonitors.charts.helm.k8s.io -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
                     kubectl patch snykmonitors.charts.helm.k8s.io snyk-monitor -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
                     kubectl delete customresourcedefinition snykmonitors.charts.helm.k8s.io
-                    kubectl delete operatorsource snyk-operator -n openshift-marketplace
+                    kubectl delete catalogsource snyk-operator -n openshift-marketplace
                     kubectl delete clusterrolebinding snyk-monitor
                     kubectl delete clusterrole snyk-monitor
                     kubectl delete namespace services
@@ -424,25 +428,14 @@ jobs:
                 name: Configure snyk-monitor namespace
             - run:
                 command: |
+                    source $BASH_ENV
                     set -xe
 
-                    sed -i.bak "s|QUAY_USERNAME_OVERRIDE|${QUAY_USERNAME}|g" ./test/fixtures/operator/operator-source.yaml
-                    kubectl apply -f ./test/fixtures/operator/operator-source.yaml
-
-                    set +e
-                    opsrc=$(kubectl get operatorsource snyk-operator -n openshift-marketplace --no-headers 2>/dev/null | awk '{print $9}')
-
-                    set -e
-                    while [[ "${opsrc}" != "Succeeded" ]]; do
-                      if [[ -z "${opsrc}" || "${opsrc}" == "Failed" ]]; then
-                        >&2 echo "failed to deploy operator source resource"
-                        exit 1
-                      fi
-                      opsrc=$(kubectl get operatorsource snyk-operator -n openshift-marketplace --no-headers 2>/dev/null | awk '{print $9}')
-                    done
+                    sed -i.bak "s|TAG_OVERRIDE|${OPERATOR_VERSION}|g" ./test/fixtures/operator/catalog-source.yaml
+                    kubectl apply -f ./test/fixtures/operator/catalog-source.yaml
 
                     kubectl apply -f ./test/fixtures/operator/installation.yaml
-                    sleep 60
+                    sleep 120
                     kubectl get pods -n snyk-monitor --no-headers | \
                       grep "snyk-operator" | \
                       awk 'END { if (NR==0) exit 1; else print $1 }' | \
@@ -453,7 +446,7 @@ jobs:
                     set -o pipefail
 
                     kubectl apply -f ./test/fixtures/operator/custom-resource.yaml
-                    sleep 60
+                    sleep 120
 
                     kubectl get pods -n snyk-monitor --no-headers | \
                       grep "snyk-monitor" | \
@@ -462,27 +455,23 @@ jobs:
                 name: Deploy snyk-monitor resource
             - run:
                 command: |
+                    source $BASH_ENV
                     set -eo pipefail
 
                     REPLACES_VERSION=${OPERATOR_VERSION}
 
                     OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py "${LATEST_TAG}" "${LATEST_TAG}" "${LATEST_TAG}" "${REPLACES_VERSION}")
-
-                    export QUAY_TOKEN=$(python ./scripts/operator/get_quay_token.py "${QUAY_USERNAME}" "${QUAY_PASSWORD}")
-
-                    QUAY_NAMESPACE=snyk-runtime
-                    PACKAGE_NAME=snyk-operator
-
-                    set +x
-                    operator-courier push "${OPERATOR_DIR}" "${QUAY_NAMESPACE}" "${PACKAGE_NAME}" "${LATEST_TAG}" "${QUAY_TOKEN}"
-                    set -x
-                name: Package Operator Bundle upgrade and push to Quay
+                    python scripts/operator/create_operator_bundle_and_index_and_push.py $OPERATOR_DIR $LATEST_TAG $DOCKERHUB_USER $DOCKERHUB_PASSWORD $REPLACES_VERSION
+                description: Now we are testing that any upgrades to the Operator are detected and applied in the cluster.
+                name: Package Operator Bundle upgrade and push to Docker Hub
             - run:
                 command: |
+                    source $BASH_ENV
                     set -xeo pipefail
 
-                    # NOTE: This is the action that actually refreshes the source and makes OLM "see" the new version in Quay!
-                    oc patch operatorsource snyk-operator -n openshift-marketplace -p '[{"op":"replace","path":"/status","value":{}}]' --type json
+                    sed -i.bak "s|${OPERATOR_VERSION}|${LATEST_TAG}|g" ./test/fixtures/operator/catalog-source.yaml
+                    kubectl apply -f ./test/fixtures/operator/catalog-source.yaml
+
                     sleep 120
 
                     VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
@@ -500,18 +489,14 @@ jobs:
                 name: Upgrade Operator and check that snyk-monitor also upgraded
             - run:
                 command: |
+                    source $BASH_ENV
                     ./scripts/slack/notify_success_openshift_upgrade.py "${OPERATOR_VERSION}" "${LATEST_TAG}"
                 name: Notify Slack on successful upgrade
             - run:
                 command: |
                     set +e
 
-                    curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
-                      -H "Authorization: ${QUAY_DELETE_TOKEN}" "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/${OPERATOR_VERSION}/helm"
-                    curl -XDELETE -H "Accept: application/json" -H "Content-Type: application/json" \
-                      -H "Authorization: ${QUAY_DELETE_TOKEN}" "https://quay.io/cnr/api/v1/packages/snyk-runtime/snyk-operator/${LATEST_TAG}/helm"
-
-                    kubectl delete -f ./test/fixtures/operator/operator-source.yaml
+                    kubectl delete -f ./test/fixtures/operator/catalog-source.yaml
                     kubectl delete -f ./test/fixtures/operator/installation.yaml
 
                     kubectl patch customresourcedefinition snykmonitors.charts.helm.k8s.io -p '{"metadata":{"finalizers":[]}}' --type=merge -n snyk-monitor
