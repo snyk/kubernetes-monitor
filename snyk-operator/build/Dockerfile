@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/helm-operator:v0.15.1
+FROM quay.io/operator-framework/helm-operator:v1.5.0
 
 LABEL name="Snyk Operator" \
       maintainer="support@snyk.io" \
@@ -6,7 +6,10 @@ LABEL name="Snyk Operator" \
       summary="Snyk Operator for Snyk Controller" \
       description="Snyk Controller enables you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure."
 
-COPY LICENSE /licenses/LICENSE
+ENV HOME=/opt/helm
 
+COPY LICENSE /licenses/LICENSE
 COPY watches.yaml ${HOME}/watches.yaml
 COPY helm-charts/ ${HOME}/helm-charts/
+
+WORKDIR ${HOME}
