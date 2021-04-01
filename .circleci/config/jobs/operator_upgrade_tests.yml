@@ -163,17 +163,34 @@ steps:
         source $BASH_ENV
         set -xeo pipefail
 
+        # Replace the catalog source with the latest bundled version of snyk-monitor, this is what initiates the upgrade
         sed -i.bak "s|${OPERATOR_VERSION}|${LATEST_TAG}|g" ./test/fixtures/operator/catalog-source.yaml
         kubectl apply -f ./test/fixtures/operator/catalog-source.yaml
 
-        sleep 120
+        ATTEMPTS=60
+        SLEEP_SECONDS_BETWEEN_ATTEMPTS=5
+        # total = 5 minutes wait time
 
-        VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
-          grep "snyk-monitor" | \
-          awk 'END { if (NR==0) exit 1; else print $1 }' | \
-          xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..containers[*].image} | \
-          awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
+        # Periodically poll if the snyk-monitor has upgraded
+        for (( attempt=1; attempt<ATTEMPTS; attempt++))
+        do
+          # Grab the tag of the snyk-monitor container image. If snyk-monitor is not deployed for some reason, we exit immediately.
+          VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
+            grep "snyk-monitor" | \
+            awk 'END { if (NR==0) exit 1; else print $1 }' | \
+            xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..containers[*].image} | \
+            awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
 
+          # Break out of the polling if the tag matches the one we want to upgrade to.
+          if [[ "${VERSION}" == "${LATEST_TAG}" ]]; then
+            break
+          fi
+
+          # Otherwise keep polling
+          sleep $SLEEP_SECONDS_BETWEEN_ATTEMPTS
+        done
+
+        # If we polled for 5 minutes and the snyk-monitor still hasn't upgraded, fail the current job.
         if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
           &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
           exit 1
