@@ -6,6 +6,8 @@ metadata:
   labels:
     app: alpine
 spec:
+  imagePullSecrets:
+  - name: docker-io
   containers:
   - name: alpine
     image: alpine
