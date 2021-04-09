@@ -15,6 +15,8 @@ spec:
       labels:
         app.kubernetes.io/name: consul
     spec:
+      imagePullSecrets:
+      - name: docker-io
       containers:
       - image: snyk/runtime-fixtures:consul
         imagePullPolicy: Always

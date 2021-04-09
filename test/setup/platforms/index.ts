@@ -28,7 +28,7 @@ const kindSetup: IPlatformSetup = {
   config: kind.exportKubeConfig,
   clean: kind.clean,
   setupTester: kind.setupTester,
-  validateRequiredEnvironment: () => Promise.resolve(),
+  validateRequiredEnvironment: kind.validateRequiredEnvironment,
 };
 
 const kindOlmSetup: IPlatformSetup = {
@@ -38,7 +38,7 @@ const kindOlmSetup: IPlatformSetup = {
   config: kind.exportKubeConfig,
   clean: kind.clean,
   setupTester: kind.setupTester,
-  validateRequiredEnvironment: () => Promise.resolve(),
+  validateRequiredEnvironment: kindOlm.validateRequiredEnvironment,
 };
 
 const eksSetup: IPlatformSetup = {
@@ -59,7 +59,7 @@ const openshift3Setup: IPlatformSetup = {
   config: kind.exportKubeConfig,
   clean: kind.clean,
   setupTester: openshift3.setupTester,
-  validateRequiredEnvironment: () => Promise.resolve(),
+  validateRequiredEnvironment: openshift3.validateRequiredEnvironment,
 };
 
 const openshift4Setup: IPlatformSetup = {

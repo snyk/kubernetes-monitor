@@ -9,6 +9,8 @@ export async function validateRequiredEnvironment(): Promise<void> {
   throwIfEnvironmentVariableUnset('AWS_ACCESS_KEY_ID');
   throwIfEnvironmentVariableUnset('AWS_SECRET_ACCESS_KEY');
   throwIfEnvironmentVariableUnset('AWS_REGION');
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_USERNAME');
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_PASSWORD');
 }
 
 export async function setupTester(): Promise<void> {

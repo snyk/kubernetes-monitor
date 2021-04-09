@@ -12,6 +12,8 @@ spec:
       labels:
         app: forwarding-proxy
     spec:
+      imagePullSecrets:
+      - name: docker-io
       containers:
       - name: forwarding-proxy
         image: snyk/runtime-fixtures:tinyproxy

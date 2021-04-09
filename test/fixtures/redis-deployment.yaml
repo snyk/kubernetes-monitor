@@ -15,6 +15,8 @@ spec:
       labels:
         app.kubernetes.io/name: redis
     spec:
+      imagePullSecrets:
+      - name: docker-io
       containers:
       - image: redis:latest
         imagePullPolicy: Always
