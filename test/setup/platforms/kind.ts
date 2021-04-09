@@ -2,6 +2,7 @@ import { accessSync, chmodSync, constants, writeFileSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
 import { execWrapper as exec } from '../../helpers/exec';
+import { throwIfEnvironmentVariableUnset } from './helpers';
 
 const clusterName = 'kind';
 
@@ -67,4 +68,12 @@ export async function download(osDistro: string, kindVersion: string): Promise<v
 
     console.log('KinD downloaded!');
   }
+}
+
+export async function validateRequiredEnvironment(): Promise<void> {
+  console.log(
+    'Checking for the required environment variables: DOCKER_HUB_RO_USERNAME, DOCKER_HUB_RO_PASSWORD',
+  );
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_USERNAME');
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_PASSWORD');
 }

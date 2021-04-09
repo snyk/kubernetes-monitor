@@ -12,11 +12,13 @@ const OPENSHIFT_CLI_VERSION = '4.7.0';
 
 export async function validateRequiredEnvironment(): Promise<void> {
   console.log(
-    'Checking for the required environment variables: OPENSHIFT4_USER, OPENSHIFT4_PASSWORD, OPENSHIFT4_CLUSTER_URL',
+    'Checking for the required environment variables: OPENSHIFT4_USER, OPENSHIFT4_PASSWORD, OPENSHIFT4_CLUSTER_URL, DOCKER_HUB_RO_USERNAME, DOCKER_HUB_RO_PASSWORD',
   );
   throwIfEnvironmentVariableUnset('OPENSHIFT4_USER');
   throwIfEnvironmentVariableUnset('OPENSHIFT4_PASSWORD');
   throwIfEnvironmentVariableUnset('OPENSHIFT4_CLUSTER_URL');
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_USERNAME');
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_PASSWORD');
 }
 
 export async function setupTester(): Promise<void> {

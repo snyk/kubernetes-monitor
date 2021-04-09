@@ -13,6 +13,8 @@ spec:
       labels:
         app: nginx
     spec:
+      imagePullSecrets:
+      - name: docker-io
       containers:
       - name: nginx
         image: nginx

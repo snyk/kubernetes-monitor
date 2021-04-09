@@ -96,6 +96,25 @@ async function predeploy(integrationId: string, namespace: string): Promise<void
   }
 }
 
+/** This is used in order to avoid Docker Hub rate limiting on our integration tests. */
+async function createSecretForDockerHubAccess(): Promise<void> {
+  const secretName = 'docker-io';
+  const secretsKeyPrefix = '--';
+  const secretType = 'docker-registry';
+  await kubectl.createSecret(
+    secretName,
+    'services',
+    {
+      'docker-server': 'https://docker.io',
+      'docker-username': getEnvVariableOrDefault('DOCKER_HUB_RO_USERNAME', ''),
+      'docker-email': 'runtime@snyk.io',
+      'docker-password': getEnvVariableOrDefault('DOCKER_HUB_RO_PASSWORD', ''),
+    },
+    secretsKeyPrefix,
+    secretType,
+  );
+}
+
 async function createSecretForGcrIoAccess(): Promise<void> {
   const gcrSecretName = 'gcr-io';
   const gcrKubectlSecretsKeyPrefix = '--';
@@ -147,6 +166,7 @@ export async function deployMonitor(): Promise<string> {
     const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
     await createEnvironment();
     await createSecretForGcrIoAccess();
+    await createSecretForDockerHubAccess();
 
     const integrationId = getIntegrationId();
     await predeploy(integrationId, namespace);

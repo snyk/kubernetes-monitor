@@ -14,6 +14,8 @@ spec:
       labels:
         app.kubernetes.io/name: centos
     spec:
+      imagePullSecrets:
+      - name: docker-io
       containers:
       - image: centos:7
         imagePullPolicy: Always
