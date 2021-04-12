@@ -1,6 +1,7 @@
 import { createCluster as kindCreateCluster } from './kind';
 import * as kubectl from '../../helpers/kubectl';
 import * as sleep from 'sleep-promise';
+import { throwIfEnvironmentVariableUnset } from './helpers';
 
 export async function createCluster(version: string): Promise<void> {
   await kindCreateCluster(version);
@@ -25,3 +26,10 @@ export async function createCluster(version: string): Promise<void> {
   await kubectl.applyK8sYaml('./test/fixtures/operator/marketplace-operator.yaml');
 }
 
+export async function validateRequiredEnvironment(): Promise<void> {
+  console.log(
+    'Checking for the required environment variables: DOCKER_HUB_RO_USERNAME, DOCKER_HUB_RO_PASSWORD',
+  );
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_USERNAME');
+  throwIfEnvironmentVariableUnset('DOCKER_HUB_RO_PASSWORD');
+}

@@ -5,6 +5,8 @@ metadata:
 spec:
   template:
     spec:
+      imagePullSecrets:
+        - name: docker-io
       containers:
         - name: my-container
           image: golang:1.13.1-alpine3.10
