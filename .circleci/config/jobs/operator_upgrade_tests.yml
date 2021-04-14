@@ -167,9 +167,9 @@ steps:
         sed -i.bak "s|${OPERATOR_VERSION}|${LATEST_TAG}|g" ./test/fixtures/operator/catalog-source.yaml
         kubectl apply -f ./test/fixtures/operator/catalog-source.yaml
 
-        ATTEMPTS=60
+        ATTEMPTS=120
         SLEEP_SECONDS_BETWEEN_ATTEMPTS=5
-        # total = 5 minutes wait time
+        # total = 10 minutes wait time
 
         # Periodically poll if the snyk-monitor has upgraded
         for (( attempt=1; attempt<ATTEMPTS; attempt++))
