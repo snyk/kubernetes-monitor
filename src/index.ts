@@ -47,10 +47,10 @@ function cleanUpTempStorage() {
   }
 };
 
-function monitor(): void {
+async function monitor(): Promise<void> {
   try {
     logger.info({cluster: currentClusterName}, 'starting to monitor');
-    beginWatchingWorkloads();
+    await beginWatchingWorkloads();
   } catch (error) {
     logger.error({error}, 'an error occurred while monitoring the cluster');
     process.exit(1);
@@ -63,5 +63,5 @@ cleanUpTempStorage();
 // Allow running in an async context
 setImmediate(async function setUpAndMonitor(): Promise<void> {
   await loadAndSendWorkloadAutoImportPolicy();
-  monitor();
+  await monitor();
 });
