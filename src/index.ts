@@ -23,15 +23,15 @@ process.on('uncaughtException', (err) => {
   }
 });
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason, promise) => {
   if (state.shutdownInProgress) {
     return;
   }
 
   try {
-    logger.error({reason}, 'UNHANDLED REJECTION!');
+    logger.error({ reason, promise }, 'UNHANDLED REJECTION!');
   } catch (ignore) {
-    console.log('UNHANDLED REJECTION!', reason);
+    console.log('UNHANDLED REJECTION!', reason, promise);
   } finally {
     process.exit(1);
   }
