@@ -29,18 +29,19 @@ describe('workload reader tests', () => {
       getSupportedWorkload(unsupportedOwnerRefs as V1OwnerReference[]),
     ).toBeUndefined();
 
+    // Selects the first one that matches a supported workload
     const noController = [{ kind: 'ReplicaSet' }, { kind: 'Deployment' }];
-    expect(
-      getSupportedWorkload(noController as V1OwnerReference[]),
-    ).toBeUndefined();
+    expect(getSupportedWorkload(noController as V1OwnerReference[])).toEqual({
+      kind: 'ReplicaSet',
+    });
 
+    // Selects the first one that matches a supported workload, regardless of controllers
     const oneController = [
       { kind: 'ReplicaSet' },
       { kind: 'Deployment', controller: true },
     ];
     expect(getSupportedWorkload(oneController as V1OwnerReference[])).toEqual({
-      kind: 'Deployment',
-      controller: true,
+      kind: 'ReplicaSet',
     });
 
     const twoControllers = [
