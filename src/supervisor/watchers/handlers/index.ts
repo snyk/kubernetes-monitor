@@ -1,4 +1,6 @@
 import { makeInformer, ADD, DELETE, ERROR, UPDATE, KubernetesObject } from '@kubernetes/client-node';
+import { Readable } from 'stream';
+
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
 import { podWatchHandler, podDeletedHandler } from './pod';
@@ -9,9 +11,10 @@ import { jobWatchHandler } from './job';
 import { replicaSetWatchHandler } from './replica-set';
 import { replicationControllerWatchHandler } from './replication-controller';
 import { statefulSetWatchHandler } from './stateful-set';
+import { deploymentConfigWatchHandler } from './deployment-config';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
-import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER, V1DeploymentConfig } from './types';
 import { ECONNRESET_ERROR_CODE } from '../types';
 
 /**
@@ -91,11 +94,21 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     },
     listFactory: (namespace) => () => k8sApi.appsClient.listNamespacedStatefulSet(namespace),
   },
+  [WorkloadKind.DeploymentConfig]: {
+    /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
+    endpoint: '/apis/apps.openshift.io/v1/watch/namespaces/{namespace}/deploymentconfigs',
+    handlers: {
+      [DELETE]: deploymentConfigWatchHandler,
+    },
+    listFactory: (namespace) => () => k8sApi.customObjectsClient.listNamespacedCustomObject("apps.openshift.io", "v1", namespace, "deploymentconfigs"),
+  },
 };
 
-export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
+export function setupInformer(namespace: string, workloadKind: WorkloadKind): void {
   const workloadMetadata = workloadWatchMetadata[workloadKind];
   const namespacedEndpoint = workloadMetadata.endpoint.replace('{namespace}', namespace);
+
+  let isUnsupportedWorkload = false;
 
   const listMethod = workloadMetadata.listFactory(namespace);
   const loggedListMethod = async () => {
@@ -103,17 +116,53 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
       return await kubernetesApiWrappers.retryKubernetesApiRequest(
         () => listMethod());
     } catch (err) {
-      logger.error({err, namespace, workloadKind}, 'error while listing entities on namespace');
-      throw err;
+      if (!(workloadKind === WorkloadKind.DeploymentConfig && err.statusCode === 404)) {
+        logger.error(
+          { err, namespace, workloadKind },
+          'error while listing entities on namespace',
+        );
+        throw err;
+      }
+
+      logger.warn(
+        { err, namespace, workloadKind },
+        'DeploymentConfigs are not supported in this Kubernetes cluster',
+      );
+      await informer.stop();
+
+      // When an error occurs next in the Informer's error handler, we should ignore it and continue.
+      isUnsupportedWorkload = true;
+
+      /**
+       * WARNING!
+       * Faking a response from the list() above. Should be safe since the Informer does not use the stream
+       * but since we're faking the connection with an empty Stream, this might blow up one day.
+       * It also relies on the client library reading specific fields (metadata.version), which could change in the future.
+       * https://github.com/kubernetes-client/javascript/blob/0.14.3/src/cache.ts#L115-L133
+       */
+      return {
+        response: new Readable(),
+        body: {
+          metadata: {
+            resourceVersion: 0,
+          },
+          items: new Array<V1DeploymentConfig>(),
+        },
+      };
     }
   };
 
   const informer = makeInformer<KubernetesObject>(kubeConfig, namespacedEndpoint, loggedListMethod);
 
   informer.on(ERROR, (err) => {
+    if (isUnsupportedWorkload) {
+      logger.info({ err, namespace, workloadKind }, 'the current workload is not supported, ignoring errors from the API server');
+      return;
+    }
+
     // Types from client library insists that callback is of type KubernetesObject
     if ((err as any).code === ECONNRESET_ERROR_CODE) {
-      logger.debug(`informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`);
+      logger.debug({}, `informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`);
 
       // Restart informer after 1sec
       setTimeout(() => {
