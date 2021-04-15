@@ -1,4 +1,5 @@
 import { makeInformer, ADD, DELETE, ERROR, UPDATE, KubernetesObject } from '@kubernetes/client-node';
+
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
 import { podWatchHandler, podDeletedHandler } from './pod';
@@ -9,6 +10,7 @@ import { jobWatchHandler } from './job';
 import { replicaSetWatchHandler } from './replica-set';
 import { replicationControllerWatchHandler } from './replication-controller';
 import { statefulSetWatchHandler } from './stateful-set';
+import { deploymentConfigWatchHandler } from './deployment-config';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -91,9 +93,74 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     },
     listFactory: (namespace) => () => k8sApi.appsClient.listNamespacedStatefulSet(namespace),
   },
+  [WorkloadKind.DeploymentConfig]: {
+    /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
+    endpoint: '/apis/apps.openshift.io/v1/watch/namespaces/{namespace}/deploymentconfigs',
+    handlers: {
+      [DELETE]: deploymentConfigWatchHandler,
+    },
+    listFactory: (namespace) => () => k8sApi.customObjectsClient.listNamespacedCustomObject('apps.openshift.io', 'v1', namespace, 'deploymentconfigs'),
+  },
 };
 
-export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
+async function isSupportedWorkload(
+  namespace: string,
+  workloadKind: WorkloadKind,
+): Promise<boolean> {
+  if (workloadKind !== WorkloadKind.DeploymentConfig) {
+    return true;
+  }
+
+  try {
+    const pretty = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall = await kubernetesApiWrappers.retryKubernetesApiRequest(
+      () =>
+        k8sApi.customObjectsClient.listNamespacedCustomObject(
+          'apps.openshift.io',
+          'v1',
+          namespace,
+          'deploymentconfigs',
+          pretty,
+          continueToken,
+          fieldSelector,
+          labelSelector,
+          limit,
+          resourceVersion,
+          timeoutSeconds,
+        ),
+    );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.info(
+      { error, workloadKind },
+      'Failed on Kubernetes API call to list DeploymentConfig',
+    );
+    return false;
+  }
+}
+
+export async function setupInformer(namespace: string, workloadKind: WorkloadKind): Promise<void> {
+  const isSupported = await isSupportedWorkload(namespace, workloadKind);
+  if (!isSupported) {
+    logger.info(
+      { namespace, workloadKind },
+      'The Kubernetes cluster does not support this workload',
+    );
+    return;
+  }
+
   const workloadMetadata = workloadWatchMetadata[workloadKind];
   const namespacedEndpoint = workloadMetadata.endpoint.replace('{namespace}', namespace);
 
@@ -103,7 +170,10 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
       return await kubernetesApiWrappers.retryKubernetesApiRequest(
         () => listMethod());
     } catch (err) {
-      logger.error({err, namespace, workloadKind}, 'error while listing entities on namespace');
+      logger.error(
+        { err, namespace, workloadKind },
+        'error while listing entities on namespace',
+      );
       throw err;
     }
   };
@@ -113,11 +183,11 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
     if ((err as any).code === ECONNRESET_ERROR_CODE) {
-      logger.debug(`informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`);
+      logger.debug({}, `informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`);
 
       // Restart informer after 1sec
-      setTimeout(() => {
-        informer.start();
+      setTimeout(async () => {
+        await informer.start();
       }, 1000);
     } else {
       logger.error({ err }, 'unexpected informer error event occurred');
@@ -135,5 +205,5 @@ export function setupInformer(namespace: string, workloadKind: WorkloadKind) {
     });
   }
 
-  informer.start();
+  await informer.start();
 }
