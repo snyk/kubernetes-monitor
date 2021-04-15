@@ -50,7 +50,7 @@ export function extractNamespaceName(namespace: V1Namespace): string {
 }
 
 export function isKubernetesInternalNamespace(namespace: string): boolean {
-  return kubernetesInternalNamespaces.includes(namespace);
+  return kubernetesInternalNamespaces.has(namespace);
 }
 
 function setupWatchesForCluster(): void {
