@@ -32,7 +32,7 @@ import { ECONNRESET_ERROR_CODE } from '../types';
  * whenever Kubernetes fires a "workload changed" event and it uses the result to figure out
  * if the workload actually changed (by inspecting the resourceVersion).
  */
-const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
+export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   [WorkloadKind.Pod]: {
     endpoint: '/api/v1/namespaces/{namespace}/pods',
     handlers: {
