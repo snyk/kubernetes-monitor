@@ -52,6 +52,11 @@ pvc:
   ##
   # storageClassName: "-"
 
+# Additional annotations for the Kubernetes ServiceAccount
+rbac:
+  serviceAccount:
+    annotations: {}
+
 # Node.js in-container process memory enhancements
 envs:
   - name: V8_MAX_OLD_SPACE_SIZE
