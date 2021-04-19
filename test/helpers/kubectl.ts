@@ -1,9 +1,11 @@
-import { execWrapper as exec } from './exec';
 import { chmodSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
 import * as needle from 'needle';
 import * as sleep from 'sleep-promise';
+import type { V1ServiceAccount } from '@kubernetes/client-node';
+
+import { execWrapper as exec } from './exec';
 
 /**
  * @param version For example: "v1.18.0"
@@ -187,6 +189,16 @@ export async function getDeploymentJson(
 ): Promise<any> {
   const getDeploymentResult = await exec(
     `./kubectl get deployment ${deploymentName} -n ${namespace} -o json`,
+  );
+  return JSON.parse(getDeploymentResult.stdout);
+}
+
+export async function getServiceAccountJson(
+  name: string,
+  namespace: string,
+): Promise<V1ServiceAccount> {
+  const getDeploymentResult = await exec(
+    `./kubectl get serviceaccount ${name} -n ${namespace} -o json`,
   );
   return JSON.parse(getDeploymentResult.stdout);
 }
