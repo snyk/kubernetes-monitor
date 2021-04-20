@@ -4,7 +4,7 @@ import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { logger } from '../../common/logger';
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
-import { IPullableImage, IScanImage } from './types';
+import {IPullableImage, IScanImage, SkopeoRepositoryType} from './types';
 import { IScanResult } from '../types';
 import {
   buildDockerPropertiesOnDepTree,
@@ -13,30 +13,49 @@ import {
   LegacyPluginResponse,
 } from './docker-plugin-shim';
 
-export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
-  const pulledImages: IPullableImage[] = [];
-
-  for (const image of images) {
-    const { imageName, imageWithDigest, fileSystemPath } = image;
-    if (!fileSystemPath) {
-      continue;
-    }
-
+/*
+ pulled images by skopeo archive repo type:
+ 1st try to pull by docker archive image if it fail try to pull by oci archive
+*/
+async function pullImageBySkopeoRepo(imageToPull: IPullableImage): Promise<IPullableImage> {
+    // Scan image by digest if exists, other way fallback tag
+    const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
+    imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive
     try {
-      // Scan image by digest if exists, other way fallback tag
-      const scanId = imageWithDigest ?? imageName;
-      await skopeoCopy(scanId, fileSystemPath);
-      pulledImages.push(image);
-    } catch (error) {
-      logger.error({error, image: imageWithDigest}, 'failed to pull image');
+        // copy docker archive image
+        await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
+    } catch (dockerError) {
+        logger.error({dockerError, image: imageToPull.imageWithDigest}, 'failed to pull image docker archive image');
+        try {
+            imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive
+            // copy oci archive image
+            await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
+        } catch (ociError) {
+            logger.error({ociError, image: imageToPull.imageWithDigest}, 'failed to pull image oci archive image');
+            throw ociError
+        }
     }
-  }
-
-  return pulledImages;
+    return imageToPull
 }
 
-export function getImagesWithFileSystemPath(images: IScanImage[]): IPullableImage[] {
-  return images.map((image) => ({ ...image, fileSystemPath: getDestinationForImage(image.imageName) }));
+export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
+    const pulledImages: IPullableImage[] = [];
+    for (const image of images) {
+        if (!image.fileSystemPath) {
+            continue;
+        }
+        try {
+            const pulledImage = await pullImageBySkopeoRepo(image);
+            pulledImages.push(pulledImage);
+        } catch (error) {
+            logger.error({error, image: image.imageWithDigest}, 'failed to pull image docker/oci archive image');
+        }
+    }
+    return pulledImages;
+}
+
+export function getImagesWithFileSystemPath(images: IScanImage[]): { imageName: string; skopeoRepoType: SkopeoRepositoryType; fileSystemPath: string; imageWithDigest?: string }[] {
+    return images.map((image) => ({...image, fileSystemPath: getDestinationForImage(image.imageName)}));
 }
 
 export async function removePulledImages(images: IPullableImage[]): Promise<void> {
@@ -75,10 +94,10 @@ export function getImageParts(imageWithTag: string) : {imageName: string, imageT
 export async function scanImages(images: IPullableImage[]): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
-  for (const { imageName, fileSystemPath, imageWithDigest } of images) {
+  for (const { imageName, fileSystemPath, imageWithDigest, skopeoRepoType } of images) {
     try {
       const shouldIncludeAppVulns = true;
-      const dockerArchivePath = `docker-archive:${fileSystemPath}`;
+      const dockerArchivePath = `${skopeoRepoType}:${fileSystemPath}`;
 
       const pluginResponse = await scan({
         path: dockerArchivePath,
