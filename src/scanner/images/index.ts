@@ -20,22 +20,22 @@ import {
 async function pullImageBySkopeoRepo(imageToPull: IPullableImage): Promise<IPullableImage> {
     // Scan image by digest if exists, other way fallback tag
     const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
-    imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive
+    imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive;
     try {
         // copy docker archive image
         await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
     } catch (dockerError) {
         logger.error({dockerError, image: imageToPull.imageWithDigest}, 'failed to pull image docker archive image');
         try {
-            imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive
+            imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
             // copy oci archive image
             await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
         } catch (ociError) {
             logger.error({ociError, image: imageToPull.imageWithDigest}, 'failed to pull image oci archive image');
-            throw ociError
+            throw ociError;
         }
     }
-    return imageToPull
+    return imageToPull;
 }
 
 export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
