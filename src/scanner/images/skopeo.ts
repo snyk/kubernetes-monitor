@@ -27,6 +27,8 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
       return `${type}://${target}`;
     case SkopeoRepositoryType.DockerArchive:
       return `${type}:${target}`;
+    case SkopeoRepositoryType.OciArchive:
+      return `${type}:${target}`;
     default:
       throw new Error(`Unhandled Skopeo repository type ${type}`);
   }
