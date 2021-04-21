@@ -97,7 +97,8 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
   for (const { imageName, fileSystemPath, imageWithDigest, skopeoRepoType } of images) {
     try {
       const shouldIncludeAppVulns = true;
-      const dockerArchivePath = `${skopeoRepoType}:${fileSystemPath}`;
+       const archiveType= skopeoRepoType == SkopeoRepositoryType.DockerArchive?"docker-archive":"oci-archive";
+      const dockerArchivePath = `${archiveType}:${fileSystemPath}`;
 
       const pluginResponse = await scan({
         path: dockerArchivePath,
