@@ -23,15 +23,15 @@ process.on('uncaughtException', (err) => {
   }
 });
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason, promise) => {
   if (state.shutdownInProgress) {
     return;
   }
 
   try {
-    logger.error({reason}, 'UNHANDLED REJECTION!');
+    logger.error({ reason, promise }, 'UNHANDLED REJECTION!');
   } catch (ignore) {
-    console.log('UNHANDLED REJECTION!', reason);
+    console.log('UNHANDLED REJECTION!', reason, promise);
   } finally {
     process.exit(1);
   }
@@ -47,10 +47,10 @@ function cleanUpTempStorage() {
   }
 };
 
-function monitor(): void {
+async function monitor(): Promise<void> {
   try {
     logger.info({cluster: currentClusterName}, 'starting to monitor');
-    beginWatchingWorkloads();
+    await beginWatchingWorkloads();
   } catch (error) {
     logger.error({error}, 'an error occurred while monitoring the cluster');
     process.exit(1);
@@ -63,5 +63,5 @@ cleanUpTempStorage();
 // Allow running in an async context
 setImmediate(async function setUpAndMonitor(): Promise<void> {
   await loadAndSendWorkloadAutoImportPolicy();
-  monitor();
+  await monitor();
 });

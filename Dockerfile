@@ -34,9 +34,6 @@ RUN chmod 755 /usr/bin/dumb-init
 RUN groupadd -g 10001 snyk
 RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
-# @kubernetes/client-node@0.14.2 started using net-keepalive, which requires the following packages to build modules
-RUN yum --disableplugin=subscription-manager install -y make gcc gcc-c++
-
 WORKDIR /srv/app
 
 COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
@@ -52,8 +49,6 @@ ADD --chown=snyk:snyk package.json package-lock.json ./
 RUN mkdir -p .config
 
 RUN npm install
-
-RUN yum remove -y make gcc gcc-c++
 
 # add the rest of the app files
 ADD --chown=snyk:snyk . .

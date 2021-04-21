@@ -1,0 +1,28 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  namespace: services
+  name: deployment-config
+spec:
+  replicas: 1
+  selector:
+    name: deployment-config
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: deployment-config
+      name: deployment-config
+    spec:
+      containers:
+      - command:
+        - /hello
+        image: hello-world:latest
+        imagePullPolicy: IfNotPresent
+        name: main
+      securityContext:
+        runAsNonRoot: true
+  test: false
+  triggers:
+  - type: ConfigChange
