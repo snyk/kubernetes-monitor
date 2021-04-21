@@ -18,7 +18,7 @@ import { kubernetesInternalNamespaces } from './internal-namespaces';
  */
 const watchedNamespaces = new Set<string>();
 
-function setupWatchesForNamespace(namespace: string): void {
+async function setupWatchesForNamespace(namespace: string): Promise<void> {
   if (watchedNamespaces.has(namespace)) {
     logger.info({namespace}, 'already set up namespace watch, skipping');
     return;
@@ -33,7 +33,7 @@ function setupWatchesForNamespace(namespace: string): void {
     }
 
     try {
-      setupInformer(namespace, workloadKind);
+      await setupInformer(namespace, workloadKind);
     } catch (error) {
       logger.warn({namespace, workloadKind}, 'could not setup workload watch, skipping');
     }
@@ -53,7 +53,7 @@ export function isKubernetesInternalNamespace(namespace: string): boolean {
   return kubernetesInternalNamespaces.has(namespace);
 }
 
-function setupWatchesForCluster(): void {
+async function setupWatchesForCluster(): Promise<void> {
   const informer = makeInformer(
     kubeConfig,
     '/api/v1/namespaces',
@@ -74,15 +74,15 @@ function setupWatchesForCluster(): void {
       logger.debug(`namespace informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`);
 
       // Restart informer after 1sec
-      setTimeout(() => {
-        informer.start();
+      setTimeout(async () => {
+        await informer.start();
       }, 1000);
     } else {
       logger.error({ err }, 'unexpected namespace informer error event occurred');
     }
   });
 
-  informer.on(ADD, (namespace: V1Namespace) => {
+  informer.on(ADD, async (namespace: V1Namespace) => {
     try {
       const namespaceName = extractNamespaceName(namespace);
       if (isKubernetesInternalNamespace(namespaceName)) {
@@ -91,23 +91,23 @@ function setupWatchesForCluster(): void {
         return;
       }
 
-      setupWatchesForNamespace(namespaceName);
+      await setupWatchesForNamespace(namespaceName);
     } catch (err) {
       logger.error({err, namespace}, 'error handling a namespace event');
       return;
     }
   });
 
-  informer.start();
+  await informer.start();
 }
 
-export function beginWatchingWorkloads(): void {
+export async function beginWatchingWorkloads(): Promise<void> {
   if (config.NAMESPACE) {
     logger.info({namespace: config.NAMESPACE}, 'kubernetes-monitor restricted to specific namespace');
-    setupWatchesForNamespace(config.NAMESPACE);
+    await setupWatchesForNamespace(config.NAMESPACE);
     return;
   }
 
-  setupWatchesForCluster();
+  await setupWatchesForCluster();
 }
 

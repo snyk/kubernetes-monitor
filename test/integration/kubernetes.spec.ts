@@ -341,6 +341,48 @@ test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-
   });
 });
 
+test('snyk-monitor scans DeploymentConfigs', async () => {
+  if (process.env['TEST_PLATFORM'] !== 'openshift4') {
+    console.log('Not testing DeploymentConfigs outside of OpenShift');
+    return;
+  }
+  const deploymentConfigName = 'deployment-config';
+  const namespace = 'services';
+  const clusterName = 'Default cluster';
+  const deploymentType = WorkloadKind.DeploymentConfig;
+  const imageName = 'hello-world';
+  await kubectl.applyK8sYaml('test/fixtures/hello-world-deploymentconfig.yaml');
+  console.log(
+    `Begin polling upstream for the expected DeploymentConfig with integration ID ${integrationId}...`,
+  );
+
+  const validatorFn: WorkloadLocatorValidator = (workloads) => {
+    return (
+      workloads !== undefined &&
+      workloads.find(
+        (workload) =>
+          workload.name === deploymentConfigName &&
+          workload.type === deploymentType,
+      ) !== undefined
+    );
+  };
+
+  const testResult = await validateUpstreamStoredData(
+    validatorFn,
+    `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
+  );
+  expect(testResult).toBeTruthy();
+
+  const scanResultsResponse = await getUpstreamResponseBody(
+    `api/v1/scan-results/${integrationId}/${clusterName}/${namespace}/${deploymentType}/${deploymentConfigName}`,
+  );
+  expect(scanResultsResponse).toEqual({
+    workloadScanResults: {
+      [imageName]: expect.any(Array),
+    },
+  });
+});
+
 test('snyk-monitor pulls images from a local registry and sends data to kubernetes-upstream', async () => {
   afterAll(async () => {
     console.log('Begin removing local container registry...');
