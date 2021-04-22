@@ -38,6 +38,8 @@ workflows:
           requires:
             - build_image
           <<: *main_branches_filter
+      - operator_upgrade_tests:
+          <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
