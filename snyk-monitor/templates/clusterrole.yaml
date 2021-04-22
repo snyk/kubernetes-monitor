@@ -53,6 +53,14 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - apps.openshift.io
+  resources:
+  - deploymentconfigs
+  verbs:
+  - get
+  - list
+  - watch
 {{- if .Values.psp.enabled }}
 - apiGroups:
   - policy

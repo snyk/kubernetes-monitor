@@ -221,6 +221,12 @@ spec:
                 - "*"
               verbs:
                 - "*"
+            - apiGroups:
+                - apps.openshift.io
+              resources:
+                - deploymentconfigs
+              verbs:
+                - "*"
           serviceAccountName: snyk-operator
       deployments:
         - name: snyk-operator

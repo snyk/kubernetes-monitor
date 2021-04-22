@@ -4,6 +4,7 @@ import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
+import { V1DeploymentConfig } from './watchers/handlers/types';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
@@ -25,6 +26,37 @@ const deploymentReader: IWorkloadReaderFunc = async (workloadName, namespace) =>
 
   const metadata: IKubeObjectMetadataWithoutPodSpec = {
     kind: WorkloadKind.Deployment,
+    objectMeta: deployment.metadata,
+    specMeta: deployment.spec.template.metadata,
+    ownerRefs: deployment.metadata.ownerReferences,
+    revision: deployment.status.observedGeneration,
+  };
+  return metadata;
+};
+
+/** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
+const deploymentConfigReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
+  const deploymentResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () =>
+      k8sApi.customObjectsClient.getNamespacedCustomObject(
+        'apps.openshift.io',
+        'v1',
+        namespace,
+        'deploymentconfigs',
+        workloadName,
+      ),
+  );
+  const deployment: V1DeploymentConfig = deploymentResult.body;
+
+  if (!deployment.metadata || !deployment.spec || !deployment.spec.template.metadata ||
+      !deployment.spec.template.spec || !deployment.status) {
+    logIncompleteWorkload(workloadName, namespace);
+
+    return undefined;
+  }
+
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
+    kind: WorkloadKind.DeploymentConfig,
     objectMeta: deployment.metadata,
     specMeta: deployment.spec.template.metadata,
     ownerRefs: deployment.metadata.ownerReferences,
@@ -181,6 +213,7 @@ const workloadReader = {
   [WorkloadKind.Job]: jobReader,
   [WorkloadKind.CronJob]: cronJobReader,
   [WorkloadKind.ReplicationController]: replicationControllerReader,
+  [WorkloadKind.DeploymentConfig]: deploymentConfigReader,
 };
 
 export const SupportedWorkloadTypes = Object.keys(workloadReader);
@@ -191,10 +224,6 @@ export function getWorkloadReader(workloadType: string): IWorkloadReaderFunc {
 
 export function getSupportedWorkload(ownerRefs: V1OwnerReference[] | undefined): V1OwnerReference | undefined {
   return ownerRefs !== undefined
-    ? ownerRefs.find(
-        (owner) =>
-          SupportedWorkloadTypes.includes(owner.kind) &&
-          owner.controller === true,
-      )
+    ? ownerRefs.find((owner) => SupportedWorkloadTypes.includes(owner.kind))
     : undefined;
 }
