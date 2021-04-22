@@ -25,15 +25,9 @@ async function pullImageBySkopeoRepo(imageToPull: IPullableImage): Promise<IPull
         // copy docker archive image
         await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
     } catch (dockerError) {
-        logger.error({dockerError, image: imageToPull.imageWithDigest}, 'failed to pull image docker archive image');
-        try {
-            imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
-            // copy oci archive image
-            await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
-        } catch (ociError) {
-            logger.error({ociError, image: imageToPull.imageWithDigest}, 'failed to pull image oci archive image');
-            throw ociError;
-        }
+        imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
+        // copy oci archive image
+        await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
     }
     return imageToPull;
 }
@@ -48,7 +42,7 @@ export async function pullImages(images: IPullableImage[]): Promise<IPullableIma
             const pulledImage = await pullImageBySkopeoRepo(image);
             pulledImages.push(pulledImage);
         } catch (error) {
-            logger.error({error, image: image.imageWithDigest}, 'failed to pull image docker/oci archive image');
+            logger.error({error, image: image.imageWithDigest?? image.imageName}, 'failed to pull image docker/oci archive image');
         }
     }
     return pulledImages;
