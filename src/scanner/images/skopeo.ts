@@ -26,6 +26,7 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
     case SkopeoRepositoryType.ImageRegistry:
       return `${type}://${target}`;
     case SkopeoRepositoryType.DockerArchive:
+    case SkopeoRepositoryType.OciArchive:
       return `${type}:${target}`;
     default:
       throw new Error(`Unhandled Skopeo repository type ${type}`);
@@ -35,6 +36,7 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
 export async function pull(
   image: string,
   destination: string,
+  skopeoRepoType: SkopeoRepositoryType,
 ): Promise<void> {
   const creds = await credentials.getSourceCredentials(image);
   const credentialsParameters = getCredentialParameters(creds);
@@ -45,7 +47,7 @@ export async function pull(
   args.push(...credentialsParameters);
   args.push(...certificatesParameters);
   args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
-  args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
+  args.push({body: prefixRespository(destination, skopeoRepoType), sanitise: false});
 
   await pullWithRetry(args, destination);
 }

@@ -1,0 +1,222 @@
+diff --git a/.gitignore b/.gitignore
+index 7e41f7e..c390cb7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -59,3 +59,4 @@ __pycache__
+ opm
+ .operator_version
+ snyk-monitor-catalog-source.yaml
++*.iml
+diff --git a/src/scanner/images/index.ts b/src/scanner/images/index.ts
+index bc985c9..33f52a3 100644
+--- a/src/scanner/images/index.ts
++++ b/src/scanner/images/index.ts
+@@ -4,7 +4,7 @@ import { DepGraph, legacy } from '@snyk/dep-graph';
+ 
+ import { logger } from '../../common/logger';
+ import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
+-import { IPullableImage, IScanImage } from './types';
++import {IPullableImage, IScanImage, SkopeoRepositoryType} from './types';
+ import { IScanResult } from '../types';
+ import {
+   buildDockerPropertiesOnDepTree,
+@@ -13,30 +13,43 @@ import {
+   LegacyPluginResponse,
+ } from './docker-plugin-shim';
+ 
+-export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
+-  const pulledImages: IPullableImage[] = [];
+-
+-  for (const image of images) {
+-    const { imageName, imageWithDigest, fileSystemPath } = image;
+-    if (!fileSystemPath) {
+-      continue;
+-    }
+-
++/*
++ pulled images by skopeo archive repo type:
++ 1st try to pull by docker archive image if it fail try to pull by oci archive
++*/
++async function pullImageBySkopeoRepo(imageToPull: IPullableImage): Promise<IPullableImage> {
++    // Scan image by digest if exists, other way fallback tag
++    const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
++    imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive;
+     try {
+-      // Scan image by digest if exists, other way fallback tag
+-      const scanId = imageWithDigest ?? imageName;
+-      await skopeoCopy(scanId, fileSystemPath);
+-      pulledImages.push(image);
+-    } catch (error) {
+-      logger.error({error, image: imageWithDigest}, 'failed to pull image');
++        // copy docker archive image
++        await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
++    } catch (dockerError) {
++        imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
++        // copy oci archive image
++        await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
+     }
+-  }
++    return imageToPull;
++}
+ 
+-  return pulledImages;
++export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
++    const pulledImages: IPullableImage[] = [];
++    for (const image of images) {
++        if (!image.fileSystemPath) {
++            continue;
++        }
++        try {
++            const pulledImage = await pullImageBySkopeoRepo(image);
++            pulledImages.push(pulledImage);
++        } catch (error) {
++            logger.error({error, image: image.imageWithDigest?? image.imageName}, 'failed to pull image docker/oci archive image');
++        }
++    }
++    return pulledImages;
+ }
+ 
+-export function getImagesWithFileSystemPath(images: IScanImage[]): IPullableImage[] {
+-  return images.map((image) => ({ ...image, fileSystemPath: getDestinationForImage(image.imageName) }));
++export function getImagesWithFileSystemPath(images: IScanImage[]): { imageName: string; skopeoRepoType: SkopeoRepositoryType; fileSystemPath: string; imageWithDigest?: string }[] {
++    return images.map((image) => ({...image, fileSystemPath: getDestinationForImage(image.imageName)}));
+ }
+ 
+ export async function removePulledImages(images: IPullableImage[]): Promise<void> {
+@@ -75,10 +88,11 @@ export function getImageParts(imageWithTag: string) : {imageName: string, imageT
+ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[]> {
+   const scannedImages: IScanResult[] = [];
+ 
+-  for (const { imageName, fileSystemPath, imageWithDigest } of images) {
++  for (const { imageName, fileSystemPath, imageWithDigest, skopeoRepoType } of images) {
+     try {
+       const shouldIncludeAppVulns = true;
+-      const dockerArchivePath = `docker-archive:${fileSystemPath}`;
++       const archiveType= skopeoRepoType == SkopeoRepositoryType.DockerArchive?"docker-archive":"oci-archive";
++      const dockerArchivePath = `${archiveType}:${fileSystemPath}`;
+ 
+       const pluginResponse = await scan({
+         path: dockerArchivePath,
+diff --git a/src/scanner/images/skopeo.ts b/src/scanner/images/skopeo.ts
+index a3fdcf7..4a1abed 100644
+--- a/src/scanner/images/skopeo.ts
++++ b/src/scanner/images/skopeo.ts
+@@ -26,6 +26,7 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
+     case SkopeoRepositoryType.ImageRegistry:
+       return `${type}://${target}`;
+     case SkopeoRepositoryType.DockerArchive:
++    case SkopeoRepositoryType.OciArchive:
+       return `${type}:${target}`;
+     default:
+       throw new Error(`Unhandled Skopeo repository type ${type}`);
+@@ -35,6 +36,7 @@ function prefixRespository(target: string, type: SkopeoRepositoryType): string {
+ export async function pull(
+   image: string,
+   destination: string,
++  skopeoRepoType: SkopeoRepositoryType,
+ ): Promise<void> {
+   const creds = await credentials.getSourceCredentials(image);
+   const credentialsParameters = getCredentialParameters(creds);
+@@ -45,7 +47,7 @@ export async function pull(
+   args.push(...credentialsParameters);
+   args.push(...certificatesParameters);
+   args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
+-  args.push({body: prefixRespository(destination, SkopeoRepositoryType.DockerArchive), sanitise: false});
++  args.push({body: prefixRespository(destination, skopeoRepoType), sanitise: false});
+ 
+   await pullWithRetry(args, destination);
+ }
+diff --git a/src/scanner/images/types.ts b/src/scanner/images/types.ts
+index 51a5226..9d4a8f7 100644
+--- a/src/scanner/images/types.ts
++++ b/src/scanner/images/types.ts
+@@ -1,12 +1,14 @@
+ export interface IScanImage {
+   imageName: string;
+   imageWithDigest?: string;
++  skopeoRepoType: SkopeoRepositoryType;
+ }
+ 
+ export interface IPullableImage {
+   imageName: string;
+   imageWithDigest?: string;
+   fileSystemPath: string;
++  skopeoRepoType: SkopeoRepositoryType;
+ }
+ 
+ /**
+diff --git a/test/fixtures/oci-dummy-pod.yaml b/test/fixtures/oci-dummy-pod.yaml
+new file mode 100644
+index 0000000..0025b3f
+--- /dev/null
++++ b/test/fixtures/oci-dummy-pod.yaml
+@@ -0,0 +1,14 @@
++apiVersion: v1
++kind: Pod
++metadata:
++  name: oci-dummy
++  namespace: services
++  labels:
++    app: oci-dummy
++spec:
++  imagePullSecrets:
++  - name: docker-io
++  containers:
++  - name: oci-dummy
++    image: snyk/runtime-fixtures:oci-dummy
++    command: ['/app/sample']
+diff --git a/test/integration/kubernetes.spec.ts b/test/integration/kubernetes.spec.ts
+index 78fdbfe..d87e91b 100644
+--- a/test/integration/kubernetes.spec.ts
++++ b/test/integration/kubernetes.spec.ts
+@@ -41,6 +41,7 @@ test('deploy sample workloads', async () => {
+     'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
+   await Promise.all([
+     kubectl.applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
++    kubectl.applyK8sYaml('./test/fixtures/oci-dummy-pod.yaml'),
+     kubectl.applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
+     kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
+     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
+@@ -100,10 +101,13 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
+   const validatorFn: WorkloadLocatorValidator = (workloads) => {
+     return (
+       workloads !== undefined &&
+-      workloads.length === 7 &&
++      workloads.length === 8 &&
+       workloads.find(
+         (workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
+       ) !== undefined &&
++      workloads.find(
++          (workload) => workload.name === 'oci-dummy' && workload.type === WorkloadKind.Pod,
++      ) !== undefined &&
+       workloads.find(
+         (workload) =>
+           workload.name === 'nginx' && workload.type === WorkloadKind.ReplicationController,
+diff --git a/test/unit/scanner/images.test.ts b/test/unit/scanner/images.test.ts
+index d8ef7cc..3faf688 100644
+--- a/test/unit/scanner/images.test.ts
++++ b/test/unit/scanner/images.test.ts
+@@ -1,6 +1,6 @@
+ import * as tap from 'tap';
+ 
+-import {IPullableImage, IScanImage} from '../../../src/scanner/images/types';
++import {IPullableImage, IScanImage, SkopeoRepositoryType} from '../../../src/scanner/images/types';
+ import { config } from '../../../src/common/config';
+ import * as scannerImages from '../../../src/scanner/images';
+ 
+@@ -12,6 +12,7 @@ tap.test('getImagesWithFileSystemPath()', async (t) => {
+   const image: IScanImage[] = [{
+     imageName: 'nginx:latest',
+     imageWithDigest: 'nginx@sha256:4949aa7259aa6f827450207db5ad94cabaa9248277c6d736d5e1975d200c7e43',
++    skopeoRepoType: SkopeoRepositoryType.DockerArchive
+   }];
+   const imageResult = scannerImages.getImagesWithFileSystemPath(image);
+   t.same(imageResult.length, 1, 'expected 1 item');
+@@ -33,6 +34,7 @@ tap.test('getImagesWithFileSystemPath()', async (t) => {
+   const someImage = [{
+     imageName: 'centos:latest',
+     imageWithDigest: 'centos@sha256:fc4a234b91cc4b542bac8a6ad23b2ddcee60ae68fc4dbd4a52efb5f1b0baad71',
++    skopeoRepoType: SkopeoRepositoryType.DockerArchive
+   }];
+   const firstCallResult = scannerImages.getImagesWithFileSystemPath(someImage)[0];
+   const secondCallResult = scannerImages.getImagesWithFileSystemPath(someImage)[0];

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oci-dummy
+  namespace: services
+  labels:
+    app: oci-dummy
+spec:
+  imagePullSecrets:
+  - name: docker-io
+  containers:
+  - name: oci-dummy
+    image: snyk/runtime-fixtures:oci-dummy
+    command: ['/app/sample']
