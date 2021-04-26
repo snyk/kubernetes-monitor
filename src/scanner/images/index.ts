@@ -48,7 +48,7 @@ export async function pullImages(images: IPullableImage[]): Promise<IPullableIma
     return pulledImages;
 }
 
-export function getImagesWithFileSystemPath(images: IScanImage[]): { imageName: string; skopeoRepoType: SkopeoRepositoryType; fileSystemPath: string; imageWithDigest?: string }[] {
+export function getImagesWithFileSystemPath(images: IScanImage[]): IPullableImage[] {
     return images.map((image) => ({...image, fileSystemPath: getDestinationForImage(image.imageName)}));
 }
 
