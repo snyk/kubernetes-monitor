@@ -41,6 +41,7 @@ test('deploy sample workloads', async () => {
     'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
   await Promise.all([
     kubectl.applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/oci-dummy-pod.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/redis-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
@@ -100,9 +101,12 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return (
       workloads !== undefined &&
-      workloads.length === 7 &&
+      workloads.length === 8 &&
       workloads.find(
         (workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
+      ) !== undefined &&
+      workloads.find(
+          (workload) => workload.name === 'oci-dummy' && workload.type === WorkloadKind.Pod,
       ) !== undefined &&
       workloads.find(
         (workload) =>
