@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 
-import {IPullableImage, IScanImage} from '../../../src/scanner/images/types';
+import {IPullableImage, IScanImage, SkopeoRepositoryType} from '../../../src/scanner/images/types';
 import { config } from '../../../src/common/config';
 import * as scannerImages from '../../../src/scanner/images';
 
@@ -12,6 +12,7 @@ tap.test('getImagesWithFileSystemPath()', async (t) => {
   const image: IScanImage[] = [{
     imageName: 'nginx:latest',
     imageWithDigest: 'nginx@sha256:4949aa7259aa6f827450207db5ad94cabaa9248277c6d736d5e1975d200c7e43',
+    skopeoRepoType: SkopeoRepositoryType.DockerArchive
   }];
   const imageResult = scannerImages.getImagesWithFileSystemPath(image);
   t.same(imageResult.length, 1, 'expected 1 item');
@@ -33,6 +34,7 @@ tap.test('getImagesWithFileSystemPath()', async (t) => {
   const someImage = [{
     imageName: 'centos:latest',
     imageWithDigest: 'centos@sha256:fc4a234b91cc4b542bac8a6ad23b2ddcee60ae68fc4dbd4a52efb5f1b0baad71',
+    skopeoRepoType: SkopeoRepositoryType.DockerArchive
   }];
   const firstCallResult = scannerImages.getImagesWithFileSystemPath(someImage)[0];
   const secondCallResult = scannerImages.getImagesWithFileSystemPath(someImage)[0];
