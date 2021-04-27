@@ -2,7 +2,9 @@ import * as aws from 'aws-sdk';
 
 import { logger } from '../../common/logger';
 
-export async function getSourceCredentials(imageSource: string): Promise<string | undefined> {
+export async function getSourceCredentials(
+  imageSource: string,
+): Promise<string | undefined> {
   if (isEcrSource(imageSource)) {
     const ecrRegion = ecrRegionFromFullImageName(imageSource);
     return getEcrCredentials(ecrRegion);
@@ -13,31 +15,36 @@ export async function getSourceCredentials(imageSource: string): Promise<string 
 export function isEcrSource(imageSource: string): boolean {
   // this regex tests the image source against the template:
   // <SOMETHING>.dkr.ecr.<SOMETHING>.amazonaws.com/<SOMETHING>
-  const ecrImageRegex = new RegExp('\.dkr\.ecr\..*\.amazonaws\.com\/', 'i');
+  const ecrImageRegex = new RegExp('.dkr.ecr..*.amazonaws.com/', 'i');
   return ecrImageRegex.test(imageSource);
 }
 
 function getEcrCredentials(region: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const ecr = new aws.ECR({region});
+    const ecr = new aws.ECR({ region });
     return ecr.getAuthorizationToken({}, (err, data) => {
       if (err) {
         return reject(err);
       }
 
-      if (!(
-        data &&
-        data.authorizationData &&
-        Array.isArray(data.authorizationData) &&
-        data.authorizationData.length > 0
-      )) {
+      if (
+        !(
+          data &&
+          data.authorizationData &&
+          Array.isArray(data.authorizationData) &&
+          data.authorizationData.length > 0
+        )
+      ) {
         return reject('unexpected data format from ecr.getAuthorizationToken');
       }
 
-      const authorizationTokenBase64 = data.authorizationData[0].authorizationToken;
+      const authorizationTokenBase64 =
+        data.authorizationData[0].authorizationToken;
 
       if (!authorizationTokenBase64) {
-        return reject('empty authorization token from ecr.getAuthorizationToken');
+        return reject(
+          'empty authorization token from ecr.getAuthorizationToken',
+        );
       }
 
       const buff = new Buffer(authorizationTokenBase64, 'base64');
@@ -58,17 +65,22 @@ export function ecrRegionFromFullImageName(imageFullName: string): string {
     }
 
     const parts = registry.split('.');
-    if (!(
-      parts.length === 6 &&
-      parts[1] === 'dkr' &&
-      parts[2] === 'ecr' &&
-      parts[4] === 'amazonaws'
-    )) {
+    if (
+      !(
+        parts.length === 6 &&
+        parts[1] === 'dkr' &&
+        parts[2] === 'ecr' &&
+        parts[4] === 'amazonaws'
+      )
+    ) {
       throw new Error('ECR image full name in unexpected format');
     }
     return parts[3];
   } catch (err) {
-    logger.error({err, imageFullName}, 'failed extracting ECR region from image full name');
+    logger.error(
+      { err, imageFullName },
+      'failed extracting ECR region from image full name',
+    );
     throw err;
   }
 }

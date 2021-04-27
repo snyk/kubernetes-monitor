@@ -25,6 +25,9 @@ export async function loadAndSendWorkloadAutoImportPolicy(): Promise<void> {
     const payload = constructWorkloadAutoImportPolicy(regoPolicy);
     await sendWorkloadAutoImportPolicy(payload);
   } catch (err) {
-    logger.error({ err }, 'Unexpected error occurred while loading workload auto-import policy');
+    logger.error(
+      { err },
+      'Unexpected error occurred while loading workload auto-import policy',
+    );
   }
 }

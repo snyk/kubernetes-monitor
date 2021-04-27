@@ -2,7 +2,9 @@ import { V1PodSpec } from '@kubernetes/client-node';
 import { NeedleResponse } from 'needle';
 import { ScanResult } from 'snyk-docker-plugin';
 
-interface StringMap { [key: string]: string; }
+interface StringMap {
+  [key: string]: string;
+}
 
 export interface ILocalWorkloadLocator {
   namespace: string;

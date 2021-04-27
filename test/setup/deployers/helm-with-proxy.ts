@@ -21,7 +21,9 @@ async function deployKubernetesMonitor(
   }
 
   await kubectl.applyK8sYaml('test/fixtures/proxying/tinyproxy-service.yaml');
-  await kubectl.applyK8sYaml('test/fixtures/proxying/tinyproxy-deployment.yaml');
+  await kubectl.applyK8sYaml(
+    'test/fixtures/proxying/tinyproxy-deployment.yaml',
+  );
   await kubectl.waitForDeployment('forwarding-proxy', 'snyk-monitor');
 
   const imageNameAndTag = imageOptions.nameAndTag.split(':');
@@ -35,9 +37,11 @@ async function deployKubernetesMonitor(
       `--set image.tag=${imageTag} ` +
       `--set image.pullPolicy=${imagePullPolicy} ` +
       '--set integrationApi=https://kubernetes-upstream.dev.snyk.io ' +
-      '--set https_proxy=http://forwarding-proxy:8080'
+      '--set https_proxy=http://forwarding-proxy:8080',
   );
-  console.log(`Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`);
+  console.log(
+    `Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`,
+  );
 }
 
 async function downloadHelm(): Promise<void> {
