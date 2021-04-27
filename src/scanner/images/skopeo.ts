@@ -43,16 +43,25 @@ export async function pull(
   const certificatesParameters = getCertificatesParameters();
 
   const args: Array<processWrapper.IProcessArgument> = [];
-  args.push({body: 'copy', sanitise: false});
+  args.push({ body: 'copy', sanitise: false });
   args.push(...credentialsParameters);
   args.push(...certificatesParameters);
-  args.push({body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry), sanitise: false});
-  args.push({body: prefixRespository(destination, skopeoRepoType), sanitise: false});
+  args.push({
+    body: prefixRespository(image, SkopeoRepositoryType.ImageRegistry),
+    sanitise: false,
+  });
+  args.push({
+    body: prefixRespository(destination, skopeoRepoType),
+    sanitise: false,
+  });
 
   await pullWithRetry(args, destination);
 }
 
-async function pullWithRetry(args: Array<processWrapper.IProcessArgument>, destination: string): Promise<void> {
+async function pullWithRetry(
+  args: Array<processWrapper.IProcessArgument>,
+  destination: string,
+): Promise<void> {
   const MAX_ATTEMPTS = 10;
   const RETRY_INTERVAL_SEC = 0.2;
 
@@ -66,7 +75,10 @@ async function pullWithRetry(args: Array<processWrapper.IProcessArgument>, desti
           fs.unlinkSync(destination);
         }
       } catch (deleteErr) {
-        logger.warn({error: deleteErr, destination}, 'could not clean up the Skopeo-copy archive');
+        logger.warn(
+          { error: deleteErr, destination },
+          'could not clean up the Skopeo-copy archive',
+        );
       }
       if (attempt + 1 > MAX_ATTEMPTS) {
         throw err;
@@ -76,18 +88,20 @@ async function pullWithRetry(args: Array<processWrapper.IProcessArgument>, desti
   }
 }
 
-export function getCredentialParameters(credentials: string | undefined): Array<processWrapper.IProcessArgument> {
+export function getCredentialParameters(
+  credentials: string | undefined,
+): Array<processWrapper.IProcessArgument> {
   const credentialsParameters: Array<processWrapper.IProcessArgument> = [];
   if (credentials) {
-    credentialsParameters.push({body: '--src-creds', sanitise: true});
-    credentialsParameters.push({body: credentials, sanitise: true});
+    credentialsParameters.push({ body: '--src-creds', sanitise: true });
+    credentialsParameters.push({ body: credentials, sanitise: true });
   }
   return credentialsParameters;
 }
 
 export function getCertificatesParameters(): Array<processWrapper.IProcessArgument> {
   const certificatesParameters: Array<processWrapper.IProcessArgument> = [];
-  certificatesParameters.push({body: '--src-cert-dir', sanitise: true});
-  certificatesParameters.push({body: '/srv/app/certs', sanitise: true});
+  certificatesParameters.push({ body: '--src-cert-dir', sanitise: true });
+  certificatesParameters.push({ body: '/srv/app/certs', sanitise: true });
   return certificatesParameters;
 }

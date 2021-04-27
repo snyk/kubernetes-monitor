@@ -19,8 +19,12 @@ export async function setupTester(): Promise<void> {
 
   // TODO: assert all the vars are present before starting the setup?
   // TODO: wipe out the data during teardown?
-  await exec(`aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`);
-  await exec(`aws configure set aws_secret_access_key ${process.env['AWS_SECRET_ACCESS_KEY']}`);
+  await exec(
+    `aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`,
+  );
+  await exec(
+    `aws configure set aws_secret_access_key ${process.env['AWS_SECRET_ACCESS_KEY']}`,
+  );
   await exec(`aws configure set region ${process.env['AWS_REGION']}`);
 }
 
@@ -33,14 +37,20 @@ export async function deleteCluster(): Promise<void> {
 }
 
 export async function exportKubeConfig(): Promise<void> {
-  await exec('aws eks update-kubeconfig --name runtime-integration-test --kubeconfig ./kubeconfig');
+  await exec(
+    'aws eks update-kubeconfig --name runtime-integration-test --kubeconfig ./kubeconfig',
+  );
   process.env.KUBECONFIG = './kubeconfig';
 }
 
-export async function loadImageInCluster(imageNameAndTag: string): Promise<string> {
+export async function loadImageInCluster(
+  imageNameAndTag: string,
+): Promise<string> {
   console.log(`Loading image ${imageNameAndTag} in ECR...`);
 
-  const ecrLogin = await exec('aws ecr get-login --region us-east-2 --no-include-email');
+  const ecrLogin = await exec(
+    'aws ecr get-login --region us-east-2 --no-include-email',
+  );
 
   // aws ecr get-login returns something that looks like:
   // docker login -U AWS -p <secret> https://the-address-of-ecr-we-should-use.com
@@ -71,6 +81,8 @@ export async function clean(): Promise<void> {
 
 function targetImageFromLoginDetails(ecrLoginOutput: string): string {
   const split = ecrLoginOutput.split(' ');
-  const targetImagePrefix = split[split.length - 1].replace('https://', '').trim();
+  const targetImagePrefix = split[split.length - 1]
+    .replace('https://', '')
+    .trim();
   return `${targetImagePrefix}/snyk/kubernetes-monitor:local`;
 }

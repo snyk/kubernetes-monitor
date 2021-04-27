@@ -7,7 +7,8 @@ import * as kubectl from '../../helpers/kubectl';
 
 // The event we want to find is:
 // Pulling image "docker.io/snyk/kubernetes-operator:{tag}"
-const PULL_KUBERNETES_OPERATOR_EVENT = 'Pulling image "docker.io/snyk/kubernetes-operator:';
+const PULL_KUBERNETES_OPERATOR_EVENT =
+  'Pulling image "docker.io/snyk/kubernetes-operator:';
 export const operatorDeployer: IDeployer = {
   deploy: deployKubernetesMonitor,
 };
@@ -19,8 +20,12 @@ async function seekEvent(event: string, namespace: string): Promise<boolean> {
   return foundEvent;
 }
 
-async function waitToDeployKubernetesOperator(namespace: string): Promise<void> {
-  console.log(`Trying to find kubernetes-operator image to be pulled in namespace ${namespace}`);
+async function waitToDeployKubernetesOperator(
+  namespace: string,
+): Promise<void> {
+  console.log(
+    `Trying to find kubernetes-operator image to be pulled in namespace ${namespace}`,
+  );
   for (let attempt = 0; attempt < 60; attempt++) {
     await kubectl.deleteDeployment('snyk-operator', namespace);
     await sleep(5000); // give enough time to k8s to apply the previous yaml
@@ -44,7 +49,9 @@ async function deployKubernetesMonitor(
   // the Operator can start processing the custom resource.
   await kubectl.waitForDeployment('snyk-operator', 'marketplace');
   await kubectl.waitForCRD('snykmonitors.charts.helm.k8s.io');
-  await kubectl.applyK8sYaml('./test/fixtures/operator/custom-resource-k8s.yaml');
+  await kubectl.applyK8sYaml(
+    './test/fixtures/operator/custom-resource-k8s.yaml',
+  );
   await waitToDeployKubernetesOperator('marketplace');
   await kubectl.waitForDeployment('snyk-operator', 'marketplace');
 }

@@ -8,9 +8,13 @@ export async function createCluster(version: string): Promise<void> {
   await kindCreateCluster(version);
 
   // OLM installation: https://github.com/operator-framework/operator-lifecycle-manager/blob/master/doc/install/install.md#installing-olm
-  await kubectl.applyK8sYaml('https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/crds.yaml');
+  await kubectl.applyK8sYaml(
+    'https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/crds.yaml',
+  );
   await sleep(5000); // give enough time to k8s to apply the previous yaml
-  await kubectl.applyK8sYaml('https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml');
+  await kubectl.applyK8sYaml(
+    'https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml',
+  );
   await kubectl.waitForDeployment('catalog-operator', 'olm');
   await kubectl.waitForDeployment('olm-operator', 'olm');
   await kubectl.waitForDeployment('packageserver', 'olm');
