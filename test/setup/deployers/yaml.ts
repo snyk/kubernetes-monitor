@@ -28,7 +28,10 @@ function createTestYamlDeployment(
   imagePullPolicy: string,
 ): void {
   console.log('Creating YAML snyk-monitor deployment...');
-  const originalDeploymentYaml = readFileSync('./snyk-monitor-deployment.yaml', 'utf8');
+  const originalDeploymentYaml = readFileSync(
+    './snyk-monitor-deployment.yaml',
+    'utf8',
+  );
   const deployment = parse(originalDeploymentYaml);
 
   deployment.spec.template.spec.containers[0].image = imageNameAndTag;

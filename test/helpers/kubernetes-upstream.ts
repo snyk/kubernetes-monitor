@@ -31,7 +31,9 @@ export async function validateUpstreamStoredScanResults(
   remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
-    console.log(`Pinging upstream for existing data (${remainingChecks} checks remaining)...`);
+    console.log(
+      `Pinging upstream for existing data (${remainingChecks} checks remaining)...`,
+    );
     const responseBody = await getUpstreamResponseBody(relativeUrl);
     const depGraphs = responseBody?.workloadScanResults;
     const result = validatorFn(depGraphs);
@@ -50,7 +52,9 @@ export async function validateUpstreamStoredData(
   remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
-    console.log(`Pinging upstream for existing data (${remainingChecks} checks remaining)...`);
+    console.log(
+      `Pinging upstream for existing data (${remainingChecks} checks remaining)...`,
+    );
     const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloads: IWorkloadLocator[] | undefined = responseBody.workloads;
     const result = validatorFn(workloads);
@@ -69,7 +73,9 @@ export async function validateUpstreamStoredMetadata(
   remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
-    console.log(`Pinging upstream for existing metadata (${remainingChecks} checks remaining)...`);
+    console.log(
+      `Pinging upstream for existing metadata (${remainingChecks} checks remaining)...`,
+    );
     const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloadInfo: IWorkloadMetadata | undefined =
       responseBody.workloadInfo;

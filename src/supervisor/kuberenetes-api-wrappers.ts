@@ -8,7 +8,7 @@ export const MAX_SLEEP_SEC = 5;
 type IKubernetesApiFunction<ResponseType> = () => Promise<ResponseType>;
 
 export async function retryKubernetesApiRequest<ResponseType>(
-  func: IKubernetesApiFunction<ResponseType>
+  func: IKubernetesApiFunction<ResponseType>,
 ): Promise<ResponseType> {
   for (let attempt = 1; attempt <= ATTEMPTS_MAX; attempt++) {
     try {
@@ -26,9 +26,15 @@ export async function retryKubernetesApiRequest<ResponseType>(
   throw new Error('Could not receive a response from the Kubernetes API');
 }
 
-export function calculateSleepSeconds(httpResponse: http.IncomingMessage): number {
+export function calculateSleepSeconds(
+  httpResponse: http.IncomingMessage,
+): number {
   let sleepSeconds = DEFAULT_SLEEP_SEC;
-  if (httpResponse && httpResponse.headers && httpResponse.headers['Retry-After']) {
+  if (
+    httpResponse &&
+    httpResponse.headers &&
+    httpResponse.headers['Retry-After']
+  ) {
     try {
       sleepSeconds = Number(httpResponse.headers['Retry-After']);
       if (isNaN(sleepSeconds) || sleepSeconds <= 0) {
@@ -54,7 +60,7 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return true;
   }
 
-  if (!(err.response)) {
+  if (!err.response) {
     return false;
   }
 

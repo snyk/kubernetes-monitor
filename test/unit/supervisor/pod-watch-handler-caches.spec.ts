@@ -8,12 +8,17 @@ import { IWorkload } from '../../../src/transmitter/types';
 import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
 
 let pushCallCount = 0;
-const asyncQueueSpy = jest.spyOn(async, 'queue').mockReturnValue({ error: () => {}, push: () => pushCallCount++ } as any);
+const asyncQueueSpy = jest
+  .spyOn(async, 'queue')
+  .mockReturnValue({ error: () => {}, push: () => pushCallCount++ } as any);
 
 import * as pod from '../../../src/supervisor/watchers/handlers/pod';
 
 describe('image and workload image cache', () => {
-  const podSpecFixture = fs.readFileSync('./test/fixtures/pod-spec.json', 'utf8');
+  const podSpecFixture = fs.readFileSync(
+    './test/fixtures/pod-spec.json',
+    'utf8',
+  );
   const podSpec: V1PodSpec = YAML.parse(podSpecFixture);
   const workloadMetadata: IWorkload[] = [
     {
@@ -34,15 +39,19 @@ describe('image and workload image cache', () => {
     },
   ];
 
-
-  const buildMetadataSpy = jest.spyOn(metadataExtractor, 'buildMetadataForWorkload').mockResolvedValue(workloadMetadata);
+  const buildMetadataSpy = jest
+    .spyOn(metadataExtractor, 'buildMetadataForWorkload')
+    .mockResolvedValue(workloadMetadata);
 
   afterAll(() => {
     asyncQueueSpy.mockRestore();
     buildMetadataSpy.mockRestore();
   });
 
-  const podFixture = fs.readFileSync('./test/fixtures/sidecar-containers/pod.yaml', 'utf8');
+  const podFixture = fs.readFileSync(
+    './test/fixtures/sidecar-containers/pod.yaml',
+    'utf8',
+  );
   const podObject: V1Pod = YAML.parse(podFixture);
 
   it('pushed data to send', async () => {

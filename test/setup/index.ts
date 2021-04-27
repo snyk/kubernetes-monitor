@@ -18,11 +18,12 @@ function getIntegrationId(): string {
   return integrationId;
 }
 
-function getEnvVariableOrDefault(envVarName: string, defaultValue: string): string {
+function getEnvVariableOrDefault(
+  envVarName: string,
+  defaultValue: string,
+): string {
   const value = process.env[envVarName];
-  return value === undefined || value === ''
-    ? defaultValue
-    : value;
+  return value === undefined || value === '' ? defaultValue : value;
 }
 
 export function snykMonitorNamespace(): string {
@@ -54,7 +55,9 @@ export async function removeLocalContainerRegistry(): Promise<void> {
   try {
     await exec('docker rm kind-registry --force');
   } catch (error) {
-    console.log(`Could not remove container registry, it probably did not exist: ${error.message}`);
+    console.log(
+      `Could not remove container registry, it probably did not exist: ${error.message}`,
+    );
   }
 }
 
@@ -74,7 +77,10 @@ async function createEnvironment(): Promise<void> {
   await sleep(5000);
 }
 
-async function predeploy(integrationId: string, namespace: string): Promise<void> {
+async function predeploy(
+  integrationId: string,
+  namespace: string,
+): Promise<void> {
   try {
     const secretName = 'snyk-monitor';
     console.log(`Creating namespace ${namespace} and secret ${secretName}`);
@@ -92,7 +98,9 @@ async function predeploy(integrationId: string, namespace: string): Promise<void
     await createRegistriesConfigMap(namespace);
     console.log(`Namespace ${namespace} and secret ${secretName} created`);
   } catch (error) {
-    console.log('Could not create namespace and secret, they probably already exist');
+    console.log(
+      'Could not create namespace and secret, they probably already exist',
+    );
   }
 }
 
@@ -135,7 +143,11 @@ async function createSecretForGcrIoAccess(): Promise<void> {
 }
 
 async function createRegistriesConfigMap(namespace): Promise<void> {
-  await kubectl.createConfigMap('snyk-monitor-registries-conf', namespace, './test/fixtures/insecure-registries/registries.conf');
+  await kubectl.createConfigMap(
+    'snyk-monitor-registries-conf',
+    namespace,
+    './test/fixtures/insecure-registries/registries.conf',
+  );
 }
 
 export async function deployMonitor(): Promise<string> {
@@ -150,7 +162,9 @@ export async function deployMonitor(): Promise<string> {
       'snyk/kubernetes-monitor:local',
     );
 
-    console.log(`platform chosen is ${testPlatform}, createCluster===${createCluster}`);
+    console.log(
+      `platform chosen is ${testPlatform}, createCluster===${createCluster}`,
+    );
 
     const kubernetesVersion = getKubernetesVersionForPlatform(testPlatform);
     await kubectl.downloadKubectl(kubernetesVersion);
@@ -163,7 +177,9 @@ export async function deployMonitor(): Promise<string> {
       await platforms[testPlatform].config();
       await platforms[testPlatform].clean();
     }
-    const remoteImageName = await platforms[testPlatform].loadImage(imageNameAndTag);
+    const remoteImageName = await platforms[testPlatform].loadImage(
+      imageNameAndTag,
+    );
     await createEnvironment();
     await createSecretForGcrIoAccess();
     await createSecretForDockerHubAccess();
@@ -172,7 +188,12 @@ export async function deployMonitor(): Promise<string> {
     await predeploy(integrationId, namespace);
 
     // TODO: hack, rewrite this
-    const imagePullPolicy = testPlatform === 'kind' || testPlatform === 'kindolm' || testPlatform === 'openshift3' ? 'Never' : 'Always';
+    const imagePullPolicy =
+      testPlatform === 'kind' ||
+      testPlatform === 'kindolm' ||
+      testPlatform === 'openshift3'
+        ? 'Never'
+        : 'Always';
     const deploymentImageOptions: IImageOptions = {
       nameAndTag: remoteImageName,
       pullPolicy: imagePullPolicy,
@@ -180,7 +201,9 @@ export async function deployMonitor(): Promise<string> {
     await deployers[deploymentType].deploy(deploymentImageOptions);
     await kubectl.waitForDeployment('snyk-monitor', namespace);
 
-    console.log(`Deployed the snyk-monitor with integration ID ${integrationId}`);
+    console.log(
+      `Deployed the snyk-monitor with integration ID ${integrationId}`,
+    );
     return integrationId;
   } catch (err) {
     console.error(err);
@@ -197,13 +220,15 @@ export async function deployMonitor(): Promise<string> {
 
 async function dumpLogs(): Promise<void> {
   const logDir = `/tmp/logs/test/integration/${testPlatform}`;
-  if (!(fs.existsSync(logDir))) {
+  if (!fs.existsSync(logDir)) {
     console.log('not dumping logs because', logDir, 'does not exist');
     return;
   }
 
   const podNames = await kubectl.getPodNames('snyk-monitor').catch(() => []);
-  const snykMonitorPod = podNames.find((name) => name.startsWith('snyk-monitor'));
+  const snykMonitorPod = podNames.find((name) =>
+    name.startsWith('snyk-monitor'),
+  );
   if (snykMonitorPod === undefined) {
     console.log('not dumping logs because snyk-monitor pod does not exist');
     return;

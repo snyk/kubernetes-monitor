@@ -15,7 +15,7 @@ process.on('uncaughtException', (err) => {
   }
 
   try {
-    logger.error({err}, 'UNCAUGHT EXCEPTION!');
+    logger.error({ err }, 'UNCAUGHT EXCEPTION!');
   } catch (ignore) {
     console.log('UNCAUGHT EXCEPTION!', err);
   } finally {
@@ -45,14 +45,14 @@ function cleanUpTempStorage() {
   } catch (err) {
     logger.error({ err }, 'Error deleting files');
   }
-};
+}
 
 async function monitor(): Promise<void> {
   try {
-    logger.info({cluster: currentClusterName}, 'starting to monitor');
+    logger.info({ cluster: currentClusterName }, 'starting to monitor');
     await beginWatchingWorkloads();
   } catch (error) {
-    logger.error({error}, 'an error occurred while monitoring the cluster');
+    logger.error({ error }, 'an error occurred while monitoring the cluster');
     process.exit(1);
   }
 }
