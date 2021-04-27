@@ -798,7 +798,7 @@ jobs:
             - run:
                 command: |
                     npm run format:check 
-                name: code formatter
+                name: code formatter check
             - run:
                 command: |
                     ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
