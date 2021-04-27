@@ -14,7 +14,9 @@ export async function setupTester(): Promise<void> {
 export async function createCluster(version: string): Promise<void> {
   // available tags may be viewed at https://hub.docker.com/r/kindest/node/tags
   const kindImageTag = version;
-  console.log(`Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`);
+  console.log(
+    `Creating cluster "${clusterName}" with Kind image tag ${kindImageTag}...`,
+  );
 
   let kindImageArgument = '';
   if (kindImageTag !== 'latest') {
@@ -22,9 +24,11 @@ export async function createCluster(version: string): Promise<void> {
     // which does not necessarily have the "latest" tag
     kindImageArgument = `--image="kindest/node:${kindImageTag}"`;
   }
-  const clusterConfigPath = "test/setup/platforms/cluster-config.yaml";
+  const clusterConfigPath = 'test/setup/platforms/cluster-config.yaml';
 
-  await exec(`./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`);
+  await exec(
+    `./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`,
+  );
   console.log(`Created cluster ${clusterName}!`);
 }
 
@@ -44,7 +48,9 @@ export async function exportKubeConfig(): Promise<void> {
   console.log('Exported K8s config!');
 }
 
-export async function loadImageInCluster(imageNameAndTag: string): Promise<string> {
+export async function loadImageInCluster(
+  imageNameAndTag: string,
+): Promise<string> {
   console.log(`Loading image ${imageNameAndTag} in KinD cluster...`);
   await exec(`./kind load docker-image ${imageNameAndTag}`);
   console.log(`Loaded image ${imageNameAndTag}`);
@@ -56,7 +62,10 @@ export async function clean(): Promise<void> {
   throw new Error('Not implemented');
 }
 
-export async function download(osDistro: string, kindVersion: string): Promise<void> {
+export async function download(
+  osDistro: string,
+  kindVersion: string,
+): Promise<void> {
   try {
     accessSync(resolve(process.cwd(), 'kind'), constants.R_OK);
   } catch (error) {

@@ -8,6 +8,8 @@ import { exec, PromiseResult } from 'child-process-promise';
  * https://github.com/facebook/jest/issues/9264
  * https://snyk.slack.com/archives/CLW30N31V/p1612860708027800?thread_ts=1612856703.026500&cid=CLW30N31V
  */
-export async function execWrapper(command: string): Promise<PromiseResult<string>> {
+export async function execWrapper(
+  command: string,
+): Promise<PromiseResult<string>> {
   return await exec(command, { env: process.env });
 }

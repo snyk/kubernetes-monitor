@@ -23,7 +23,9 @@ const workloadsLruCacheOptions = {
 const state = {
   shutdownInProgress: false,
   imagesAlreadyScanned: new LruCache<string, string>(imagesLruCacheOptions),
-  workloadsAlreadyScanned: new LruCache<string, string>(workloadsLruCacheOptions),
+  workloadsAlreadyScanned: new LruCache<string, string>(
+    workloadsLruCacheOptions,
+  ),
 };
 
 export { state };

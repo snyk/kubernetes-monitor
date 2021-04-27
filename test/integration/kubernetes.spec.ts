@@ -2,7 +2,10 @@ import { CoreV1Api, KubeConfig, AppsV1Api } from '@kubernetes/client-node';
 import { Fact, ScanResult } from 'snyk-docker-plugin';
 import * as setup from '../setup';
 import { WorkloadKind } from '../../src/supervisor/types';
-import { WorkloadMetadataValidator, WorkloadLocatorValidator } from '../helpers/types';
+import {
+  WorkloadMetadataValidator,
+  WorkloadLocatorValidator,
+} from '../helpers/types';
 import {
   validateUpstreamStoredData,
   validateUpstreamStoredMetadata,
@@ -47,7 +50,11 @@ test('deploy sample workloads', async () => {
     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/scratch-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/consul-deployment.yaml'),
-    kubectl.createPodFromImage('alpine-from-sha', someImageWithSha, servicesNamespace),
+    kubectl.createPodFromImage(
+      'alpine-from-sha',
+      someImageWithSha,
+      servicesNamespace,
+    ),
   ]);
 });
 
@@ -76,11 +83,15 @@ test('snyk-monitor container started', async () => {
 
 test('create local container registry and push an image', async () => {
   if (process.env['TEST_PLATFORM'] !== 'kind') {
-    console.log("Not testing local container registry because we're not running in KinD");
+    console.log(
+      "Not testing local container registry because we're not running in KinD",
+    );
     return;
   }
   console.log('Creating local container registry...');
-  await exec('docker run -d --restart=always -p "5000:5000" --name "kind-registry" registry:2');
+  await exec(
+    'docker run -d --restart=always -p "5000:5000" --name "kind-registry" registry:2',
+  );
   await exec('docker network connect "kind" "kind-registry"');
 
   console.log('Pushing python:rc-buster image to the local registry');
@@ -103,29 +114,42 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
       workloads !== undefined &&
       workloads.length === 8 &&
       workloads.find(
-        (workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
-      ) !== undefined &&
-      workloads.find(
-          (workload) => workload.name === 'oci-dummy' && workload.type === WorkloadKind.Pod,
+        (workload) =>
+          workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
       ) !== undefined &&
       workloads.find(
         (workload) =>
-          workload.name === 'nginx' && workload.type === WorkloadKind.ReplicationController,
+          workload.name === 'oci-dummy' && workload.type === WorkloadKind.Pod,
       ) !== undefined &&
       workloads.find(
-        (workload) => workload.name === 'redis' && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === 'nginx' &&
+          workload.type === WorkloadKind.ReplicationController,
       ) !== undefined &&
       workloads.find(
-        (workload) => workload.name === 'alpine-from-sha' && workload.type === WorkloadKind.Pod,
+        (workload) =>
+          workload.name === 'redis' &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined &&
       workloads.find(
-        (workload) => workload.name === 'busybox' && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === 'alpine-from-sha' &&
+          workload.type === WorkloadKind.Pod,
       ) !== undefined &&
       workloads.find(
-        (workload) => workload.name === 'centos' && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === 'busybox' &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined &&
       workloads.find(
-        (workload) => workload.name === 'consul' && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === 'centos' &&
+          workload.type === WorkloadKind.Deployment,
+      ) !== undefined &&
+      workloads.find(
+        (workload) =>
+          workload.name === 'consul' &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined
     );
   };
@@ -155,14 +179,17 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   expect(workloadMetadataResult).toBeTruthy();
 
   const busyboxScanResultsPath = `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/busybox`;
-  const scanResultsScratchImage = await getUpstreamResponseBody(busyboxScanResultsPath);
+  const scanResultsScratchImage = await getUpstreamResponseBody(
+    busyboxScanResultsPath,
+  );
   expect(scanResultsScratchImage).toEqual({
     workloadScanResults: {
       busybox: expect.any(Array),
     },
   });
 
-  const busyboxPluginResult = scanResultsScratchImage.workloadScanResults.busybox;
+  const busyboxPluginResult =
+    scanResultsScratchImage.workloadScanResults.busybox;
   const osScanResult = busyboxPluginResult[0];
   expect(osScanResult.facts).toEqual(
     expect.arrayContaining<Fact>([
@@ -179,20 +206,22 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   const scanResultsConsulDeployment = await getUpstreamResponseBody(
     `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/consul`,
   );
-  expect(scanResultsConsulDeployment.workloadScanResults['snyk/runtime-fixtures']).toEqual<ScanResult[]>(
-    [
-      {
-        identity: { type: 'apk', args: { platform: 'linux/amd64' } },
-        facts: expect.any(Array),
-        target: { image: 'docker-image|snyk/runtime-fixtures' },
-      },
-      {
-        identity: { type: 'gomodules', targetFile: '/bin/consul' },
-        facts: expect.arrayContaining([{ type: 'depGraph', data: expect.any(Object) }]),
-        target: { image: 'docker-image|snyk/runtime-fixtures' },
-      },
-    ],
-  );
+  expect(
+    scanResultsConsulDeployment.workloadScanResults['snyk/runtime-fixtures'],
+  ).toEqual<ScanResult[]>([
+    {
+      identity: { type: 'apk', args: { platform: 'linux/amd64' } },
+      facts: expect.any(Array),
+      target: { image: 'docker-image|snyk/runtime-fixtures' },
+    },
+    {
+      identity: { type: 'gomodules', targetFile: '/bin/consul' },
+      facts: expect.arrayContaining([
+        { type: 'depGraph', data: expect.any(Object) },
+      ]),
+      target: { image: 'docker-image|snyk/runtime-fixtures' },
+    },
+  ]);
 });
 
 test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async () => {
@@ -210,12 +239,17 @@ test('snyk-monitor sends binary hashes to kubernetes-upstream after adding anoth
     return (
       workloads !== undefined &&
       workloads.find(
-        (workload) => workload.name === deploymentName && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === deploymentName &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined
     );
   };
 
-  const scanResultsValidatorFn = (workloadScanResults?: { node?: object; openjdk?: object }) => {
+  const scanResultsValidatorFn = (workloadScanResults?: {
+    node?: object;
+    openjdk?: object;
+  }) => {
     return (
       workloadScanResults !== undefined &&
       workloadScanResults.node !== undefined &&
@@ -246,14 +280,19 @@ test('snyk-monitor sends binary hashes to kubernetes-upstream after adding anoth
 
   const nodePluginResult = scanResultsResponse.workloadScanResults.node;
   const nodeOsScanResult = nodePluginResult[0];
-  const nodeHashes = nodeOsScanResult.facts.find((fact) => fact.type === 'keyBinariesHashes').data;
+  const nodeHashes = nodeOsScanResult.facts.find(
+    (fact) => fact.type === 'keyBinariesHashes',
+  ).data;
   expect(nodeHashes).toHaveLength(1);
-  expect(nodeHashes[0]).toEqual('6d5847d3cd69dfdaaf9dd2aa8a3d30b1a9b3bfa529a1f5c902a511e1aa0b8f55');
+  expect(nodeHashes[0]).toEqual(
+    '6d5847d3cd69dfdaaf9dd2aa8a3d30b1a9b3bfa529a1f5c902a511e1aa0b8f55',
+  );
 
   const openjdkPluginResult = scanResultsResponse.workloadScanResults.openjdk;
   const openjdkOsScanResult = openjdkPluginResult[0];
-  const openjdkHashes = openjdkOsScanResult.facts.find((fact) => fact.type === 'keyBinariesHashes')
-    .data;
+  const openjdkHashes = openjdkOsScanResult.facts.find(
+    (fact) => fact.type === 'keyBinariesHashes',
+  ).data;
   expect(openjdkHashes).toEqual([
     '99503bfc6faed2da4fd35f36a5698d62676f886fb056fb353064cc78b1186195',
     '00a90dcce9ca53be1630a21538590cfe15676f57bfe8cf55de0099ee80bbeec4',
@@ -267,7 +306,9 @@ test('snyk-monitor pulls images from a private gcr.io registry and sends data to
   const deploymentType = WorkloadKind.Deployment;
   const imageName = 'gcr.io/snyk-k8s-fixtures/debian';
 
-  await kubectl.applyK8sYaml('./test/fixtures/private-registries/debian-deployment-gcr-io.yaml');
+  await kubectl.applyK8sYaml(
+    './test/fixtures/private-registries/debian-deployment-gcr-io.yaml',
+  );
   console.log(
     `Begin polling upstream for the expected private gcr.io image with integration ID ${integrationId}...`,
   );
@@ -276,7 +317,9 @@ test('snyk-monitor pulls images from a private gcr.io registry and sends data to
     return (
       workloads !== undefined &&
       workloads.find(
-        (workload) => workload.name === deploymentName && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === deploymentName &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined
     );
   };
@@ -305,7 +348,9 @@ test('snyk-monitor pulls images from a private gcr.io registry and sends data to
 
 test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-upstream', async () => {
   if (process.env['TEST_PLATFORM'] !== 'eks') {
-    console.log("Not testing private ECR images because we're not running in EKS");
+    console.log(
+      "Not testing private ECR images because we're not running in EKS",
+    );
     return;
   }
 
@@ -315,7 +360,9 @@ test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-
   const deploymentType = WorkloadKind.Deployment;
   const imageName = '291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/debian';
 
-  await kubectl.applyK8sYaml('./test/fixtures/private-registries/debian-deployment-ecr.yaml');
+  await kubectl.applyK8sYaml(
+    './test/fixtures/private-registries/debian-deployment-ecr.yaml',
+  );
   console.log(
     `Begin polling upstream for the expected private ECR image with integration ID ${integrationId}...`,
   );
@@ -324,7 +371,9 @@ test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-
     return (
       workloads !== undefined &&
       workloads.find(
-        (workload) => workload.name === deploymentName && workload.type === WorkloadKind.Deployment,
+        (workload) =>
+          workload.name === deploymentName &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined
     );
   };
@@ -395,7 +444,9 @@ test('snyk-monitor pulls images from a local registry and sends data to kubernet
   });
 
   if (process.env['TEST_PLATFORM'] !== 'kind') {
-    console.log("Not testing local container registry because we're not running in KinD");
+    console.log(
+      "Not testing local container registry because we're not running in KinD",
+    );
     return;
   }
 
@@ -408,7 +459,9 @@ test('snyk-monitor pulls images from a local registry and sends data to kubernet
   await kubectl.waitForJob('push-to-local-registry', 'default');
 
   console.log('Applying local registry workload...');
-  await kubectl.applyK8sYaml('./test/fixtures/insecure-registries/python-local-deployment.yaml');
+  await kubectl.applyK8sYaml(
+    './test/fixtures/insecure-registries/python-local-deployment.yaml',
+  );
 
   console.log(
     `Begin polling upstream for the expected kind-registry:5000 image with integration ID ${integrationId}...`,
@@ -418,7 +471,8 @@ test('snyk-monitor pulls images from a local registry and sends data to kubernet
     return (
       workloads !== undefined &&
       workloads.find(
-        (workload) => workload.name === deploymentName && workload.type === deploymentType,
+        (workload) =>
+          workload.name === deploymentName && workload.type === deploymentType,
       ) !== undefined
     );
   };
@@ -451,7 +505,8 @@ test('snyk-monitor sends deleted workload to kubernetes-upstream', async () => {
       workloads !== undefined &&
       workloads.find(
         (workload) =>
-          workload.name === 'binaries-deployment' && workload.type === WorkloadKind.Deployment,
+          workload.name === 'binaries-deployment' &&
+          workload.type === WorkloadKind.Deployment,
       ) !== undefined
     );
   };
@@ -483,8 +538,12 @@ test('snyk-monitor sends deleted workload to kubernetes-upstream', async () => {
 });
 
 test('snyk-monitor has resource limits', async () => {
-  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', namespace);
-  const monitorResources = snykMonitorDeployment.spec.template.spec.containers[0].resources;
+  const snykMonitorDeployment = await kubectl.getDeploymentJson(
+    'snyk-monitor',
+    namespace,
+  );
+  const monitorResources =
+    snykMonitorDeployment.spec.template.spec.containers[0].resources;
   expect(monitorResources).toEqual(
     expect.objectContaining({
       requests: {
@@ -501,11 +560,16 @@ test('snyk-monitor has resource limits', async () => {
 
 test('snyk-monitor has log level', async () => {
   if (!['Helm', 'YAML'].includes(process.env.DEPLOYMENT_TYPE || '')) {
-    console.log("Not testing LOG_LEVEL existence because we're not installing with Helm or Yaml");
+    console.log(
+      "Not testing LOG_LEVEL existence because we're not installing with Helm or Yaml",
+    );
     return;
   }
 
-  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', namespace);
+  const snykMonitorDeployment = await kubectl.getDeploymentJson(
+    'snyk-monitor',
+    namespace,
+  );
   const env = snykMonitorDeployment.spec.template.spec.containers[0].env;
   const logLevel = env.find(({ name }) => name === 'LOG_LEVEL');
   expect(logLevel.name).toBeTruthy();
@@ -514,18 +578,27 @@ test('snyk-monitor has log level', async () => {
 
 test('snyk-monitor has nodeSelector', async () => {
   if (process.env['DEPLOYMENT_TYPE'] !== 'Helm') {
-    console.log("Not testing nodeSelector because we're not installing with Helm");
+    console.log(
+      "Not testing nodeSelector because we're not installing with Helm",
+    );
     return;
   }
 
-  const snykMonitorDeployment = await kubectl.getDeploymentJson('snyk-monitor', 'snyk-monitor');
+  const snykMonitorDeployment = await kubectl.getDeploymentJson(
+    'snyk-monitor',
+    'snyk-monitor',
+  );
   const spec = snykMonitorDeployment.spec.template.spec;
-  expect(spec).toEqual(expect.objectContaining({ nodeSelector: expect.any(Object) }));
+  expect(spec).toEqual(
+    expect.objectContaining({ nodeSelector: expect.any(Object) }),
+  );
 });
 
 test('snyk-monitor has PodSecurityPolicy', async () => {
   if (process.env['DEPLOYMENT_TYPE'] !== 'Helm') {
-    console.log("Not testing PodSecurityPolicy because we're not installing with Helm");
+    console.log(
+      "Not testing PodSecurityPolicy because we're not installing with Helm",
+    );
     return;
   }
 
@@ -538,7 +611,10 @@ test('snyk-monitor secure configuration is as expected', async () => {
   kubeConfig.loadFromDefault();
   const k8sApi = kubeConfig.makeApiClient(AppsV1Api);
 
-  const response = await k8sApi.readNamespacedDeployment('snyk-monitor', namespace);
+  const response = await k8sApi.readNamespacedDeployment(
+    'snyk-monitor',
+    namespace,
+  );
   const deployment = response.body;
   expect(deployment.spec?.template?.spec?.containers?.[0]).toEqual(
     expect.objectContaining({
@@ -592,7 +668,8 @@ test('notify upstream of deleted pods that have no OwnerReference', async () => 
     return (
       workloads !== undefined &&
       workloads.find(
-        (workload) => workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
+        (workload) =>
+          workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
       ) === undefined
     );
   };
