@@ -97,6 +97,25 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
+    code_formatter:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: |
+                    npm run format:check
+                name: code formatter check
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
     deploy_dev:
         docker:
             - auth:
@@ -272,6 +291,25 @@ jobs:
                 when: on_fail
             - store_artifacts:
                 path: /tmp/logs/test/integration/proxy
+        working_directory: ~/kubernetes-monitor
+    lint:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - setup_node12
+            - install_python_requests
+            - run:
+                command: |
+                    npm run lint
+                name: lint
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
         working_directory: ~/kubernetes-monitor
     openshift3_integration_tests:
         machine:
@@ -767,44 +805,6 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    lint:
-        machine:
-            docker_layer_caching: true
-            enabled: true
-            image: ubuntu-2004:202010-01
-        steps:
-            - checkout
-            - setup_node12
-            - install_python_requests
-            - run:
-                command: |
-                    npm run lint 
-                name: lint
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
-        working_directory: ~/kubernetes-monitor
-    code_formatter:
-        machine:
-            docker_layer_caching: true
-            enabled: true
-            image: ubuntu-2004:202010-01
-        steps:
-            - checkout
-            - setup_node12
-            - install_python_requests
-            - run:
-                command: |
-                    npm run format:check 
-                name: code formatter check
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
-        working_directory: ~/kubernetes-monitor
     unit_tests:
         machine:
             docker_layer_caching: true
@@ -1022,6 +1022,12 @@ workflows:
                         ignore:
                             - staging
                             - master
+            - unit_tests:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
             - lint:
                 filters:
                     branches:
@@ -1029,12 +1035,6 @@ workflows:
                             - staging
                             - master
             - code_formatter:
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
-            - unit_tests:
                 filters:
                     branches:
                         ignore:
