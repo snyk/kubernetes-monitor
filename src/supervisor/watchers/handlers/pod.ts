@@ -19,37 +19,52 @@ function deleteFailedKeysFromState(keys): void {
       try {
         state.imagesAlreadyScanned.del(key);
       } catch (delError) {
-        logger.error({delError, key}, 'failed deleting a key of an unsuccessfully scanned image');
+        logger.error(
+          { delError, key },
+          'failed deleting a key of an unsuccessfully scanned image',
+        );
       }
     }
   } catch (delError) {
-    logger.error({delError, keys}, 'failed deleting all keys of an unsuccessfully scanned workload');
+    logger.error(
+      { delError, keys },
+      'failed deleting all keys of an unsuccessfully scanned workload',
+    );
   }
 }
 
 async function queueWorkerWorkloadScan(task, callback): Promise<void> {
-  const {workloadMetadata, imageKeys} = task;
+  const { workloadMetadata, imageKeys } = task;
   try {
     await processWorkload(workloadMetadata);
   } catch (err) {
-    logger.error({err, task}, 'error processing a workload in the pod handler 2');
+    logger.error(
+      { err, task },
+      'error processing a workload in the pod handler 2',
+    );
     deleteFailedKeysFromState(imageKeys);
   }
 }
 
-const workloadsToScanQueue = async.queue(queueWorkerWorkloadScan, config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT);
+const workloadsToScanQueue = async.queue(
+  queueWorkerWorkloadScan,
+  config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT,
+);
 
-workloadsToScanQueue.error(function(err, task) {
-  logger.error({err, task}, 'error processing a workload in the pod handler 1');
+workloadsToScanQueue.error(function (err, task) {
+  logger.error(
+    { err, task },
+    'error processing a workload in the pod handler 1',
+  );
 });
 
 setInterval(() => {
   try {
-    const queueDataToReport: {[key: string]: any} = {};
+    const queueDataToReport: { [key: string]: any } = {};
     queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
     logger.debug(queueDataToReport, 'queue sizes report');
   } catch (err) {
-    logger.debug({err}, 'failed logging queue sizes');
+    logger.debug({ err }, 'failed logging queue sizes');
   }
 }, config.QUEUE_LENGTH_LOG_FREQUENCY_MINUTES * 60 * 1000).unref();
 
@@ -67,15 +82,22 @@ function handleReadyPod(workloadMetadata: IWorkload[]): void {
   }
 
   if (imagesToScan.length > 0) {
-    workloadsToScanQueue.push({workloadMetadata: imagesToScan, imageKeys});
+    workloadsToScanQueue.push({ workloadMetadata: imagesToScan, imageKeys });
   }
 }
 
 export function isPodReady(pod: V1Pod): boolean {
-  return pod.status !== undefined && pod.status.phase === PodPhase.Running &&
-    pod.status.containerStatuses !== undefined && pod.status.containerStatuses.some((container) =>
-      container.state !== undefined &&
-      (container.state.running !== undefined || container.state.waiting !== undefined));
+  return (
+    pod.status !== undefined &&
+    pod.status.phase === PodPhase.Running &&
+    pod.status.containerStatuses !== undefined &&
+    pod.status.containerStatuses.some(
+      (container) =>
+        container.state !== undefined &&
+        (container.state.running !== undefined ||
+          container.state.waiting !== undefined),
+    )
+  );
 }
 
 export async function podWatchHandler(pod: V1Pod): Promise<void> {
@@ -84,13 +106,19 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     return;
   }
 
-  const podName = pod.metadata && pod.metadata.name ? pod.metadata.name : FALSY_WORKLOAD_NAME_MARKER;
+  const podName =
+    pod.metadata && pod.metadata.name
+      ? pod.metadata.name
+      : FALSY_WORKLOAD_NAME_MARKER;
 
   try {
     const workloadMetadata = await buildMetadataForWorkload(pod);
 
     if (workloadMetadata === undefined || workloadMetadata.length === 0) {
-      logger.warn({podName}, 'could not process pod, the workload is possibly unsupported or deleted');
+      logger.warn(
+        { podName },
+        'could not process pod, the workload is possibly unsupported or deleted',
+      );
       return;
     }
 
@@ -99,15 +127,18 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadMetadataPayload = constructWorkloadMetadata(workloadMember);
     const workloadLocator = workloadMetadataPayload.workloadLocator;
     const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadMember.uid}`;
-    const workloadRevision = workloadMember.revision ? workloadMember.revision.toString() : ''; // this is actually the observed generation
-    if (state.workloadsAlreadyScanned.get(workloadKey) !== workloadRevision) { // either not exists or different
+    const workloadRevision = workloadMember.revision
+      ? workloadMember.revision.toString()
+      : ''; // this is actually the observed generation
+    if (state.workloadsAlreadyScanned.get(workloadKey) !== workloadRevision) {
+      // either not exists or different
       state.workloadsAlreadyScanned.set(workloadKey, workloadRevision); // empty string takes zero bytes and is !== undefined
       await sendWorkloadMetadata(workloadMetadataPayload);
     }
 
     handleReadyPod(workloadMetadata);
   } catch (error) {
-    logger.error({error, podName}, 'could not build image metadata for pod');
+    logger.error({ error, podName }, 'could not build image metadata for pod');
   }
 }
 
@@ -118,11 +149,14 @@ export async function podDeletedHandler(pod: V1Pod): Promise<void> {
 
   const workloadName = pod.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
 
-  await deleteWorkload({
-    kind: WorkloadKind.Pod,
-    objectMeta: pod.metadata,
-    specMeta: pod.metadata,
-    ownerRefs: pod.metadata.ownerReferences,
-    podSpec: pod.spec,
-  }, workloadName);
+  await deleteWorkload(
+    {
+      kind: WorkloadKind.Pod,
+      objectMeta: pod.metadata,
+      specMeta: pod.metadata,
+      ownerRefs: pod.metadata.ownerReferences,
+      podSpec: pod.spec,
+    },
+    workloadName,
+  );
 }

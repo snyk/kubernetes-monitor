@@ -28,6 +28,10 @@ workflows:
           <<: *main_branches_filter
       - unit_tests:
           <<: *main_branches_filter
+      - lint:
+          <<: *main_branches_filter
+      - code_formatter:
+          <<: *main_branches_filter
       - system_tests:
           <<: *main_branches_filter
       - integration_tests:

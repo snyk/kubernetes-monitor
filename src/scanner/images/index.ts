@@ -4,7 +4,7 @@ import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { logger } from '../../common/logger';
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
-import {IPullableImage, IScanImage, SkopeoRepositoryType} from './types';
+import { IPullableImage, IScanImage, SkopeoRepositoryType } from './types';
 import { IScanResult } from '../types';
 import {
   buildDockerPropertiesOnDepTree,
@@ -17,60 +17,87 @@ import {
  pulled images by skopeo archive repo type:
  1st try to pull by docker archive image if it fail try to pull by oci archive
 */
-async function pullImageBySkopeoRepo(imageToPull: IPullableImage): Promise<IPullableImage> {
-    // Scan image by digest if exists, other way fallback tag
-    const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
-    imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive;
+async function pullImageBySkopeoRepo(
+  imageToPull: IPullableImage,
+): Promise<IPullableImage> {
+  // Scan image by digest if exists, other way fallback tag
+  const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
+  imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive;
+  try {
+    // copy docker archive image
+    await skopeoCopy(
+      scanId,
+      imageToPull.fileSystemPath,
+      imageToPull.skopeoRepoType,
+    );
+  } catch (dockerError) {
+    imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
+    // copy oci archive image
+    await skopeoCopy(
+      scanId,
+      imageToPull.fileSystemPath,
+      imageToPull.skopeoRepoType,
+    );
+  }
+  return imageToPull;
+}
+
+export async function pullImages(
+  images: IPullableImage[],
+): Promise<IPullableImage[]> {
+  const pulledImages: IPullableImage[] = [];
+  for (const image of images) {
+    if (!image.fileSystemPath) {
+      continue;
+    }
     try {
-        // copy docker archive image
-        await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
-    } catch (dockerError) {
-        imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
-        // copy oci archive image
-        await skopeoCopy(scanId, imageToPull.fileSystemPath, imageToPull.skopeoRepoType);
+      const pulledImage = await pullImageBySkopeoRepo(image);
+      pulledImages.push(pulledImage);
+    } catch (error) {
+      logger.error(
+        { error, image: image.imageWithDigest ?? image.imageName },
+        'failed to pull image docker/oci archive image',
+      );
     }
-    return imageToPull;
+  }
+  return pulledImages;
 }
 
-export async function pullImages(images: IPullableImage[]): Promise<IPullableImage[]> {
-    const pulledImages: IPullableImage[] = [];
-    for (const image of images) {
-        if (!image.fileSystemPath) {
-            continue;
-        }
-        try {
-            const pulledImage = await pullImageBySkopeoRepo(image);
-            pulledImages.push(pulledImage);
-        } catch (error) {
-            logger.error({error, image: image.imageWithDigest?? image.imageName}, 'failed to pull image docker/oci archive image');
-        }
-    }
-    return pulledImages;
+export function getImagesWithFileSystemPath(
+  images: IScanImage[],
+): IPullableImage[] {
+  return images.map((image) => ({
+    ...image,
+    fileSystemPath: getDestinationForImage(image.imageName),
+  }));
 }
 
-export function getImagesWithFileSystemPath(images: IScanImage[]): { imageName: string; skopeoRepoType: SkopeoRepositoryType; fileSystemPath: string; imageWithDigest?: string }[] {
-    return images.map((image) => ({...image, fileSystemPath: getDestinationForImage(image.imageName)}));
-}
-
-export async function removePulledImages(images: IPullableImage[]): Promise<void> {
-  for (const {imageName, fileSystemPath} of images) {
+export async function removePulledImages(
+  images: IPullableImage[],
+): Promise<void> {
+  for (const { imageName, fileSystemPath } of images) {
     try {
       await new Promise((resolve) => unlink(fileSystemPath, resolve));
     } catch (error) {
-      logger.warn({error, image: imageName}, 'failed to delete pulled image');
+      logger.warn({ error, image: imageName }, 'failed to delete pulled image');
     }
   }
 }
 
 // Exported for testing
-export function getImageParts(imageWithTag: string) : {imageName: string, imageTag: string, imageDigest: string} {
+export function getImageParts(
+  imageWithTag: string,
+): { imageName: string; imageTag: string; imageDigest: string } {
   // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory):<image_tag>(optional)@<tag_identifier>(optional)
   // extracted from https://github.com/docker/distribution/blob/master/reference/regexp.go
-  const regex = /^((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])(?:(?:\.(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]))+)?(?::[0-9]+)?\/)?[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?(?:(?:\/[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?)+)?)(?::([\w][\w.-]{0,127}))?(?:@([A-Za-z][A-Za-z0-9]*(?:[-_+.][A-Za-z][A-Za-z0-9]*)*[:][A-Fa-f0-9]{32,}))?$/ig;
-  const groups  = regex.exec(imageWithTag);
+  const regex = /^((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])(?:(?:\.(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]))+)?(?::[0-9]+)?\/)?[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?(?:(?:\/[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?)+)?)(?::([\w][\w.-]{0,127}))?(?:@([A-Za-z][A-Za-z0-9]*(?:[-_+.][A-Za-z][A-Za-z0-9]*)*[:][A-Fa-f0-9]{32,}))?$/gi;
+  const groups = regex.exec(imageWithTag);
 
-  if(!groups){
-    logger.error({image: imageWithTag}, 'Image with tag is malformed, cannot extract valid parts');
+  if (!groups) {
+    logger.error(
+      { image: imageWithTag },
+      'Image with tag is malformed, cannot extract valid parts',
+    );
     return { imageName: imageWithTag, imageTag: '', imageDigest: '' };
   }
 
@@ -85,13 +112,23 @@ export function getImageParts(imageWithTag: string) : {imageName: string, imageT
   };
 }
 
-export async function scanImages(images: IPullableImage[]): Promise<IScanResult[]> {
+export async function scanImages(
+  images: IPullableImage[],
+): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
-  for (const { imageName, fileSystemPath, imageWithDigest, skopeoRepoType } of images) {
+  for (const {
+    imageName,
+    fileSystemPath,
+    imageWithDigest,
+    skopeoRepoType,
+  } of images) {
     try {
       const shouldIncludeAppVulns = true;
-       const archiveType= skopeoRepoType == SkopeoRepositoryType.DockerArchive?"docker-archive":"oci-archive";
+      const archiveType =
+        skopeoRepoType == SkopeoRepositoryType.DockerArchive
+          ? 'docker-archive'
+          : 'oci-archive';
       const dockerArchivePath = `${archiveType}:${fileSystemPath}`;
 
       const pluginResponse = await scan({
@@ -108,12 +145,20 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
         throw Error('Unexpected empty result from docker-plugin');
       }
 
-      const depTree = await getDependencyTreeFromPluginResponse(pluginResponse, imageName);
+      const depTree = await getDependencyTreeFromPluginResponse(
+        pluginResponse,
+        imageName,
+      );
 
       const imageParts = getImageParts(imageName);
-      const imageDigest = imageWithDigest && getImageParts(imageWithDigest).imageDigest;
+      const imageDigest =
+        imageWithDigest && getImageParts(imageWithDigest).imageDigest;
 
-      const result: LegacyPluginResponse = getLegacyPluginResponse(depTree, imageParts, imageDigest);
+      const result: LegacyPluginResponse = getLegacyPluginResponse(
+        depTree,
+        imageParts,
+        imageDigest,
+      );
 
       scannedImages.push({
         image: imageParts.imageName,
@@ -123,7 +168,7 @@ export async function scanImages(images: IPullableImage[]): Promise<IScanResult[
         scanResults: pluginResponse.scanResults,
       });
     } catch (error) {
-      logger.warn({error, image: imageName}, 'failed to scan image');
+      logger.warn({ error, image: imageName }, 'failed to scan image');
     }
   }
 

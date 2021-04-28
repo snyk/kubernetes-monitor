@@ -45,7 +45,9 @@ afterAll(async () => {
 });
 
 test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
-  const emptyDirSyncStub = jest.spyOn(fsExtra, 'emptyDirSync').mockReturnValue({});
+  const emptyDirSyncStub = jest
+    .spyOn(fsExtra, 'emptyDirSync')
+    .mockReturnValue({});
 
   try {
     await exec('which skopeo');
@@ -63,7 +65,10 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   await kind.createCluster(kubernetesVersion);
   await kind.exportKubeConfig();
 
-  await Promise.all([kubectl.createNamespace('snyk-monitor'), kubectl.createNamespace('services')]);
+  await Promise.all([
+    kubectl.createNamespace('snyk-monitor'),
+    kubectl.createNamespace('services'),
+  ]);
 
   // wait for default service account
   await kubectl.waitForServiceAccount('default', 'default');
@@ -75,7 +80,9 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   ]);
 
   // Create a copy of the policy file fixture in the location that snyk-monitor is expecting to load it from.
-  const regoPolicyFixturePath = resolvePath('./test/fixtures/workload-auto-import.rego');
+  const regoPolicyFixturePath = resolvePath(
+    './test/fixtures/workload-auto-import.rego',
+  );
   const expectedPoliciesPath = resolvePath('/tmp/policies');
   if (!(await existsAsync(expectedPoliciesPath))) {
     await mkdirAsync(expectedPoliciesPath);
@@ -89,18 +96,23 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/policy')
     .times(1)
-    .reply(200, (uri, requestBody: transmitterTypes.WorkloadAutoImportPolicyPayload) => {
-      try {
-        expect(requestBody).toEqual<transmitterTypes.WorkloadAutoImportPolicyPayload>({
-          agentId: expect.any(String),
-          cluster: expect.any(String),
-          userLocator: expect.any(String),
-          policy: regoPolicyContents,
-        });
-      } catch (error) {
-        jestDoneCallback(error);
-      }
-    });
+    .reply(
+      200,
+      (uri, requestBody: transmitterTypes.WorkloadAutoImportPolicyPayload) => {
+        try {
+          expect(
+            requestBody,
+          ).toEqual<transmitterTypes.WorkloadAutoImportPolicyPayload>({
+            agentId: expect.any(String),
+            cluster: expect.any(String),
+            userLocator: expect.any(String),
+            policy: regoPolicyContents,
+          });
+        } catch (error) {
+          jestDoneCallback(error);
+        }
+      },
+    );
 
   // Setup nocks
   nock(/https\:\/\/127\.0\.0\.1\:\d+/, { allowUnmocked: true })
@@ -130,54 +142,65 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/workload')
     .times(1)
-    .reply(200, (uri, requestBody: transmitterTypes.IWorkloadMetadataPayload) => {
-      try {
-        expect(requestBody).toEqual<transmitterTypes.IWorkloadMetadataPayload>({
-          workloadLocator: {
-            cluster: expect.any(String),
-            name: expect.any(String),
-            namespace: expect.any(String),
-            type: expect.any(String),
-            userLocator: expect.any(String),
-          },
-          workloadMetadata: expect.objectContaining({
-            annotations: expect.any(Object),
-            labels: expect.any(Object),
-            revision: expect.any(Number),
-            specAnnotations: expect.any(Object),
-            specLabels: expect.any(Object),
-            podSpec: expect.objectContaining({
-              containers: expect.arrayContaining([
-                expect.objectContaining({
-                  resources: expect.objectContaining({
-                    limits: { cpu: '1', memory: '1Gi' },
-                  }),
-                  securityContext: expect.objectContaining({
-                    privileged: false,
-                    capabilities: expect.objectContaining({
-                      drop: ['ALL'],
+    .reply(
+      200,
+      (uri, requestBody: transmitterTypes.IWorkloadMetadataPayload) => {
+        try {
+          expect(
+            requestBody,
+          ).toEqual<transmitterTypes.IWorkloadMetadataPayload>({
+            workloadLocator: {
+              cluster: expect.any(String),
+              name: expect.any(String),
+              namespace: expect.any(String),
+              type: expect.any(String),
+              userLocator: expect.any(String),
+            },
+            workloadMetadata: expect.objectContaining({
+              annotations: expect.any(Object),
+              labels: expect.any(Object),
+              revision: expect.any(Number),
+              specAnnotations: expect.any(Object),
+              specLabels: expect.any(Object),
+              podSpec: expect.objectContaining({
+                containers: expect.arrayContaining([
+                  expect.objectContaining({
+                    resources: expect.objectContaining({
+                      limits: { cpu: '1', memory: '1Gi' },
+                    }),
+                    securityContext: expect.objectContaining({
+                      privileged: false,
+                      capabilities: expect.objectContaining({
+                        drop: ['ALL'],
+                      }),
                     }),
                   }),
-                }),
-              ]),
+                ]),
+              }),
             }),
-          }),
-          agentId: expect.any(String),
-        });
-      } catch (error) {
-        jestDoneCallback(error);
-      }
+            agentId: expect.any(String),
+          });
+        } catch (error) {
+          jestDoneCallback(error);
+        }
+      },
+    );
+
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/scan-results')
+    .times(1)
+    .replyWithError({
+      code: 'ECONNRESET',
+      message: 'socket hang up',
     });
 
-  nock('https://kubernetes-upstream.snyk.io').post('/api/v1/scan-results').times(1).replyWithError({
-    code: 'ECONNRESET',
-    message: 'socket hang up',
-  });
-
-  nock('https://kubernetes-upstream.snyk.io').post('/api/v1/scan-results').times(1).replyWithError({
-    code: 'EAI_AGAIN',
-    message: 'getaddrinfo EAI_AGAIN kubernetes-upstream.snyk.io',
-  });
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/scan-results')
+    .times(1)
+    .replyWithError({
+      code: 'EAI_AGAIN',
+      message: 'getaddrinfo EAI_AGAIN kubernetes-upstream.snyk.io',
+    });
 
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/scan-results')
@@ -206,7 +229,10 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
             },
             {
               facts: [{ type: 'jarFingerprints', data: expect.any(Object) }],
-              identity: { type: 'maven', targetFile: '/usr/share/ca-certificates-java' },
+              identity: {
+                type: 'maven',
+                targetFile: '/usr/share/ca-certificates-java',
+              },
               target: { image: 'docker-image|java' },
             },
             {
@@ -224,29 +250,34 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/dependency-graph')
     .times(1)
-    .reply(200, (uri, requestBody: transmitterTypes.IDependencyGraphPayload) => {
-      try {
-        expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>({
-          agentId: expect.any(String),
-          dependencyGraph: expect.stringContaining('docker-image|java'),
-          imageLocator: {
-            userLocator: expect.any(String),
-            cluster: expect.any(String),
-            imageId: expect.any(String),
-            name: expect.any(String),
-            namespace: expect.any(String),
-            type: expect.any(String),
-            imageWithDigest: expect.any(String),
-          },
-          metadata: expect.objectContaining({
-            agentId: expect.any(String),
-          }),
-        });
-        jestDoneCallback();
-      } catch (error) {
-        jestDoneCallback(error);
-      }
-    });
+    .reply(
+      200,
+      (uri, requestBody: transmitterTypes.IDependencyGraphPayload) => {
+        try {
+          expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>(
+            {
+              agentId: expect.any(String),
+              dependencyGraph: expect.stringContaining('docker-image|java'),
+              imageLocator: {
+                userLocator: expect.any(String),
+                cluster: expect.any(String),
+                imageId: expect.any(String),
+                name: expect.any(String),
+                namespace: expect.any(String),
+                type: expect.any(String),
+                imageWithDigest: expect.any(String),
+              },
+              metadata: expect.objectContaining({
+                agentId: expect.any(String),
+              }),
+            },
+          );
+          jestDoneCallback();
+        } catch (error) {
+          jestDoneCallback(error);
+        }
+      },
+    );
 
   // Start the monitor
   require('../../src');

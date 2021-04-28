@@ -65,6 +65,44 @@ build_and_upload_operator:
           ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         when: on_fail
 
+lint:
+  machine:
+    docker_layer_caching: true
+    enabled: true
+    image: ubuntu-2004:202010-01
+  steps:
+    - checkout
+    - setup_node12
+    - install_python_requests
+    - run:
+        command: |
+          npm run lint
+        name: lint
+    - run:
+        command: |
+          ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+        name: Notify Slack on failure
+        when: on_fail
+  working_directory: ~/kubernetes-monitor
+code_formatter:
+  machine:
+    docker_layer_caching: true
+    enabled: true
+    image: ubuntu-2004:202010-01
+  steps:
+    - checkout
+    - setup_node12
+    - install_python_requests
+    - run:
+        command: |
+          npm run format:check
+        name: code formatter check
+    - run:
+        command: |
+          ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+        name: Notify Slack on failure
+        when: on_fail
+  working_directory: ~/kubernetes-monitor
 unit_tests:
   machine:
     image: ubuntu-2004:202010-01
@@ -78,7 +116,6 @@ unit_tests:
     - run:
         name: Unit tests
         command: |
-          npm run lint &&
           npm run build &&
           npm run test:unit:tap &&
           npm run test:unit:jest
