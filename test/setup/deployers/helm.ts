@@ -34,7 +34,8 @@ async function deployKubernetesMonitor(
       '--set psp.enabled=true ' +
       '--set pvc.enabled=true ' +
       '--set pvc.create=true ' +
-      '--set log_level="INFO"',
+      '--set log_level="INFO" ' +
+      '--set rbac.serviceAccount.annotations."foo"="bar"',
   );
   console.log(
     `Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`,

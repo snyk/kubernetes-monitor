@@ -576,6 +576,25 @@ test('snyk-monitor has log level', async () => {
   expect(logLevel.value).toBeTruthy();
 });
 
+test('service account has annotations that were set on deployment', async () => {
+  if (process.env.DEPLOYMENT_TYPE !== 'Helm') {
+    console.log(
+      "Not testing annotations existence because we're not installing with Helm",
+    );
+    return;
+  }
+
+  const snykMonitorServiceAccount = await kubectl.getServiceAccountJson(
+    'snyk-monitor',
+    namespace,
+  );
+  expect(snykMonitorServiceAccount.metadata?.annotations).toEqual(
+    expect.objectContaining({
+      foo: 'bar',
+    }),
+  );
+});
+
 test('snyk-monitor has nodeSelector', async () => {
   if (process.env['DEPLOYMENT_TYPE'] !== 'Helm') {
     console.log(
