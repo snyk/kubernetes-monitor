@@ -23,11 +23,6 @@ image:
   tag: IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
   pullPolicy: Always
 
-# If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
-initContainerImage:
-  repository: busybox
-  tag: latest
-
 # The snyk-monitor requires knowing the cluster name so that it can organise
 # scanned workloads. The Kubernetes API does not provide an API to query this.
 # Set the name of the cluster, otherwise the snyk-monitor will set this to a default value.

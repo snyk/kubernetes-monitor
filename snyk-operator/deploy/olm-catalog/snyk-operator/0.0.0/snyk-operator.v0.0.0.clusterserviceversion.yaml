@@ -26,10 +26,6 @@ metadata:
               "create": false,
               "name": "snyk-monitor-pvc",
               "storageClassName": null
-            },
-            "initContainerImage": {
-              "repository": "busybox",
-              "tag": "latest"
             }
           }
         }
@@ -138,18 +134,6 @@ spec:
               The name of the StorageClass to use for the PVC, when enabled.
             displayName: PVC StorageClass name
             path: pvc.storageClassName
-            x-descriptors:
-              - "urn:alm:descriptor:text"
-          - description: >-
-              The repo to use for initContainer, if overriding.
-            displayName: InitContainer image repo
-            path: initContainerImage.repository
-            x-descriptors:
-              - "urn:alm:descriptor:text"
-          - description: >-
-              The tag for the initContainer's image.
-            displayName: InitContainer image tag
-            path: initContainerImage.tag
             x-descriptors:
               - "urn:alm:descriptor:text"
   description: |-
