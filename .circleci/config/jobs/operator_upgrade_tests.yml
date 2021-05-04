@@ -56,6 +56,7 @@ steps:
         source $BASH_ENV
         LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
         LATEST_TAG=${LATEST_TAG_WITH_V:1}
+        LATEST_TAG=discardable-87b15624c97a901f25cdea417ba6383422463cf4
         echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
 
   - run:
@@ -193,8 +194,18 @@ steps:
         # If we polled for 5 minutes and the snyk-monitor still hasn't upgraded, fail the current job.
         if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
           &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
+
+          SNYK_MONITOR_POD=$(kubectl get pods -n snyk-monitor --no-headers | \
+            grep "snyk-monitor" | \
+            awk 'END { if (NR==0) exit 1; else print $1 }')
+          kubectl describe pod ${SNYK_MONITOR_POD} -n snyk-monitor
+          kubectl describe catalogsource snyk-operator -n openshift-marketplace
+          kubectl get snykmonitors.charts.helm.k8s.io -n snyk-monitor -o yaml
+
           exit 1
         fi
+
+        kubectl wait pod/${SNYK_MONITOR_POD} -n snyk-monitor --timeout 120s --for condition=Ready
 
         echo "Update complete!"
 

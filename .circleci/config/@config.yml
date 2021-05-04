@@ -26,21 +26,10 @@ workflows:
           <<: *main_branches_filter
       - build_and_upload_operator:
           <<: *main_branches_filter
-      - unit_tests:
-          <<: *main_branches_filter
-      - lint:
-          <<: *main_branches_filter
-      - code_formatter:
-          <<: *main_branches_filter
-      - system_tests:
-          <<: *main_branches_filter
-      - integration_tests:
+      - operator_upgrade_tests:
           requires:
             - build_image
-          <<: *main_branches_filter
-      - integration_tests_helm:
-          requires:
-            - build_image
+            - build_and_upload_operator
           <<: *main_branches_filter
 
   MERGE_TO_STAGING:
