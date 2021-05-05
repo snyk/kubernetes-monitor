@@ -55,12 +55,12 @@ steps:
         CURRENT_DIRECTORY=$(pwd)
         COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
         ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+        echo "export COMMUNITY_FOLDER_LOCATION=${COMMUNITY_FOLDER_LOCATION}" >> $BASH_ENV
   - run:
       name: Open a Pull Request to the operator-framework/community-operators repository for upstream-community-operators
       command: |
-        COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
-        PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
-        export SLACK_PR_URL=${PR_URL}
+        SLACK_PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+        echo "export SLACK_PR_URL=${SLACK_PR_URL}" >> $BASH_ENV
   - run:
       name: Notify Slack on new branch in snyk/upstream-community-operators
       command: |
