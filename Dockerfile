@@ -34,6 +34,12 @@ RUN chmod 755 /usr/bin/dumb-init
 RUN groupadd -g 10001 snyk
 RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
+# Install gcloud 
+RUN curl -sL https://sdk.cloud.google.com > /install.sh
+RUN bash /install.sh --disable-prompts --install-dir=/
+ENV PATH=/google-cloud-sdk/bin:$PATH
+RUN rm /install.sh
+
 WORKDIR /srv/app
 
 COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
