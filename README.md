@@ -43,13 +43,24 @@ The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter
 
 Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should look like this:
 
-```json
+```hjson
 {
+  // If your cluster does not run on GKE or it runs on GKE and pulls images from other private registries, add the following:
   "auths": {
     "gcr.io": {
       "auth": "BASE64-ENCODED-AUTH-DETAILS"
     }
     // Add other registries as necessary
+  },
+  
+  // If your cluster runs on GKE and you are using GCR, add the following:
+  "credHelpers": {
+    "us.gcr.io": "gcloud",
+    "asia.gcr.io": "gcloud",
+    "marketplace.gcr.io": "gcloud",
+    "gcr.io": "gcloud",
+    "eu.gcr.io": "gcloud",
+    "staging-k8s.gcr.io": "gcloud"
   }
 }
 ```

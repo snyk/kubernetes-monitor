@@ -190,11 +190,23 @@ steps:
           sleep $SLEEP_SECONDS_BETWEEN_ATTEMPTS
         done
 
+        SNYK_MONITOR_POD=$(kubectl get pods -n snyk-monitor --no-headers | \
+          grep "snyk-monitor" | \
+          awk 'END { if (NR==0) exit 1; else print $1 }')
+
         # If we polled for 5 minutes and the snyk-monitor still hasn't upgraded, fail the current job.
         if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
           &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
+
+          kubectl describe pod ${SNYK_MONITOR_POD} -n snyk-monitor
+          kubectl describe catalogsource snyk-operator -n openshift-marketplace
+          kubectl get snykmonitors.charts.helm.k8s.io -n snyk-monitor -o yaml
+
           exit 1
         fi
+
+        # We need to wait for the Pod to become Ready
+        kubectl wait pod/${SNYK_MONITOR_POD} -n snyk-monitor --timeout 120s --for condition=Ready
 
         echo "Update complete!"
 
