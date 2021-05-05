@@ -676,12 +676,12 @@ jobs:
                     CURRENT_DIRECTORY=$(pwd)
                     COMMUNITY_FOLDER_LOCATION="community-operators"
                     ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+                    echo "export COMMUNITY_FOLDER_LOCATION=${COMMUNITY_FOLDER_LOCATION}" >> $BASH_ENV
                 name: Push new Operator to the fork of the community-operators repository
             - run:
                 command: |
-                    COMMUNITY_FOLDER_LOCATION="community-operators"
-                    PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
-                    export SLACK_PR_URL=${PR_URL}
+                    SLACK_PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+                    echo "export SLACK_PR_URL=${SLACK_PR_URL}" >> $BASH_ENV
                 name: Open a Pull Request to the operator-framework/community-operators repository for community-operators
             - run:
                 command: |
@@ -740,12 +740,12 @@ jobs:
                     CURRENT_DIRECTORY=$(pwd)
                     COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
                     ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
+                    echo "export COMMUNITY_FOLDER_LOCATION=${COMMUNITY_FOLDER_LOCATION}" >> $BASH_ENV
                 name: Push new Operator to the fork of the upstream-community-operators repository
             - run:
                 command: |
-                    COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
-                    PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
-                    export SLACK_PR_URL=${PR_URL}
+                    SLACK_PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+                    echo "export SLACK_PR_URL=${SLACK_PR_URL}" >> $BASH_ENV
                 name: Open a Pull Request to the operator-framework/community-operators repository for upstream-community-operators
             - run:
                 command: |
