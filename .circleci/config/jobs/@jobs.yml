@@ -72,7 +72,7 @@ lint:
     image: ubuntu-2004:202010-01
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         command: |
@@ -91,7 +91,7 @@ code_formatter:
     image: ubuntu-2004:202010-01
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         command: |
@@ -111,7 +111,7 @@ unit_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: Unit tests
@@ -133,7 +133,7 @@ system_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: Install Skopeo
@@ -165,7 +165,7 @@ integration_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: create temp dir for logs
@@ -191,7 +191,7 @@ integration_tests_helm:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: Create temporary directory for logs
@@ -217,7 +217,7 @@ integration_tests_proxy:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: Create temporary directory for logs
@@ -249,11 +249,11 @@ eks_integration_tests:
         command: mkdir -p /tmp/logs/test/integration/eks
     - run:
         name: Integration tests EKS
-        # WARNING! Do not use the step "setup_node12" here - the call to "nvm use 12" breaks the tests!
+        # WARNING! Do not use the step "setup_node16" here - the call to "nvm use 16" breaks the tests!
         command: |
           export NVM_DIR="/opt/circleci/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install v12
+          nvm install v16
           npm install
           export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
           .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
@@ -273,7 +273,7 @@ openshift3_integration_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: Create temporary directory for logs
@@ -298,7 +298,7 @@ openshift4_integration_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node12
+    - setup_node16
     - install_python_requests
     - run:
         name: create temp dir for logs
@@ -320,7 +320,7 @@ openshift4_integration_tests:
 ######################## MERGE TO STAGING ########################
 tag_and_push:
   docker:
-    - image: circleci/node:12
+    - image: cimg/node:16.1
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD
@@ -348,7 +348,7 @@ tag_and_push:
 
 deploy_dev:
   docker:
-    - image: circleci/node:12
+    - image: cimg/node:16.1
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD
@@ -374,7 +374,7 @@ deploy_dev:
 ######################## MERGE TO MASTER ########################
 publish:
   docker:
-    - image: circleci/node:12
+    - image: cimg/node:16.1
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD
@@ -420,7 +420,7 @@ publish:
 
 deploy_prod:
   docker:
-    - image: circleci/node:12
+    - image: cimg/node:16.1
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD

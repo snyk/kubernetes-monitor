@@ -1,11 +1,11 @@
-description: Setup Node 12
+description: Setup Node 16
 steps:
   - run:
       command: |
         export NVM_DIR="/opt/circleci/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        nvm install v12
+        nvm install v16
         npm install
         echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
         echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-        echo 'nvm use 12' >> $BASH_ENV
+        echo 'nvm use 16' >> $BASH_ENV

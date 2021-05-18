@@ -25,7 +25,7 @@ COPY LICENSE /licenses/LICENSE
 
 ENV NODE_ENV production
 
-RUN curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs
 
 RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
@@ -54,7 +54,7 @@ ADD --chown=snyk:snyk package.json package-lock.json ./
 # TODO: Remove this line once OpenShift 3 comes out of support.
 RUN mkdir -p .config
 
-RUN npm install
+RUN npm ci
 
 # add the rest of the app files
 ADD --chown=snyk:snyk . .
@@ -66,7 +66,7 @@ RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
 RUN chown -R snyk:snyk .
 USER 10001:10001
 
-# Complete any `prepare` tasks (e.g. typescript), as this step ran automatically prior to app being copied
-RUN npm run prepare
+# Build typescript
+RUN npm run build
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "bin/start"]
