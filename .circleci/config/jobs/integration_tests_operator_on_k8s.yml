@@ -4,7 +4,7 @@ machine:
   enabled: true
 steps:
 - checkout
-- setup_node12
+- setup_node16
 - install_python_requests
 - run:
     command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
