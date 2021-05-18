@@ -1,50 +1,57 @@
-.github
-.nyc_output
-.dockerignore
 .git*
-Dockerfile
-node_modules
+.DS_Store
+.idea/
+.vscode/
 
-config.local.json
+.circleci/
+.dockerignore
+Dockerfile
 node_modules/
 dist/
+config.local.json
+scripts/
+README.md
+CONTRIBUTING.md
+
+# Testing
+test/
 coverage/
-.nyc_output/
-.idea/
-.circleci/
-npm-debug.log
-newrelic_agent.log
+tap
+jest.config.js
+tests_output
+.nyc_output
+__pycache__
 
-test/screenshots/test
-test/screenshots/reference
-test/screenshots/compare.json
-
-public/style/build/*
-public/js/build/*
-
+# Logs
 local.log
 test.log
-.npmrc
-.DS_Store
-
+selenium-debug.log
+npm-debug.log
+newrelic_agent.log
 logfile
 
-selenium-debug.log
-tests_output/
-
-README.md
+# Running locally
 Tiltfile
 tilt
-scripts
-tap
-snyk-monitor
-snyk-operator
+
+# Installation files
+snyk-monitor/
 *-deployment.yaml
 *-permissions.yaml
 
-snyk-monitor-operator-source.yaml
+# Openshift
+snyk-operator/
 operator-sdk
-__pycache__
 opm
 .operator_version
+snyk-monitor-operator-source.yaml
 snyk-monitor-catalog-source.yaml
+
+# Linting and formatting
+.eslintrc.json
+.prettierignore
+.prettierrc.json
+
+# Version control
+.tool-versions
+.nvmrc
