@@ -58,6 +58,10 @@ spec:
             readOnly: true
           - name: registries-conf
             mountPath: "/srv/app/.config/containers"
+           {{- if .Values.excludedNamespaces }}
+          - name: excluded-namespaces
+            mountPath: "/etc/config"
+          {{- end }}
           env:
           - name: SNYK_INTEGRATION_ID
             valueFrom:
@@ -129,6 +133,11 @@ spec:
           configMap:
             name: {{ .Values.registriesConfConfigMap }}
             optional: true
+        {{- if .Values.excludedNamespaces }}
+        - name: excluded-namespaces
+          configMap:
+            name: {{ .Release.Name }}-excluded-namespaces
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

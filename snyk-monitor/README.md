@@ -180,6 +180,20 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
   --set psp.enabled=true
 ```
 
+## Configuring excluded namespaces ##
+
+By default, `snyk-monitor` does not scan containers that are internal to Kubernetes, in the following namespaces:
+* `kube-node-lease`
+* `kube-public`
+* `kube-system`
+* `local-path-storage`
+
+If you prefer to override this, you can add your own list of namespaces to exclude by setting the `excludedNamespaces` to your own list.
+For example:
+```yaml
+--set excludedNamespaces={kube-node-lease,kube-public,local-path-storage,some_namespace}
+```
+
 ## Terms and conditions ##
 
 *The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*
