@@ -59,6 +59,8 @@ spec:
           - name: registries-conf
             mountPath: "/srv/app/.config/containers"
           env:
+          - name: NODE_EXTRA_CA_CERTS
+            value: {{ .Values.extraCaCerts }}
           - name: SNYK_INTEGRATION_ID
             valueFrom:
               secretKeyRef:
