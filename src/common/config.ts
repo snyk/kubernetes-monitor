@@ -1,6 +1,6 @@
 import * as uuidv4 from 'uuid/v4';
 import { loadConfig } from 'snyk-config';
-import { readFileSync }  from 'fs';
+import { readFileSync } from 'fs';
 
 const config: Record<string, any> = loadConfig(__dirname + '/../..', {
   secretConfig: process.env.CONFIG_SECRET_FILE,
