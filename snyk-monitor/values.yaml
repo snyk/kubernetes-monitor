@@ -90,3 +90,6 @@ nodeSelector: {}
 psp:
   enabled: false
   name: ""
+
+# Override the excluded namespaces
+excludedNamespaces:

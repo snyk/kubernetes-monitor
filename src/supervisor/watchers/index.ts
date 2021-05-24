@@ -8,7 +8,10 @@ import { ECONNRESET_ERROR_CODE } from './types';
 import { setupInformer } from './handlers';
 import { kubeConfig, k8sApi } from '../cluster';
 import * as kubernetesApiWrappers from '../kuberenetes-api-wrappers';
-import { kubernetesInternalNamespaces } from './internal-namespaces';
+import {
+  kubernetesInternalNamespaces,
+  openshiftInternalNamespaces,
+} from './internal-namespaces';
 
 /**
  * This map keeps track of all currently watched namespaces.
@@ -52,8 +55,14 @@ export function extractNamespaceName(namespace: V1Namespace): string {
   throw new Error('Namespace missing metadata.name');
 }
 
-export function isKubernetesInternalNamespace(namespace: string): boolean {
-  return kubernetesInternalNamespaces.has(namespace);
+export function isExcludedNamespace(namespace: string): boolean {
+  return (
+    (config.EXCLUDED_NAMESPACES
+      ? config.EXCLUDED_NAMESPACES.includes(namespace)
+      : kubernetesInternalNamespaces.has(namespace)) ||
+    // always check openshift excluded namespaces
+    openshiftInternalNamespaces.has(namespace)
+  );
 }
 
 async function setupWatchesForCluster(): Promise<void> {
@@ -90,8 +99,8 @@ async function setupWatchesForCluster(): Promise<void> {
   informer.on(ADD, async (namespace: V1Namespace) => {
     try {
       const namespaceName = extractNamespaceName(namespace);
-      if (isKubernetesInternalNamespace(namespaceName)) {
-        // disregard namespaces internal to kubernetes
+      if (isExcludedNamespace(namespaceName)) {
+        // disregard excluded namespaces
         logger.info({ namespaceName }, 'ignoring blacklisted namespace');
         return;
       }
