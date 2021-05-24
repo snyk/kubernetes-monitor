@@ -3,6 +3,9 @@ export const kubernetesInternalNamespaces = new Set([
   'kube-public',
   'kube-system',
   'local-path-storage',
+]);
+
+export const openshiftInternalNamespaces = new Set([
   'openshift',
   'openshift-apiserver',
   'openshift-apiserver-operator',

@@ -12,9 +12,8 @@
   "scripts": {
     "local": "./scripts/local-testing.sh",
     "pretest": "./scripts/docker/build-image.sh",
-    "test": "npm run lint && npm run build && npm run test:unit:tap && npm run test:unit:jest && npm run test:integration:kind:helm",
-    "test:unit:tap": "NODE_ENV=test tap test/unit/**/*.test.ts --timeout=300",
-    "test:unit:jest": "jest --logHeapUsage --ci --bail --forceExit test/unit",
+    "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration:kind:helm",
+    "test:unit": "jest --logHeapUsage --ci --bail --forceExit test/unit",
     "test:system": "jest --logHeapUsage --ci --maxWorkers=1 test/system",
     "test:integration:kind:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:kind:helm": "DEPLOYMENT_TYPE=Helm TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
@@ -69,7 +68,6 @@
     "nock": "^11.9.1",
     "prettier": "^2.2.1",
     "sinon": "^8.1.1",
-    "tap": "^14.10.6",
     "ts-jest": "^26.5.4",
     "ts-node": "^8.6.2",
     "tsc-watch": "^1.0.30"

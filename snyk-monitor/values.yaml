@@ -66,6 +66,8 @@ envs:
   - name: NODE_OPTIONS
     value: --max_old_space_size=2048
 
+extraCaCerts: /srv/app/certs/ca.pem
+
 # CPU/Mem requests and limits for snyk-monitor
 requests:
   cpu: '250m'
@@ -88,3 +90,6 @@ nodeSelector: {}
 psp:
   enabled: false
   name: ""
+
+# Override the excluded namespaces
+excludedNamespaces:

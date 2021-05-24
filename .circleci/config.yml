@@ -829,8 +829,7 @@ jobs:
             - run:
                 command: |
                     npm run build &&
-                    npm run test:unit:tap &&
-                    npm run test:unit:jest
+                    npm run test:unit
                 name: Unit tests
             - run:
                 command: |

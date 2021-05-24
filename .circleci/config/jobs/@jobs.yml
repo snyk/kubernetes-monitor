@@ -117,8 +117,7 @@ unit_tests:
         name: Unit tests
         command: |
           npm run build &&
-          npm run test:unit:tap &&
-          npm run test:unit:jest
+          npm run test:unit
     - run:
         name: Notify Slack on failure
         command: |

@@ -1,11 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`internal Kubernetes namespaces tests internal namespaces list against snapshot 1`] = `
+exports[`isExcludedNamespace() internal Kubernetes namespaces list against snapshot 1`] = `
 Set {
   "kube-node-lease",
   "kube-public",
   "kube-system",
   "local-path-storage",
+}
+`;
+
+exports[`isExcludedNamespace() openshift internal namespaces list against snapshot 1`] = `
+Set {
   "openshift",
   "openshift-apiserver",
   "openshift-apiserver-operator",
