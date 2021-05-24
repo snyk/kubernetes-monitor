@@ -20,7 +20,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.55.0
+  tag: 1.57.0
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -66,6 +66,8 @@ envs:
   - name: NODE_OPTIONS
     value: --max_old_space_size=2048
 
+extraCaCerts: /srv/app/certs/ca.pem
+
 # CPU/Mem requests and limits for snyk-monitor
 requests:
   cpu: '250m'
@@ -88,3 +90,6 @@ nodeSelector: {}
 psp:
   enabled: false
   name: ""
+
+# Override the excluded namespaces
+excludedNamespaces:
