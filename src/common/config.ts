@@ -1,6 +1,6 @@
 import * as uuidv4 from 'uuid/v4';
 import { loadConfig } from 'snyk-config';
-import * as fs from 'fs';
+import { readFileSync }  from 'fs';
 
 const config: Record<string, any> = loadConfig(__dirname + '/../..', {
   secretConfig: process.env.CONFIG_SECRET_FILE,
@@ -10,7 +10,7 @@ const namespacesFilePath = '/etc/config/excludedNamespaces';
 
 function loadExcludedNamespaces(): string[] | null {
   try {
-    const data = fs.readFileSync(namespacesFilePath, 'UTF-8');
+    const data = readFileSync(namespacesFilePath, 'UTF-8');
     const namespaces: string[] = data.split(/\r?\n/);
     return namespaces;
   } catch (err) {
