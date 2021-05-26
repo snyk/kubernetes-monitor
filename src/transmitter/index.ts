@@ -1,7 +1,11 @@
+import { parse } from 'url';
 import { queue } from 'async';
 import * as needle from 'needle';
-import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import * as sleep from 'sleep-promise';
+import { Agent as HttpAgent } from 'http';
+import { Agent as HttpsAgent } from 'https';
+import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
+
 import { logger } from '../common/logger';
 import { config } from '../common/config';
 import {
@@ -27,6 +31,16 @@ interface HomebaseRequest {
 
 const upstreamUrl =
   config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
+
+let agent = new HttpAgent({
+  keepAlive: true,
+});
+
+if (parse(upstreamUrl).protocol?.startsWith('https')) {
+  agent = new HttpsAgent({
+    keepAlive: true,
+  });
+}
 
 // Async queue wraps around the call to retryRequest in order to limit
 // the number of requests in flight to Homebase at any one time.
@@ -227,7 +241,9 @@ async function retryRequest(
   const options: NeedleOptions = {
     json: true,
     compressed: true,
+    agent,
   };
+
   if (config.HTTP_PROXY || config.HTTPS_PROXY) {
     options.agent = getProxyAgent(config, url);
   }
