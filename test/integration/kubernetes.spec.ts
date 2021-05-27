@@ -437,12 +437,6 @@ test('snyk-monitor scans DeploymentConfigs', async () => {
 });
 
 test('snyk-monitor pulls images from a local registry and sends data to kubernetes-upstream', async () => {
-  afterAll(async () => {
-    console.log('Begin removing local container registry...');
-    await setup.removeLocalContainerRegistry();
-    console.log('Removed local container registry');
-  });
-
   if (process.env['TEST_PLATFORM'] !== 'kind') {
     console.log(
       "Not testing local container registry because we're not running in KinD",
