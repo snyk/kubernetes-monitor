@@ -7,7 +7,7 @@ import { config } from './common/config';
 import { logger } from './common/logger';
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
-import { loadAndSendWorkloadAutoImportPolicy } from './common/policy';
+import { loadAndSendWorkloadEventsPolicy } from './common/policy';
 
 process.on('uncaughtException', (err) => {
   if (state.shutdownInProgress) {
@@ -62,6 +62,6 @@ cleanUpTempStorage();
 
 // Allow running in an async context
 setImmediate(async function setUpAndMonitor(): Promise<void> {
-  await loadAndSendWorkloadAutoImportPolicy();
+  await loadAndSendWorkloadEventsPolicy();
   await monitor();
 });

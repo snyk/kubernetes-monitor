@@ -81,7 +81,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
 
   // Create a copy of the policy file fixture in the location that snyk-monitor is expecting to load it from.
   const regoPolicyFixturePath = resolvePath(
-    './test/fixtures/workload-auto-import.rego',
+    './test/fixtures/workload-events.rego',
   );
   const expectedPoliciesPath = resolvePath('/tmp/policies');
   if (!(await existsAsync(expectedPoliciesPath))) {
@@ -89,7 +89,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   }
   await copyFileAsync(
     regoPolicyFixturePath,
-    resolvePath(expectedPoliciesPath, 'workload-auto-import.rego'),
+    resolvePath(expectedPoliciesPath, 'workload-events.rego'),
   );
 
   const regoPolicyContents = await readFileAsync(regoPolicyFixturePath, 'utf8');
@@ -98,11 +98,11 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .times(1)
     .reply(
       200,
-      (uri, requestBody: transmitterTypes.WorkloadAutoImportPolicyPayload) => {
+      (uri, requestBody: transmitterTypes.WorkloadEventsPolicyPayload) => {
         try {
           expect(
             requestBody,
-          ).toEqual<transmitterTypes.WorkloadAutoImportPolicyPayload>({
+          ).toEqual<transmitterTypes.WorkloadEventsPolicyPayload>({
             agentId: expect.any(String),
             cluster: expect.any(String),
             userLocator: expect.any(String),

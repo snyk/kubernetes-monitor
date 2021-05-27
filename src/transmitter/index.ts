@@ -15,7 +15,7 @@ import {
   IRequestError,
   ScanResultsPayload,
   IDependencyGraphPayload,
-  WorkloadAutoImportPolicyPayload,
+  WorkloadEventsPolicyPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
 
@@ -147,8 +147,8 @@ export async function sendWorkloadMetadata(
   }
 }
 
-export async function sendWorkloadAutoImportPolicy(
-  payload: WorkloadAutoImportPolicyPayload,
+export async function sendWorkloadEventsPolicy(
+  payload: WorkloadEventsPolicyPayload,
 ): Promise<void> {
   try {
     logger.info(
