@@ -35,14 +35,12 @@ describe('ECR image parsing tests', () => {
   });
 
   test.concurrent('isEcrSource()', async () => {
-    const sourceCredentialsForRandomImageName = credentials.isEcrSource(
-      'derka',
-    );
+    const sourceCredentialsForRandomImageName =
+      credentials.isEcrSource('derka');
     expect(sourceCredentialsForRandomImageName).toEqual(false);
 
-    const sourceCredentialsForInvalidEcrImage = credentials.isEcrSource(
-      'derka.ecr.derka',
-    );
+    const sourceCredentialsForInvalidEcrImage =
+      credentials.isEcrSource('derka.ecr.derka');
     expect(sourceCredentialsForInvalidEcrImage).toEqual(false);
 
     const sourceCredentialsForEcrImage = credentials.isEcrSource(

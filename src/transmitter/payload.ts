@@ -19,40 +19,38 @@ export function constructDepGraph(
   scannedImages: IScanResult[],
   workloadMetadata: IWorkload[],
 ): IDependencyGraphPayload[] {
-  const results = scannedImages.map(
-    (scannedImage): IDependencyGraphPayload => {
-      // We know that .find() won't return undefined
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const kubeWorkload: IWorkload = workloadMetadata.find(
-        (meta) => meta.imageName === scannedImage.imageWithTag,
-      )!;
+  const results = scannedImages.map((scannedImage): IDependencyGraphPayload => {
+    // We know that .find() won't return undefined
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const kubeWorkload: IWorkload = workloadMetadata.find(
+      (meta) => meta.imageName === scannedImage.imageWithTag,
+    )!;
 
-      const { cluster, namespace, type, name } = kubeWorkload;
+    const { cluster, namespace, type, name } = kubeWorkload;
 
-      const imageLocator: IImageLocator = {
-        userLocator: config.INTEGRATION_ID,
-        imageId: scannedImage.image,
-        imageWithDigest: scannedImage.imageWithDigest,
-        cluster,
-        namespace,
-        type,
-        name,
-      };
+    const imageLocator: IImageLocator = {
+      userLocator: config.INTEGRATION_ID,
+      imageId: scannedImage.image,
+      imageWithDigest: scannedImage.imageWithDigest,
+      cluster,
+      namespace,
+      type,
+      name,
+    };
 
-      const monitorMetadata: IKubernetesMonitorMetadata = {
-        agentId: config.AGENT_ID,
-        namespace: config.NAMESPACE,
-        version: config.MONITOR_VERSION,
-      };
+    const monitorMetadata: IKubernetesMonitorMetadata = {
+      agentId: config.AGENT_ID,
+      namespace: config.NAMESPACE,
+      version: config.MONITOR_VERSION,
+    };
 
-      return {
-        imageLocator,
-        agentId: config.AGENT_ID,
-        dependencyGraph: JSON.stringify(scannedImage.pluginResult),
-        metadata: monitorMetadata,
-      };
-    },
-  );
+    return {
+      imageLocator,
+      agentId: config.AGENT_ID,
+      dependencyGraph: JSON.stringify(scannedImage.pluginResult),
+      metadata: monitorMetadata,
+    };
+  });
 
   return results;
 }

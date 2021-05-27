@@ -77,25 +77,24 @@ export interface Meta extends Partial<Record<string, string>> {
 export function extractFactsFromDockerPluginResponse(
   pluginResponse: PluginResponse,
 ): ExtractedFacts {
-  const depGraph: depGraphLib.DepGraph = pluginResponse.scanResults[0].facts.find(
-    (fact) => fact.type === 'depGraph',
-  )?.data;
+  const depGraph: depGraphLib.DepGraph =
+    pluginResponse.scanResults[0].facts.find(
+      (fact) => fact.type === 'depGraph',
+    )?.data;
 
-  const manifestFiles:
-    | ManifestFile[]
-    | undefined = pluginResponse.scanResults[0].facts.find(
-    (fact) => fact.type === 'imageManifestFiles',
-  )?.data;
+  const manifestFiles: ManifestFile[] | undefined =
+    pluginResponse.scanResults[0].facts.find(
+      (fact) => fact.type === 'imageManifestFiles',
+    )?.data;
 
   const hashes: string[] | undefined = pluginResponse.scanResults[0].facts.find(
     (fact) => fact.type === 'keyBinariesHashes',
   )?.data;
 
-  const imageLayers:
-    | string[]
-    | undefined = pluginResponse.scanResults[0].facts.find(
-    (fact) => fact.type === 'imageLayers',
-  )?.data;
+  const imageLayers: string[] | undefined =
+    pluginResponse.scanResults[0].facts.find(
+      (fact) => fact.type === 'imageLayers',
+    )?.data;
 
   const rootFs: string[] | undefined = pluginResponse.scanResults[0].facts.find(
     (fact) => fact.type === 'rootFs',
@@ -105,11 +104,10 @@ export function extractFactsFromDockerPluginResponse(
     (fact) => fact.type === 'imageId',
   )?.data;
 
-  const imageOsReleasePrettyName:
-    | string
-    | undefined = pluginResponse.scanResults[0].facts.find(
-    (fact) => fact.type === 'imageOsReleasePrettyName',
-  )?.data;
+  const imageOsReleasePrettyName: string | undefined =
+    pluginResponse.scanResults[0].facts.find(
+      (fact) => fact.type === 'imageOsReleasePrettyName',
+    )?.data;
 
   const platform = pluginResponse.scanResults[0].identity.args?.platform;
 

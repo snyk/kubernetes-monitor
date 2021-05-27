@@ -13,14 +13,14 @@ describe('kubernetes api wrappers', () => {
     const responseWithNegativeSeconds = { headers: { 'Retry-After': -3 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        (responseWithNegativeSeconds as unknown) as http.IncomingMessage,
+        responseWithNegativeSeconds as unknown as http.IncomingMessage,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
     const responseWithZeroSeconds = { headers: { 'Retry-After': 0 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        (responseWithZeroSeconds as unknown) as http.IncomingMessage,
+        responseWithZeroSeconds as unknown as http.IncomingMessage,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
@@ -29,21 +29,21 @@ describe('kubernetes api wrappers', () => {
     };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        (responseWithDate as unknown) as http.IncomingMessage,
+        responseWithDate as unknown as http.IncomingMessage,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
     const responseWithHighSecondsMock = { headers: { 'Retry-After': 55 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        (responseWithHighSecondsMock as unknown) as http.IncomingMessage,
+        responseWithHighSecondsMock as unknown as http.IncomingMessage,
       ),
     ).toEqual(kubernetesApiWrappers.MAX_SLEEP_SEC);
 
     const responseWithSecondsMock = { headers: { 'Retry-After': 4 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        (responseWithSecondsMock as unknown) as http.IncomingMessage,
+        responseWithSecondsMock as unknown as http.IncomingMessage,
       ),
     ).toEqual(4);
   });
@@ -68,9 +68,10 @@ describe('kubernetes api wrappers', () => {
         return Promise.resolve('egg');
       };
 
-      const successfulResponse = await kubernetesApiWrappers.retryKubernetesApiRequest(
-        functionThatFailsJustEnoughTimes,
-      );
+      const successfulResponse =
+        await kubernetesApiWrappers.retryKubernetesApiRequest(
+          functionThatFailsJustEnoughTimes,
+        );
       expect(successfulResponse).toEqual('egg');
 
       failures = 0;
@@ -108,9 +109,10 @@ describe('kubernetes api wrappers', () => {
       return Promise.resolve('egg');
     };
 
-    const successfulResponse = await kubernetesApiWrappers.retryKubernetesApiRequest(
-      functionThatFailsJustEnoughTimes,
-    );
+    const successfulResponse =
+      await kubernetesApiWrappers.retryKubernetesApiRequest(
+        functionThatFailsJustEnoughTimes,
+      );
     expect(successfulResponse).toEqual('egg');
 
     failures = 0;
@@ -149,9 +151,10 @@ describe('kubernetes api wrappers', () => {
         return Promise.resolve('egg');
       };
 
-      const successfulResponse = await kubernetesApiWrappers.retryKubernetesApiRequest(
-        functionThatFailsJustEnoughTimes,
-      );
+      const successfulResponse =
+        await kubernetesApiWrappers.retryKubernetesApiRequest(
+          functionThatFailsJustEnoughTimes,
+        );
       expect(successfulResponse).toEqual('egg');
 
       failures = 0;
