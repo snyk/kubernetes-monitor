@@ -48,7 +48,7 @@
     "source-map-support": "^0.5.16",
     "tunnel": "0.0.6",
     "typescript": "^3.9.9",
-    "ws": "^7.4.4",
+    "uuid": "^8.3.2",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
@@ -60,6 +60,7 @@
     "@types/node": "^10.17.55",
     "@types/sinon": "^7.5.2",
     "@types/tunnel": "0.0.1",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^2.22.0",
     "@typescript-eslint/parser": "^2.22.0",
     "eslint": "^6.8.0",

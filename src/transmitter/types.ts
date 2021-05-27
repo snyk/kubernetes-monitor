@@ -63,7 +63,7 @@ export interface IDeleteWorkloadPayload {
   agentId: string;
 }
 
-export interface WorkloadAutoImportPolicyPayload {
+export interface WorkloadEventsPolicyPayload {
   userLocator: string;
   cluster: string;
   agentId: string;

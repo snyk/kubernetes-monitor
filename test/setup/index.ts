@@ -1,6 +1,6 @@
 import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 import * as sleep from 'sleep-promise';
-import * as uuidv4 from 'uuid/v4';
 
 import platforms, { getKubernetesVersionForPlatform } from './platforms';
 import deployers from './deployers';
