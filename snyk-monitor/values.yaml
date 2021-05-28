@@ -7,7 +7,11 @@
 monitorSecrets: snyk-monitor
 certsConfigMap: snyk-monitor-certs
 registriesConfConfigMap: snyk-monitor-registries-conf
+
+# The ConfigMap to use for loading policies into snyk-monitor.
 workloadPoliciesMap: snyk-monitor-workload-policies
+# A list of Snyk Organization public IDs to let snyk-monitor know in which Organization to auto-import and auto-delete scanned images.
+policyOrgs:
 
 # One of: Cluster, Namespaced
 # Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
@@ -20,7 +24,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.58.2
+  tag: 1.59.0
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -60,9 +64,9 @@ rbac:
 # Node.js in-container process memory enhancements
 envs:
   - name: V8_MAX_OLD_SPACE_SIZE
-    value: '2048'
+    value: "2048"
   - name: UV_THREADPOOL_SIZE
-    value: '24'
+    value: "24"
   - name: NODE_OPTIONS
     value: --max_old_space_size=2048
 
@@ -70,12 +74,12 @@ extraCaCerts: /srv/app/certs/ca.pem
 
 # CPU/Mem requests and limits for snyk-monitor
 requests:
-  cpu: '250m'
-  memory: '400Mi'
+  cpu: "250m"
+  memory: "400Mi"
 
 limits:
-  cpu: '1'
-  memory: '2Gi'
+  cpu: "1"
+  memory: "2Gi"
 
 http_proxy:
 https_proxy:
