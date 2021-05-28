@@ -12,7 +12,7 @@ import {
   IKubernetesMonitorMetadata,
   ScanResultsPayload,
   IDependencyGraphPayload,
-  WorkloadEventsPolicyPayload,
+  IWorkloadEventsPolicyPayload,
 } from './types';
 
 export function constructDepGraph(
@@ -135,7 +135,7 @@ export function constructDeleteWorkload(
 
 export function constructWorkloadEventsPolicy(
   policy: string,
-): WorkloadEventsPolicyPayload {
+): IWorkloadEventsPolicyPayload {
   return {
     policy,
     userLocator: config.INTEGRATION_ID,
