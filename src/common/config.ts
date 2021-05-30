@@ -10,7 +10,7 @@ const namespacesFilePath = '/etc/config/excludedNamespaces';
 
 function loadExcludedNamespaces(): string[] | null {
   try {
-    const data = readFileSync(namespacesFilePath, 'UTF-8');
+    const data = readFileSync(namespacesFilePath, 'utf-8');
     const namespaces: string[] = data.split(/\r?\n/);
     return namespaces;
   } catch (err) {

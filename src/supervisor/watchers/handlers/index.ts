@@ -141,8 +141,8 @@ async function isSupportedWorkload(
     const limit = 1; // Try to grab only a single object
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
-    const attemptedApiCall = await kubernetesApiWrappers.retryKubernetesApiRequest(
-      () =>
+    const attemptedApiCall =
+      await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
         k8sApi.customObjectsClient.listNamespacedCustomObject(
           'apps.openshift.io',
           'v1',
@@ -156,7 +156,7 @@ async function isSupportedWorkload(
           resourceVersion,
           timeoutSeconds,
         ),
-    );
+      );
     return (
       attemptedApiCall !== undefined &&
       attemptedApiCall.response !== undefined &&

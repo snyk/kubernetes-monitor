@@ -17,17 +17,19 @@ describe('metadata extractor tests', () => {
     ).toEqual(false);
 
     const mockPodWithEmptyMetadata = { metadata: {} };
-    const isPodWithEmptyMetadataAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(
-      mockPodWithEmptyMetadata as V1Pod,
-    );
+    const isPodWithEmptyMetadataAssociatedWithParent =
+      metadataExtractor.isPodAssociatedWithParent(
+        mockPodWithEmptyMetadata as V1Pod,
+      );
     expect(isPodWithEmptyMetadataAssociatedWithParent).toEqual(false);
 
     const mockPodWithEmptyOwnerReferences = {
       metadata: { ownerReferences: [] as V1OwnerReference[] },
     };
-    const isPodWithEmptyOwnerReferenceAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(
-      mockPodWithEmptyOwnerReferences as V1Pod,
-    );
+    const isPodWithEmptyOwnerReferenceAssociatedWithParent =
+      metadataExtractor.isPodAssociatedWithParent(
+        mockPodWithEmptyOwnerReferences as V1Pod,
+      );
     expect(isPodWithEmptyOwnerReferenceAssociatedWithParent).toEqual(false);
 
     const mockPodWithOwnerReferencesWithoutKind = {
@@ -35,9 +37,10 @@ describe('metadata extractor tests', () => {
         ownerReferences: [{} as V1OwnerReference] as V1OwnerReference[],
       },
     };
-    const isPodWithOwnerReferencesWithoutKindAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(
-      mockPodWithOwnerReferencesWithoutKind as V1Pod,
-    );
+    const isPodWithOwnerReferencesWithoutKindAssociatedWithParent =
+      metadataExtractor.isPodAssociatedWithParent(
+        mockPodWithOwnerReferencesWithoutKind as V1Pod,
+      );
     expect(isPodWithOwnerReferencesWithoutKindAssociatedWithParent).toEqual(
       false,
     );
@@ -49,9 +52,10 @@ describe('metadata extractor tests', () => {
         ] as V1OwnerReference[],
       },
     };
-    const isPodWithOwnerReferencesWithEmptyKindAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(
-      mockPodWithOwnerReferencesWithEmptyKInd as V1Pod,
-    );
+    const isPodWithOwnerReferencesWithEmptyKindAssociatedWithParent =
+      metadataExtractor.isPodAssociatedWithParent(
+        mockPodWithOwnerReferencesWithEmptyKInd as V1Pod,
+      );
     expect(isPodWithOwnerReferencesWithEmptyKindAssociatedWithParent).toEqual(
       false,
     );
@@ -63,9 +67,10 @@ describe('metadata extractor tests', () => {
         ] as V1OwnerReference[],
       },
     };
-    const isPodWithOwnerReferencesWithKindAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(
-      mockPodWithOwnerReferencesWithKind as V1Pod,
-    );
+    const isPodWithOwnerReferencesWithKindAssociatedWithParent =
+      metadataExtractor.isPodAssociatedWithParent(
+        mockPodWithOwnerReferencesWithKind as V1Pod,
+      );
     expect(isPodWithOwnerReferencesWithKindAssociatedWithParent).toEqual(true);
 
     const mockPodWithMixedOwnerReferences = {
@@ -77,9 +82,10 @@ describe('metadata extractor tests', () => {
         ] as V1OwnerReference[],
       },
     };
-    const isPodWithMixedOwnerReferencesAssociatedWithParent = metadataExtractor.isPodAssociatedWithParent(
-      mockPodWithMixedOwnerReferences as V1Pod,
-    );
+    const isPodWithMixedOwnerReferencesAssociatedWithParent =
+      metadataExtractor.isPodAssociatedWithParent(
+        mockPodWithMixedOwnerReferences as V1Pod,
+      );
     expect(isPodWithMixedOwnerReferencesAssociatedWithParent).toEqual(true);
   });
 

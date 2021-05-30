@@ -6,16 +6,15 @@
   },
   "plugins": ["@typescript-eslint"],
   "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "plugin:prettier/recommended",
+    "prettier"
   ],
   "rules": {
     "@typescript-eslint/semi": "error",
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/ban-ts-ignore": "error",
+    "@typescript-eslint/ban-ts-comment": "error",
     "@typescript-eslint/no-unnecessary-type-assertion": "error",
     "@typescript-eslint/unbound-method": "error"
   }

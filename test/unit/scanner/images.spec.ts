@@ -45,12 +45,10 @@ describe('getImagesWithFileSystemPath()', () => {
         skopeoRepoType: SkopeoRepositoryType.DockerArchive,
       },
     ];
-    const firstCallResult = scannerImages.getImagesWithFileSystemPath(
-      someImage,
-    )[0];
-    const secondCallResult = scannerImages.getImagesWithFileSystemPath(
-      someImage,
-    )[0];
+    const firstCallResult =
+      scannerImages.getImagesWithFileSystemPath(someImage)[0];
+    const secondCallResult =
+      scannerImages.getImagesWithFileSystemPath(someImage)[0];
     expect(
       firstCallResult.fileSystemPath !== secondCallResult.fileSystemPath,
     ).toBeTruthy();
@@ -102,9 +100,8 @@ describe('getImageParts()', () => {
   it('empty tag is returned on malformed image name and tag with full repo', () => {
     const imageWithFullRepoAndManySeparators =
       'kind-registry:5000/nginx@abc:tag@bad:reallybad';
-    const imageWithFullRepoAndManySeparatorsResult = scannerImages.getImageParts(
-      imageWithFullRepoAndManySeparators,
-    );
+    const imageWithFullRepoAndManySeparatorsResult =
+      scannerImages.getImageParts(imageWithFullRepoAndManySeparators);
     expect(imageWithFullRepoAndManySeparatorsResult.imageTag).toEqual('');
   });
   describe('extracted image name tests', () => {

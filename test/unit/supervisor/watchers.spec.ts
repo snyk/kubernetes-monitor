@@ -45,7 +45,7 @@ describe('isExcludedNamespace() internal Kubernetes namespaces', () => {
     ['snyk-monitor'],
     ['egg'],
     [''],
-    [(undefined as unknown) as string],
+    [undefined as unknown as string],
   ])('isExcludedNamespace(%s) -> false', (input) => {
     expect(watchers.isExcludedNamespace(input)).toEqual(false);
   });
@@ -67,7 +67,7 @@ describe('isExcludedNamespace() openshift internal namespaces', () => {
     ['openshift-'],
     ['egg'],
     [''],
-    [(undefined as unknown) as string],
+    [undefined as unknown as string],
   ])('isExcludedNamespace(%s) -> false', (input) => {
     expect(watchers.isExcludedNamespace(input)).toEqual(false);
   });
@@ -95,7 +95,7 @@ describe('isExcludedNamespace() excluded namespaces from config', () => {
     });
   }
 
-  test.each([['kube-system']['egg'], [''], [(undefined as unknown) as string]])(
+  test.each([['kube-system']['egg'], [''], [undefined as unknown as string]])(
     'isExcludedNamespace(%s) -> false',
     (input) => {
       expect(watchers.isExcludedNamespace(input)).toEqual(false);

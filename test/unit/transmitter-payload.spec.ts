@@ -153,9 +153,8 @@ describe('transmitter payload tests', () => {
       podSpec: podSpecFixture,
     };
 
-    const workloadMetadataPayload = payload.constructWorkloadMetadata(
-      workloadWithImages,
-    );
+    const workloadMetadataPayload =
+      payload.constructWorkloadMetadata(workloadWithImages);
     expect(workloadMetadataPayload.workloadLocator).toEqual(
       expect.objectContaining<Partial<IWorkloadLocator>>({
         cluster: 'grapefruit',
@@ -191,9 +190,8 @@ describe('transmitter payload tests', () => {
       namespace: 'wl-namespace',
       type: 'wl-type',
     };
-    const deleteWorkloadPayload = payload.constructDeleteWorkload(
-      localWorkloadLocator,
-    );
+    const deleteWorkloadPayload =
+      payload.constructDeleteWorkload(localWorkloadLocator);
     expect(deleteWorkloadPayload).toEqual<IDeleteWorkloadPayload>({
       workloadLocator: expect.any(Object),
       agentId: expect.any(String),

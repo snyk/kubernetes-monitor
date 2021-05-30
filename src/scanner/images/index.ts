@@ -85,12 +85,15 @@ export async function removePulledImages(
 }
 
 // Exported for testing
-export function getImageParts(
-  imageWithTag: string,
-): { imageName: string; imageTag: string; imageDigest: string } {
+export function getImageParts(imageWithTag: string): {
+  imageName: string;
+  imageTag: string;
+  imageDigest: string;
+} {
   // we're matching pattern: <registry:port_number>(optional)/<image_name>(mandatory):<image_tag>(optional)@<tag_identifier>(optional)
   // extracted from https://github.com/docker/distribution/blob/master/reference/regexp.go
-  const regex = /^((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])(?:(?:\.(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]))+)?(?::[0-9]+)?\/)?[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?(?:(?:\/[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?)+)?)(?::([\w][\w.-]{0,127}))?(?:@([A-Za-z][A-Za-z0-9]*(?:[-_+.][A-Za-z][A-Za-z0-9]*)*[:][A-Fa-f0-9]{32,}))?$/gi;
+  const regex =
+    /^((?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])(?:(?:\.(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]))+)?(?::[0-9]+)?\/)?[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?(?:(?:\/[a-z0-9]+(?:(?:(?:[._]|__|[-]*)[a-z0-9]+)+)?)+)?)(?::([\w][\w.-]{0,127}))?(?:@([A-Za-z][A-Za-z0-9]*(?:[-_+.][A-Za-z][A-Za-z0-9]*)*[:][A-Fa-f0-9]{32,}))?$/gi;
   const groups = regex.exec(imageWithTag);
 
   if (!groups) {
@@ -208,11 +211,10 @@ async function getDependencyTreeFromPluginResponse(
   pluginResponse: PluginResponse,
   imageName: string,
 ): Promise<DependencyTree> {
-  const osDepGraph:
-    | DepGraph
-    | undefined = pluginResponse.scanResults[0].facts.find(
-    (fact) => fact.type === 'depGraph',
-  )?.data;
+  const osDepGraph: DepGraph | undefined =
+    pluginResponse.scanResults[0].facts.find(
+      (fact) => fact.type === 'depGraph',
+    )?.data;
 
   if (!osDepGraph) {
     throw new Error('Missing dependency graph');
@@ -222,9 +224,8 @@ async function getDependencyTreeFromPluginResponse(
     osDepGraph,
     osDepGraph.pkgManager.name,
   );
-  const osScanResultFacts = extractFactsFromDockerPluginResponse(
-    pluginResponse,
-  );
+  const osScanResultFacts =
+    extractFactsFromDockerPluginResponse(pluginResponse);
   const dockerDepTree = buildDockerPropertiesOnDepTree(
     depTree,
     osScanResultFacts,
