@@ -25,7 +25,6 @@ const existsAsync = promisify(exists);
  *   Error: Client network socket disconnected before secure TLS connection was established
  */
 import { state as kubernetesMonitorState } from '../../src/state';
-import { tmpdir } from 'os';
 
 async function tearDown() {
   console.log('Begin removing the snyk-monitor...');

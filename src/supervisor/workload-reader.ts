@@ -16,9 +16,10 @@ const deploymentReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
-  const deploymentResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () => k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
-  );
+  const deploymentResult =
+    await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+      k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
+    );
   const deployment = deploymentResult.body;
 
   if (
@@ -48,8 +49,8 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
-  const deploymentResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () =>
+  const deploymentResult =
+    await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.customObjectsClient.getNamespacedCustomObject(
         'apps.openshift.io',
         'v1',
@@ -57,7 +58,7 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
         'deploymentconfigs',
         workloadName,
       ),
-  );
+    );
   const deployment: V1DeploymentConfig = deploymentResult.body;
 
   if (
@@ -86,9 +87,10 @@ const replicaSetReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
-  const replicaSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () => k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
-  );
+  const replicaSetResult =
+    await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+      k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
+    );
   const replicaSet = replicaSetResult.body;
 
   if (
@@ -118,9 +120,10 @@ const statefulSetReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
-  const statefulSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () => k8sApi.appsClient.readNamespacedStatefulSet(workloadName, namespace),
-  );
+  const statefulSetResult =
+    await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+      k8sApi.appsClient.readNamespacedStatefulSet(workloadName, namespace),
+    );
   const statefulSet = statefulSetResult.body;
 
   if (
@@ -237,13 +240,13 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
-  const replicationControllerResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () =>
+  const replicationControllerResult =
+    await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.coreClient.readNamespacedReplicationController(
         workloadName,
         namespace,
       ),
-  );
+    );
   const replicationController = replicationControllerResult.body;
 
   if (

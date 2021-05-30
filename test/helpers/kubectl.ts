@@ -23,7 +23,6 @@ export async function downloadKubectl(version: string): Promise<void> {
 
   console.log(`Downloading kubectl ${version}...`);
 
-  // eslint-disable-next-line @typescript-eslint/camelcase
   const requestOptions = { follow_max: 2 };
   const k8sRelease =
     version === 'latest' ? await getLatestStableK8sRelease() : version;
