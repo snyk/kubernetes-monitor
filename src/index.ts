@@ -8,6 +8,7 @@ import { logger } from './common/logger';
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
 import { loadAndSendWorkloadEventsPolicy } from './common/policy';
+import { sendClusterMetadata } from './transmitter';
 
 process.on('uncaughtException', (err) => {
   if (state.shutdownInProgress) {
@@ -62,6 +63,7 @@ cleanUpTempStorage();
 
 // Allow running in an async context
 setImmediate(async function setUpAndMonitor(): Promise<void> {
+  await sendClusterMetadata();
   await loadAndSendWorkloadEventsPolicy();
   await monitor();
 });

@@ -15,7 +15,8 @@ import {
   IRequestError,
   ScanResultsPayload,
   IDependencyGraphPayload,
-  WorkloadEventsPolicyPayload,
+  IWorkloadEventsPolicyPayload,
+  IClusterMetadataPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
 
@@ -85,8 +86,7 @@ export async function sendScanResults(
 ): Promise<boolean> {
   for (const payload of payloads) {
     // Intentionally removing scan results as they would be too big to log
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { scanResults, ...payloadWithoutScanResults } = payload;
+    const payloadWithoutScanResults = { ...payload, scanResults: undefined };
     try {
       const request: HomebaseRequest = {
         method: 'post',
@@ -148,7 +148,7 @@ export async function sendWorkloadMetadata(
 }
 
 export async function sendWorkloadEventsPolicy(
-  payload: WorkloadEventsPolicyPayload,
+  payload: IWorkloadEventsPolicyPayload,
 ): Promise<void> {
   try {
     logger.info(
@@ -295,4 +295,54 @@ function shouldRetryRequest(
   }
 
   return false;
+}
+
+export async function sendClusterMetadata(): Promise<void> {
+  const payload: IClusterMetadataPayload = {
+    userLocator: config.INTEGRATION_ID,
+    cluster: config.CLUSTER_NAME,
+    agentId: config.AGENT_ID,
+    version: config.MONITOR_VERSION,
+    namespace: config.NAMESPACE,
+  };
+
+  try {
+    logger.info(
+      {
+        userLocator: payload.userLocator,
+        cluster: payload.cluster,
+        agentId: payload.agentId,
+      },
+      'attempting to send cluster metadata',
+    );
+
+    const { response, attempt } = await retryRequest(
+      'post',
+      `${upstreamUrl}/api/v1/cluster`,
+      payload,
+    );
+    if (!isSuccessStatusCode(response.statusCode)) {
+      throw new Error(`${response.statusCode} ${response.statusMessage}`);
+    }
+
+    logger.info(
+      {
+        userLocator: payload.userLocator,
+        cluster: payload.cluster,
+        agentId: payload.agentId,
+        attempt,
+      },
+      'cluster metadata sent upstream successfully',
+    );
+  } catch (error) {
+    logger.error(
+      {
+        error,
+        userLocator: payload.userLocator,
+        cluster: payload.cluster,
+        agentId: payload.agentId,
+      },
+      'could not send cluster metadata',
+    );
+  }
 }

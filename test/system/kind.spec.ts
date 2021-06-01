@@ -97,15 +97,37 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .times(1)
     .reply(
       200,
-      (uri, requestBody: transmitterTypes.WorkloadEventsPolicyPayload) => {
+      (uri, requestBody: transmitterTypes.IWorkloadEventsPolicyPayload) => {
         try {
           expect(
             requestBody,
-          ).toEqual<transmitterTypes.WorkloadEventsPolicyPayload>({
+          ).toEqual<transmitterTypes.IWorkloadEventsPolicyPayload>({
             agentId: expect.any(String),
             cluster: expect.any(String),
             userLocator: expect.any(String),
             policy: regoPolicyContents,
+          });
+        } catch (error) {
+          jestDoneCallback(error);
+        }
+      },
+    );
+
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/cluster')
+    .times(1)
+    .reply(
+      200,
+      (uri, requestBody: transmitterTypes.IClusterMetadataPayload) => {
+        try {
+          expect(requestBody).toEqual<
+            Partial<transmitterTypes.IClusterMetadataPayload>
+          >({
+            agentId: expect.any(String),
+            cluster: expect.any(String),
+            userLocator: expect.any(String),
+            // also should have version here but due to test limitation it is undefined
+            // as it is injected as an environment variable via the Helm chart
           });
         } catch (error) {
           jestDoneCallback(error);

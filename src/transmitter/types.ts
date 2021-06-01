@@ -63,11 +63,19 @@ export interface IDeleteWorkloadPayload {
   agentId: string;
 }
 
-export interface WorkloadEventsPolicyPayload {
+export interface IWorkloadEventsPolicyPayload {
   userLocator: string;
   cluster: string;
   agentId: string;
   policy: string;
+}
+
+export interface IClusterMetadataPayload {
+  userLocator: string;
+  cluster: string;
+  agentId: string;
+  version: string;
+  namespace?: string;
 }
 
 export interface IWorkload {
