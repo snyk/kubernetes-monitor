@@ -188,11 +188,18 @@ By default, `snyk-monitor` does not scan containers that are internal to Kuberne
 * `kube-system`
 * `local-path-storage`
 
-If you prefer to override this, you can add your own list of namespaces to exclude by setting the `excludedNamespaces` to your own list.
-For example:
+If you prefer to override this, you can add your own list of namespaces to exclude by setting the `excludedNamespaces` to your own list. For example:
 ```yaml
 --set excludedNamespaces={kube-node-lease,kube-public,local-path-storage,some_namespace}
 ```
+
+## Upgrading
+
+When upgrading the Snyk monitor, if you would like to reuse the last release's values and merge in any overrides from the command line via --set and -f, you can use the option `--reuse-values`. For example:
+```bash
+helm upgrade snyk-monitor snyk-charts/snyk-monitor --reuse-values
+```
+If '--reset-values' is specified, this is ignored.
 
 ## Terms and conditions ##
 
