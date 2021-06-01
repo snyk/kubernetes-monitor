@@ -49,6 +49,12 @@ spec:
                 name: snyk-monitor
                 key: namespace
                 optional: true
+          - name: SNYK_DEPLOYMENT_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: SNYK_DEPLOYMENT_NAME
+            value: snyk-monitor
           - name: SNYK_INTEGRATION_API
             valueFrom:
               configMapKeyRef:

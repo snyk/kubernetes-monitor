@@ -125,11 +125,6 @@ describe('transmitter payload tests', () => {
         type: 'type',
       }),
     );
-    expect(firstPayload.metadata).toEqual({
-      agentId: config.AGENT_ID,
-      namespace: 'b7',
-      version: '1.2.3',
-    });
 
     config.WATCH_NAMESPACE = backups.namespace;
     config.MONITOR_VERSION = backups.version;

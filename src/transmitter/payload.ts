@@ -9,7 +9,6 @@ import {
   IWorkloadMetadataPayload,
   IWorkloadMetadata,
   IWorkloadLocator,
-  IKubernetesMonitorMetadata,
   ScanResultsPayload,
   IDependencyGraphPayload,
   IWorkloadEventsPolicyPayload,
@@ -38,17 +37,10 @@ export function constructDepGraph(
       name,
     };
 
-    const monitorMetadata: IKubernetesMonitorMetadata = {
-      agentId: config.AGENT_ID,
-      namespace: config.WATCH_NAMESPACE,
-      version: config.MONITOR_VERSION,
-    };
-
     return {
       imageLocator,
       agentId: config.AGENT_ID,
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
-      metadata: monitorMetadata,
     };
   });
 
@@ -78,17 +70,10 @@ export function constructScanResults(
       name,
     };
 
-    const monitorMetadata: IKubernetesMonitorMetadata = {
-      agentId: config.AGENT_ID,
-      namespace: config.WATCH_NAMESPACE,
-      version: config.MONITOR_VERSION,
-    };
-
     return {
       imageLocator,
       agentId: config.AGENT_ID,
       scanResults: scannedImage.scanResults,
-      metadata: monitorMetadata,
     };
   });
 }

@@ -72,6 +72,12 @@ spec:
                 key: integrationId
           - name: SNYK_WATCH_NAMESPACE
             value: {{ include "snyk-monitor.scope" . }}
+          - name: SNYK_DEPLOYMENT_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: SNYK_DEPLOYMENT_NAME
+            value: {{ include "snyk-monitor.name" . }}
           - name: SNYK_INTEGRATION_API
             value: {{ .Values.integrationApi }}
           - name: SNYK_CLUSTER_NAME
