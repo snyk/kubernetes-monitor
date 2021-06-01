@@ -101,10 +101,10 @@ describe('transmitter payload tests', () => {
     // These values are populated at runtime (injected by the deployment) so we have to mock them
     // to make sure the function uses them to construct the payload (otherwise they are undefined).
     const backups = {
-      namespace: config.NAMESPACE,
+      namespace: config.WATCH_NAMESPACE,
       version: config.MONITOR_VERSION,
     };
-    config.NAMESPACE = 'b7';
+    config.WATCH_NAMESPACE = 'b7';
     config.MONITOR_VERSION = '1.2.3';
 
     const payloads = payload.constructScanResults(
@@ -131,7 +131,7 @@ describe('transmitter payload tests', () => {
       version: '1.2.3',
     });
 
-    config.NAMESPACE = backups.namespace;
+    config.WATCH_NAMESPACE = backups.namespace;
     config.MONITOR_VERSION = backups.version;
   });
 

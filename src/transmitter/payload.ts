@@ -40,7 +40,7 @@ export function constructDepGraph(
 
     const monitorMetadata: IKubernetesMonitorMetadata = {
       agentId: config.AGENT_ID,
-      namespace: config.NAMESPACE,
+      namespace: config.WATCH_NAMESPACE,
       version: config.MONITOR_VERSION,
     };
 
@@ -80,7 +80,7 @@ export function constructScanResults(
 
     const monitorMetadata: IKubernetesMonitorMetadata = {
       agentId: config.AGENT_ID,
-      namespace: config.NAMESPACE,
+      namespace: config.WATCH_NAMESPACE,
       version: config.MONITOR_VERSION,
     };
 

@@ -70,7 +70,7 @@ spec:
               secretKeyRef:
                 name: {{ .Values.monitorSecrets }}
                 key: integrationId
-          - name: SNYK_NAMESPACE
+          - name: SNYK_WATCH_NAMESPACE
             value: {{ include "snyk-monitor.scope" . }}
           - name: SNYK_INTEGRATION_API
             value: {{ .Values.integrationApi }}

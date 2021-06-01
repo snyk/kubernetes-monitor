@@ -43,7 +43,7 @@ spec:
               secretKeyRef:
                 name: snyk-monitor
                 key: integrationId
-          - name: SNYK_NAMESPACE
+          - name: SNYK_WATCH_NAMESPACE
             valueFrom:
               configMapKeyRef:
                 name: snyk-monitor
