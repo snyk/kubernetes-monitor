@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import * as aws from 'aws-sdk';
 
 import { logger } from '../../common/logger';
@@ -47,7 +48,7 @@ function getEcrCredentials(region: string): Promise<string> {
         );
       }
 
-      const buff = new Buffer(authorizationTokenBase64, 'base64');
+      const buff = Buffer.from(authorizationTokenBase64, 'base64');
       const userColonPassword = buff.toString('utf-8');
       return resolve(userColonPassword);
     });
