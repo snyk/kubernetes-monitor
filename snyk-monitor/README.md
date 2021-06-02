@@ -108,7 +108,7 @@ Proxying traffic through a forwarding proxy can be achieved by setting the follo
 
 For example:
 
-```bash
+```shell
 helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
   --namespace snyk-monitor \
   --set clusterName="Production cluster" \
@@ -121,7 +121,7 @@ Note that `snyk-monitor` does not proxy requests to the Kubernetes API server.
 
 Note that `snyk-monitor` does not support wildcards or CIDR addresses in `no_proxy` -- it will only look for exact matches. For example:
 
-```bash
+```shell
 # not ok:
 helm upgrade --install ... \
   --set no_proxy=*.example.local,*.other.global,192.168.0.0/16
@@ -140,7 +140,7 @@ To lower `snyk-monitor`'s logging verbosity `log_level` value could be set to on
 By default, `log_level` is `'INFO'`.
 
 For example
-```bash
+```shell
 helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
   --namespace snyk-monitor \
   --set clusterName="Production cluster" \
@@ -173,7 +173,7 @@ Using PodSecurityPolicies can be achieved by setting the following values in the
 * psp.name - default is empty. Leave it empty if you want us to install the necessary PodSecurityPolicy. Modify it to specify an existing PodSecurityPolicy rather than creating a new one.
 
 For example:
-```bash
+```shell
 helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
   --namespace snyk-monitor \
   --set clusterName="Production cluster" \
@@ -192,6 +192,11 @@ If you prefer to override this, you can add your own list of namespaces to exclu
 ```yaml
 --set excludedNamespaces={kube-node-lease,kube-public,local-path-storage,some_namespace}
 ```
+
+## Using custom CA certificate
+You can provide custom CA certificates to use for validating TLS connections by adding them to a ConfigMap named snyk-monitor-certs. These additional certificates are used when pulling images from container registries.
+
+If running Snyk on-prem, you can also use a custom CA certificate to validate the connection to kubernetes-upstream for sending scan results by providing the certificate under the following path in the ConfigMap: /srv/app/certs/ca.pem
 
 ## Upgrading
 
