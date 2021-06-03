@@ -34,14 +34,18 @@ function createTestYamlDeployment(
   );
   const deployment = parse(originalDeploymentYaml);
 
-  deployment.spec.template.spec.containers[0].image = imageNameAndTag;
-  deployment.spec.template.spec.containers[0].imagePullPolicy = imagePullPolicy;
+  const container = deployment.spec.template.spec.containers.find(
+    (container) => container.name === 'snyk-monitor',
+  );
+  container.image = imageNameAndTag;
+  container.imagePullPolicy = imagePullPolicy;
 
   // Inject the baseUrl of kubernetes-upstream that snyk-monitor container use to send metadata
-  deployment.spec.template.spec.containers[0].env[2] = {
-    name: 'SNYK_INTEGRATION_API',
-    value: 'https://kubernetes-upstream.dev.snyk.io',
-  };
+  const envVar = container.env.find(
+    (env) => env.name === 'SNYK_INTEGRATION_API',
+  );
+  envVar.value = 'https://kubernetes-upstream.dev.snyk.io';
+  delete envVar.valueFrom;
 
   writeFileSync(newYamlPath, stringify(deployment));
   console.log('Created YAML snyk-monitor deployment');
