@@ -91,6 +91,10 @@ log_level:
 
 nodeSelector: {}
 
+# Additional annotations for the snyk-monitor Deployment's Pod
+metadata:
+  annotations: {}
+
 psp:
   enabled: false
   name: ""
