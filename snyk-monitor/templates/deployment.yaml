@@ -21,6 +21,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
       serviceAccountName: {{ include "snyk-monitor.name" . }}
       restartPolicy: Always
