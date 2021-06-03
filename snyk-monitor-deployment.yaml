@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.59.3
+      - image: snyk/kubernetes-monitor:1.62.1
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -43,12 +43,18 @@ spec:
               secretKeyRef:
                 name: snyk-monitor
                 key: integrationId
-          - name: SNYK_NAMESPACE
+          - name: SNYK_WATCH_NAMESPACE
             valueFrom:
               configMapKeyRef:
                 name: snyk-monitor
                 key: namespace
                 optional: true
+          - name: SNYK_DEPLOYMENT_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: SNYK_DEPLOYMENT_NAME
+            value: snyk-monitor
           - name: SNYK_INTEGRATION_API
             valueFrom:
               configMapKeyRef:
@@ -62,7 +68,7 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.59.3
+            value: 1.62.1
           - name: HOME
             value: /srv/app
           - name: HTTP_PROXY
