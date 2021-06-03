@@ -12,7 +12,7 @@
           }
         },
         {
-          "name": "SNYK_NAMESPACE"
+          "name": "SNYK_WATCH_NAMESPACE"
         },
         {
           "name": "SNYK_INTEGRATION_API"

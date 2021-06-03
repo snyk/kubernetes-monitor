@@ -43,12 +43,18 @@ spec:
               secretKeyRef:
                 name: snyk-monitor
                 key: integrationId
-          - name: SNYK_NAMESPACE
+          - name: SNYK_WATCH_NAMESPACE
             valueFrom:
               configMapKeyRef:
                 name: snyk-monitor
                 key: namespace
                 optional: true
+          - name: SNYK_DEPLOYMENT_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: SNYK_DEPLOYMENT_NAME
+            value: snyk-monitor
           - name: SNYK_INTEGRATION_API
             valueFrom:
               configMapKeyRef:

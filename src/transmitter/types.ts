@@ -31,25 +31,16 @@ export interface IImageLocator extends IWorkloadLocator {
   imageWithDigest?: string;
 }
 
-export interface IKubernetesMonitorMetadata {
-  agentId: string;
-  version: string;
-  namespace?: string;
-}
-
 export interface IDependencyGraphPayload {
   imageLocator: IImageLocator;
   agentId: string;
   dependencyGraph?: string;
-  metadata: IKubernetesMonitorMetadata;
 }
 
 export interface ScanResultsPayload {
   imageLocator: IImageLocator;
   agentId: string;
   scanResults: ScanResult[];
-  /** @deprecated TODO: This should be sent in a separate API. */
-  metadata: IKubernetesMonitorMetadata;
 }
 
 export interface IWorkloadMetadataPayload {
@@ -63,11 +54,19 @@ export interface IDeleteWorkloadPayload {
   agentId: string;
 }
 
-export interface WorkloadEventsPolicyPayload {
+export interface IWorkloadEventsPolicyPayload {
   userLocator: string;
   cluster: string;
   agentId: string;
   policy: string;
+}
+
+export interface IClusterMetadataPayload {
+  userLocator: string;
+  cluster: string;
+  agentId: string;
+  version: string;
+  namespace?: string;
 }
 
 export interface IWorkload {

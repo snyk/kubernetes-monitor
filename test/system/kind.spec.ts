@@ -3,6 +3,7 @@ import * as nock from 'nock';
 import { copyFile, readFile, mkdir, exists } from 'fs';
 import { promisify } from 'util';
 import { resolve as resolvePath } from 'path';
+import { v4 as uuid } from 'uuid';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
@@ -25,6 +26,7 @@ const existsAsync = promisify(exists);
  *   Error: Client network socket disconnected before secure TLS connection was established
  */
 import { state as kubernetesMonitorState } from '../../src/state';
+import * as kubernetesApiWrappers from '../../src/supervisor/kuberenetes-api-wrappers';
 
 async function tearDown() {
   console.log('Begin removing the snyk-monitor...');
@@ -38,6 +40,8 @@ async function tearDown() {
 
 beforeAll(tearDown);
 afterAll(async () => {
+  jest.restoreAllMocks();
+
   kubernetesMonitorState.shutdownInProgress = true;
   await tearDown();
   // TODO cleanup the images we saved to /var/tmp?
@@ -47,6 +51,17 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
   const emptyDirSyncStub = jest
     .spyOn(fsExtra, 'emptyDirSync')
     .mockReturnValue({});
+
+  const agentId = uuid();
+  const retryKubernetesApiRequestMock = jest
+    .spyOn(kubernetesApiWrappers, 'retryKubernetesApiRequest')
+    .mockResolvedValueOnce({
+      body: {
+        metadata: {
+          uid: agentId,
+        },
+      },
+    });
 
   try {
     await exec('which skopeo');
@@ -97,15 +112,37 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .times(1)
     .reply(
       200,
-      (uri, requestBody: transmitterTypes.WorkloadEventsPolicyPayload) => {
+      (uri, requestBody: transmitterTypes.IWorkloadEventsPolicyPayload) => {
         try {
           expect(
             requestBody,
-          ).toEqual<transmitterTypes.WorkloadEventsPolicyPayload>({
-            agentId: expect.any(String),
+          ).toEqual<transmitterTypes.IWorkloadEventsPolicyPayload>({
+            agentId,
             cluster: expect.any(String),
             userLocator: expect.any(String),
             policy: regoPolicyContents,
+          });
+        } catch (error) {
+          jestDoneCallback(error);
+        }
+      },
+    );
+
+  nock('https://kubernetes-upstream.snyk.io')
+    .post('/api/v1/cluster')
+    .times(1)
+    .reply(
+      200,
+      (uri, requestBody: transmitterTypes.IClusterMetadataPayload) => {
+        try {
+          expect(requestBody).toEqual<
+            Partial<transmitterTypes.IClusterMetadataPayload>
+          >({
+            agentId,
+            cluster: expect.any(String),
+            userLocator: expect.any(String),
+            // also should have version here but due to test limitation it is undefined
+            // as it is injected as an environment variable via the Helm chart
           });
         } catch (error) {
           jestDoneCallback(error);
@@ -177,7 +214,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
                 ]),
               }),
             }),
-            agentId: expect.any(String),
+            agentId,
           });
         } catch (error) {
           jestDoneCallback(error);
@@ -208,8 +245,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .reply(500, (uri, requestBody: transmitterTypes.ScanResultsPayload) => {
       try {
         expect(requestBody).toEqual<transmitterTypes.ScanResultsPayload>({
-          metadata: expect.any(Object),
-          agentId: expect.any(String),
+          agentId,
           imageLocator: expect.objectContaining({
             imageId: expect.any(String),
           }),
@@ -255,7 +291,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
         try {
           expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>(
             {
-              agentId: expect.any(String),
+              agentId,
               dependencyGraph: expect.stringContaining('docker-image|java'),
               imageLocator: {
                 userLocator: expect.any(String),
@@ -266,11 +302,10 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
                 type: expect.any(String),
                 imageWithDigest: expect.any(String),
               },
-              metadata: expect.objectContaining({
-                agentId: expect.any(String),
-              }),
             },
           );
+
+          expect(retryKubernetesApiRequestMock).toHaveBeenCalled();
           jestDoneCallback();
         } catch (error) {
           jestDoneCallback(error);

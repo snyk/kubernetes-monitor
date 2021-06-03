@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "snyk-monitor.name" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
+    helm.sh/chart: {{ include "snyk-monitor.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+  - Ingress
+  - Egress
+  # Ingress is denied hence there is no "ingress" block.
+  # Egress is allowed for any traffic.
+  egress:
+  - {}

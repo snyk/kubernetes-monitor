@@ -8,6 +8,8 @@ import { logger } from './common/logger';
 import { currentClusterName } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
 import { loadAndSendWorkloadEventsPolicy } from './common/policy';
+import { sendClusterMetadata } from './transmitter';
+import { setSnykMonitorAgentId } from './supervisor/agent';
 
 process.on('uncaughtException', (err) => {
   if (state.shutdownInProgress) {
@@ -62,6 +64,8 @@ cleanUpTempStorage();
 
 // Allow running in an async context
 setImmediate(async function setUpAndMonitor(): Promise<void> {
+  await setSnykMonitorAgentId();
+  await sendClusterMetadata();
   await loadAndSendWorkloadEventsPolicy();
   await monitor();
 });

@@ -116,12 +116,12 @@ async function setupWatchesForCluster(): Promise<void> {
 }
 
 export async function beginWatchingWorkloads(): Promise<void> {
-  if (config.NAMESPACE) {
+  if (config.WATCH_NAMESPACE) {
     logger.info(
-      { namespace: config.NAMESPACE },
+      { namespace: config.WATCH_NAMESPACE },
       'kubernetes-monitor restricted to specific namespace',
     );
-    await setupWatchesForNamespace(config.NAMESPACE);
+    await setupWatchesForNamespace(config.WATCH_NAMESPACE);
     return;
   }
 

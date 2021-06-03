@@ -9,10 +9,9 @@ import {
   IWorkloadMetadataPayload,
   IWorkloadMetadata,
   IWorkloadLocator,
-  IKubernetesMonitorMetadata,
   ScanResultsPayload,
   IDependencyGraphPayload,
-  WorkloadEventsPolicyPayload,
+  IWorkloadEventsPolicyPayload,
 } from './types';
 
 export function constructDepGraph(
@@ -38,17 +37,10 @@ export function constructDepGraph(
       name,
     };
 
-    const monitorMetadata: IKubernetesMonitorMetadata = {
-      agentId: config.AGENT_ID,
-      namespace: config.NAMESPACE,
-      version: config.MONITOR_VERSION,
-    };
-
     return {
       imageLocator,
       agentId: config.AGENT_ID,
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
-      metadata: monitorMetadata,
     };
   });
 
@@ -78,17 +70,10 @@ export function constructScanResults(
       name,
     };
 
-    const monitorMetadata: IKubernetesMonitorMetadata = {
-      agentId: config.AGENT_ID,
-      namespace: config.NAMESPACE,
-      version: config.MONITOR_VERSION,
-    };
-
     return {
       imageLocator,
       agentId: config.AGENT_ID,
       scanResults: scannedImage.scanResults,
-      metadata: monitorMetadata,
     };
   });
 }
@@ -135,7 +120,7 @@ export function constructDeleteWorkload(
 
 export function constructWorkloadEventsPolicy(
   policy: string,
-): WorkloadEventsPolicyPayload {
+): IWorkloadEventsPolicyPayload {
   return {
     policy,
     userLocator: config.INTEGRATION_ID,

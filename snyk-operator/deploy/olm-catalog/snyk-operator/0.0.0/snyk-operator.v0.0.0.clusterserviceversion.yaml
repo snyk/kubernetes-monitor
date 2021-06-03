@@ -227,6 +227,12 @@ spec:
                 - deploymentconfigs
               verbs:
                 - "*"
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - networkpolicies
+              verbs:
+                - "*"
           serviceAccountName: snyk-operator
       deployments:
         - name: snyk-operator
@@ -263,6 +269,14 @@ spec:
                       limits:
                         cpu: "500m"
                         memory: "500Mi"
+                    livenessProbe:
+                      exec:
+                        command:
+                        - "true"
+                    readinessProbe:
+                      exec:
+                        command:
+                        - "true"
                     securityContext:
                       privileged: false
                       runAsNonRoot: true
