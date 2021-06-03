@@ -227,6 +227,12 @@ spec:
                 - deploymentconfigs
               verbs:
                 - "*"
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - networkpolicies
+              verbs:
+                - "*"
           serviceAccountName: snyk-operator
       deployments:
         - name: snyk-operator
