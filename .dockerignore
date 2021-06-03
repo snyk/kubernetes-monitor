@@ -46,6 +46,7 @@ opm
 .operator_version
 snyk-monitor-operator-source.yaml
 snyk-monitor-catalog-source.yaml
+scc.txt
 
 # Linting and formatting
 .eslintrc.json

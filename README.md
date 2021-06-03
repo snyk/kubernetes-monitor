@@ -9,8 +9,17 @@ Container to monitor Kubernetes clusters' security
 
 ## Prerequisites ##
 
-* 50 GB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
-* External internet access from the Kubernetes cluster.
+* 50 GiB of storage in the form of [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
+* External internet access from the Kubernetes cluster, specifically to `kubernetes-upstream.snyk.io`.
+* 1 CPU, 2 GiB RAM
+* 1 Kubernetes worker node of type `linux/amd64` - supported and tested only on the AMD64 CPU architecture
+
+Supported Kubernetes distributions:
+
+* Any Kubernetes Certified distribution, for example: GKE, AKS, EKS, OCP.
+* OCP 4.1+ if running on OpenShift - supported and tested on Generally Available versions
+
+Tested with the following [Security Context Constraint](scc.txt) on OCP.
 
 ## Installing ##
 
@@ -116,6 +125,12 @@ Finally, to launch the Snyk monitor in your cluster, run the following:
 ```shell
 kubectl apply -f snyk-monitor-deployment.yaml
 ```
+
+## Upgrades ##
+
+You can apply the latest version of the YAML installation files to upgrade.
+
+If running with Operator Lifecycle Manager (OLM) then OLM will handle upgrades for you when you request to install the latest version. This applies to OpenShift (OCP) and regular installations of OLM.
 
 ## Setting up proxying ##
 

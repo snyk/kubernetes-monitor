@@ -106,6 +106,14 @@ spec:
             limits:
               cpu: {{ .Values.limits.cpu }}
               memory: {{ .Values.limits.memory }}
+          livenessProbe:
+            exec:
+              command:
+              - "true"
+          readinessProbe:
+            exec:
+              command:
+              - "true"
           securityContext:
             privileged: false
             runAsNonRoot: true
