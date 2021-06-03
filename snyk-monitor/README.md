@@ -98,6 +98,12 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-mo
 To better organise the data scanned inside your cluster, the monitor requires a cluster name to be set.
 Replace the value of `clusterName` with the name of your cluster.
 
+## Upgrades ##
+
+You can apply the latest version of the YAML installation files to upgrade.
+
+If running with Operator Lifecycle Manager (OLM) then OLM will handle upgrades for you when you request to install the latest version. This applies to OpenShift (OCP) and regular installations of OLM.
+
 ## Setting up proxying ##
 
 Proxying traffic through a forwarding proxy can be achieved by setting the following values in the Helm chart:

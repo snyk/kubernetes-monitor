@@ -124,6 +124,12 @@ Finally, to launch the Snyk monitor in your cluster, run the following:
 kubectl apply -f snyk-monitor-deployment.yaml
 ```
 
+## Upgrades ##
+
+You can apply the latest version of the YAML installation files to upgrade.
+
+If running with Operator Lifecycle Manager (OLM) then OLM will handle upgrades for you when you request to install the latest version. This applies to OpenShift (OCP) and regular installations of OLM.
+
 ## Setting up proxying ##
 
 Proxying traffic through a forwarding proxy can be achieved by modifying the `snyk-monitor-cluster-permissions.yaml` or `snyk-monitor-namespaced-permissions.yaml` (depending on which one was applied) and setting the following variables in the `ConfigMap`:
