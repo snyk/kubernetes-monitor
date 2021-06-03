@@ -21,6 +21,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- with .Values.metadata.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ include "snyk-monitor.name" . }}
       restartPolicy: Always

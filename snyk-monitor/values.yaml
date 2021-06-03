@@ -11,7 +11,7 @@ registriesConfConfigMap: snyk-monitor-registries-conf
 # The ConfigMap to use for loading policies into snyk-monitor.
 workloadPoliciesMap: snyk-monitor-workload-policies
 # A list of Snyk Organization public IDs to let snyk-monitor know in which Organization to auto-import and auto-delete scanned images.
-policyOrgs:
+policyOrgs: ""
 
 # One of: Cluster, Namespaced
 # Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
@@ -90,6 +90,10 @@ skip_k8s_jobs:
 log_level:
 
 nodeSelector: {}
+
+# Additional annotations for the Kubernetes Deployment
+metadata:
+  annotations: {}
 
 psp:
   enabled: false
