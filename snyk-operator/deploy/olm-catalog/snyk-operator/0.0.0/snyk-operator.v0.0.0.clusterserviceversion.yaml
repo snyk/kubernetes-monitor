@@ -263,6 +263,14 @@ spec:
                       limits:
                         cpu: "500m"
                         memory: "500Mi"
+                    livenessProbe:
+                      exec:
+                        command:
+                        - "true"
+                    readinessProbe:
+                      exec:
+                        command:
+                        - "true"
                     securityContext:
                       privileged: false
                       runAsNonRoot: true
