@@ -3,6 +3,11 @@ apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   name: {{ include "snyk-monitor.name" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
+    helm.sh/chart: {{ include "snyk-monitor.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   allowPrivilegeEscalation: false
   requiredDropCapabilities:
