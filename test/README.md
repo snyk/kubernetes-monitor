@@ -5,6 +5,7 @@
 - [Integration tests](#integration-tests)
   - [KinD](#kind)
   - [EKS](#eks)
+  - [AKS](#aks)
   - [OpenShift 4](#openshift-4)
   - [KinD with OLM](#kind-with-olm)
 - [Debugging with Tilt](#debugging-with-tilt)
@@ -49,7 +50,7 @@ All integration tests require the Kubernetes-Monitor to be built into an image o
 The easiest way to achieve it is by running the `scripts/docker/build-image.sh` script.
 Please note that `docker` needs to be installed in order for this script to succeed.
 
-As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `GCR_IO_DOCKERCFG`, `DOCKER_HUB_RO_USERNAME`, `DOCKER_HUB_RO_PASSWORD`.
+As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `GCR_IO_DOCKERCFG`, `PRIVATE_REGISTRIES_DOCKERCFG`, `DOCKER_HUB_RO_USERNAME`, `DOCKER_HUB_RO_PASSWORD`.
 
 Our integration tests may use different Kubernetes platforms to host the Kubernetes-Monitor. These platforms may use an existing cluster, or create a new one. Both decisions are based on the environment variables:
 * `TEST_PLATFORM` (`kind`, `kindolm`, `eks`)
@@ -83,6 +84,19 @@ This test uses an existing Amazon account with an existing EKS cluster, and as s
 This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
 
 Run with `npm run test:integration:eks`.
+
+### AKS ###
+
+AKS is Azure's Kubernetes platform and helps us ensure we support not only the generic Kubernetes API, but also specifically AKS.
+
+This test uses an existing Azure account with an existing AKS cluster, and as such has a few more prerequisites:
+- `pip` is used to ensure the `az` CLI is installed and up to date. `az` is then used to generate a `kubeconfig` file to access the AKS cluster, as well as credentials to ACR.
+- AZ environment variables: `AZ_SP_APP_ID`, `AZ_SP_TENANT`, `AZ_SP_PASSWORD`, `AZ_ACR_REGISTRY`, `AZ_SUBSCRIPTION`, `AZ_RESOURCE_NAME`, `AZ_RESOURCE_GROUP` are used to authenticate against the Azure account.
+- `docker` is used to push the Kubernetes-Monitor's image to ACR.
+
+This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
+
+Run with `npm run test:integration:aks:yaml`.
 
 ### OpenShift 4 ###
 

@@ -32,6 +32,35 @@ commands:
                     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
                     echo 'nvm use 16' >> $BASH_ENV
 jobs:
+    aks_integration_tests:
+        machine:
+            docker_layer_caching: true
+            enabled: true
+            image: ubuntu-2004:202010-01
+        steps:
+            - checkout
+            - install_python_requests
+            - azure-cli/install
+            - run:
+                command: mkdir -p /tmp/logs/test/integration/aks
+                name: Create temp dir for logs
+            - run:
+                command: |
+                    export NVM_DIR="/opt/circleci/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm install v16
+                    npm install
+                    export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
+                name: Integration tests AKS
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+            - store_artifacts:
+                path: /tmp/logs/test/integration/aks
+        working_directory: ~/kubernetes-monitor
     build_and_upload_operator:
         docker:
             - auth:
@@ -849,6 +878,7 @@ master_branch_only_filter:
             only:
                 - master
 orbs:
+    azure-cli: circleci/azure-cli@1.0.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
 staging_branch_only_filter:
     filters:
@@ -944,6 +974,13 @@ workflows:
                 requires:
                     - build_image
             - eks_integration_tests:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - build_image
+            - aks_integration_tests:
                 filters:
                     branches:
                         only:
