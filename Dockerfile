@@ -13,7 +13,7 @@ RUN cd $GOPATH/src/github.com/containers/skopeo \
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi8/ubi:8.3
+FROM registry.access.redhat.com/ubi8/ubi:8.4
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
