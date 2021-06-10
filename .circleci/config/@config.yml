@@ -144,11 +144,15 @@ workflows:
           <<: *master_branch_only_filter
           requires:
             - hold
+      - sync_community_operators_with_snyk_fork:
+          <<: *master_branch_only_filter
+          requires:
+            - operator_upgrade_tests
       - push_operator_to_community_operators:
           <<: *master_branch_only_filter
           requires:
-            - operator_upgrade_tests
+            - sync_community_operators_with_snyk_fork
       - push_operator_to_upstream_community_operators:
           <<: *master_branch_only_filter
           requires:
-            - operator_upgrade_tests
+            - sync_community_operators_with_snyk_fork

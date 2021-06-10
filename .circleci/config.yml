@@ -759,6 +759,38 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
+    sync_community_operators_with_snyk_fork:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/python:3.9.5
+        steps:
+            - checkout
+            - install_python_requests
+            - add_ssh_keys:
+                fingerprints:
+                    - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
+            - run:
+                command: |
+                    CURRENT_DIRECTORY=$(pwd)
+                    COMMUNITY_FOLDER_LOCATION="${CURRENT_DIRECTORY}/community-operators"
+
+                    # Clone Community Operators repo from Snyk
+                    git clone https://github.com/snyk/community-operators.git "${COMMUNITY_FOLDER_LOCATION}"
+                    cd "${COMMUNITY_FOLDER_LOCATION}"
+
+                    # Sync snyk/community-operators repo from operator-framework/community-operators repo
+                    git remote add upstream https://github.com/operator-framework/community-operators.git
+                    git fetch upstream
+                    git merge upstream/master
+                    git push origin master
+                name: Sync operator-framework/community-operators with snyk/community-operators
+            - run:
+                command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
     system_tests:
         machine:
             docker_layer_caching: true
@@ -872,20 +904,27 @@ workflows:
                             - master
                 requires:
                     - hold
+            - sync_community_operators_with_snyk_fork:
+                filters:
+                    branches:
+                        only:
+                            - master
+                requires:
+                    - operator_upgrade_tests
             - push_operator_to_community_operators:
                 filters:
                     branches:
                         only:
                             - master
                 requires:
-                    - operator_upgrade_tests
+                    - sync_community_operators_with_snyk_fork
             - push_operator_to_upstream_community_operators:
                 filters:
                     branches:
                         only:
                             - master
                 requires:
-                    - operator_upgrade_tests
+                    - sync_community_operators_with_snyk_fork
     MERGE_TO_MASTER:
         jobs:
             - publish:
