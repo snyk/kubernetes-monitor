@@ -1,0 +1,31 @@
+docker:
+  - image: cimg/python:3.9.5
+    auth:
+      username: $DOCKERHUB_USER
+      password: $DOCKERHUB_PASSWORD
+working_directory: ~/kubernetes-monitor
+steps:
+  - checkout
+  - install_python_requests
+  - add_ssh_keys:
+      fingerprints:
+        - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
+  - run:
+      name: Sync operator-framework/community-operators with snyk/community-operators
+      command: |
+        CURRENT_DIRECTORY=$(pwd)
+        COMMUNITY_FOLDER_LOCATION="${CURRENT_DIRECTORY}/community-operators"
+
+        # Clone Community Operators repo from Snyk
+        git clone https://github.com/snyk/community-operators.git "${COMMUNITY_FOLDER_LOCATION}"
+        cd "${COMMUNITY_FOLDER_LOCATION}"
+
+        # Sync snyk/community-operators repo from operator-framework/community-operators repo
+        git remote add upstream https://github.com/operator-framework/community-operators.git
+        git fetch upstream
+        git merge upstream/master
+        git push origin master
+  - run:
+      name: Notify Slack on failure
+      command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+      when: on_fail

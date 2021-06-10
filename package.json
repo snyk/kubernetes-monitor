@@ -28,7 +28,9 @@
     "build": "tsc",
     "dev": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect .'",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect-brk .'",
-    "lint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")",
+    "lint": "npm run lint:commits && npm run lint:eslint",
+    "lint:eslint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")",
+    "lint:commits": "commitlint --from=HEAD~5",
     "format": "prettier --write '{src,test}/**/*.{js,ts,json,yml}'",
     "format:check": "prettier --check '{src,test}/**/*.{js,ts,json,yml}'"
   },
@@ -52,6 +54,7 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
     "@types/async": "^3.2.5",
     "@types/child-process-promise": "^2.2.1",
     "@types/jest": "^26.0.21",

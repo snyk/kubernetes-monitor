@@ -52,6 +52,7 @@ scc.txt
 .eslintrc.json
 .prettierignore
 .prettierrc.json
+.commitlintrc.json
 
 # Version control
 .tool-versions

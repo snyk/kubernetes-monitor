@@ -30,12 +30,6 @@ git config --global user.name "${OPENSHIFT_OPERATOR_GITHUB_NAME}"
 git clone https://github.com/snyk/community-operators.git $COMMUNITY_OPERATORS_UPSTREAM_LOCATION
 cd "${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}"
 
-# Sync snyk/community-operators repo from operator-framework/community-operators repo
-git remote add upstream https://github.com/operator-framework/community-operators.git
-git fetch upstream
-git merge upstream/master
-git push origin master
-
 # Checkout branch for new snyk-operator version on community folder
 git checkout -b snyk/${COMMUNITY_FOLDER_LOCATION}/snyk-operator-v${NEW_OPERATOR_VERSION}
 
