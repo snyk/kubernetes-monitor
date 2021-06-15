@@ -1,6 +1,7 @@
 import * as kind from './kind';
 import * as kindOlm from './kind-olm';
 import * as eks from './eks';
+import * as aks from './aks';
 import * as openshift3 from './openshift3';
 import * as openshift4 from './openshift4';
 
@@ -51,6 +52,16 @@ const eksSetup: IPlatformSetup = {
   validateRequiredEnvironment: eks.validateRequiredEnvironment,
 };
 
+const aksSetup: IPlatformSetup = {
+  create: aks.createCluster,
+  loadImage: aks.loadImageInCluster,
+  delete: aks.deleteCluster,
+  config: aks.exportKubeConfig,
+  clean: aks.clean,
+  setupTester: aks.setupTester,
+  validateRequiredEnvironment: aks.validateRequiredEnvironment,
+};
+
 // Use a kind cluster pinned to a specific Kubernetes version to mimic OS3.
 const openshift3Setup: IPlatformSetup = {
   create: kind.createCluster,
@@ -85,6 +96,7 @@ export default {
   kind: kindSetup,
   kindolm: kindOlmSetup,
   eks: eksSetup,
+  aks: aksSetup,
   openshift3: openshift3Setup,
   openshift4: openshift4Setup,
 } as {

@@ -90,7 +90,7 @@ async function predeploy(
     } catch (error) {
       console.log(`Namespace ${namespace} already exist`);
     }
-    const gcrDockercfg = process.env['GCR_IO_DOCKERCFG'] || '{}';
+    const gcrDockercfg = process.env['PRIVATE_REGISTRIES_DOCKERCFG'] || '{}';
     await kubectl.createSecret(secretName, namespace, {
       'dockercfg.json': gcrDockercfg,
       integrationId,

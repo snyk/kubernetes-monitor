@@ -20,6 +20,7 @@
     "test:integration:kind:proxy": "DEPLOYMENT_TYPE=Proxy TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:kindolm:operator": "DEPLOYMENT_TYPE=OperatorOLM TEST_PLATFORM=kindolm CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:eks:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=eks CREATE_CLUSTER=false jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
+    "test:integration:aks:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=aks CREATE_CLUSTER=false jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:openshift3:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=openshift3 CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:openshift4:operator": "scripts/test-openshift4.sh",
     "test:coverage": "npm run test:unit -- --coverage",

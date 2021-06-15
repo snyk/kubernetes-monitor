@@ -69,6 +69,10 @@ workflows:
           requires:
             - build_image
           <<: *staging_branch_only_filter
+      - aks_integration_tests:
+          requires:
+            - build_image
+          <<: *staging_branch_only_filter
       - openshift3_integration_tests:
           requires:
             - build_image

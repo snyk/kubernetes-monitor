@@ -264,6 +264,37 @@ eks_integration_tests:
     - store_artifacts:
         path: /tmp/logs/test/integration/eks
 
+aks_integration_tests:
+  machine:
+    image: ubuntu-2004:202010-01
+    enabled: true
+    docker_layer_caching: true
+  working_directory: ~/kubernetes-monitor
+  steps:
+    - checkout
+    - install_python_requests
+    - azure-cli/install
+    - run:
+        name: Create temp dir for logs
+        command: mkdir -p /tmp/logs/test/integration/aks
+    - run:
+        name: Integration tests AKS
+        # WARNING! Do not use the step "setup_node16" here - the call to "nvm use 16" breaks the tests!
+        command: |
+          export NVM_DIR="/opt/circleci/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install v16
+          npm install
+          export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
+          .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
+    - run:
+        name: Notify Slack on failure
+        command: |
+          ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+        when: on_fail
+    - store_artifacts:
+        path: /tmp/logs/test/integration/aks
+
 openshift3_integration_tests:
   machine:
     image: ubuntu-2004:202010-01
