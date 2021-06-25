@@ -102,6 +102,12 @@ Replace the value of `clusterName` with the name of your cluster.
 
 You can apply the latest version of the YAML installation files to upgrade.
 
+If you would like to reuse the last release's values and merge in any overrides from the command line via --set and -f, you can use the option `--reuse-values`. For example:
+```bash
+helm upgrade snyk-monitor snyk-charts/snyk-monitor --reuse-values
+```
+If '--reset-values' is specified, this is ignored.
+
 If running with Operator Lifecycle Manager (OLM) then OLM will handle upgrades for you when you request to install the latest version. This applies to OpenShift (OCP) and regular installations of OLM.
 
 ## Setting up proxying ##
@@ -203,14 +209,6 @@ If you prefer to override this, you can add your own list of namespaces to exclu
 You can provide custom CA certificates to use for validating TLS connections by adding them to a ConfigMap named snyk-monitor-certs. These additional certificates are used when pulling images from container registries.
 
 If running Snyk on-prem, you can also use a custom CA certificate to validate the connection to kubernetes-upstream for sending scan results by providing the certificate under the following path in the ConfigMap: /srv/app/certs/ca.pem
-
-## Upgrading
-
-When upgrading the Snyk monitor, if you would like to reuse the last release's values and merge in any overrides from the command line via --set and -f, you can use the option `--reuse-values`. For example:
-```bash
-helm upgrade snyk-monitor snyk-charts/snyk-monitor --reuse-values
-```
-If '--reset-values' is specified, this is ignored.
 
 ## Terms and conditions ##
 
