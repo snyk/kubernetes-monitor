@@ -8,10 +8,17 @@ monitorSecrets: snyk-monitor
 certsConfigMap: snyk-monitor-certs
 registriesConfConfigMap: snyk-monitor-registries-conf
 
-# The ConfigMap to use for loading policies into snyk-monitor.
-workloadPoliciesMap: snyk-monitor-workload-policies
+# An external ConfigMap to use for loading policies into snyk-monitor.
+# If not set, defaultWorkloadPoliciesMap will be used.
+workloadPoliciesMap: ""
+
 # A list of Snyk Organization public IDs to let snyk-monitor know in which Organization to auto-import and auto-delete scanned images.
-policyOrgs:
+# This is used to populate the default workload policy file.
+policyOrgs: []
+
+# Default rego workload policies to install.
+# Setting `workloadPoliciesMap` will overwrite this.
+defaultWorkloadPoliciesMap: snyk-monitor-workload-policies
 
 # One of: Cluster, Namespaced
 # Cluster - creates a ClusterRole and ClusterRoleBinding with the ServiceAccount
