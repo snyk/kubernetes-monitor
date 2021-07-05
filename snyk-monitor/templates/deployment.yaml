@@ -43,7 +43,7 @@ spec:
       initContainers:
         - name: volume-permissions
           image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
-          command : ['sh', '-c', 'chmod -R go+rwX /var/tmp || true']
+          command: ['sh', '-c', 'chmod -R go+rwX /var/tmp || true']
           volumeMounts:
             - name: temporary-storage
               mountPath: "/var/tmp"
