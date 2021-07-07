@@ -98,7 +98,7 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-mo
 To better organise the data scanned inside your cluster, the monitor requires a cluster name to be set.
 Replace the value of `clusterName` with the name of your cluster.
 
-**Please note that we cannot process cluster names that include `/`. The workloads will not be imported.**
+**Please note that `/` in cluster name is disallowed. Any `/` in cluster names will be removed.**
 
 ## Upgrades ##
 
