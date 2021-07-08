@@ -18,11 +18,27 @@ function loadExcludedNamespaces(): string[] | null {
   }
 }
 
+function getClusterName(): string {
+  if (!config.CLUSTER_NAME) {
+    return 'Default cluster';
+  }
+
+  if (config.CLUSTER_NAME.includes('/')) {
+    // logger is not yet created so defaulting to console.log
+    console.log(
+      `removing disallowed character "/" from clusterName (${config.CLUSTER_NAME})`,
+    );
+    return config.CLUSTER_NAME.replace(/\//g, '');
+  }
+
+  return config.CLUSTER_NAME;
+}
+
 // NOTE: The agent identifier is replaced with a stable identifier once snyk-monitor starts up
 config.AGENT_ID = uuidv4();
 
 config.INTEGRATION_ID = config.INTEGRATION_ID.trim();
-config.CLUSTER_NAME = config.CLUSTER_NAME || 'Default cluster';
+config.CLUSTER_NAME = getClusterName();
 config.IMAGE_STORAGE_ROOT = '/var/tmp';
 config.POLICIES_STORAGE_ROOT = '/tmp/policies';
 config.EXCLUDED_NAMESPACES = loadExcludedNamespaces();
