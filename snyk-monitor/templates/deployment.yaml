@@ -166,7 +166,11 @@ spec:
             optional: true
         - name: workload-policies
           configMap:
+            {{- if .Values.workloadPoliciesMap }}
             name: {{ .Values.workloadPoliciesMap }}
+            {{- else }}
+            name: {{ .Values.defaultWorkloadPoliciesMap }}
+            {{- end }}
             optional: true
         - name: registries-conf
           configMap:
