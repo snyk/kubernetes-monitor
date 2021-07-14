@@ -33,5 +33,9 @@ spec:
   volumes:
     - secret
     - configMap
+    {{- if .Values.pvc.enabled }}
+    - persistentVolumeClaim
+    {{- else }}
     - emptyDir
+    {{- end }}
 {{- end }}{{- end }}
