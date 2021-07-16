@@ -1,3 +1,4 @@
+import { V1Namespace } from '@kubernetes/client-node';
 import * as LruCache from 'lru-cache';
 
 import { config } from './common/config';
@@ -26,6 +27,7 @@ const state = {
   workloadsAlreadyScanned: new LruCache<string, string>(
     workloadsLruCacheOptions,
   ),
+  watchedNamespaces: {} as Record<string, V1Namespace>,
 };
 
 export { state };
