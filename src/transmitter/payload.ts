@@ -13,6 +13,7 @@ import {
   IDependencyGraphPayload,
   IWorkloadEventsPolicyPayload,
 } from './types';
+import { state } from '../state';
 
 export function constructDepGraph(
   scannedImages: IScanResult[],
@@ -99,6 +100,8 @@ export function constructWorkloadMetadata(
     specLabels: workload.specLabels,
     annotations: workload.annotations,
     specAnnotations: workload.specAnnotations,
+    namespaceAnnotations:
+      state.watchedNamespaces[workload.namespace]?.metadata?.annotations,
     revision: workload.revision,
     podSpec: workload.podSpec,
   };
