@@ -12,22 +12,18 @@ import {
   kubernetesInternalNamespaces,
   openshiftInternalNamespaces,
 } from './internal-namespaces';
+import { state } from '../../state';
 
-/**
- * This map keeps track of all currently watched namespaces.
- * Prevents duplicate watches being created if the same namespace is deleted
- * and then re-created. Once a watch is set up once, it doesn't have to be
- * tracked anymore as the kubernetes-client Informer API handles this internally.
- */
-const watchedNamespaces = new Set<string>();
+async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
+  const namespaceName = extractNamespaceName(namespace);
 
-async function setupWatchesForNamespace(namespace: string): Promise<void> {
-  if (watchedNamespaces.has(namespace)) {
+  if (state.watchedNamespaces[namespaceName] !== undefined) {
     logger.info({ namespace }, 'already set up namespace watch, skipping');
     return;
   }
+  state.watchedNamespaces[namespaceName] = namespace;
 
-  logger.info({ namespace }, 'setting up namespace watch');
+  logger.info({ namespace: namespaceName }, 'setting up namespace watch');
 
   for (const workloadKind of Object.values(WorkloadKind)) {
     // Disable handling events for k8s Jobs for debug purposes
@@ -36,7 +32,7 @@ async function setupWatchesForNamespace(namespace: string): Promise<void> {
     }
 
     try {
-      await setupInformer(namespace, workloadKind);
+      await setupInformer(namespaceName, workloadKind);
     } catch (error) {
       logger.warn(
         { namespace, workloadKind },
@@ -44,8 +40,6 @@ async function setupWatchesForNamespace(namespace: string): Promise<void> {
       );
     }
   }
-
-  watchedNamespaces.add(namespace);
 }
 
 export function extractNamespaceName(namespace: V1Namespace): string {
@@ -105,7 +99,7 @@ async function setupWatchesForCluster(): Promise<void> {
         return;
       }
 
-      await setupWatchesForNamespace(namespaceName);
+      await setupWatchesForNamespace(namespace);
     } catch (err) {
       logger.error({ err, namespace }, 'error handling a namespace event');
       return;
@@ -121,7 +115,11 @@ export async function beginWatchingWorkloads(): Promise<void> {
       { namespace: config.WATCH_NAMESPACE },
       'kubernetes-monitor restricted to specific namespace',
     );
-    await setupWatchesForNamespace(config.WATCH_NAMESPACE);
+    const namespaceResponse = await k8sApi.coreClient.readNamespace(
+      config.WATCH_NAMESPACE,
+    );
+    const namespace = namespaceResponse.body;
+    await setupWatchesForNamespace(namespace);
     return;
   }
 

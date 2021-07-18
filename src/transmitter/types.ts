@@ -22,6 +22,7 @@ export interface IWorkloadMetadata {
   specLabels: StringMap | undefined;
   annotations: StringMap | undefined;
   specAnnotations: StringMap | undefined;
+  namespaceAnnotations: StringMap | undefined;
   revision: number | undefined;
   podSpec: V1PodSpec;
 }
