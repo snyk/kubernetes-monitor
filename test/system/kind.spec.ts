@@ -3,7 +3,7 @@ import * as nock from 'nock';
 import { copyFile, readFile, mkdir, exists } from 'fs';
 import { promisify } from 'util';
 import { resolve as resolvePath } from 'path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID } from 'crypto';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
@@ -52,7 +52,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .spyOn(fsExtra, 'emptyDirSync')
     .mockReturnValue({});
 
-  const agentId = uuid();
+  const agentId = randomUUID();
   const retryKubernetesApiRequestMock = jest
     .spyOn(kubernetesApiWrappers, 'retryKubernetesApiRequest')
     .mockResolvedValueOnce({
