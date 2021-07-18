@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { loadConfig } from 'snyk-config';
 
 const config: Record<string, any> = loadConfig(__dirname + '/../..', {
@@ -35,7 +35,7 @@ function getClusterName(): string {
 }
 
 // NOTE: The agent identifier is replaced with a stable identifier once snyk-monitor starts up
-config.AGENT_ID = uuidv4();
+config.AGENT_ID = randomUUID();
 
 config.INTEGRATION_ID = config.INTEGRATION_ID.trim();
 config.CLUSTER_NAME = getClusterName();
