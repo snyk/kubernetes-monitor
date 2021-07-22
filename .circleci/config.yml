@@ -30,12 +30,11 @@ commands:
                     npm install
                     echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
                     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-                    echo 'nvm use 16' >> $BASH_ENV
+                    echo 'nvm alias default v16' >> $BASH_ENV
 jobs:
     aks_integration_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -46,10 +45,6 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
-                    export NVM_DIR="/opt/circleci/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm install v16
-                    npm install
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
                 name: Integration tests AKS
@@ -107,7 +102,6 @@ jobs:
     build_image:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -129,7 +123,6 @@ jobs:
     code_formatter:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -150,7 +143,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.1
+              image: cimg/node:16.5
         steps:
             - checkout
             - install_python_requests
@@ -174,7 +167,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.1
+              image: cimg/node:16.5
         steps:
             - checkout
             - install_python_requests
@@ -195,20 +188,16 @@ jobs:
     eks_integration_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
             - install_python_requests
+            - setup_node16
             - run:
                 command: mkdir -p /tmp/logs/test/integration/eks
                 name: Create temp dir for logs
             - run:
                 command: |
-                    export NVM_DIR="/opt/circleci/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm install v16
-                    npm install
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
                 name: Integration tests EKS
@@ -223,7 +212,6 @@ jobs:
     integration_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -248,7 +236,6 @@ jobs:
     integration_tests_helm:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -273,7 +260,6 @@ jobs:
     integration_tests_operator_on_k8s:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -299,7 +285,6 @@ jobs:
     integration_tests_proxy:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -324,7 +309,6 @@ jobs:
     lint:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -343,7 +327,6 @@ jobs:
     openshift3_integration_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -367,7 +350,6 @@ jobs:
     openshift4_integration_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -620,7 +602,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.1
+              image: cimg/node:16.5
         steps:
             - checkout
             - setup_remote_docker
@@ -823,7 +805,6 @@ jobs:
     system_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
@@ -856,7 +837,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.1
+              image: cimg/node:16.5
         steps:
             - checkout
             - setup_remote_docker
@@ -881,7 +862,6 @@ jobs:
     unit_tests:
         machine:
             docker_layer_caching: true
-            enabled: true
             image: ubuntu-2004:202010-01
         steps:
             - checkout
