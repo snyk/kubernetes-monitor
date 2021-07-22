@@ -1,9 +1,10 @@
-import * as fsExtra from 'fs-extra';
 import * as nock from 'nock';
-import { copyFile, readFile, mkdir, exists } from 'fs';
 import { promisify } from 'util';
+import { randomUUID } from 'crypto';
+import * as fsExtra from 'fs-extra';
+import * as sleep from 'sleep-promise';
 import { resolve as resolvePath } from 'path';
-import { v4 as uuid } from 'uuid';
+import { copyFile, readFile, mkdir, exists } from 'fs';
 
 import * as kubectl from '../helpers/kubectl';
 import * as kind from '../setup/platforms/kind';
@@ -32,6 +33,9 @@ async function tearDown() {
   console.log('Begin removing the snyk-monitor...');
   try {
     await kind.deleteCluster();
+
+    // Workaround. Tests are failing, cos deleting cluster finishes after the test
+    await sleep(15 * 1000);
   } catch (err) {
     console.log('Could not cleanly tear down the environment', err.message);
   }
@@ -52,7 +56,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .spyOn(fsExtra, 'emptyDirSync')
     .mockReturnValue({});
 
-  const agentId = uuid();
+  const agentId = randomUUID();
   const retryKubernetesApiRequestMock = jest
     .spyOn(kubernetesApiWrappers, 'retryKubernetesApiRequest')
     .mockResolvedValueOnce({
