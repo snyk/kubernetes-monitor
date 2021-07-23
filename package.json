@@ -44,7 +44,7 @@
     "child-process-promise": "^2.2.1",
     "fs-extra": "^10.0.0",
     "lru-cache": "^6.0.0",
-    "needle": "^2.6.0",
+    "needle": "^2.7.0",
     "sleep-promise": "^9.1.0",
     "snyk-config": "5.0.0",
     "snyk-docker-plugin": "^4.21.1",
