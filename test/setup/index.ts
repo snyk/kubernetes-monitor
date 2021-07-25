@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import * as sleep from 'sleep-promise';
 
 import platforms, { getKubernetesVersionForPlatform } from './platforms';
@@ -13,7 +13,7 @@ const createCluster = process.env['CREATE_CLUSTER'] === 'true';
 const deploymentType = process.env['DEPLOYMENT_TYPE'] || 'YAML';
 
 function getIntegrationId(): string {
-  const integrationId = uuidv4();
+  const integrationId = randomUUID();
   console.log(`Generated new integration ID ${integrationId}`);
   return integrationId;
 }
