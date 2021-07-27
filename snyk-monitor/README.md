@@ -204,7 +204,7 @@ By default, `snyk-monitor` does not scan containers that are internal to Kuberne
 
 If you prefer to override this, you can add your own list of namespaces to exclude by setting the `excludedNamespaces` to your own list. For example:
 ```yaml
---set excludedNamespaces={kube-node-lease,kube-public,local-path-storage,some_namespace}
+--set excludedNamespaces="{kube-node-lease,kube-public,local-path-storage,some_namespace}"
 ```
 
 ## Using custom CA certificate
