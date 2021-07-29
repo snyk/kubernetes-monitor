@@ -81,7 +81,7 @@ spec:
             readOnly: true
           - name: registries-conf
             mountPath: "/srv/app/.config/containers"
-           {{- if .Values.excludedNamespaces }}
+          {{- if .Values.excludedNamespaces }}
           - name: excluded-namespaces
             mountPath: "/etc/config"
           {{- end }}
@@ -121,7 +121,7 @@ spec:
             value: {{ quote .Values.skip_k8s_jobs }}
           {{- with .Values.envs }}
           {{- toYaml . | trim | nindent 10 -}}
-          {{ end }}
+          {{- end }}
           resources:
             requests:
               cpu: {{ .Values.requests.cpu }}
