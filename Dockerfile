@@ -5,7 +5,7 @@ FROM fedora:32 AS skopeo-build
 
 RUN dnf install -y golang git make
 RUN dnf install -y go-md2man gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
-RUN git clone --depth 1 -b 'v1.2.2' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+RUN git clone --depth 1 -b 'v1.4.0' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
 RUN cd $GOPATH/src/github.com/containers/skopeo \
   && make bin/skopeo DISABLE_CGO=1 \
   && make install
@@ -36,13 +36,13 @@ RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
 # Install gcloud 
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/
+RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/bin/anthoscli
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 
 WORKDIR /srv/app
 
-COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
+COPY --chown=snyk:snyk --from=skopeo-build /usr/local/bin/skopeo /usr/bin/skopeo
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
