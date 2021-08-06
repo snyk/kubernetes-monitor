@@ -36,7 +36,7 @@ RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
 # Install gcloud 
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/
+RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/bin/anthoscli
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 
