@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------
-# STAGE 1: Build skopeo inside a temporary container
+# STAGE 1: Build skopeo and ecr-credentials-helper inside a temporary container
 #---------------------------------------------------------------------
 FROM fedora:32 AS skopeo-build
 
@@ -9,6 +9,9 @@ RUN git clone --depth 1 -b 'v1.4.0' https://github.com/containers/skopeo $GOPATH
 RUN cd $GOPATH/src/github.com/containers/skopeo \
   && make bin/skopeo DISABLE_CGO=1 \
   && make install
+
+RUN go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
+RUN cp $HOME/go/bin/docker-credential-ecr-login /usr/local/bin/docker-credential-ecr-login
 
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
@@ -43,6 +46,7 @@ RUN rm /install.sh
 WORKDIR /srv/app
 
 COPY --chown=snyk:snyk --from=skopeo-build /usr/local/bin/skopeo /usr/bin/skopeo
+COPY --chown=snyk:snyk --from=skopeo-build /usr/local/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
