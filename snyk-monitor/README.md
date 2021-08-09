@@ -54,6 +54,22 @@ Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should
     "eu.gcr.io": "gcloud",
     "staging-k8s.gcr.io": "gcloud"
   }
+  
+  // If your cluster runs on EKS and you are using ECR, add the following:
+  {
+	"credsStore": "ecr-login"
+  }
+  
+  With Docker 1.13.0 or greater, you can configure Docker to use different credential helpers for different registries.
+  To use this credential helper for a specific ECR registry, create a credHelpers section with the URI of your ECR registry:
+  
+  {
+	"credHelpers": {
+		"public.ecr.aws": "ecr-login",
+		"<aws_account_id>.dkr.ecr.<region>.amazonaws.com": "ecr-login"
+	}
+  }
+
 }
 ```
 Finally, create the secret in Kubernetes by running the following command:
