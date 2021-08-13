@@ -1,7 +1,7 @@
 import { config } from '../common/config';
 import { logger } from '../common/logger';
 import { k8sApi } from './cluster';
-import { retryKubernetesApiRequest } from './kuberenetes-api-wrappers';
+import { retryKubernetesApiRequestIndefinitely } from './kuberenetes-api-wrappers';
 
 export async function setSnykMonitorAgentId(): Promise<void> {
   const name = config.DEPLOYMENT_NAME;
@@ -20,8 +20,9 @@ async function getSnykMonitorDeploymentUid(
   namespace: string,
 ): Promise<string | undefined> {
   try {
-    const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.appsClient.readNamespacedDeployment(name, namespace),
+    const attemptedApiCall = await retryKubernetesApiRequestIndefinitely(
+      () => k8sApi.appsClient.readNamespacedDeployment(name, namespace),
+      config.MAX_RETRY_BACKOFF_DURATION_SECONDS,
     );
     return attemptedApiCall.body.metadata?.uid;
   } catch (error) {
