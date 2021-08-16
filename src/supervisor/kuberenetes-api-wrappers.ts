@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as sleep from 'sleep-promise';
+import { logger } from '../common/logger';
 import { IRequestError } from './types';
 
 export const ATTEMPTS_MAX = 3;
@@ -24,6 +25,42 @@ export async function retryKubernetesApiRequest<ResponseType>(
   }
 
   throw new Error('Could not receive a response from the Kubernetes API');
+}
+
+/**
+ * This function retries requests to the Kubernetes API indefinitely. We use this
+ * function when starting the Kubernetes Monitor to ensure the agentId is correctly
+ * set to the deployment ID.
+ *
+ * @param func function to retry
+ * @param maxSleepDuration maximum sleep duration in seconds (e.g. 300)
+ * @returns Promise<ResponseType>
+ */
+export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
+  func: IKubernetesApiFunction<ResponseType>,
+  maxSleepDuration: number,
+): Promise<ResponseType> {
+  let attempts: number = 1;
+
+  while (true) {
+    try {
+      return await func();
+    } catch (err) {
+      if (!shouldRetryRequest(err, 1)) {
+        throw err;
+      }
+
+      const backoff = Math.pow(2, attempts);
+      const sleepSeconds = Math.min(backoff, maxSleepDuration);
+      logger.error(
+        { error: err },
+        `connection to kubernetes API failed, retrying in ${sleepSeconds} seconds`,
+      );
+
+      await sleep(sleepSeconds * 1000);
+      attempts++;
+    }
+  }
 }
 
 export function calculateSleepSeconds(

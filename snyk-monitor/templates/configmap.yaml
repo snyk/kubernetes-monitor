@@ -35,5 +35,6 @@ data:
 
     workload_events {
       input.kind != "Job"
+      input.kind != "Pod"
     }
 {{ end }}
