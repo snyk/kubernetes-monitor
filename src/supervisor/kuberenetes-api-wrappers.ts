@@ -8,6 +8,12 @@ export const DEFAULT_SLEEP_SEC = 1;
 export const MAX_SLEEP_SEC = 5;
 type IKubernetesApiFunction<ResponseType> = () => Promise<ResponseType>;
 
+const RETRYABLE_NETWORK_ERRORS: string[] = [
+  'ECONNREFUSED',
+  'ETIMEDOUT',
+  'ECONNRESET',
+];
+
 export async function retryKubernetesApiRequest<ResponseType>(
   func: IKubernetesApiFunction<ResponseType>,
 ): Promise<ResponseType> {
@@ -89,11 +95,7 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return false;
   }
 
-  if (err.code === 'ECONNREFUSED') {
-    return true;
-  }
-
-  if (err.code === 'ETIMEDOUT') {
+  if (err.code && RETRYABLE_NETWORK_ERRORS.includes(err.code)) {
     return true;
   }
 

@@ -176,7 +176,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .get('/apis/apps/v1/namespaces/snyk-monitor/deployments')
     .times(1)
     .replyWithError({
-      code: 'ETIMEDOUT',
+      code: 'ECONNRESET',
     });
 
   nock('https://kubernetes-upstream.snyk.io')
