@@ -35,6 +35,7 @@ export interface IImageLocator extends IWorkloadLocator {
 export interface IDependencyGraphPayload {
   imageLocator: IImageLocator;
   agentId: string;
+  agentVersion: string;
   dependencyGraph?: string;
 }
 
@@ -47,18 +48,21 @@ export interface ScanResultsPayload {
 export interface IWorkloadMetadataPayload {
   workloadLocator: IWorkloadLocator;
   agentId: string;
+  agentVersion: string;
   workloadMetadata: IWorkloadMetadata;
 }
 
 export interface IDeleteWorkloadPayload {
   workloadLocator: IWorkloadLocator;
   agentId: string;
+  agentVersion: string;
 }
 
 export interface IWorkloadEventsPolicyPayload {
   userLocator: string;
   cluster: string;
   agentId: string;
+  agentVersion: string;
   policy: string;
 }
 

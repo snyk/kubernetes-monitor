@@ -19,7 +19,7 @@ export function constructDepGraph(
   scannedImages: IScanResult[],
   workloadMetadata: IWorkload[],
 ): IDependencyGraphPayload[] {
-  const results = scannedImages.map((scannedImage): IDependencyGraphPayload => {
+  return scannedImages.map((scannedImage): IDependencyGraphPayload => {
     // We know that .find() won't return undefined
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const kubeWorkload: IWorkload = workloadMetadata.find(
@@ -41,11 +41,10 @@ export function constructDepGraph(
     return {
       imageLocator,
       agentId: config.AGENT_ID,
+      agentVersion: config.MONITOR_VERSION,
       dependencyGraph: JSON.stringify(scannedImage.pluginResult),
     };
   });
-
-  return results;
 }
 
 export function constructScanResults(
@@ -74,6 +73,7 @@ export function constructScanResults(
     return {
       imageLocator,
       agentId: config.AGENT_ID,
+      agentVersion: config.MONITOR_VERSION,
       scanResults: scannedImage.scanResults,
     };
   });
@@ -105,7 +105,12 @@ export function constructWorkloadMetadata(
     revision: workload.revision,
     podSpec: workload.podSpec,
   };
-  return { workloadLocator, agentId: config.AGENT_ID, workloadMetadata };
+  return {
+    workloadLocator,
+    agentId: config.AGENT_ID,
+    agentVersion: config.MONITOR_VERSION,
+    workloadMetadata,
+  };
 }
 
 export function constructDeleteWorkload(
@@ -118,6 +123,7 @@ export function constructDeleteWorkload(
       cluster: currentClusterName,
     },
     agentId: config.AGENT_ID,
+    agentVersion: config.MONITOR_VERSION,
   };
 }
 
@@ -129,5 +135,6 @@ export function constructWorkloadEventsPolicy(
     userLocator: config.INTEGRATION_ID,
     cluster: currentClusterName,
     agentId: config.AGENT_ID,
+    agentVersion: config.MONITOR_VERSION,
   };
 }
