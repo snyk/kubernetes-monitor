@@ -177,7 +177,7 @@ export async function buildMetadataForWorkload(
 
   if (podOwner === undefined) {
     logger.info(
-      { pod },
+      { podMetadata: pod.metadata },
       'pod associated with owner, but owner not found. not building metadata.',
     );
     return undefined;
