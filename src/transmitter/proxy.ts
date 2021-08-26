@@ -51,7 +51,7 @@ export function getProxyAgent(
 
     default:
       logger.error(
-        { urlHost: url.host, protocol: url.protocol },
+        { urlHost: url.host, urlProtocol: url.protocol },
         'Unsupported protocol for proxying',
       );
       throw new Error('Unsupported protocol for proxying');
