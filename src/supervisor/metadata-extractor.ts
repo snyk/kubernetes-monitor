@@ -147,7 +147,10 @@ export async function buildMetadataForWorkload(
   }
 
   if (!(pod.status && pod.status.containerStatuses)) {
-    logger.warn({ pod }, 'pod lacks status or status.containerStatus');
+    logger.warn(
+      { podMetadata: pod.metadata },
+      'pod lacks status or status.containerStatus',
+    );
     return undefined;
   }
 
