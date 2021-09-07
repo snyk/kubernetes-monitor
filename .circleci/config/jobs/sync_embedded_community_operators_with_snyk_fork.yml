@@ -14,17 +14,17 @@ steps:
         - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
 
   - run:
-      name: Sync k8s-operatorhub/community-operators with snyk/community-operators
+      name: Sync redhat-openshift-ecosystem/community-operators-prod with snyk/community-operators-prod
       command: |
         CURRENT_DIRECTORY=$(pwd)
-        COMMUNITY_FOLDER_LOCATION="${CURRENT_DIRECTORY}/community-operators"
+        COMMUNITY_FOLDER_LOCATION="${CURRENT_DIRECTORY}/community-operators-prod"
 
         # Clone Community Operators repo from Snyk
-        git clone https://github.com/snyk/community-operators.git "${COMMUNITY_FOLDER_LOCATION}"
+        git clone https://github.com/snyk/community-operators-prod.git "${COMMUNITY_FOLDER_LOCATION}"
         cd "${COMMUNITY_FOLDER_LOCATION}"
 
-        # Sync snyk/community-operators repo from k8s-operatorhub/community-operators repo
-        git remote add upstream https://github.com/k8s-operatorhub/community-operators.git
+        # Sync snyk/community-operators repo from redhat-openshift-ecosystem/community-operators-prod repo
+        git remote add upstream https://github.com/redhat-openshift-ecosystem/community-operators-prod.git
         git fetch upstream
         git merge upstream/main
         git push origin main
