@@ -1,6 +1,6 @@
 description: |
   Packages a new Operator and pushes it to Snyk's fork of
-  the OpenShift upstream-community-operators.
+  the redhat-openshift-ecosystem/community-operators-prod.
 
 executor: redhat-openshift/default
 
@@ -24,7 +24,9 @@ steps:
       name: Get last released Operator version
       command: |
         set -xeo pipefail
-        LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
+        OPERATOR_REPO_URL="https://raw.githubusercontent.com/redhat-openshift-ecosystem/community-operators-prod/main/operators/snyk-operator/snyk-operator.package.yaml"
+
+        LAST_OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py $OPERATOR_REPO_URL)
         echo "export LAST_OPERATOR_VERSION=${LAST_OPERATOR_VERSION}" >> $BASH_ENV
 
   - run:
@@ -50,26 +52,28 @@ steps:
         echo "export OPERATOR_PATH=${OPERATOR_PATH}" >> $BASH_ENV
 
   - run:
-      name: Push new Operator to the fork of the upstream-community-operators repository
+      name: Push new Operator to the fork of the redhat-openshift-ecosystem/community-operators-prod repository
       command: |
         CURRENT_DIRECTORY=$(pwd)
-        COMMUNITY_FOLDER_LOCATION="upstream-community-operators"
+        COMMUNITY_FOLDER_LOCATION="community-operators-prod"
         ./scripts/operator/push-operator-to-snyk-upstream.sh "${CURRENT_DIRECTORY}" "${COMMUNITY_FOLDER_LOCATION}"
         echo "export COMMUNITY_FOLDER_LOCATION=${COMMUNITY_FOLDER_LOCATION}" >> $BASH_ENV
+
   - run:
-      name: Open a Pull Request to the operator-framework/community-operators repository for upstream-community-operators
+      name: Open a Pull Request to the redhat-openshift-ecosystem/community-operators-prod repository
       command: |
-        SLACK_PR_URL=$(python ./scripts/operator/raise_pr_to_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
+        SLACK_PR_URL=$(python ./scripts/operator/raise_pr_to_embedded_community_operators_from_our_fork.py "${COMMUNITY_FOLDER_LOCATION}" "${NEW_OPERATOR_VERSION}")
         echo "export SLACK_PR_URL=${SLACK_PR_URL}" >> $BASH_ENV
+
   - run:
-      name: Notify Slack on new branch in snyk/upstream-community-operators
+      name: Notify Slack on new branch in snyk/community-operators-prod
       command: |
         ./scripts/slack/notify_success_operator_push.py "${NEW_OPERATOR_VERSION}" "${COMMUNITY_FOLDER_LOCATION}" "${SLACK_PR_URL}"
 
   - run:
       name: Notify Slack on failure
+      when: on_fail
       command: |
         if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
           ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         fi
-      when: on_fail

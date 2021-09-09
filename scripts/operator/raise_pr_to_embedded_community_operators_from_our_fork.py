@@ -15,8 +15,8 @@ def get_new_operator_release_branch(new_operator_version, operator_upstream_fold
     return 'snyk/' + operator_upstream_folder + '/snyk-operator-v' + new_operator_version
 
 def create_pull_request(new_operator_version, new_release_branch_name):
-    user = github.get_user('k8s-operatorhub')
-    repo = user.get_repo('community-operators')
+    user = github.get_user('redhat-openshift-ecosystem')
+    repo = user.get_repo('community-operators-prod')
     body = pr_resources.content
 
     pr = repo.create_pull(title='Upgrade snyk-operator to version ' + new_operator_version,
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     operator_upstream_folder = sys.argv[1]
     new_operator_version = sys.argv[2]
 
-    latest_published_operator_version = getLastOperatorVersion('https://raw.githubusercontent.com/k8s-operatorhub/community-operators/main/operators/snyk-operator/snyk-operator.package.yaml')
+    latest_published_operator_version = getLastOperatorVersion('https://raw.githubusercontent.com/redhat-openshift-ecosystem/community-operators-prod/main/operators/snyk-operator/snyk-operator.package.yaml')
     print(
         'Latest published operator version: ' + latest_published_operator_version)
     print('Operator version to be released: ' + new_operator_version)

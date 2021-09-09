@@ -5,12 +5,10 @@ import requests
 import re
 import sys
 import os
+from sys import argv
 
-
-def getLastOperatorVersion():
-    OPERATOR_PACKAGE_YAML_PUBLISH_URL = "https://raw.githubusercontent.com/operator-framework/community-operators/master/community-operators/snyk-operator/snyk-operator.package.yaml"  # noqa: E501
-
-    resp = requests.get(OPERATOR_PACKAGE_YAML_PUBLISH_URL)
+def getLastOperatorVersion(url):
+    resp = requests.get(url)
     yml = yaml.load(resp.text, Loader=yaml.SafeLoader)
 
     try:
@@ -26,6 +24,6 @@ def getLastOperatorVersion():
 
     return version
 
-
 if __name__ == '__main__':
-    print(getLastOperatorVersion())
+    url = argv[1]
+    print(getLastOperatorVersion(url))

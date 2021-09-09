@@ -2,7 +2,7 @@ description: |
   Deploys a previously released version of the snyk-operator.
   Subsequently upgrades the Operator with a new version that is intended
   to be released. If the Operator reaches the running state in both cases,
-  we can aassume that it's able to upgrade.
+  we can assume that it's able to upgrade.
 
 executor: redhat-openshift/default
 
@@ -29,6 +29,7 @@ steps:
   - install_python_requests
 
   - setup_remote_docker
+
   - run: docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
 
   - run:
@@ -43,9 +44,11 @@ steps:
         source $BASH_ENV
         set -xeo pipefail
 
-        OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py)
+        OPERATOR_REPO_URL="https://raw.githubusercontent.com/redhat-openshift-ecosystem/community-operators-prod/main/operators/snyk-operator/snyk-operator.package.yaml"
 
-        echo "Currently released version is: ${OPERATOR_VERSION}"
+        OPERATOR_VERSION=$(python ./scripts/operator/get_last_published_operator_version.py $OPERATOR_REPO_URL)
+
+        echo "Currently released embedded version is: ${OPERATOR_VERSION}"
         echo "export OPERATOR_VERSION=${OPERATOR_VERSION}" >> $BASH_ENV
 
   - run:
@@ -70,8 +73,9 @@ steps:
   - run:
       name: Package Operator Bundle and push to Docker Hub
       description: |
-        Even though the Operator is released to the community-operators repo,
-        we can reproduce it locally using our packaged scripts. This also helps us
+        Even though the Operator is released to the
+        redhat-openshift-ecosystem/community-operators-prod repo, we can 
+        reproduce it locally using our packaged scripts. This also helps us
         test the upgrade by pushing all tested Operators to our Quay repo.
       command: |
         source $BASH_ENV
@@ -218,6 +222,7 @@ steps:
 
   - run:
       name: Cleanup
+      when: always
       command: |
         set +e
 
@@ -233,12 +238,11 @@ steps:
         kubectl delete ns snyk-monitor
         # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
         true
-      when: always
 
   - run:
       name: Notify Slack on failure
+      when: on_fail
       command: |
         if [[ "${NOTHING_TO_TEST}" != "true" ]]; then
           ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
         fi
-      when: on_fail
