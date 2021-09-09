@@ -14,10 +14,10 @@
 
 set -xeo pipefail
 
-CURRENT_DIRECTORY=$1
-COMMUNITY_FOLDER_LOCATION=$2
-COMMUNITY_OPERATORS_UPSTREAM_LOCATION="${CURRENT_DIRECTORY}/community-operators"
-DEPLOY_LOCATION="${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}/${COMMUNITY_FOLDER_LOCATION}"
+CURRENT_DIRECTORY=$1 # pwd
+COMMUNITY_REPO=$2 # community-operators(-prod)
+COMMUNITY_OPERATORS_UPSTREAM_LOCATION="${CURRENT_DIRECTORY}/${COMMUNITY_REPO}" # pwd/community-operators(-prod)
+DEPLOY_LOCATION="${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}/operators" # pwd/community-operators(-prod)/operators
 
 # Configure git user and gpg key
 echo "${OPENSHIFT_OPERATOR_SIGNING_KEY_BASE64}" | base64 -d | gpg --import
@@ -27,11 +27,12 @@ git config --global user.email "${OPENSHIFT_OPERATOR_GITHUB_EMAIL}"
 git config --global user.name "${OPENSHIFT_OPERATOR_GITHUB_NAME}"
 
 # Clone Community Operators repo from Snyk
-git clone https://github.com/snyk/community-operators.git $COMMUNITY_OPERATORS_UPSTREAM_LOCATION
+git clone "https://github.com/snyk/${COMMUNITY_REPO}.git" $COMMUNITY_OPERATORS_UPSTREAM_LOCATION
 cd "${COMMUNITY_OPERATORS_UPSTREAM_LOCATION}"
 
+BRANCH_NAME=snyk/${COMMUNITY_REPO}/snyk-operator-v${NEW_OPERATOR_VERSION}
 # Checkout branch for new snyk-operator version on community folder
-git checkout -b snyk/${COMMUNITY_FOLDER_LOCATION}/snyk-operator-v${NEW_OPERATOR_VERSION}
+git checkout -b $BRANCH_NAME
 
 # Create location if it doesn't exist
 mkdir -p  "${DEPLOY_LOCATION}/snyk-operator"
@@ -42,5 +43,5 @@ cp "${OPERATOR_PATH}/snyk-operator.package.yaml" "${DEPLOY_LOCATION}/snyk-operat
 
 # Create the signed commit and push
 git add "${DEPLOY_LOCATION}/snyk-operator/*"
-git commit -s -m "Upgrade snyk-operator to version ${NEW_OPERATOR_VERSION} on ${COMMUNITY_FOLDER_LOCATION}"
-git push --set-upstream origin --force snyk/${COMMUNITY_FOLDER_LOCATION}/snyk-operator-v${NEW_OPERATOR_VERSION}
+git commit -s -m "Upgrade snyk-operator to version ${NEW_OPERATOR_VERSION} in ${COMMUNITY_REPO}"
+git push --set-upstream origin --force $BRANCH_NAME

@@ -15,8 +15,8 @@ def notifySlack(operator_version, upstream_community, pr_url):
         {
           'color': '#7CD197',
           'fallback': 'Build Notification: ' + circle_build_url,
-          'title': 'A new Snyk Operator has been pushed to operator-framework/community-operators',
-          'text': 'A PR has been opened for branch *snyk/' + upstream_community + '/snyk-operator-v' + operator_version + '* on GitHub repo operator-framework/community-operators for ' + upstream_community + '.\n' + pr_url
+          'title': 'A new Snyk Operator has been pushed to ' + upstream_community,
+          'text': 'A PR has been opened for branch *snyk/' + upstream_community + '/snyk-operator-v' + operator_version + '* on GitHub repo ' + upstream_community +' for ' + upstream_community + '.\n' + pr_url
         }
       ]
     }
