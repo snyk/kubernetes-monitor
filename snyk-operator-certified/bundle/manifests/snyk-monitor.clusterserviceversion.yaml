@@ -39,6 +39,7 @@ metadata:
           }
         }
       ]
+    "olm.properties": '[{"type": "olm.maxOpenShiftVersion", "value": "4.8"}]'
     capabilities: Basic Install
     categories: Developer Tools
     certified: "true"
