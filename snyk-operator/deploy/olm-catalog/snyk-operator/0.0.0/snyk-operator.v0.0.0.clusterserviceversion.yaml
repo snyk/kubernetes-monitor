@@ -34,6 +34,7 @@ metadata:
           }
         }
       ]
+    "olm.properties": '[{"type": "olm.maxOpenShiftVersion", "value": "4.8"}]'
     capabilities: Basic Install
     categories: Developer Tools, Security
     containerImage: docker.io/snyk/kubernetes-operator:SNYK_OPERATOR_IMAGE_TAG_OVERRIDE
@@ -272,11 +273,11 @@ spec:
                     livenessProbe:
                       exec:
                         command:
-                        - "true"
+                          - "true"
                     readinessProbe:
                       exec:
                         command:
-                        - "true"
+                          - "true"
                     securityContext:
                       privileged: false
                       runAsNonRoot: true
