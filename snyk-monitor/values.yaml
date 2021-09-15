@@ -108,3 +108,18 @@ psp:
 
 # Override the excluded namespaces
 excludedNamespaces:
+
+# Allow specifying a fsGroup in
+# spec:
+#   template:
+#     spec:
+#       securityContext:
+#         fsGroup: 65534 <-- here
+securityContext:
+  fsGroup: ""
+
+# A projected volume maps several existing volume sources into the same directory.
+# https://kubernetes.io/docs/concepts/storage/volumes/#projected
+volumes:
+  projected:
+    serviceAccountToken: false
