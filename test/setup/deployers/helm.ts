@@ -35,7 +35,9 @@ async function deployKubernetesMonitor(
       '--set pvc.enabled=true ' +
       '--set pvc.create=true ' +
       '--set log_level="INFO" ' +
-      '--set rbac.serviceAccount.annotations."foo"="bar"',
+      '--set rbac.serviceAccount.annotations."foo"="bar" ' +
+      '--set volumes.projected.serviceAccountToken=true ' +
+      '--set securityContext.fsGroup=65534 ',
   );
   console.log(
     `Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`,
