@@ -31,7 +31,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.66.9
+  tag: 1.66.10
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -108,3 +108,18 @@ psp:
 
 # Override the excluded namespaces
 excludedNamespaces:
+
+# Allow specifying a fsGroup in the PodSpec securityContext:
+# spec:
+#   template:
+#     spec:
+#       securityContext:
+#         fsGroup: <-- here
+securityContext:
+  fsGroup:
+
+# A projected volume maps several existing volume sources into the same directory.
+# https://kubernetes.io/docs/concepts/storage/volumes/#projected
+volumes:
+  projected:
+    serviceAccountToken: false
