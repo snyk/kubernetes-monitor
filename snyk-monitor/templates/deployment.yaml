@@ -27,6 +27,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- with .Values.securityContext.fsGroup }}
+      securityContext:
+        fsGroup: {{ int . }}
+      {{- end }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -172,6 +176,13 @@ spec:
             name: {{ .Values.defaultWorkloadPoliciesMap }}
             {{- end }}
             optional: true
+        {{- if .Values.volumes.projected.serviceAccountToken }}
+        - name: token-vol
+          projected:
+            sources:
+            - serviceAccountToken:
+                path: token  
+        {{- end }}
         - name: registries-conf
           configMap:
             name: {{ .Values.registriesConfConfigMap }}
