@@ -128,11 +128,14 @@ spec:
           {{- end }}
           resources:
             requests:
-              cpu: {{ .Values.requests.cpu }}
-              memory: {{ .Values.requests.memory }}
+            {{- range $key, $val := .Values.requests }}
+              {{ $key }}: {{ $val | quote }}
+            {{- end }}
+
             limits:
-              cpu: {{ .Values.limits.cpu }}
-              memory: {{ .Values.limits.memory }}
+            {{- range $key, $val := .Values.limits }}
+              {{ $key }}: {{ $val | quote }}
+            {{- end }}
           livenessProbe:
             exec:
               command:

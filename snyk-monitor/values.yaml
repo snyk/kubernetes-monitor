@@ -81,10 +81,12 @@ extraCaCerts: /srv/app/certs/ca.pem
 
 # CPU/Mem requests and limits for snyk-monitor
 requests:
-  cpu: "250m"
-  memory: "400Mi"
+  ephemeral-storage: "50Gi"
+  cpu: "1"
+  memory: "2Gi"
 
 limits:
+  ephemeral-storage: "50Gi"
   cpu: "1"
   memory: "2Gi"
 
