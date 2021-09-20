@@ -223,6 +223,20 @@ If you prefer to override this, you can add your own list of namespaces to exclu
 --set excludedNamespaces="{kube-node-lease,kube-public,local-path-storage,some_namespace}"
 ```
 
+## Using EKS without assigning an IAM role to a Node Group
+
+If you do not want to assign an IAM role to a Node Group, you can use the IAM role for Service Accounts and configure the snyk-monitor as follows:
+- Setting an IAM role for a service account: [IAM role for a Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html)
+- Modify the fsGroup of the mounted EKS credentials in snyk-monitor to the user `nobody` (uid `65534`)
+- Annotate the snyk-monitor service account with the IAM role
+```shell
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set securityContext.fsGroup=65534 \
+  --set rbac.serviceAccount.annotations."eks.amazonaws.com/role-arn"="<iam role name>" \
+  --set volumes.projected.serviceAccountToken=true
+```
+
 ## Using custom CA certificate
 You can provide custom CA certificates to use for validating TLS connections by adding them to a ConfigMap named snyk-monitor-certs. These additional certificates are used when pulling images from container registries.
 
