@@ -127,12 +127,14 @@ spec:
           {{- toYaml . | trim | nindent 10 -}}
           {{- end }}
           resources:
+            {{- with .Values.requests }}
             requests:
-              cpu: {{ .Values.requests.cpu }}
-              memory: {{ .Values.requests.memory }}
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            {{- with .Values.limits }}
             limits:
-              cpu: {{ .Values.limits.cpu }}
-              memory: {{ .Values.limits.memory }}
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
           livenessProbe:
             exec:
               command:

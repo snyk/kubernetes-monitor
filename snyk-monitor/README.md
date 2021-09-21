@@ -237,6 +237,16 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
   --set volumes.projected.serviceAccountToken=true
 ```
 
+## Configuring resources
+
+If more resources is required in order to deploy snyk-monitor, you can configure the helm charts default value for requests and limits with the `--set` flag.
+```shell
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set requests."ephemeral-storage"="50Gi"
+  --set limits."ephemeral-storage"="50Gi"
+```
+
 ## Using custom CA certificate
 You can provide custom CA certificates to use for validating TLS connections by adding them to a ConfigMap named snyk-monitor-certs. These additional certificates are used when pulling images from container registries.
 
