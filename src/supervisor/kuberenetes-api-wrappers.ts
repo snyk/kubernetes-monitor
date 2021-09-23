@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as sleep from 'sleep-promise';
+
 import { logger } from '../common/logger';
 import { IRequestError } from './types';
 
@@ -20,7 +21,7 @@ export async function retryKubernetesApiRequest<ResponseType>(
   for (let attempt = 1; attempt <= ATTEMPTS_MAX; attempt++) {
     try {
       return await func();
-    } catch (err) {
+    } catch (err: any) {
       if (!shouldRetryRequest(err, attempt)) {
         throw err;
       }
@@ -51,7 +52,7 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
   while (true) {
     try {
       return await func();
-    } catch (err) {
+    } catch (err: any) {
       if (!shouldRetryRequest(err, 1)) {
         throw err;
       }

@@ -258,7 +258,7 @@ async function retryRequest(
       if (!(response.statusCode === 502 && stillHaveRetries)) {
         break;
       }
-    } catch (err) {
+    } catch (err: any) {
       if (!shouldRetryRequest(err, stillHaveRetries)) {
         throw err;
       }
