@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.15.1",
-    "@snyk/dep-graph": "^1.28.1",
+    "@snyk/dep-graph": "^1.29.0",
     "async": "^3.2.1",
     "aws-sdk": "^2.979.0",
     "bunyan": "^1.8.15",
