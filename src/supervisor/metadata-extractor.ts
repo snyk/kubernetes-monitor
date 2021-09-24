@@ -87,13 +87,8 @@ async function findParentWorkload(
       }
       parentMetadata = { ...workloadMetadata, podSpec };
       ownerReferences = parentMetadata.ownerRefs;
-    } catch (err) {
-      if (
-        err &&
-        err.response &&
-        err.response.body &&
-        err.response.body.code === 404
-      ) {
+    } catch (err: any) {
+      if (err?.response?.body?.code === 404) {
         logger.info(
           {
             name: supportedWorkload.name,
