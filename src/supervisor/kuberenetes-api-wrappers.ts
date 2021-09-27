@@ -60,8 +60,8 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
       const backoff = Math.pow(2, attempts);
       const sleepSeconds = Math.min(backoff, maxSleepDuration);
       logger.error(
-        { error: err },
-        `connection to kubernetes API failed, retrying in ${sleepSeconds} seconds`,
+        { error: err, attempts },
+        'connection to kubernetes API failed, retrying',
       );
 
       await sleep(sleepSeconds * 1000);
