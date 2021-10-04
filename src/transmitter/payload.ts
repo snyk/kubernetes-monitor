@@ -12,6 +12,7 @@ import {
   ScanResultsPayload,
   IDependencyGraphPayload,
   IWorkloadEventsPolicyPayload,
+  Telemetry,
 } from './types';
 import { state } from '../state';
 
@@ -51,6 +52,7 @@ export function constructDepGraph(
 export function constructScanResults(
   scannedImages: IScanResult[],
   workloadMetadata: IWorkload[],
+  telemetry: Partial<Telemetry>,
 ): ScanResultsPayload[] {
   return scannedImages.map<ScanResultsPayload>((scannedImage) => {
     // We know that .find() won't return undefined
@@ -72,6 +74,7 @@ export function constructScanResults(
     };
 
     return {
+      telemetry,
       imageLocator,
       agentId: config.AGENT_ID,
       scanResults: scannedImage.scanResults,

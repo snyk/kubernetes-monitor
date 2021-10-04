@@ -4,7 +4,7 @@ import { logger } from '../../../common/logger';
 import { config } from '../../../common/config';
 import { processWorkload } from '../../../scanner';
 import { sendWorkloadMetadata } from '../../../transmitter';
-import { IWorkload } from '../../../transmitter/types';
+import { IWorkload, Telemetry } from '../../../transmitter/types';
 import { constructWorkloadMetadata } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
@@ -12,6 +12,13 @@ import { state } from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
 import { deleteWorkload } from './workload';
+
+export interface ImagesToScanQueueData {
+  workloadMetadata: IWorkload[];
+  imageKeys: string[];
+  /** The timestamp when this workload was added to the image scan queue. */
+  enqueueTimestampMs: number;
+}
 
 function deleteFailedKeysFromState(keys): void {
   try {
@@ -33,10 +40,19 @@ function deleteFailedKeysFromState(keys): void {
   }
 }
 
-async function queueWorkerWorkloadScan(task, callback): Promise<void> {
-  const { workloadMetadata, imageKeys } = task;
+async function queueWorkerWorkloadScan(
+  task: ImagesToScanQueueData,
+  callback,
+): Promise<void> {
+  const { workloadMetadata, imageKeys, enqueueTimestampMs } = task;
+  /** Represents how long this workload spent waiting in the queue to be processed. */
+  const enqueueDurationMs = Date.now() - enqueueTimestampMs;
+  const telemetry: Partial<Telemetry> = {
+    enqueueDurationMs,
+    queueSize: workloadsToScanQueue.length(),
+  };
   try {
-    await processWorkload(workloadMetadata);
+    await processWorkload(workloadMetadata, telemetry);
   } catch (err) {
     logger.error(
       { err, task },
@@ -46,7 +62,7 @@ async function queueWorkerWorkloadScan(task, callback): Promise<void> {
   }
 }
 
-const workloadsToScanQueue = async.queue(
+const workloadsToScanQueue = async.queue<ImagesToScanQueueData>(
   queueWorkerWorkloadScan,
   config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT,
 );
@@ -82,7 +98,11 @@ function handleReadyPod(workloadMetadata: IWorkload[]): void {
   }
 
   if (imagesToScan.length > 0) {
-    workloadsToScanQueue.push({ workloadMetadata: imagesToScan, imageKeys });
+    workloadsToScanQueue.push({
+      workloadMetadata: imagesToScan,
+      imageKeys,
+      enqueueTimestampMs: Date.now(),
+    });
   }
 }
 

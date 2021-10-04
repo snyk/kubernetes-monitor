@@ -250,6 +250,12 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
       try {
         expect(requestBody).toEqual<transmitterTypes.ScanResultsPayload>({
           agentId,
+          telemetry: {
+            enqueueDurationMs: expect.any(Number),
+            imagePullDurationMs: expect.any(Number),
+            imageScanDurationMs: expect.any(Number),
+            queueSize: expect.any(Number),
+          },
           imageLocator: expect.objectContaining({
             imageId: expect.any(String),
           }),
