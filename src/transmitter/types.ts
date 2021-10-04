@@ -42,6 +42,7 @@ export interface ScanResultsPayload {
   imageLocator: IImageLocator;
   agentId: string;
   scanResults: ScanResult[];
+  telemetry: Partial<Telemetry>;
 }
 
 export interface IWorkloadMetadataPayload {
@@ -95,4 +96,11 @@ export interface IResponseWithAttempts {
 export interface IRequestError {
   code: string;
   message: string;
+}
+
+export interface Telemetry {
+  enqueueDurationMs: number;
+  queueSize: number;
+  imagePullDurationMs: number;
+  imageScanDurationMs: number;
 }
