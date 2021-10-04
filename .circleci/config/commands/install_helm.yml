@@ -1,11 +1,8 @@
-description: Install requests library
+description: Install Helm
 steps:
   - run:
       name: Install Helm
       command: |
-        export DEBIAN_FRONTEND=noninteractive
-        curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
-        sudo apt-get install -y apt-transport-https
-        echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-        sudo apt-get update -qq
-        sudo apt-get install -y helm
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
