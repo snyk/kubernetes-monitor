@@ -60,8 +60,14 @@ describe('transmitter payload tests', () => {
         },
       ];
 
+      const telemetry: Record<string, number> = {};
+
       expect(() =>
-        payload.constructScanResults(scannedImages, workloadMetadata),
+        payload.constructScanResults(
+          scannedImages,
+          workloadMetadata,
+          telemetry,
+        ),
       ).toThrow();
     },
   );
@@ -97,6 +103,7 @@ describe('transmitter payload tests', () => {
         podSpec: podSpecFixture,
       },
     ];
+    const telemetry: Record<string, number> = {};
 
     // These values are populated at runtime (injected by the deployment) so we have to mock them
     // to make sure the function uses them to construct the payload (otherwise they are undefined).
@@ -110,6 +117,7 @@ describe('transmitter payload tests', () => {
     const payloads = payload.constructScanResults(
       scannedImages,
       workloadMetadata,
+      telemetry,
     );
     expect(payloads).toHaveLength(1);
 

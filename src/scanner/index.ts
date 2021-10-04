@@ -12,11 +12,16 @@ import {
   constructDepGraph,
   constructScanResults,
 } from '../transmitter/payload';
-import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
+import {
+  IWorkload,
+  ILocalWorkloadLocator,
+  Telemetry,
+} from '../transmitter/types';
 import { IPullableImage, IScanImage } from './images/types';
 
 export async function processWorkload(
   workloadMetadata: IWorkload[],
+  telemetry: Partial<Telemetry>,
 ): Promise<void> {
   // every workload metadata references the same workload name, grab it from the first one
   const workloadName = workloadMetadata[0].name;
@@ -27,7 +32,9 @@ export async function processWorkload(
     'pulling unique images',
   );
   const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
+  const imagePullStartTimestampMs = Date.now();
   const pulledImages = await pullImages(imagesWithFileSystemPath);
+  const imagePullDurationMs = Date.now() - imagePullStartTimestampMs;
   if (pulledImages.length === 0) {
     logger.info(
       { workloadName },
@@ -35,12 +42,14 @@ export async function processWorkload(
     );
     return;
   }
+  telemetry.imagePullDurationMs = imagePullDurationMs;
 
   try {
     await scanImagesAndSendResults(
       workloadName,
       pulledImages,
       workloadMetadata,
+      telemetry,
     );
   } finally {
     await removePulledImages(pulledImages);
@@ -105,8 +114,11 @@ async function scanImagesAndSendResults(
   workloadName: string,
   pulledImages: IPullableImage[],
   workloadMetadata: IWorkload[],
+  telemetry: Partial<Telemetry>,
 ): Promise<void> {
+  const imageScanStartTimestampMs = Date.now();
   const scannedImages = await scanImages(pulledImages);
+  const imageScanDurationMs = Date.now() - imageScanStartTimestampMs;
 
   if (scannedImages.length === 0) {
     logger.info(
@@ -116,6 +128,8 @@ async function scanImagesAndSendResults(
     return;
   }
 
+  telemetry.imageScanDurationMs = imageScanDurationMs;
+
   logger.info(
     { workloadName, imageCount: scannedImages.length },
     'successfully scanned images',
@@ -124,6 +138,7 @@ async function scanImagesAndSendResults(
   const scanResultsPayloads = constructScanResults(
     scannedImages,
     workloadMetadata,
+    telemetry,
   );
   const success = await sendScanResults(scanResultsPayloads);
   if (!success) {
