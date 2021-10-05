@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: registry.connect.redhat.com/snyk/kubernetes-operator
-  newTag: 1.64.1
+  newTag: 1.67.2

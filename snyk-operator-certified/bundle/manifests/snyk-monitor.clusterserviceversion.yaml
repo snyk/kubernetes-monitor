@@ -3,7 +3,7 @@ kind: ClusterServiceVersion
 metadata:
   labels:
     app.kubernetes.io/instance: snyk-operator-marketplace
-    app.kubernetes.io/version: 1.64.1
+    app.kubernetes.io/version: 1.67.2
     app.kubernetes.io/name: snyk-operator-marketplace
     app.kubernetes.io/managed-by: snyk-operator-marketplace
   annotations:
@@ -16,14 +16,14 @@ metadata:
             "name": "snyk-monitor",
             "labels": {
               "app.kubernetes.io/instance": "snyk-monitor",
-              "app.kubernetes.io/version": "1.64.1",
+              "app.kubernetes.io/version": "1.67.2",
               "app.kubernetes.io/name": "snyk-monitor",
               "app.kubernetes.io/managed-by": "snyk-operator"
             },
             "annotations": {
               "productID": "snyk-operator-marketplace",
               "productName": "snyk-operator-marketplace",
-              "productVersion": "1.64.1"
+              "productVersion": "1.67.2"
             }
           },
           "spec": {
@@ -45,15 +45,15 @@ metadata:
     certified: "true"
     productID: snyk-operator-marketplace
     productName: snyk-operator-marketplace
-    productVersion: 1.64.1
-    containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.64.1
+    productVersion: 1.67.2
+    containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.67.2
     createdAt: "2021-06-04T00:20:21Z"
     description: A Kubernetes Operator for creating and managing Snyk controller instances.
     operators.operatorframework.io/builder: operator-sdk-v1.3.0
     operators.operatorframework.io/project_layout: helm.sdk.operatorframework.io/v1
     repository: https://github.com/docker.io/snyk/kubernetes-monitor
     support: Snyk Ltd.
-  name: snyk-operator-marketplace.v1.64.1
+  name: snyk-operator-marketplace.v1.67.2
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -248,7 +248,7 @@ spec:
                   control-plane: controller-manager
               spec:
                 containers:
-                  - image: registry.connect.redhat.com/snyk/kubernetes-operator:1.64.1
+                  - image: registry.connect.redhat.com/snyk/kubernetes-operator:1.67.2
                     name: operator
                     resources:
                       limits:
@@ -277,7 +277,7 @@ spec:
                       - name: OPERATOR_NAME
                         value: snyk-operator
                       - name: RELATED_IMAGE_DEPLOYMENT
-                        value: registry.connect.redhat.com/snyk/kubernetes-monitor:1.64.1
+                        value: registry.connect.redhat.com/snyk/kubernetes-monitor:1.67.2
                       - name: RELATED_IMAGE_DEPLOYMENT_INIT
                         value: registry.access.redhat.com/ubi8-minimal:latest
                   - args:
@@ -352,4 +352,4 @@ spec:
   maturity: stable
   provider:
     name: Snyk Ltd.
-  version: 1.64.1
+  version: 1.67.2
