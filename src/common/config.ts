@@ -42,6 +42,8 @@ config.CLUSTER_NAME = getClusterName();
 config.IMAGE_STORAGE_ROOT = '/var/tmp';
 config.POLICIES_STORAGE_ROOT = '/tmp/policies';
 config.EXCLUDED_NAMESPACES = loadExcludedNamespaces();
+config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT =
+  Number(config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT) || 10;
 
 /**
  * Important: we delete the following env vars because we don't want to proxy requests to the Kubernetes API server.
