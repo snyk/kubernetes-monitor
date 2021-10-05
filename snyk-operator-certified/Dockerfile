@@ -1,5 +1,4 @@
-# Build the manager binary
-FROM quay.io/operator-framework/helm-operator:v1.12
+FROM quay.io/operator-framework/helm-operator:v1.13
 
 LABEL name="Snyk Operator" \
       maintainer="support@snyk.io" \
