@@ -9,7 +9,7 @@ spec:
         - name: docker-io
       containers:
         - name: my-container
-          image: golang:1.13.1-alpine3.10
+          image: docker.io/library/golang:1.13.1-alpine3.10
           command: 
             - "sh"
           args:
@@ -19,6 +19,6 @@ spec:
             cd $GOPATH/src/github.com/containers/skopeo &&
             make binary-local-static DISABLE_CGO=1 &&
             make install &&
-            skopeo copy --dest-tls-verify=false docker://python:rc-buster docker://kind-registry:5000/python:rc-buster"
+            skopeo copy --dest-tls-verify=false docker://docker.io/library/python:rc-buster docker://kind-registry:5000/python:rc-buster"
       restartPolicy: Never
   backoffLimit: 4

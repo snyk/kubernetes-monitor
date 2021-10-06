@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
       - name: docker-io
       containers:
-      - image: busybox:1.31.1
+      - image: docker.io/library/busybox:1.31.1
         imagePullPolicy: Always
         name: busybox
         command: ['/bin/sleep']

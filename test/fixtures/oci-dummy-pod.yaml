@@ -10,5 +10,5 @@ spec:
   - name: docker-io
   containers:
   - name: oci-dummy
-    image: snyk/runtime-fixtures:oci-dummy
+    image: docker.io/snyk/runtime-fixtures:oci-dummy
     command: ['/app/sample']

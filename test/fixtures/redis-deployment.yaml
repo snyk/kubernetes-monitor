@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
       - name: docker-io
       containers:
-      - image: redis:latest
+      - image: docker.io/library/redis:latest
         imagePullPolicy: Always
         name: redis
       securityContext: {}

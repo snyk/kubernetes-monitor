@@ -16,7 +16,7 @@ spec:
       - name: docker-io
       containers:
       - name: forwarding-proxy
-        image: snyk/runtime-fixtures:tinyproxy
+        image: docker.io/snyk/runtime-fixtures:tinyproxy
         resources:
           limits:
             memory: "128Mi"
