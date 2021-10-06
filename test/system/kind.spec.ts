@@ -302,7 +302,9 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
           expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>(
             {
               agentId,
-              dependencyGraph: expect.stringContaining('docker-image|docker.io/library/java'),
+              dependencyGraph: expect.stringContaining(
+                'docker-image|docker.io/library/java',
+              ),
               imageLocator: {
                 userLocator: expect.any(String),
                 cluster: expect.any(String),
