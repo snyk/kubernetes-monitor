@@ -17,4 +17,8 @@ spec:
       - name: docker-io
       containers:
       - name: nginx
-        image: nginx
+        image: docker.io/library/nginx:latest
+        command:
+        - sleep
+        args:
+        - infinity

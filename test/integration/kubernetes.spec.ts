@@ -41,7 +41,7 @@ test('deploy snyk-monitor', async () => {
 test('deploy sample workloads', async () => {
   const servicesNamespace = 'services';
   const someImageWithSha =
-    'alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
+    'docker.io/library/alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
   await Promise.all([
     kubectl.applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/oci-dummy-pod.yaml'),
@@ -184,12 +184,12 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   );
   expect(scanResultsScratchImage).toEqual({
     workloadScanResults: {
-      busybox: expect.any(Array),
+      'docker.io/library/busybox': expect.any(Array),
     },
   });
 
   const busyboxPluginResult =
-    scanResultsScratchImage.workloadScanResults.busybox;
+    scanResultsScratchImage.workloadScanResults['docker.io/library/busybox'];
   const osScanResult = busyboxPluginResult[0];
   expect(osScanResult.facts).toEqual(
     expect.arrayContaining<Fact>([
@@ -200,26 +200,30 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
     ]),
   );
 
-  expect(osScanResult.target.image).toEqual('docker-image|busybox');
+  expect(osScanResult.target.image).toEqual(
+    'docker-image|docker.io/library/busybox',
+  );
   expect(osScanResult.identity.type).toEqual('linux');
 
   const scanResultsConsulDeployment = await getUpstreamResponseBody(
     `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/consul`,
   );
   expect(
-    scanResultsConsulDeployment.workloadScanResults['snyk/runtime-fixtures'],
+    scanResultsConsulDeployment.workloadScanResults[
+      'docker.io/snyk/runtime-fixtures'
+    ],
   ).toEqual<ScanResult[]>([
     {
       identity: { type: 'apk', args: { platform: 'linux/amd64' } },
       facts: expect.any(Array),
-      target: { image: 'docker-image|snyk/runtime-fixtures' },
+      target: { image: 'docker-image|docker.io/snyk/runtime-fixtures' },
     },
     {
       identity: { type: 'gomodules', targetFile: '/bin/consul' },
       facts: expect.arrayContaining([
         { type: 'depGraph', data: expect.any(Object) },
       ]),
-      target: { image: 'docker-image|snyk/runtime-fixtures' },
+      target: { image: 'docker-image|docker.io/snyk/runtime-fixtures' },
     },
   ]);
 });
@@ -252,8 +256,8 @@ test('snyk-monitor sends binary hashes to kubernetes-upstream after adding anoth
   }) => {
     return (
       workloadScanResults !== undefined &&
-      workloadScanResults.node !== undefined &&
-      workloadScanResults.openjdk !== undefined
+      workloadScanResults['docker.io/library/node'] !== undefined &&
+      workloadScanResults['docker.io/library/openjdk'] !== undefined
     );
   };
 
@@ -273,12 +277,13 @@ test('snyk-monitor sends binary hashes to kubernetes-upstream after adding anoth
   );
   expect(scanResultsResponse).toEqual({
     workloadScanResults: {
-      node: expect.any(Array),
-      openjdk: expect.any(Array),
+      'docker.io/library/node': expect.any(Array),
+      'docker.io/library/openjdk': expect.any(Array),
     },
   });
 
-  const nodePluginResult = scanResultsResponse.workloadScanResults.node;
+  const nodePluginResult =
+    scanResultsResponse.workloadScanResults['docker.io/library/node'];
   const nodeOsScanResult = nodePluginResult[0];
   const nodeHashes = nodeOsScanResult.facts.find(
     (fact) => fact.type === 'keyBinariesHashes',
@@ -288,7 +293,8 @@ test('snyk-monitor sends binary hashes to kubernetes-upstream after adding anoth
     '6d5847d3cd69dfdaaf9dd2aa8a3d30b1a9b3bfa529a1f5c902a511e1aa0b8f55',
   );
 
-  const openjdkPluginResult = scanResultsResponse.workloadScanResults.openjdk;
+  const openjdkPluginResult =
+    scanResultsResponse.workloadScanResults['docker.io/library/openjdk'];
   const openjdkOsScanResult = openjdkPluginResult[0];
   const openjdkHashes = openjdkOsScanResult.facts.find(
     (fact) => fact.type === 'keyBinariesHashes',
@@ -403,7 +409,7 @@ test('snyk-monitor scans DeploymentConfigs', async () => {
   const namespace = 'services';
   const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.DeploymentConfig;
-  const imageName = 'hello-world';
+  const imageName = 'docker.io/library/hello-world';
   await kubectl.applyK8sYaml('test/fixtures/hello-world-deploymentconfig.yaml');
   console.log(
     `Begin polling upstream for the expected DeploymentConfig with integration ID ${integrationId}...`,

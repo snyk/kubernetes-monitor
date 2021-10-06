@@ -6,7 +6,7 @@ chmod +x opm
 ```
 
 ```sh
-export VERSION=1.64.1-pre0
+export VERSION=1.67.2-pre0
 make docker-build
 docker tag snyk/snyk-operator-bundle:$VERSION <operator-certification-repo>:$VERSION
 docker push registry.connect.redhat.com/snyk/kubernetes-operator:$VERSION
@@ -26,7 +26,7 @@ metadata:
   namespace: openshift-marketplace
 spec:
   sourceType: grpc
-  image: docker.io/snyk/snyk-operator-index:1.64.1
+  image: docker.io/snyk/snyk-operator-index:1.67.2
   displayName: Snyk Operator Bundle
   publisher: Snyk Ltd.
   updateStrategy:

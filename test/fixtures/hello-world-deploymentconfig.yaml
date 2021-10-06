@@ -18,7 +18,7 @@ spec:
       containers:
       - command:
         - /hello
-        image: hello-world:latest
+        image: docker.io/library/hello-world:latest
         imagePullPolicy: IfNotPresent
         name: main
       securityContext:

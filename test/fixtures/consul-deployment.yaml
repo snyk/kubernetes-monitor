@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
       - name: docker-io
       containers:
-      - image: snyk/runtime-fixtures:consul
+      - image: docker.io/snyk/runtime-fixtures:consul
         imagePullPolicy: Always
         name: consul
         command: ['/bin/sleep']

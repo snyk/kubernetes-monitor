@@ -33,8 +33,8 @@ Using the above credentials set the following environment variables:
 
 - QUAY_USERNAME (search in 1Password: xnz2hv2h3bdwriove2zlbnlwhq)
 - QUAY_PASSWORD (search in 1Password: xnz2hv2h3bdwriove2zlbnlwhq)
-- DOCKERHUB_USER (search in 1Password: mrvhrhni3jdj3mjzlf3u3zfhgm)
-- DOCKERHUB_PASSWORD (search in 1Password: mrvhrhni3jdj3mjzlf3u3zfhgm)
+- DOCKERHUB_USER (search in 1Password: mn5qer7ry5f5fiabvnhuwmzmsi)
+- DOCKERHUB_PASSWORD (search in 1Password: mn5qer7ry5f5fiabvnhuwmzmsi)
 - OPENSHIFT4_USER (crc console --credentials)
 - OPENSHIFT4_PASSWORD (crc console --credentials)
 - OPENSHIFT4_CLUSTER_URL (crc console --credentials)
