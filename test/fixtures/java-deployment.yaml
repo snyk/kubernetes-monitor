@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
       - name: docker-io
       containers:
-      - image: java:latest
+      - image: docker.io/library/java:latest
         imagePullPolicy: Always
         name: java
         command: ['/bin/sleep']

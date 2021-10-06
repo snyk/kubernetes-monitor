@@ -36,7 +36,7 @@ async function tearDown() {
 
     // Workaround. Tests are failing, cos deleting cluster finishes after the test
     await sleep(15 * 1000);
-  } catch (err) {
+  } catch (err: any) {
     console.log('Could not cleanly tear down the environment', err.message);
   }
   console.log('Removed the snyk-monitor!');
@@ -269,7 +269,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
                 { type: 'rootFs', data: expect.any(Array) },
                 { type: 'imageOsReleasePrettyName', data: expect.any(String) },
               ]),
-              target: { image: 'docker-image|java' },
+              target: { image: 'docker-image|docker.io/library/java' },
               identity: { type: 'deb', args: { platform: 'linux/amd64' } },
             },
             {
@@ -278,12 +278,12 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
                 type: 'maven',
                 targetFile: '/usr/share/ca-certificates-java',
               },
-              target: { image: 'docker-image|java' },
+              target: { image: 'docker-image|docker.io/library/java' },
             },
             {
               facts: [{ type: 'jarFingerprints', data: expect.any(Object) }],
               identity: { type: 'maven', targetFile: '/usr/share/java' },
-              target: { image: 'docker-image|java' },
+              target: { image: 'docker-image|docker.io/library/java' },
             },
           ],
         });
@@ -302,7 +302,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
           expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>(
             {
               agentId,
-              dependencyGraph: expect.stringContaining('docker-image|java'),
+              dependencyGraph: expect.stringContaining('docker-image|docker.io/library/java'),
               imageLocator: {
                 userLocator: expect.any(String),
                 cluster: expect.any(String),

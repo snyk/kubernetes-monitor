@@ -10,5 +10,5 @@ spec:
   - name: docker-io
   containers:
   - name: alpine
-    image: alpine
+    image: docker.io/library/alpine:latest
     command: ['sh', '-c', 'echo Hello from alpine pod! && sleep 360000']
