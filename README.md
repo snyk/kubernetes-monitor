@@ -48,9 +48,9 @@ The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter
  ```
  Continue to YAML files installation instructions below.
 
-3. If we're using a private registry, you should create a `dockercfg` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually a copy of the `dockercfg` resides in `$HOME/.docker/config.json`.
+3. If you're using a private registry, you should create a `dockercfg.json` file. The `dockercfg.json` file is necessary to allow the monitor to look up images in private registries. Usually your credentials can be found in `$HOME/.docker/config.json`. These must also be added to the `dockercfg.json` file.
 
-Create a file named `dockercfg.json`. Store your `dockercfg` in there; it should look like this:
+Create a file named `dockercfg.json`. Store your credentials in there; it should look like this:
 
 ```hjson
 {
