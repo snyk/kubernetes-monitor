@@ -32,6 +32,7 @@ metadata:
           }
         }
       ]
+    "olm.skipRange": "<1.68.2"
     capabilities: Basic Install
     categories: Developer Tools, Security
     certified: "true"
