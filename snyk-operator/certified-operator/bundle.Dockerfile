@@ -14,7 +14,7 @@ LABEL operators.operatorframework.io.test.mediatype.v1=scorecard+v1
 
 # Labels added in accord with the documentation
 # https://redhat-connect.gitbook.io/certified-operator-guide/ocp-deployment/operator-metadata/bundle-directory
-LABEL com.redhat.openshift.versions="v4.5-v4.9"
+LABEL com.redhat.openshift.versions="v4.8"
 LABEL com.redhat.delivery.operator.bundle=true
 LABEL com.redhat.delivery.backport=true
 

@@ -1,5 +1,5 @@
 # Current Operator version
-VERSION ?= 1.67.2
+VERSION ?= 1.68.2
 # Default bundle image tag
 BUNDLE_IMG ?= snyk/snyk-operator-bundle:$(VERSION)
 # Options for 'bundle-build'
