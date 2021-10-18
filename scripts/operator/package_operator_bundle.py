@@ -36,8 +36,9 @@ def createOperatorFromTemplate(new_version: str, new_operator_tag: str, new_moni
                     'SNYK_OPERATOR_VERSION_OVERRIDE', new_version).replace(
                         'SNYK_OPERATOR_IMAGE_TAG_OVERRIDE', new_operator_tag).replace(
                             'SNYK_MONITOR_IMAGE_TAG_OVERRIDE', new_monitor_tag)
-        if old_version != None:
-            updated_csv = updated_csv + "  replaces: snyk-operator.v" + old_version
+        # TODO: Uncomment (or revert commit) once v1.68.2 is published in OperatorHub
+        # if old_version != None:
+        #     updated_csv = updated_csv + "  replaces: snyk-operator.v" + old_version
     with open(new_csv_path, "w") as f:
         f.write(updated_csv)
 
