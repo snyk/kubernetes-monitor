@@ -273,7 +273,10 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
               identity: { type: 'deb', args: { platform: 'linux/amd64' } },
             },
             {
-              facts: [{ type: 'jarFingerprints', data: expect.any(Object) }],
+              facts: [
+                { type: 'jarFingerprints', data: expect.any(Object) },
+                { type: 'imageId', data: expect.any(String) },
+              ],
               identity: {
                 type: 'maven',
                 targetFile: '/usr/share/ca-certificates-java',
@@ -281,7 +284,10 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
               target: { image: 'docker-image|docker.io/library/java' },
             },
             {
-              facts: [{ type: 'jarFingerprints', data: expect.any(Object) }],
+              facts: [
+                { type: 'jarFingerprints', data: expect.any(Object) },
+                { type: 'imageId', data: expect.any(String) },
+              ],
               identity: { type: 'maven', targetFile: '/usr/share/java' },
               target: { image: 'docker-image|docker.io/library/java' },
             },
