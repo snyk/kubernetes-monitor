@@ -38,10 +38,14 @@ spec:
               - matchExpressions:
                 - key: "kubernetes.io/arch"
                   operator: In
-                  values: ["amd64"]
+                  values: 
+                    - amd64
+                    - arm64
                 - key: "beta.kubernetes.io/arch"
                   operator: In
-                  values: ["amd64"]
+                  values: 
+                    - amd64
+                    - arm64
       serviceAccountName: {{ include "snyk-monitor.name" . }}
       restartPolicy: Always
       initContainers:

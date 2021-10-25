@@ -31,7 +31,7 @@ ENV NODE_ENV production
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs
 
-RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
+RUN if  [ "$(uname -m)" = "x86_64"  ]; then curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64 ; else curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_arm64 ; fi
 RUN chmod 755 /usr/bin/dumb-init
 
 RUN groupadd -g 10001 snyk

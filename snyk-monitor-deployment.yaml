@@ -18,6 +18,21 @@ spec:
       labels:
         app.kubernetes.io/name: snyk-monitor
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: "kubernetes.io/arch"
+                  operator: In
+                  values:
+                    - amd64
+                    - arm64
+                - key: "beta.kubernetes.io/arch"
+                  operator: In
+                  values:
+                    - amd64
+                    - arm64 
       containers:
       - image: snyk/kubernetes-monitor:IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
         imagePullPolicy: Always
