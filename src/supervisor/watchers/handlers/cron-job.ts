@@ -1,7 +1,28 @@
-import { V1beta1CronJob } from '@kubernetes/client-node';
+import { V1beta1CronJob, V1beta1CronJobList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { IncomingMessage } from 'http';
+import { k8sApi } from '../../cluster';
+import { paginatedList } from './pagination';
+
+export async function paginatedCronJobList(namespace: string): Promise<{
+  response: IncomingMessage;
+  body: V1beta1CronJobList;
+}> {
+  const v1CronJobList = new V1beta1CronJobList();
+  v1CronJobList.apiVersion = 'batch/v1beta1';
+  v1CronJobList.kind = 'CronJobList';
+  v1CronJobList.items = new Array<V1beta1CronJob>();
+
+  return await paginatedList(
+    namespace,
+    v1CronJobList,
+    k8sApi.batchUnstableClient.listNamespacedCronJob.bind(
+      k8sApi.batchUnstableClient,
+    ),
+  );
+}
 
 export async function cronJobWatchHandler(
   cronJob: V1beta1CronJob,

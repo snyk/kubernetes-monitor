@@ -9,15 +9,24 @@ import {
 
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
-import { podWatchHandler, podDeletedHandler } from './pod';
-import { cronJobWatchHandler } from './cron-job';
-import { daemonSetWatchHandler } from './daemon-set';
-import { deploymentWatchHandler } from './deployment';
-import { jobWatchHandler } from './job';
-import { replicaSetWatchHandler } from './replica-set';
-import { replicationControllerWatchHandler } from './replication-controller';
-import { statefulSetWatchHandler } from './stateful-set';
-import { deploymentConfigWatchHandler } from './deployment-config';
+import { podWatchHandler, podDeletedHandler, paginatedPodList } from './pod';
+import { cronJobWatchHandler, paginatedCronJobList } from './cron-job';
+import { daemonSetWatchHandler, paginatedDaemonSetList } from './daemon-set';
+import { deploymentWatchHandler, paginatedDeploymentList } from './deployment';
+import { jobWatchHandler, paginatedJobList } from './job';
+import { paginatedReplicaSetList, replicaSetWatchHandler } from './replica-set';
+import {
+  paginatedReplicationControllerList,
+  replicationControllerWatchHandler,
+} from './replication-controller';
+import {
+  paginatedStatefulSetList,
+  statefulSetWatchHandler,
+} from './stateful-set';
+import {
+  deploymentConfigWatchHandler,
+  paginatedDeploymentConfigList,
+} from './deployment-config';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -49,8 +58,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       [UPDATE]: podWatchHandler,
       [DELETE]: podDeletedHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.coreClient.listNamespacedPod(namespace),
+    listFactory: (namespace) => () => paginatedPodList(namespace),
   },
   [WorkloadKind.ReplicationController]: {
     endpoint: '/api/v1/watch/namespaces/{namespace}/replicationcontrollers',
@@ -58,55 +66,49 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       [DELETE]: replicationControllerWatchHandler,
     },
     listFactory: (namespace) => () =>
-      k8sApi.coreClient.listNamespacedReplicationController(namespace),
+      paginatedReplicationControllerList(namespace),
   },
   [WorkloadKind.CronJob]: {
     endpoint: '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJobWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.batchUnstableClient.listNamespacedCronJob(namespace),
+    listFactory: (namespace) => () => paginatedCronJobList(namespace),
   },
   [WorkloadKind.Job]: {
     endpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
     handlers: {
       [DELETE]: jobWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.batchClient.listNamespacedJob(namespace),
+    listFactory: (namespace) => () => paginatedJobList(namespace),
   },
   [WorkloadKind.DaemonSet]: {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/daemonsets',
     handlers: {
       [DELETE]: daemonSetWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.appsClient.listNamespacedDaemonSet(namespace),
+    listFactory: (namespace) => () => paginatedDaemonSetList(namespace),
   },
   [WorkloadKind.Deployment]: {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/deployments',
     handlers: {
       [DELETE]: deploymentWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.appsClient.listNamespacedDeployment(namespace),
+    listFactory: (namespace) => () => paginatedDeploymentList(namespace),
   },
   [WorkloadKind.ReplicaSet]: {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/replicasets',
     handlers: {
       [DELETE]: replicaSetWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.appsClient.listNamespacedReplicaSet(namespace),
+    listFactory: (namespace) => () => paginatedReplicaSetList(namespace),
   },
   [WorkloadKind.StatefulSet]: {
     endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/statefulsets',
     handlers: {
       [DELETE]: statefulSetWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.appsClient.listNamespacedStatefulSet(namespace),
+    listFactory: (namespace) => () => paginatedStatefulSetList(namespace),
   },
   [WorkloadKind.DeploymentConfig]: {
     /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
@@ -115,13 +117,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     handlers: {
       [DELETE]: deploymentConfigWatchHandler,
     },
-    listFactory: (namespace) => () =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
-        namespace,
-        'deploymentconfigs',
-      ),
+    listFactory: (namespace) => () => paginatedDeploymentConfigList(namespace),
   },
 };
 

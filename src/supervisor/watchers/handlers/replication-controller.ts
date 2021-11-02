@@ -1,7 +1,33 @@
-import { V1ReplicationController } from '@kubernetes/client-node';
+import {
+  V1ReplicationController,
+  V1ReplicationControllerList,
+} from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { IncomingMessage } from 'http';
+import { k8sApi } from '../../cluster';
+import { paginatedList } from './pagination';
+
+export async function paginatedReplicationControllerList(
+  namespace: string,
+): Promise<{
+  response: IncomingMessage;
+  body: V1ReplicationControllerList;
+}> {
+  const v1ReplicationControllerList = new V1ReplicationControllerList();
+  v1ReplicationControllerList.apiVersion = 'v1';
+  v1ReplicationControllerList.kind = 'ReplicationControllerList';
+  v1ReplicationControllerList.items = new Array<V1ReplicationController>();
+
+  return await paginatedList(
+    namespace,
+    v1ReplicationControllerList,
+    k8sApi.coreClient.listNamespacedReplicationController.bind(
+      k8sApi.coreClient,
+    ),
+  );
+}
 
 export async function replicationControllerWatchHandler(
   replicationController: V1ReplicationController,
