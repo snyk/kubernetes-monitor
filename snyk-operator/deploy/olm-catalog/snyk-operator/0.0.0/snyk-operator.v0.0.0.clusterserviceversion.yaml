@@ -30,6 +30,12 @@ metadata:
             "initContainerImage": {
               "repository": "busybox",
               "tag": "latest"
+            },
+            "requests": {
+              "memory": "400Mi"
+            },
+            "limits": {
+              "memory": "2Gi"
             }
           }
         }
@@ -151,6 +157,18 @@ spec:
               The tag for the initContainer's image.
             displayName: InitContainer image tag
             path: initContainerImage.tag
+            x-descriptors:
+              - "urn:alm:descriptor:text"
+          - description: >-
+              The memory requested by the Snyk controller.
+            displayName: Memory request
+            path: requests.memory
+            x-descriptors:
+              - "urn:alm:descriptor:text"
+          - description: >-
+              The memory limit for the Snyk controller.
+            displayName: Memory limit
+            path: limits.memory
             x-descriptors:
               - "urn:alm:descriptor:text"
   description: |-
