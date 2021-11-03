@@ -1,6 +1,50 @@
+import { IncomingMessage } from 'http';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
-import { FALSY_WORKLOAD_NAME_MARKER, V1DeploymentConfig } from './types';
+import {
+  FALSY_WORKLOAD_NAME_MARKER,
+  V1DeploymentConfig,
+  V1DeploymentConfigList,
+} from './types';
+import { paginatedList } from './pagination';
+import { k8sApi } from '../../cluster';
+
+export async function paginatedDeploymentConfigList(
+  namespace: string,
+): Promise<{
+  response: IncomingMessage;
+  body: V1DeploymentConfigList;
+}> {
+  const v1DeploymentConfigList = new V1DeploymentConfigList();
+  v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
+  v1DeploymentConfigList.kind = 'DeploymentConfigList';
+  v1DeploymentConfigList.items = new Array<V1DeploymentConfig>();
+
+  return await paginatedList(
+    namespace,
+    v1DeploymentConfigList,
+    async (
+      namespace: string,
+      pretty?: string,
+      _allowWatchBookmarks?: boolean,
+      _continue?: string,
+      fieldSelector?: string,
+      labelSelector?: string,
+      limit?: number,
+    ) =>
+      k8sApi.customObjectsClient.listNamespacedCustomObject(
+        'apps.openshift.io',
+        'v1',
+        namespace,
+        'deploymentconfigs',
+        pretty,
+        _continue,
+        fieldSelector,
+        labelSelector,
+        limit,
+      ) as any,
+  );
+}
 
 export async function deploymentConfigWatchHandler(
   deploymentConfig: V1DeploymentConfig,

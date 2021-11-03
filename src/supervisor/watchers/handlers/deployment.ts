@@ -1,7 +1,26 @@
-import { V1Deployment } from '@kubernetes/client-node';
+import { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { IncomingMessage } from 'http';
+import { k8sApi } from '../../cluster';
+import { paginatedList } from './pagination';
+
+export async function paginatedDeploymentList(namespace: string): Promise<{
+  response: IncomingMessage;
+  body: V1DeploymentList;
+}> {
+  const v1DeploymentList = new V1DeploymentList();
+  v1DeploymentList.apiVersion = 'apps/v1';
+  v1DeploymentList.kind = 'DeploymentList';
+  v1DeploymentList.items = new Array<V1Deployment>();
+
+  return await paginatedList(
+    namespace,
+    v1DeploymentList,
+    k8sApi.appsClient.listNamespacedDeployment.bind(k8sApi.appsClient),
+  );
+}
 
 export async function deploymentWatchHandler(
   deployment: V1Deployment,

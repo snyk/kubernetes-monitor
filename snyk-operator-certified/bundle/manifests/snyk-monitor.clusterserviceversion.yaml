@@ -35,6 +35,12 @@ metadata:
             "pvc": {
               "enabled": false,
               "name": "snyk-monitor"
+            },
+            "requests": {
+              "memory": "400Mi"
+            },
+            "limits": {
+              "memory": "2Gi"
             }
           }
         }
@@ -118,6 +124,18 @@ spec:
             path: initContainerImage.image
             x-descriptors:
               - urn:alm:descriptor:text
+          - description: >-
+              The memory requested by the Snyk controller.
+            displayName: Memory request
+            path: requests.memory
+            x-descriptors:
+              - "urn:alm:descriptor:text"
+          - description: >-
+              The memory limit for the Snyk controller.
+            displayName: Memory limit
+            path: limits.memory
+            x-descriptors:
+              - "urn:alm:descriptor:text"
         version: v1alpha1
   description: |-
     A Kubernetes Operator for creating and managing Snyk Kubernetes controller instances.

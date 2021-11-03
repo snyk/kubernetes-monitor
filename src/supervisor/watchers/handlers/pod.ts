@@ -1,5 +1,7 @@
-import { V1Pod } from '@kubernetes/client-node';
+import { V1Pod, V1PodList } from '@kubernetes/client-node';
+import { IncomingMessage } from 'http';
 import * as async from 'async';
+
 import { logger } from '../../../common/logger';
 import { config } from '../../../common/config';
 import { processWorkload } from '../../../scanner';
@@ -12,6 +14,8 @@ import { state } from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
 import { deleteWorkload } from './workload';
+import { k8sApi } from '../../cluster';
+import { paginatedList } from './pagination';
 
 export interface ImagesToScanQueueData {
   workloadMetadata: IWorkload[];
@@ -117,6 +121,22 @@ export function isPodReady(pod: V1Pod): boolean {
         (container.state.running !== undefined ||
           container.state.waiting !== undefined),
     )
+  );
+}
+
+export async function paginatedPodList(namespace: string): Promise<{
+  response: IncomingMessage;
+  body: V1PodList;
+}> {
+  const v1PodList = new V1PodList();
+  v1PodList.apiVersion = 'v1';
+  v1PodList.kind = 'PodList';
+  v1PodList.items = new Array<V1Pod>();
+
+  return await paginatedList(
+    namespace,
+    v1PodList,
+    k8sApi.coreClient.listNamespacedPod.bind(k8sApi.coreClient),
   );
 }
 
