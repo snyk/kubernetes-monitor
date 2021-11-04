@@ -3,7 +3,7 @@ import * as LruCache from 'lru-cache';
 
 import { config } from './common/config';
 
-const imagesLruCacheOptions = {
+const imagesLruCacheOptions: LruCache.Options<string, string> = {
   // limit cache size so we don't exceed memory limit
   max: config.IMAGES_SCANNED_CACHE.MAX_SIZE,
   // limit cache life so if our backend loses track of an image's data,
@@ -12,7 +12,7 @@ const imagesLruCacheOptions = {
   updateAgeOnGet: false,
 };
 
-const workloadsLruCacheOptions = {
+const workloadsLruCacheOptions: LruCache.Options<string, string> = {
   // limit cache size so we don't exceed memory limit
   max: config.WORKLOADS_SCANNED_CACHE.MAX_SIZE,
   // limit cache life so if our backend loses track of an image's data,
