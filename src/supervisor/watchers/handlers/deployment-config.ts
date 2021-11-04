@@ -8,6 +8,11 @@ import {
 } from './types';
 import { paginatedList } from './pagination';
 import { k8sApi } from '../../cluster';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+} from '../../../state';
 
 export async function paginatedDeploymentConfigList(
   namespace: string,
@@ -57,6 +62,20 @@ export async function deploymentConfigWatchHandler(
     !deploymentConfig.status
   ) {
     return;
+  }
+
+  const workloadAlreadyScanned =
+    kubernetesObjectToWorkloadAlreadyScanned(deploymentConfig);
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: deploymentConfig.spec.template.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName =

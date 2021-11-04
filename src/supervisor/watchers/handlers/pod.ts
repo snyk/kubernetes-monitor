@@ -10,7 +10,15 @@ import { IWorkload, Telemetry } from '../../../transmitter/types';
 import { constructWorkloadMetadata } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
-import { state } from '../../../state';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  getWorkloadAlreadyScanned,
+  getWorkloadImageAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+  setWorkloadAlreadyScanned,
+  setWorkloadImageAlreadyScanned,
+} from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
 import { deleteWorkload } from './workload';
@@ -19,36 +27,15 @@ import { paginatedList } from './pagination';
 
 export interface ImagesToScanQueueData {
   workloadMetadata: IWorkload[];
-  imageKeys: string[];
   /** The timestamp when this workload was added to the image scan queue. */
   enqueueTimestampMs: number;
-}
-
-function deleteFailedKeysFromState(keys): void {
-  try {
-    for (const key of keys) {
-      try {
-        state.imagesAlreadyScanned.del(key);
-      } catch (delError) {
-        logger.error(
-          { delError, key },
-          'failed deleting a key of an unsuccessfully scanned image',
-        );
-      }
-    }
-  } catch (delError) {
-    logger.error(
-      { delError, keys },
-      'failed deleting all keys of an unsuccessfully scanned workload',
-    );
-  }
 }
 
 async function queueWorkerWorkloadScan(
   task: ImagesToScanQueueData,
   callback,
 ): Promise<void> {
-  const { workloadMetadata, imageKeys, enqueueTimestampMs } = task;
+  const { workloadMetadata, enqueueTimestampMs } = task;
   /** Represents how long this workload spent waiting in the queue to be processed. */
   const enqueueDurationMs = Date.now() - enqueueTimestampMs;
   const telemetry: Partial<Telemetry> = {
@@ -62,7 +49,13 @@ async function queueWorkerWorkloadScan(
       { err, task },
       'error processing a workload in the pod handler 2',
     );
-    deleteFailedKeysFromState(imageKeys);
+    const imageIds = workloadMetadata.map((workload) => workload.imageId);
+    const workload = {
+      // every workload metadata references the same workload, grab it from the first one
+      ...workloadMetadata[0],
+      imageIds,
+    };
+    await deleteWorkloadImagesAlreadyScanned(workload);
   }
 }
 
@@ -78,7 +71,7 @@ workloadsToScanQueue.error(function (err, task) {
   );
 });
 
-setInterval(() => {
+function reportQueueSize(): void {
   try {
     const queueDataToReport: { [key: string]: any } = {};
     queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
@@ -86,25 +79,33 @@ setInterval(() => {
   } catch (err) {
     logger.debug({ err }, 'failed logging queue sizes');
   }
-}, config.QUEUE_LENGTH_LOG_FREQUENCY_MINUTES * 60 * 1000).unref();
+}
 
-function handleReadyPod(workloadMetadata: IWorkload[]): void {
-  const imagesToScan: IWorkload[] = [];
-  const imageKeys: string[] = [];
-  for (const image of workloadMetadata) {
-    const imageKey = `${image.namespace}/${image.type}/${image.uid}/${image.imageId}`;
-    if (state.imagesAlreadyScanned.get(imageKey) !== undefined) {
+// Report the queue size shortly after the snyk-monitor starts.
+setTimeout(reportQueueSize, 1 * 60 * 1000).unref();
+// Additionally, periodically report every X minutes.
+setInterval(
+  reportQueueSize,
+  config.QUEUE_LENGTH_LOG_FREQUENCY_MINUTES * 60 * 1000,
+).unref();
+
+async function handleReadyPod(workloadMetadata: IWorkload[]): Promise<void> {
+  const workloadToScan: IWorkload[] = [];
+  for (const workload of workloadMetadata) {
+    const scanned = await getWorkloadImageAlreadyScanned(
+      workload,
+      workload.imageId,
+    );
+    if (scanned !== undefined) {
       continue;
     }
-    state.imagesAlreadyScanned.set(imageKey, ''); // empty string takes zero bytes and is !== undefined
-    imagesToScan.push(image);
-    imageKeys.push(imageKey);
+    await setWorkloadImageAlreadyScanned(workload, workload.imageId, ''); // empty string takes zero bytes and is !== undefined
+    workloadToScan.push(workload);
   }
 
-  if (imagesToScan.length > 0) {
+  if (workloadToScan.length > 0) {
     workloadsToScanQueue.push({
-      workloadMetadata: imagesToScan,
-      imageKeys,
+      workloadMetadata: workloadToScan,
       enqueueTimestampMs: Date.now(),
     });
   }
@@ -165,18 +166,18 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
     const workloadMetadataPayload = constructWorkloadMetadata(workloadMember);
-    const workloadLocator = workloadMetadataPayload.workloadLocator;
-    const workloadKey = `${workloadLocator.namespace}/${workloadLocator.type}/${workloadMember.uid}`;
+    // this is actually the observed generation
     const workloadRevision = workloadMember.revision
       ? workloadMember.revision.toString()
-      : ''; // this is actually the observed generation
-    if (state.workloadsAlreadyScanned.get(workloadKey) !== workloadRevision) {
+      : '';
+    const scanned = await getWorkloadAlreadyScanned(workloadMember);
+    if (scanned !== workloadRevision) {
       // either not exists or different
-      state.workloadsAlreadyScanned.set(workloadKey, workloadRevision); // empty string takes zero bytes and is !== undefined
+      await setWorkloadAlreadyScanned(workloadMember, workloadRevision);
       await sendWorkloadMetadata(workloadMetadataPayload);
     }
 
-    handleReadyPod(workloadMetadata);
+    await handleReadyPod(workloadMetadata);
   } catch (error) {
     logger.error({ error, podName }, 'could not build image metadata for pod');
   }
@@ -185,6 +186,19 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
 export async function podDeletedHandler(pod: V1Pod): Promise<void> {
   if (!pod.metadata || !pod.spec) {
     return;
+  }
+
+  const workloadAlreadyScanned = kubernetesObjectToWorkloadAlreadyScanned(pod);
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: pod.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName = pod.metadata.name || FALSY_WORKLOAD_NAME_MARKER;

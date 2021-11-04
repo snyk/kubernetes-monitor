@@ -5,6 +5,11 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedList } from './pagination';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+} from '../../../state';
 
 export async function paginatedDaemonSetList(namespace: string): Promise<{
   response: IncomingMessage;
@@ -33,6 +38,20 @@ export async function daemonSetWatchHandler(
     !daemonSet.status
   ) {
     return;
+  }
+
+  const workloadAlreadyScanned =
+    kubernetesObjectToWorkloadAlreadyScanned(daemonSet);
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: daemonSet.spec.template.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName = daemonSet.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
