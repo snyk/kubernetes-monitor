@@ -5,6 +5,11 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedList } from './pagination';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+} from '../../../state';
 
 export async function paginatedJobList(namespace: string): Promise<{
   response: IncomingMessage;
@@ -30,6 +35,19 @@ export async function jobWatchHandler(job: V1Job): Promise<void> {
     !job.spec.template.spec
   ) {
     return;
+  }
+
+  const workloadAlreadyScanned = kubernetesObjectToWorkloadAlreadyScanned(job);
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: job.spec.template.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName = job.metadata.name || FALSY_WORKLOAD_NAME_MARKER;

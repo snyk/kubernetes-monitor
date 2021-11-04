@@ -18,6 +18,7 @@ import {
   Telemetry,
 } from '../transmitter/types';
 import { IPullableImage, IScanImage } from './images/types';
+import { getWorkloadAlreadyScanned } from '../state';
 
 export async function processWorkload(
   workloadMetadata: IWorkload[],
@@ -124,6 +125,17 @@ async function scanImagesAndSendResults(
     logger.info(
       { workloadName },
       'no images were scanned, halting scanner process.',
+    );
+    return;
+  }
+
+  // All workloads are identical, pick the first one
+  const workload = workloadMetadata[0];
+  const state = await getWorkloadAlreadyScanned(workload);
+  if (state === undefined) {
+    logger.info(
+      { workloadName },
+      'the workload has been deleted while scanning was in progress, skipping sending scan results',
     );
     return;
   }

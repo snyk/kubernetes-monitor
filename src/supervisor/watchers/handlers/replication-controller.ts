@@ -8,6 +8,11 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedList } from './pagination';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+} from '../../../state';
 
 export async function paginatedReplicationControllerList(
   namespace: string,
@@ -41,6 +46,21 @@ export async function replicationControllerWatchHandler(
     !replicationController.status
   ) {
     return;
+  }
+
+  const workloadAlreadyScanned = kubernetesObjectToWorkloadAlreadyScanned(
+    replicationController,
+  );
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: replicationController.spec.template.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName =

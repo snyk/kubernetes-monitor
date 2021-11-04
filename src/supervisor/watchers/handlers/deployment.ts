@@ -5,6 +5,11 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedList } from './pagination';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+} from '../../../state';
 
 export async function paginatedDeploymentList(namespace: string): Promise<{
   response: IncomingMessage;
@@ -33,6 +38,20 @@ export async function deploymentWatchHandler(
     !deployment.status
   ) {
     return;
+  }
+
+  const workloadAlreadyScanned =
+    kubernetesObjectToWorkloadAlreadyScanned(deployment);
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: deployment.spec.template.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName = deployment.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
