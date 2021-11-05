@@ -28,6 +28,12 @@ metadata:
             "initContainerImage": {
               "repository": "registry.access.redhat.com/ubi8-minimal",
               "tag": "latest"
+            },
+            "requests": {
+              "memory": "400Mi"
+            },
+            "limits": {
+              "memory": "2Gi"
             }
           }
         }
@@ -100,6 +106,18 @@ spec:
         path: image.tag
         x-descriptors:
         - urn:alm:descriptor:text
+      - description: >-
+          The memory requested by the Snyk controller.
+        displayName: Memory request
+        path: requests.memory
+        x-descriptors:
+          - "urn:alm:descriptor:text"
+      - description: >-
+          The memory limit for the Snyk controller.
+        displayName: Memory limit
+        path: limits.memory
+        x-descriptors:
+          - "urn:alm:descriptor:text"
       version: v1alpha1
   description: |-
     A Kubernetes Operator for creating and managing Snyk Kubernetes controller instances.

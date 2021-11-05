@@ -71,7 +71,7 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
 }
 
 export function calculateSleepSeconds(
-  httpResponse: http.IncomingMessage,
+  httpResponse?: http.IncomingMessage,
 ): number {
   let sleepSeconds = DEFAULT_SLEEP_SEC;
   if (

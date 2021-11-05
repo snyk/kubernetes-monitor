@@ -1,7 +1,31 @@
-import { V1Deployment } from '@kubernetes/client-node';
+import { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { IncomingMessage } from 'http';
+import { k8sApi } from '../../cluster';
+import { paginatedList } from './pagination';
+import {
+  deleteWorkloadAlreadyScanned,
+  deleteWorkloadImagesAlreadyScanned,
+  kubernetesObjectToWorkloadAlreadyScanned,
+} from '../../../state';
+
+export async function paginatedDeploymentList(namespace: string): Promise<{
+  response: IncomingMessage;
+  body: V1DeploymentList;
+}> {
+  const v1DeploymentList = new V1DeploymentList();
+  v1DeploymentList.apiVersion = 'apps/v1';
+  v1DeploymentList.kind = 'DeploymentList';
+  v1DeploymentList.items = new Array<V1Deployment>();
+
+  return await paginatedList(
+    namespace,
+    v1DeploymentList,
+    k8sApi.appsClient.listNamespacedDeployment.bind(k8sApi.appsClient),
+  );
+}
 
 export async function deploymentWatchHandler(
   deployment: V1Deployment,
@@ -14,6 +38,20 @@ export async function deploymentWatchHandler(
     !deployment.status
   ) {
     return;
+  }
+
+  const workloadAlreadyScanned =
+    kubernetesObjectToWorkloadAlreadyScanned(deployment);
+  if (workloadAlreadyScanned !== undefined) {
+    await Promise.all([
+      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
+      deleteWorkloadImagesAlreadyScanned({
+        ...workloadAlreadyScanned,
+        imageIds: deployment.spec.template.spec.containers
+          .filter((container) => container.image !== undefined)
+          .map((container) => container.image!),
+      }),
+    ]);
   }
 
   const workloadName = deployment.metadata.name || FALSY_WORKLOAD_NAME_MARKER;

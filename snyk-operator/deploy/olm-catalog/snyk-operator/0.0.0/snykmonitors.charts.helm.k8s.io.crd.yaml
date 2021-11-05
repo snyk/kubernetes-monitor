@@ -71,3 +71,13 @@ spec:
                     tag:
                       type: string
                   type: object
+                requests:
+                  properties:
+                    memory:
+                      type: string
+                  type: object
+                limits:
+                  properties:
+                    memory:
+                      type: string
+                  type: object

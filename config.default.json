@@ -4,7 +4,7 @@
     "level": "info"
   },
   "IMAGES_SCANNED_CACHE": {
-    "MAX_SIZE": 10000,
+    "MAX_SIZE": 20000,
     "MAX_AGE_MS": 86400000
   },
   "WORKLOADS_SCANNED_CACHE": {
