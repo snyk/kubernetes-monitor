@@ -1,5 +1,5 @@
 import { V1StatefulSet, V1StatefulSetList } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -30,6 +30,8 @@ export async function paginatedStatefulSetList(namespace: string): Promise<{
 export async function statefulSetWatchHandler(
   statefulSet: V1StatefulSet,
 ): Promise<void> {
+  statefulSet = trimWorkload(statefulSet);
+
   if (
     !statefulSet.metadata ||
     !statefulSet.spec ||

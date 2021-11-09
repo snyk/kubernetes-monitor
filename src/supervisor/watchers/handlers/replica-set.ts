@@ -1,5 +1,5 @@
 import { V1ReplicaSet, V1ReplicaSetList } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -30,6 +30,8 @@ export async function paginatedReplicaSetList(namespace: string): Promise<{
 export async function replicaSetWatchHandler(
   replicaSet: V1ReplicaSet,
 ): Promise<void> {
+  replicaSet = trimWorkload(replicaSet);
+
   if (
     !replicaSet.metadata ||
     !replicaSet.spec ||

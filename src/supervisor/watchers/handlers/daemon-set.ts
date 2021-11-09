@@ -1,5 +1,5 @@
 import { V1DaemonSet, V1DaemonSetList } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -30,6 +30,8 @@ export async function paginatedDaemonSetList(namespace: string): Promise<{
 export async function daemonSetWatchHandler(
   daemonSet: V1DaemonSet,
 ): Promise<void> {
+  daemonSet = trimWorkload(daemonSet);
+
   if (
     !daemonSet.metadata ||
     !daemonSet.spec ||
