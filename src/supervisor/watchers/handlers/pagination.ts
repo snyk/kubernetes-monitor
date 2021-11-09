@@ -5,6 +5,7 @@ import type {
   KubernetesObject,
 } from '@kubernetes/client-node';
 
+import { trimWorkloads } from './workload';
 import { calculateSleepSeconds } from '../../kuberenetes-api-wrappers';
 import { V1NamespacedList } from './types';
 import type { IRequestError } from '../../types';
@@ -53,7 +54,7 @@ export async function paginatedList<
       list.metadata = listCall.body.metadata;
 
       if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimItems(listCall.body.items);
+        const trimmedItems = trimWorkloads(listCall.body.items);
         list.items.push(...trimmedItems);
       }
 
@@ -97,30 +98,4 @@ export async function paginatedList<
     response: incomingMessage,
     body: list,
   };
-}
-
-/**
- * Pick only the minimum relevant data from the workload. Sometimes the workload
- * spec may be bloated with server-side information that is not necessary for vulnerability analysis.
- * This ensures that any data we hold in memory is minimal, which in turn allows us to hold more workloads to scan.
- */
-function trimItems<
-  T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
->(items: T[]): KubernetesObject[] {
-  return items.map((item) => ({
-    apiVersion: item.apiVersion,
-    kind: item.kind,
-    metadata: {
-      name: item.metadata?.name,
-      namespace: item.metadata?.namespace,
-      annotations: item.metadata?.annotations,
-      labels: item.metadata?.labels,
-      ownerReferences: item.metadata?.ownerReferences,
-      uid: item.metadata?.uid,
-      resourceVersion: item.metadata?.resourceVersion,
-      generation: item.metadata?.generation,
-    },
-    spec: item.spec,
-    status: item.status,
-  }));
 }

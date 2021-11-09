@@ -1,5 +1,5 @@
 import { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -30,6 +30,8 @@ export async function paginatedDeploymentList(namespace: string): Promise<{
 export async function deploymentWatchHandler(
   deployment: V1Deployment,
 ): Promise<void> {
+  deployment = trimWorkload(deployment);
+
   if (
     !deployment.metadata ||
     !deployment.spec ||

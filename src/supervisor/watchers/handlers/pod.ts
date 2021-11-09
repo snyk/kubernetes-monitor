@@ -21,7 +21,7 @@ import {
 } from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { k8sApi } from '../../cluster';
 import { paginatedList } from './pagination';
 
@@ -146,6 +146,8 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
   if (!isPodReady(pod)) {
     return;
   }
+
+  pod = trimWorkload(pod);
 
   const podName =
     pod.metadata && pod.metadata.name

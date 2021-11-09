@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
   FALSY_WORKLOAD_NAME_MARKER,
@@ -54,6 +54,8 @@ export async function paginatedDeploymentConfigList(
 export async function deploymentConfigWatchHandler(
   deploymentConfig: V1DeploymentConfig,
 ): Promise<void> {
+  deploymentConfig = trimWorkload(deploymentConfig);
+
   if (
     !deploymentConfig.metadata ||
     !deploymentConfig.spec ||

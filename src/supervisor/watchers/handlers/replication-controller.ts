@@ -2,7 +2,7 @@ import {
   V1ReplicationController,
   V1ReplicationControllerList,
 } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -37,6 +37,8 @@ export async function paginatedReplicationControllerList(
 export async function replicationControllerWatchHandler(
   replicationController: V1ReplicationController,
 ): Promise<void> {
+  replicationController = trimWorkload(replicationController);
+
   if (
     !replicationController.metadata ||
     !replicationController.spec ||
