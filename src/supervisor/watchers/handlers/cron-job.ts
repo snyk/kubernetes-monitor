@@ -1,5 +1,5 @@
 import { V1beta1CronJob, V1beta1CronJobList } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -32,6 +32,8 @@ export async function paginatedCronJobList(namespace: string): Promise<{
 export async function cronJobWatchHandler(
   cronJob: V1beta1CronJob,
 ): Promise<void> {
+  cronJob = trimWorkload(cronJob);
+
   if (
     !cronJob.metadata ||
     !cronJob.spec ||

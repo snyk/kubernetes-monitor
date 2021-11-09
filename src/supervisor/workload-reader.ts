@@ -5,6 +5,7 @@ import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
 import { V1DeploymentConfig } from './watchers/handlers/types';
+import { trimWorkload } from './watchers/handlers/workload';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
@@ -20,7 +21,7 @@ const deploymentReader: IWorkloadReaderFunc = async (
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
     );
-  const deployment = deploymentResult.body;
+  const deployment = trimWorkload(deploymentResult.body);
 
   if (
     !deployment.metadata ||
@@ -59,7 +60,7 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
         workloadName,
       ),
     );
-  const deployment: V1DeploymentConfig = deploymentResult.body;
+  const deployment: V1DeploymentConfig = trimWorkload(deploymentResult.body);
 
   if (
     !deployment.metadata ||
@@ -91,7 +92,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
     );
-  const replicaSet = replicaSetResult.body;
+  const replicaSet = trimWorkload(replicaSetResult.body);
 
   if (
     !replicaSet.metadata ||
@@ -124,7 +125,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.appsClient.readNamespacedStatefulSet(workloadName, namespace),
     );
-  const statefulSet = statefulSetResult.body;
+  const statefulSet = trimWorkload(statefulSetResult.body);
 
   if (
     !statefulSet.metadata ||
@@ -155,7 +156,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (
   const daemonSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
     () => k8sApi.appsClient.readNamespacedDaemonSet(workloadName, namespace),
   );
-  const daemonSet = daemonSetResult.body;
+  const daemonSet = trimWorkload(daemonSetResult.body);
 
   if (
     !daemonSet.metadata ||
@@ -183,7 +184,7 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const jobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
     k8sApi.batchClient.readNamespacedJob(workloadName, namespace),
   );
-  const job = jobResult.body;
+  const job = trimWorkload(jobResult.body);
 
   if (
     !job.metadata ||
@@ -213,7 +214,7 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     () =>
       k8sApi.batchUnstableClient.readNamespacedCronJob(workloadName, namespace),
   );
-  const cronJob = cronJobResult.body;
+  const cronJob = trimWorkload(cronJobResult.body);
 
   if (
     !cronJob.metadata ||
@@ -247,7 +248,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
         namespace,
       ),
     );
-  const replicationController = replicationControllerResult.body;
+  const replicationController = trimWorkload(replicationControllerResult.body);
 
   if (
     !replicationController.metadata ||

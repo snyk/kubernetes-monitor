@@ -1,5 +1,5 @@
 import { V1Job, V1JobList } from '@kubernetes/client-node';
-import { deleteWorkload } from './workload';
+import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -28,6 +28,8 @@ export async function paginatedJobList(namespace: string): Promise<{
 }
 
 export async function jobWatchHandler(job: V1Job): Promise<void> {
+  job = trimWorkload(job);
+
   if (
     !job.metadata ||
     !job.spec ||
