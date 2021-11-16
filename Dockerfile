@@ -16,7 +16,7 @@ RUN cp $HOME/go/bin/docker-credential-ecr-login /usr/local/bin/docker-credential
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi8/ubi:8.4
+FROM registry.access.redhat.com/ubi8/ubi:8.5
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
