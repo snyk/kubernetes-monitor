@@ -34,6 +34,9 @@ metadata:
             },
             "limits": {
               "memory": "2Gi"
+            },
+            "nodeAffinity": {
+              "disableBetaArchNodeSelector": false
             }
           }
         }
