@@ -36,6 +36,9 @@ metadata:
             },
             "limits": {
               "memory": "2Gi"
+            },
+            "nodeAffinity": {
+              "disableBetaArchNodeSelector": false
             }
           }
         }
@@ -171,6 +174,12 @@ spec:
             path: limits.memory
             x-descriptors:
               - "urn:alm:descriptor:text"
+          - description: >-
+              True to disable the beta.kubernetes.io/arch node affinity term.
+            displayName: Disable beta.kubernetes.io/arch node affinity
+            path: nodeAffinity.disableBetaArchNodeSelector
+            x-descriptors:
+              - "urn:alm:descriptor:com.tectonic.ui:booleanSwitch"
   description: |-
     A Kubernetes Operator for creating and managing Snyk Kubernetes controller instances.
 

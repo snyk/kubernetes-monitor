@@ -98,6 +98,9 @@ log_level:
 
 nodeSelector: {}
 
+nodeAffinity:
+  disableBetaArchNodeSelector: false
+
 # Additional annotations for the snyk-monitor Deployment's Pod
 metadata:
   annotations: {}
