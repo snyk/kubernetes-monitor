@@ -70,6 +70,11 @@ spec:
                     pullPolicy:
                       type: string
                   type: object
+                nodeAffinity:
+                  properties:
+                    disableBetaArchNodeSelector:
+                      type: boolean
+                  type: object
             status:
               description: Status defines the observed state of SnykMonitor
               type: object

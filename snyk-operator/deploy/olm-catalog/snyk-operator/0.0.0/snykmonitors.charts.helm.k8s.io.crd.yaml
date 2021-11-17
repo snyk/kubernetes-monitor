@@ -81,3 +81,8 @@ spec:
                     memory:
                       type: string
                   type: object
+                nodeAffinity:
+                  properties:
+                    disableBetaArchNodeSelector:
+                      type: boolean
+                  type: object
