@@ -46,7 +46,7 @@ export async function removeMonitor(): Promise<void> {
     } else {
       await platforms[testPlatform].clean();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Could not remove the Kubernetes-Monitor: ${error.message}`);
   }
 }
@@ -54,7 +54,7 @@ export async function removeMonitor(): Promise<void> {
 export async function removeLocalContainerRegistry(): Promise<void> {
   try {
     await exec('docker rm kind-registry --force');
-  } catch (error) {
+  } catch (error: any) {
     console.log(
       `Could not remove container registry, it probably did not exist: ${error.message}`,
     );
@@ -64,7 +64,7 @@ export async function removeLocalContainerRegistry(): Promise<void> {
 export async function removeUnusedKindNetwork(): Promise<void> {
   try {
     await exec('docker network rm kind');
-  } catch (error) {
+  } catch (error: any) {
     console.log(`Could not remove "kind" network: ${error.message}`);
   }
 }

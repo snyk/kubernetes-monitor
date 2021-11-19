@@ -1,20 +1,25 @@
 #---------------------------------------------------------------------
-# STAGE 1: Build skopeo and ecr-credentials-helper inside a temporary container
+# STAGE 1: Build skopeo inside a temporary container
 #---------------------------------------------------------------------
 FROM fedora:32 AS skopeo-build
 
 RUN dnf install -y golang git make
 RUN dnf install -y go-md2man gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
-RUN git clone --depth 1 -b 'v1.4.1' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+RUN git clone --depth 1 -b 'v1.5.1' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
 RUN cd $GOPATH/src/github.com/containers/skopeo \
   && make bin/skopeo DISABLE_CGO=1 \
   && make install
 
+#---------------------------------------------------------------------
+# STAGE 2: Build credential helpers inside a temporary container
+#---------------------------------------------------------------------
+FROM golang:1.17 AS cred-helpers-build
+
 RUN go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
-RUN cp $HOME/go/bin/docker-credential-ecr-login /usr/local/bin/docker-credential-ecr-login
+RUN go get -u github.com/chrismellard/docker-credential-acr-env
 
 #---------------------------------------------------------------------
-# STAGE 2: Build the kubernetes-monitor
+# STAGE 3: Build the kubernetes-monitor
 #---------------------------------------------------------------------
 FROM registry.access.redhat.com/ubi8/ubi:8.5
 
@@ -31,7 +36,7 @@ ENV NODE_ENV production
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs
 
-RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
+RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
 RUN chmod 755 /usr/bin/dumb-init
 
 RUN groupadd -g 10001 snyk
@@ -43,10 +48,13 @@ RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/b
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 
+# Copy credential helpers
+COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
+COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-acr-env /usr/bin/docker-credential-acr-env
+
 WORKDIR /srv/app
 
 COPY --chown=snyk:snyk --from=skopeo-build /usr/local/bin/skopeo /usr/bin/skopeo
-COPY --chown=snyk:snyk --from=skopeo-build /usr/local/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
