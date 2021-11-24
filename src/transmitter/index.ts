@@ -20,7 +20,7 @@ import {
 } from './types';
 import { getProxyAgent } from './proxy';
 
-interface HomebaseRequest {
+interface KubernetesUpstreamRequest {
   method: NeedleHttpVerbs;
   url: string;
   payload:
@@ -45,7 +45,7 @@ if (parse(upstreamUrl).protocol?.startsWith('https')) {
 
 // Async queue wraps around the call to retryRequest in order to limit
 // the number of requests in flight to Homebase at any one time.
-const reqQueue = queue(async function (req: HomebaseRequest) {
+const reqQueue = queue(async function (req: KubernetesUpstreamRequest) {
   return await retryRequest(req.method, req.url, req.payload);
 }, config.REQUEST_QUEUE_LENGTH);
 
@@ -57,7 +57,7 @@ export async function sendDepGraph(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { dependencyGraph, ...payloadWithoutDepGraph } = payload;
     try {
-      const request: HomebaseRequest = {
+      const request: KubernetesUpstreamRequest = {
         method: 'post',
         url: `${upstreamUrl}/api/v1/dependency-graph`,
         payload: payload,
@@ -88,7 +88,7 @@ export async function sendScanResults(
     // Intentionally removing scan results as they would be too big to log
     const payloadWithoutScanResults = { ...payload, scanResults: undefined };
     try {
-      const request: HomebaseRequest = {
+      const request: KubernetesUpstreamRequest = {
         method: 'post',
         url: `${upstreamUrl}/api/v1/scan-results`,
         payload: payload,
@@ -124,7 +124,7 @@ export async function sendWorkloadMetadata(
       'attempting to send workload metadata upstream',
     );
 
-    const request: HomebaseRequest = {
+    const request: KubernetesUpstreamRequest = {
       method: 'post',
       url: `${upstreamUrl}/api/v1/workload`,
       payload: payload,
@@ -195,7 +195,7 @@ export async function deleteWorkload(
   payload: IDeleteWorkloadPayload,
 ): Promise<void> {
   try {
-    const request: HomebaseRequest = {
+    const request: KubernetesUpstreamRequest = {
       method: 'delete',
       url: `${upstreamUrl}/api/v1/workload`,
       payload: payload,
