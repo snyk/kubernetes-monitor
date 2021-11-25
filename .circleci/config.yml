@@ -114,6 +114,19 @@ jobs:
                 name: Build image
             - run:
                 command: |
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
+                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
+                    sudo apt update &&
+                    sudo apt install -y wget &&
+                    wget https://github.com/sigstore/cosign/releases/download/v1.3.1/cosign-linux-amd64 &&
+                    sudo apt remove wget &&
+                    chmod +x ./cosign-linux-amd64 &&
+                    printf $COSIGN_PRIVATE_KEY_B64 | base64 -d > pri.key &&
+                    ./cosign-linux-amd64 sign --key ./pri.key $IMAGE_NAME_CANDIDATE
+                name: Sign image
+            - run:
+                command: |
                     ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
                 when: on_fail
