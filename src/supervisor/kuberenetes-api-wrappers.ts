@@ -1,5 +1,5 @@
 import * as http from 'http';
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 
 import { logger } from '../common/logger';
 import { IRequestError } from './types';

@@ -1,5 +1,5 @@
 import { KubernetesObject, V1Namespace } from '@kubernetes/client-node';
-import * as LruCache from 'lru-cache';
+import LruCache from 'lru-cache';
 
 import { config } from './common/config';
 
