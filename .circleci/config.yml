@@ -106,12 +106,24 @@ jobs:
             - install_python_requests
             - run:
                 command: |
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
-                    docker push ${IMAGE_NAME_CANDIDATE}
+                    IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+                    echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+                name: Export environment variables
+            - run:
+                command: |
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
                 name: Build image
+            - snyk/scan:
+                docker-image-name: ${IMAGE_NAME_CANDIDATE}
+                monitor-on-build: false
+                severity-threshold: high
+                target-file: Dockerfile
+            - run:
+                command: |
+                    docker push ${IMAGE_NAME_CANDIDATE}
+                name: Push image
             - run:
                 command: |
                     ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
@@ -903,6 +915,9 @@ jobs:
             - checkout
             - setup_node16
             - install_python_requests
+            - snyk/scan:
+                monitor-on-build: false
+                severity-threshold: high
             - run:
                 command: |
                     npm run build &&
@@ -929,6 +944,7 @@ orbs:
     aws-cli: circleci/aws-cli@2.0.3
     azure-cli: circleci/azure-cli@1.0.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
+    snyk: snyk/snyk@1.1.2
 staging_branch_only_filter:
     filters:
         branches:

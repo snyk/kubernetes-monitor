@@ -6,12 +6,24 @@ build_image:
     - checkout
     - install_python_requests
     - run:
+        name: Export environment variables
+        command: |
+          IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+          IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+          echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+    - run:
         name: Build image
         command: |
-          docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-          export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-          IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-          ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
+          docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+          ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
+    - snyk/scan:
+        docker-image-name: ${IMAGE_NAME_CANDIDATE}
+        severity-threshold: high
+        target-file: Dockerfile
+        monitor-on-build: false
+    - run:
+        name: Push image
+        command: |
           docker push ${IMAGE_NAME_CANDIDATE}
     - run:
         name: Notify Slack on failure
@@ -108,6 +120,9 @@ unit_tests:
     - checkout
     - setup_node16
     - install_python_requests
+    - snyk/scan:
+        severity-threshold: high
+        monitor-on-build: false
     - run:
         name: Unit tests
         command: |
