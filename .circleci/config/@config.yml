@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  snyk: snyk/snyk@1.1.2
+
 staging_branch_only_filter: &staging_branch_only_filter
   filters:
     branches:
