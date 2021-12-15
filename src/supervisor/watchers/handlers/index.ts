@@ -134,8 +134,10 @@ async function isSupportedWorkload(
     const continueToken = undefined;
     const fieldSelector = undefined;
     const labelSelector = undefined;
+    const allowWatchBookmarks = undefined;
     const limit = 1; // Try to grab only a single object
     const resourceVersion = undefined; // List anything in the cluster
+    const resourceVersionMatch = undefined;
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall =
       await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
@@ -145,11 +147,13 @@ async function isSupportedWorkload(
           namespace,
           'deploymentconfigs',
           pretty,
+          allowWatchBookmarks,
           continueToken,
           fieldSelector,
           labelSelector,
           limit,
           resourceVersion,
+          resourceVersionMatch,
           timeoutSeconds,
         ),
       );

@@ -1,8 +1,8 @@
-import * as nock from 'nock';
+import nock from 'nock';
 import { promisify } from 'util';
 import { randomUUID } from 'crypto';
-import * as fsExtra from 'fs-extra';
-import * as sleep from 'sleep-promise';
+import fsExtra = require('fs-extra');
+import sleep from 'sleep-promise';
 import { resolve as resolvePath } from 'path';
 import { copyFile, readFile, mkdir, exists } from 'fs';
 

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { randomUUID } from 'crypto';
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 
 import platforms, { getKubernetesVersionForPlatform } from './platforms';
 import deployers from './deployers';

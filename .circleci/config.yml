@@ -106,12 +106,24 @@ jobs:
             - install_python_requests
             - run:
                 command: |
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
-                    export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable") &&
-                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1} &&
-                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE} &&
-                    docker push ${IMAGE_NAME_CANDIDATE}
+                    IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+                    echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+                name: Export environment variables
+            - run:
+                command: |
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
                 name: Build image
+            - snyk/scan:
+                docker-image-name: ${IMAGE_NAME_CANDIDATE}
+                monitor-on-build: false
+                severity-threshold: high
+                target-file: Dockerfile
+            - run:
+                command: |
+                    docker push ${IMAGE_NAME_CANDIDATE}
+                name: Push image
             - run:
                 command: |
                     ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
@@ -610,18 +622,30 @@ jobs:
             - install_helm
             - run:
                 command: |
-                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-                    LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-                    IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved &&
-                    IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG} &&
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}
+                    IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
+                    IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
+                    echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+                    echo "export IMAGE_NAME_APPROVED=${IMAGE_NAME_APPROVED}" >> $BASH_ENV
+                    echo "export IMAGE_NAME_PUBLISHED=${IMAGE_NAME_PUBLISHED}" >> $BASH_ENV
+                name: Export environment variables
+            - snyk/scan:
+                monitor-on-build: true
+                severity-threshold: high
+            - snyk/scan:
+                docker-image-name: ${IMAGE_NAME_APPROVED}
+                monitor-on-build: true
+                severity-threshold: high
+                target-file: Dockerfile
+            - run:
+                command: |
                     docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
                     docker pull ${IMAGE_NAME_APPROVED} &&
                     docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
                     docker push ${IMAGE_NAME_PUBLISHED} &&
                     ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
                     ./scripts/publish-gh-pages.sh ${LATEST_TAG}
-                    # Preserve the latest tag for the next steps of this job
-                    echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
                 name: Publish
             - run:
                 command: |
@@ -903,6 +927,9 @@ jobs:
             - checkout
             - setup_node16
             - install_python_requests
+            - snyk/scan:
+                monitor-on-build: false
+                severity-threshold: high
             - run:
                 command: |
                     npm run build &&
@@ -929,6 +956,7 @@ orbs:
     aws-cli: circleci/aws-cli@2.0.3
     azure-cli: circleci/azure-cli@1.0.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
+    snyk: snyk/snyk@1.1.2
 staging_branch_only_filter:
     filters:
         branches:

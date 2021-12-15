@@ -1,4 +1,4 @@
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 import { parse, stringify } from 'yaml';
 import { readFileSync, writeFileSync } from 'fs';
 

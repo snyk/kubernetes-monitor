@@ -1,8 +1,8 @@
 import { chmodSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import { platform } from 'os';
 import { resolve } from 'path';
-import * as needle from 'needle';
-import * as sleep from 'sleep-promise';
+import needle from 'needle';
+import sleep from 'sleep-promise';
 import type { V1ServiceAccount } from '@kubernetes/client-node';
 
 import { execWrapper as exec } from './exec';

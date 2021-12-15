@@ -1,5 +1,5 @@
-import * as needle from 'needle';
-import * as sleep from 'sleep-promise';
+import needle from 'needle';
+import sleep from 'sleep-promise';
 import {
   IWorkloadLocator,
   IWorkloadMetadata,
