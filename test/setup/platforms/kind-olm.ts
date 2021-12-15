@@ -1,4 +1,4 @@
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 
 import { createCluster as kindCreateCluster } from './kind';
 import * as kubectl from '../../helpers/kubectl';

@@ -43,6 +43,7 @@ export async function paginatedDeploymentConfigList(
         namespace,
         'deploymentconfigs',
         pretty,
+        _allowWatchBookmarks,
         _continue,
         fieldSelector,
         labelSelector,

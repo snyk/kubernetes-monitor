@@ -33,6 +33,8 @@ COPY LICENSE /licenses/LICENSE
 
 ENV NODE_ENV production
 
+RUN yum upgrade -y
+
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs
 
