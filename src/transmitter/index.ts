@@ -1,7 +1,7 @@
 import { parse } from 'url';
 import { queue } from 'async';
-import * as needle from 'needle';
-import * as sleep from 'sleep-promise';
+import needle from 'needle';
+import sleep from 'sleep-promise';
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
 import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';

@@ -1,8 +1,7 @@
-import { Writable } from 'stream';
 import { chmodSync, writeFileSync, existsSync } from 'fs';
 import { platform, tmpdir } from 'os';
 import { resolve } from 'path';
-import * as needle from 'needle';
+import needle from 'needle';
 
 import { throwIfEnvironmentVariableUnset } from './helpers';
 import * as kubectl from '../../helpers/kubectl';
@@ -147,10 +146,10 @@ export async function clean(): Promise<void> {
   ]);
 }
 
-async function extractOpenShiftCli(fileStream: Writable): Promise<void> {
+async function extractOpenShiftCli(responseBody: any): Promise<void> {
   const tmp = tmpdir();
   const temporaryTarLocation = `${tmp}/openshift-cli`;
-  writeFileSync(temporaryTarLocation, fileStream);
+  writeFileSync(temporaryTarLocation, responseBody);
 
   const currentLocation = process.cwd();
   await exec(`tar -C ${currentLocation} -xzvf ${temporaryTarLocation} oc`);

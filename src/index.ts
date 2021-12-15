@@ -1,4 +1,4 @@
-import { emptyDirSync } from 'fs-extra';
+import fsExtra = require('fs-extra');
 
 import * as SourceMapSupport from 'source-map-support';
 
@@ -42,7 +42,7 @@ process.on('unhandledRejection', (reason, promise) => {
 function cleanUpTempStorage() {
   const { IMAGE_STORAGE_ROOT } = config;
   try {
-    emptyDirSync(IMAGE_STORAGE_ROOT);
+    fsExtra.emptyDirSync(IMAGE_STORAGE_ROOT);
     logger.info({}, 'Cleaned temp storage');
   } catch (err) {
     logger.error({ err }, 'Error deleting files');

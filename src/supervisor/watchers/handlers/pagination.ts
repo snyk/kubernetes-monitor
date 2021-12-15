@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http';
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 import type {
   KubernetesListObject,
   KubernetesObject,

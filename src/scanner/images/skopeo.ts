@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 
 import { logger } from '../../common/logger';
 import { config } from '../../common/config';

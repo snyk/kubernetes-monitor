@@ -1,6 +1,6 @@
 import * as async from 'async';
 import * as fs from 'fs';
-import * as sleep from 'sleep-promise';
+import sleep from 'sleep-promise';
 import * as YAML from 'yaml';
 
 import { V1PodSpec, V1Pod } from '@kubernetes/client-node';
