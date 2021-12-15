@@ -413,20 +413,32 @@ publish:
     - install_python_requests
     - install_helm
     - run:
+        name: Export environment variables
+        command: |
+          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+          LATEST_TAG=${LATEST_TAG_WITH_V:1}
+          IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
+          IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
+          echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+          echo "export IMAGE_NAME_APPROVED=${IMAGE_NAME_APPROVED}" >> $BASH_ENV
+          echo "export IMAGE_NAME_PUBLISHED=${IMAGE_NAME_PUBLISHED}" >> $BASH_ENV
+    - snyk/scan:
+        severity-threshold: high
+        monitor-on-build: true
+    - snyk/scan:
+        docker-image-name: ${IMAGE_NAME_APPROVED}
+        severity-threshold: high
+        target-file: Dockerfile
+        monitor-on-build: true
+    - run:
         name: Publish
         command: |
-          LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-          LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-          IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved &&
-          IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG} &&
           docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
           docker pull ${IMAGE_NAME_APPROVED} &&
           docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
           docker push ${IMAGE_NAME_PUBLISHED} &&
           ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
           ./scripts/publish-gh-pages.sh ${LATEST_TAG}
-          # Preserve the latest tag for the next steps of this job
-          echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
     - run:
         name: Download operator-sdk
         command: |
