@@ -101,8 +101,9 @@ nodeSelector: {}
 nodeAffinity:
   disableBetaArchNodeSelector: false
 
-# Additional annotations for the snyk-monitor Deployment's Pod
+# Additional labels and annotations for the snyk-monitor Deployment's Pod
 metadata:
+  labels: {}
   annotations: {}
 
 psp:
