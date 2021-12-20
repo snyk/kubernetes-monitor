@@ -1,6 +1,6 @@
 build_image:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
@@ -84,7 +84,7 @@ build_and_upload_operator:
 lint:
   machine:
     docker_layer_caching: true
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
   steps:
     - checkout
     - setup_node16
@@ -102,7 +102,7 @@ lint:
 code_formatter:
   machine:
     docker_layer_caching: true
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
   steps:
     - checkout
     - setup_node16
@@ -119,7 +119,7 @@ code_formatter:
   working_directory: ~/kubernetes-monitor
 unit_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -142,7 +142,7 @@ unit_tests:
 
 system_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -173,7 +173,7 @@ system_tests:
 
 integration_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -198,7 +198,7 @@ integration_tests:
 
 integration_tests_helm:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -223,7 +223,7 @@ integration_tests_helm:
 
 integration_tests_proxy:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -248,7 +248,7 @@ integration_tests_proxy:
 
 eks_integration_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -276,7 +276,7 @@ eks_integration_tests:
 
 aks_integration_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -303,7 +303,7 @@ aks_integration_tests:
 
 openshift3_integration_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -327,7 +327,7 @@ openshift3_integration_tests:
 
 openshift4_integration_tests:
   machine:
-    image: ubuntu-2004:202010-01
+    image: ubuntu-2004:202111-01
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:

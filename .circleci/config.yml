@@ -32,7 +32,7 @@ jobs:
     aks_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -106,7 +106,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     build_image:
         machine:
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - install_python_requests
@@ -139,7 +139,7 @@ jobs:
     code_formatter:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -204,7 +204,7 @@ jobs:
     eks_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - install_python_requests
@@ -231,7 +231,7 @@ jobs:
     integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -255,7 +255,7 @@ jobs:
     integration_tests_helm:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -279,7 +279,7 @@ jobs:
     integration_tests_operator_on_k8s:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -304,7 +304,7 @@ jobs:
     integration_tests_proxy:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -328,7 +328,7 @@ jobs:
     lint:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -346,7 +346,7 @@ jobs:
     openshift3_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -369,7 +369,7 @@ jobs:
     openshift4_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -876,7 +876,7 @@ jobs:
     system_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -933,7 +933,7 @@ jobs:
     unit_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
