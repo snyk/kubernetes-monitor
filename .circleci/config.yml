@@ -964,8 +964,8 @@ master_branch_only_filter:
             only:
                 - master
 orbs:
-    aws-cli: circleci/aws-cli@2.0.3
-    azure-cli: circleci/azure-cli@1.0.0
+    aws-cli: circleci/aws-cli@2.0.6
+    azure-cli: circleci/azure-cli@1.2.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
     snyk: snyk/snyk@1.1.2
 staging_branch_only_filter:
