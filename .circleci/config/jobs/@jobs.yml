@@ -354,7 +354,7 @@ openshift4_integration_tests:
 ######################## MERGE TO STAGING ########################
 tag_and_push:
   docker:
-    - image: cimg/node:16.5
+    - image: cimg/node:16.13
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD
@@ -382,7 +382,7 @@ tag_and_push:
 
 deploy_dev:
   docker:
-    - image: cimg/node:16.5
+    - image: cimg/node:16.13
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD
@@ -408,7 +408,7 @@ deploy_dev:
 ######################## MERGE TO MASTER ########################
 publish:
   docker:
-    - image: cimg/node:16.5
+    - image: cimg/node:16.13
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD
@@ -471,7 +471,7 @@ publish:
 
 deploy_prod:
   docker:
-    - image: cimg/node:16.5
+    - image: cimg/node:16.13
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD

@@ -159,7 +159,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - install_python_requests
@@ -183,7 +183,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - install_python_requests
@@ -620,7 +620,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - setup_remote_docker
@@ -908,7 +908,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - setup_remote_docker
