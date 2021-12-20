@@ -60,7 +60,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: circleci/python:3.9
+              image: cimg/python:3.10
         steps:
             - checkout
             - setup_remote_docker
@@ -814,7 +814,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/python:3.9.5
+              image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -846,7 +846,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/python:3.9.5
+              image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests

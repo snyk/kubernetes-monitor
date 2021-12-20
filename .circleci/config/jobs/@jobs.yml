@@ -33,7 +33,7 @@ build_image:
 
 build_and_upload_operator:
   docker:
-    - image: circleci/python:3.9
+    - image: cimg/python:3.10
       auth:
         username: $DOCKERHUB_USER
         password: $DOCKERHUB_PASSWORD

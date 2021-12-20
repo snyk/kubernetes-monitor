@@ -1,5 +1,5 @@
 docker:
-  - image: cimg/python:3.9.5
+  - image: cimg/python:3.10
     auth:
       username: $DOCKERHUB_USER
       password: $DOCKERHUB_PASSWORD
