@@ -32,7 +32,7 @@ jobs:
     aks_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -60,7 +60,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: circleci/python:3.9
+              image: cimg/python:3.10
         steps:
             - checkout
             - setup_remote_docker
@@ -76,7 +76,13 @@ jobs:
                     OPERATOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
                     MONITOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
                     scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
+                    echo "export OPERATOR_TAG=$OPERATOR_TAG" >> $BASH_ENV
                 name: Create Operator and push Operator image to DockerHub
+            - snyk/scan:
+                docker-image-name: snyk/kubernetes-operator:${OPERATOR_TAG}
+                monitor-on-build: false
+                severity-threshold: high
+                target-file: snyk-operator/build/Dockerfile
             - run:
                 command: |
                     export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
@@ -100,7 +106,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     build_image:
         machine:
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - install_python_requests
@@ -133,7 +139,7 @@ jobs:
     code_formatter:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -153,7 +159,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - install_python_requests
@@ -177,7 +183,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - install_python_requests
@@ -198,7 +204,7 @@ jobs:
     eks_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - install_python_requests
@@ -225,7 +231,7 @@ jobs:
     integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -249,7 +255,7 @@ jobs:
     integration_tests_helm:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -273,7 +279,7 @@ jobs:
     integration_tests_operator_on_k8s:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -298,7 +304,7 @@ jobs:
     integration_tests_proxy:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -322,7 +328,7 @@ jobs:
     lint:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -340,7 +346,7 @@ jobs:
     openshift3_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -363,7 +369,7 @@ jobs:
     openshift4_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -614,7 +620,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - setup_remote_docker
@@ -661,6 +667,11 @@ jobs:
                     MONITOR_TAG="${LATEST_TAG}"
                     python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                 name: Create Operator and push Operator image to DockerHub
+            - snyk/scan:
+                docker-image-name: snyk/kubernetes-operator:${OPERATOR_TAG}
+                monitor-on-build: true
+                severity-threshold: high
+                target-file: snyk-operator/build/Dockerfile
             - run:
                 command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
                 name: Notify Slack on failure
@@ -803,7 +814,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/python:3.9.5
+              image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -835,7 +846,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/python:3.9.5
+              image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -865,7 +876,7 @@ jobs:
     system_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -897,7 +908,7 @@ jobs:
             - auth:
                 password: $DOCKERHUB_PASSWORD
                 username: $DOCKERHUB_USER
-              image: cimg/node:16.5
+              image: cimg/node:16.13
         steps:
             - checkout
             - setup_remote_docker
@@ -922,7 +933,7 @@ jobs:
     unit_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202010-01
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
             - setup_node16
@@ -953,8 +964,8 @@ master_branch_only_filter:
             only:
                 - master
 orbs:
-    aws-cli: circleci/aws-cli@2.0.3
-    azure-cli: circleci/azure-cli@1.0.0
+    aws-cli: circleci/aws-cli@2.0.6
+    azure-cli: circleci/azure-cli@1.2.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
     snyk: snyk/snyk@1.1.2
 staging_branch_only_filter:
