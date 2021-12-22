@@ -141,10 +141,12 @@ spec:
               {{- toYaml . | nindent 14 }}
             {{- end }}
           livenessProbe:
+            initialDelaySeconds: 60
             exec:
               command:
               - "true"
           readinessProbe:
+            initialDelaySeconds: 60
             exec:
               command:
               - "true"
