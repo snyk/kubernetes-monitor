@@ -280,6 +280,7 @@ function shouldRetryRequest(
   const networkErrorMessages: string[] = [
     'socket hang up',
     'Client network socket disconnected before secure TLS connection was established',
+    'write ECONNRESET', // May happen due to Keep-Alive race condition - https://code-examples.net/en/q/28a8069
   ];
 
   if (!stillHaveRetries) {
