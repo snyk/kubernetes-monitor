@@ -121,6 +121,9 @@ excludedNamespaces:
 #         fsGroup: <-- here
 securityContext:
   fsGroup:
+  
+# Set node tolerations for snyk-monitor
+tolerations: []
 
 # A projected volume maps several existing volume sources into the same directory.
 # https://kubernetes.io/docs/concepts/storage/volumes/#projected
