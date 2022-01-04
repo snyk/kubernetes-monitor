@@ -31,7 +31,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.77.2
+  tag: 1.78.1
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -121,6 +121,9 @@ excludedNamespaces:
 #         fsGroup: <-- here
 securityContext:
   fsGroup:
+  
+# Set node tolerations for snyk-monitor
+tolerations: []
 
 # A projected volume maps several existing volume sources into the same directory.
 # https://kubernetes.io/docs/concepts/storage/volumes/#projected
