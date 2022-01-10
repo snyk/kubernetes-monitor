@@ -106,6 +106,12 @@ metadata:
   labels: {}
   annotations: {}
 
+# Override the NetworkPolicy
+networkPolicy:
+  enabled: true
+  egress:
+  - {}
+
 psp:
   enabled: false
   name: ""
