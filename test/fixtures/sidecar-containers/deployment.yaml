@@ -48,6 +48,12 @@ spec:
           successThreshold: 1
           timeoutSeconds: 5
         name: hello-world
+        args: [something]
+        env: 
+          - name: NODE_EXTRA_CA_CERTS
+            value: "important info"
+        command:
+          - "do something"
         ports:
         - containerPort: 8080
           name: http
