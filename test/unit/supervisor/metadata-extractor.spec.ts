@@ -124,5 +124,10 @@ describe('metadata extractor tests', () => {
         imageName: 'eu.gcr.io/cookie/hello-world:1.20191125.132107-4664980',
       }),
     );
+    const container = imageMetadataResult[0].podSpec.containers[0];
+
+    expect(container.args).toBeUndefined();
+    expect(container.command).toBeUndefined();
+    expect(container.env).toBeUndefined();
   });
 });

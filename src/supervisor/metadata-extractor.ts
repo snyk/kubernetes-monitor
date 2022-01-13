@@ -24,6 +24,9 @@ export function buildImageMetadata(
 
   const containerNameToSpec: { [key: string]: V1Container } = {};
   for (const container of podSpec.containers) {
+    delete container.args;
+    delete container.env;
+    delete container.command;
     containerNameToSpec[container.name] = container;
   }
 
