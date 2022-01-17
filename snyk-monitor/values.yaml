@@ -136,3 +136,10 @@ tolerations: []
 volumes:
   projected:
     serviceAccountToken: false
+
+skopeo:
+  compression:
+    level: 6
+
+workers:
+  count: 10

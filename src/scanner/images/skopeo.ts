@@ -44,6 +44,8 @@ export async function pull(
 
   const args: Array<processWrapper.IProcessArgument> = [];
   args.push({ body: 'copy', sanitise: false });
+  args.push({ body: '--dest-compress-level', sanitise: false });
+  args.push({ body: `${config.SKOPEO_COMPRESSION_LEVEL}`, sanitise: false });
   args.push(...credentialsParameters);
   args.push(...certificatesParameters);
   args.push({

@@ -11,4 +11,8 @@ export enum PodPhase {
   Unknown = 'Unknown',
 }
 
-export const ECONNRESET_ERROR_CODE = 'ECONNRESET';
+export const RETRYABLE_NETWORK_ERRORS: readonly string[] = [
+  'ECONNREFUSED',
+  'ETIMEDOUT',
+  'ECONNRESET',
+];
