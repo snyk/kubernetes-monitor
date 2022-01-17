@@ -61,7 +61,7 @@ async function queueWorkerWorkloadScan(
 
 const workloadsToScanQueue = async.queue<ImagesToScanQueueData>(
   queueWorkerWorkloadScan,
-  config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT,
+  config.WORKERS_COUNT,
 );
 
 workloadsToScanQueue.error(function (err, task) {

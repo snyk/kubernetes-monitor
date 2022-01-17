@@ -71,6 +71,7 @@ describe('extractNamespaceName()', () => {
     expect(config.HTTP_PROXY).toBeUndefined();
     expect(config.NO_PROXY).toBeUndefined();
     expect(config.SKIP_K8S_JOBS).toEqual(false);
-    expect(config.WORKLOADS_TO_SCAN_QUEUE_WORKER_COUNT).toEqual(10);
+    expect(config.WORKERS_COUNT).toEqual(10);
+    expect(config.SKOPEO_COMPRESSION_LEVEL).toEqual(6);
   });
 });
