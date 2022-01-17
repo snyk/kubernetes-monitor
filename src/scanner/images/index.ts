@@ -4,7 +4,7 @@ import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { logger } from '../../common/logger';
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
-import { IPullableImage, IScanImage, SkopeoRepositoryType } from './types';
+import { IPullableImage, IScanImage } from './types';
 import { IScanResult } from '../types';
 import {
   buildDockerPropertiesOnDepTree,
@@ -22,23 +22,11 @@ async function pullImageBySkopeoRepo(
 ): Promise<IPullableImage> {
   // Scan image by digest if exists, other way fallback tag
   const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
-  imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive;
-  try {
-    // copy docker archive image
-    await skopeoCopy(
-      scanId,
-      imageToPull.fileSystemPath,
-      imageToPull.skopeoRepoType,
-    );
-  } catch (dockerError) {
-    imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
-    // copy oci archive image
-    await skopeoCopy(
-      scanId,
-      imageToPull.fileSystemPath,
-      imageToPull.skopeoRepoType,
-    );
-  }
+  await skopeoCopy(
+    scanId,
+    imageToPull.fileSystemPath,
+    imageToPull.skopeoRepoType,
+  );
   return imageToPull;
 }
 
@@ -120,22 +108,13 @@ export async function scanImages(
 ): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
-  for (const {
-    imageName,
-    fileSystemPath,
-    imageWithDigest,
-    skopeoRepoType,
-  } of images) {
+  for (const { imageName, fileSystemPath, imageWithDigest } of images) {
     try {
       const shouldIncludeAppVulns = true;
-      const archiveType =
-        skopeoRepoType == SkopeoRepositoryType.DockerArchive
-          ? 'docker-archive'
-          : 'oci-archive';
-      const dockerArchivePath = `${archiveType}:${fileSystemPath}`;
+      const archivePath = `docker-archive:${fileSystemPath}`;
 
       const pluginResponse = await scan({
-        path: dockerArchivePath,
+        path: archivePath,
         imageNameAndTag: imageName,
         'app-vulns': shouldIncludeAppVulns,
       });

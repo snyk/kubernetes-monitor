@@ -270,7 +270,10 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
                 { type: 'imageOsReleasePrettyName', data: expect.any(String) },
               ]),
               target: { image: 'docker-image|docker.io/library/java' },
-              identity: { type: 'deb', args: { platform: 'linux/amd64' } },
+              identity: {
+                type: 'deb',
+                args: { platform: 'linux/amd64' },
+              },
             },
             {
               facts: [

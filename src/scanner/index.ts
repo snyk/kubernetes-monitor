@@ -17,7 +17,11 @@ import {
   ILocalWorkloadLocator,
   Telemetry,
 } from '../transmitter/types';
-import { IPullableImage, IScanImage } from './images/types';
+import {
+  IPullableImage,
+  IScanImage,
+  SkopeoRepositoryType,
+} from './images/types';
 import {
   getWorkloadAlreadyScanned,
   getWorkloadImageAlreadyScanned,
@@ -29,7 +33,7 @@ export async function processWorkload(
 ): Promise<void> {
   // every workload metadata references the same workload name, grab it from the first one
   const workloadName = workloadMetadata[0].name;
-  const uniqueImages: IScanImage[] = getUniqueImages(workloadMetadata);
+  const uniqueImages = getUniqueImages(workloadMetadata);
 
   logger.info(
     { workloadName, imageCount: uniqueImages.length },
@@ -74,42 +78,37 @@ export async function sendDeleteWorkloadRequest(
 }
 
 export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {
-  const uniqueImages: { [key: string]: IScanImage } = workloadMetadata.reduce(
-    (accum, meta) => {
-      logger.info(
-        {
-          workloadName: workloadMetadata[0].name,
-          name: meta.imageName,
-          id: meta.imageId,
-        },
-        'image metadata',
-      );
-      // example: For DCR "redis:latest"
-      // example: For GCR "gcr.io/test-dummy/redis:latest"
-      // example: For ECR "291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/redis:latest"
-      // meta.imageName can be different depends on CR
-      const { imageName } = getImageParts(meta.imageName);
-      // meta.imageId can be different depends on CR
-      // example: For DCR "docker.io/library/redis@sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
-      // example: For GCR "sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
-      // example: For ECR "sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
-      let digest: string | undefined = undefined;
-      if (
-        meta.imageId.lastIndexOf('@') > -1 ||
-        meta.imageId.startsWith('sha')
-      ) {
-        digest = meta.imageId.substring(meta.imageId.lastIndexOf('@') + 1);
-      }
+  const uniqueImages = workloadMetadata.reduce((accum, meta) => {
+    logger.info(
+      {
+        workloadName: workloadMetadata[0].name,
+        name: meta.imageName,
+        id: meta.imageId,
+      },
+      'image metadata',
+    );
+    // example: For DCR "redis:latest"
+    // example: For GCR "gcr.io/test-dummy/redis:latest"
+    // example: For ECR "291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/redis:latest"
+    // meta.imageName can be different depends on CR
+    const { imageName } = getImageParts(meta.imageName);
+    // meta.imageId can be different depends on CR
+    // example: For DCR "docker.io/library/redis@sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
+    // example: For GCR "sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
+    // example: For ECR "sha256:8e9f8546050da8aae393a41d65ad37166b4f0d8131d627a520c0f0451742e9d6"
+    let digest: string | undefined = undefined;
+    if (meta.imageId.lastIndexOf('@') > -1 || meta.imageId.startsWith('sha')) {
+      digest = meta.imageId.substring(meta.imageId.lastIndexOf('@') + 1);
+    }
 
-      accum[meta.imageName] = {
-        imageWithDigest: digest && `${imageName}@${digest}`,
-        imageName: meta.imageName, // Image name with tag
-      };
+    accum[meta.imageName] = {
+      imageWithDigest: digest && `${imageName}@${digest}`,
+      imageName: meta.imageName, // Image name with tag
+      skopeoRepoType: SkopeoRepositoryType.DockerArchive,
+    };
 
-      return accum;
-    },
-    {},
-  );
+    return accum;
+  }, {} as Record<string, IScanImage>);
 
   return Object.values(uniqueImages);
 }
