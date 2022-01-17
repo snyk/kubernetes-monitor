@@ -128,6 +128,10 @@ spec:
             value: {{ .Values.log_level }}
           - name: SKIP_K8S_JOBS
             value: {{ quote .Values.skip_k8s_jobs }}
+          - name: SNYK_SKOPEO_COMPRESSION_LEVEL
+            value: {{ quote .Values.skopeo.compression.level }}
+          - name: SNYK_WORKERS_COUNT
+            value: {{ quote .Values.workers.count }}
           {{- with .Values.envs }}
           {{- toYaml . | trim | nindent 10 -}}
           {{- end }}

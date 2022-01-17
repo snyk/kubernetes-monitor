@@ -2,7 +2,16 @@ apiVersion: v1
 entries:
   snyk-monitor:
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.209571155Z"
+    created: "2022-01-17T18:28:43.771091818Z"
+    description: A Helm chart for the Snyk Monitor
+    digest: 699c9f063af09f490f95765d0d21315c659fd9252b56ac53e50f0ee329f41f02
+    icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
+    name: snyk-monitor
+    urls:
+    - snyk-monitor-1.80.0.tgz
+    version: 1.80.0
+  - apiVersion: v1
+    created: "2022-01-17T18:28:43.767970796Z"
     description: A Helm chart for the Snyk Monitor
     digest: d595cd2fc92b92a00a408dddf4e99f08edd40fe9c9853be38fe516ef807c4e63
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -11,7 +20,7 @@ entries:
     - snyk-monitor-1.79.1.tgz
     version: 1.79.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.208858591Z"
+    created: "2022-01-17T18:28:43.767174379Z"
     description: A Helm chart for the Snyk Monitor
     digest: 313e532282c66ee88f9220d19aaf59bf81df890635f0262303e3d923792de6e1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -20,7 +29,7 @@ entries:
     - snyk-monitor-1.79.0.tgz
     version: 1.79.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.207459445Z"
+    created: "2022-01-17T18:28:43.766524291Z"
     description: A Helm chart for the Snyk Monitor
     digest: f1176060220e7730dfbee48642c86d0949872dd33d300663a795995fb3bb0517
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -29,7 +38,7 @@ entries:
     - snyk-monitor-1.78.1.tgz
     version: 1.78.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.206804773Z"
+    created: "2022-01-17T18:28:43.765859077Z"
     description: A Helm chart for the Snyk Monitor
     digest: 05d41ddae31edd8111ed549065a332bb8bd607cccd85e70f220b29897a57eb64
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -38,7 +47,7 @@ entries:
     - snyk-monitor-1.77.2.tgz
     version: 1.77.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.206150973Z"
+    created: "2022-01-17T18:28:43.765222794Z"
     description: A Helm chart for the Snyk Monitor
     digest: 367e6d53c14b1fc685161a5d060ec5d73ea8ca139a63885732e086c2ffc691c1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -47,7 +56,7 @@ entries:
     - snyk-monitor-1.77.1.tgz
     version: 1.77.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.205492478Z"
+    created: "2022-01-17T18:28:43.76456172Z"
     description: A Helm chart for the Snyk Monitor
     digest: 4f3756bcdf72fad5ab34bf5a489545cac0ad0662ac7e346f57a632c25940418c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -56,7 +65,7 @@ entries:
     - snyk-monitor-1.77.0.tgz
     version: 1.77.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.204839639Z"
+    created: "2022-01-17T18:28:43.763890429Z"
     description: A Helm chart for the Snyk Monitor
     digest: 14420f1b8a971ea65e6497cd9e214d5ae19e24ef817a6ceee08cd9e9d6ad0d8a
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -65,7 +74,7 @@ entries:
     - snyk-monitor-1.75.1.tgz
     version: 1.75.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.204191231Z"
+    created: "2022-01-17T18:28:43.763275449Z"
     description: A Helm chart for the Snyk Monitor
     digest: b44a565e9bd80afaa1f025ca27a28bdca207c57629dc1e8d1688912b65ade147
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -74,7 +83,7 @@ entries:
     - snyk-monitor-1.75.0.tgz
     version: 1.75.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.203556718Z"
+    created: "2022-01-17T18:28:43.762637203Z"
     description: A Helm chart for the Snyk Monitor
     digest: a5db03e7c3a6c3e60bd57d9ab466233c355fc6c4ca5773322cd1edacb9b1c92d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -83,7 +92,7 @@ entries:
     - snyk-monitor-1.73.3.tgz
     version: 1.73.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.202876143Z"
+    created: "2022-01-17T18:28:43.761982435Z"
     description: A Helm chart for the Snyk Monitor
     digest: e4f31e128b139859f32668bed8c2c69e6f2c418ab772f722f4acb542dee2eeaf
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -92,7 +101,7 @@ entries:
     - snyk-monitor-1.73.1.tgz
     version: 1.73.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.202240358Z"
+    created: "2022-01-17T18:28:43.761336545Z"
     description: A Helm chart for the Snyk Monitor
     digest: bd971f59e69f9fa2f8781a52f78f396e74e4c20b2658abc88a2a0528b6563710
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -101,7 +110,7 @@ entries:
     - snyk-monitor-1.73.0.tgz
     version: 1.73.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.201569527Z"
+    created: "2022-01-17T18:28:43.760708686Z"
     description: A Helm chart for the Snyk Monitor
     digest: c246db901c5a53e684f9e641bcaf68959a0c8cbce020205fe7be08de5e43b9bb
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -110,7 +119,7 @@ entries:
     - snyk-monitor-1.72.0.tgz
     version: 1.72.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.200898499Z"
+    created: "2022-01-17T18:28:43.760025737Z"
     description: A Helm chart for the Snyk Monitor
     digest: 3c7a4e1e139fcc07f072dadb61a4fa499cb3638f0d24783ebc7a60fad4957eff
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -119,7 +128,7 @@ entries:
     - snyk-monitor-1.70.4.tgz
     version: 1.70.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.200168914Z"
+    created: "2022-01-17T18:28:43.758777826Z"
     description: A Helm chart for the Snyk Monitor
     digest: 025db5c01e6f9d74958ea76f6d4fc6787f916042f4862edbd9ce71a140e05a40
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -128,7 +137,7 @@ entries:
     - snyk-monitor-1.70.1.tgz
     version: 1.70.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.198658996Z"
+    created: "2022-01-17T18:28:43.75785287Z"
     description: A Helm chart for the Snyk Monitor
     digest: 27661faee3b691d197a42fbbd3e9570ca7bfcc2249a6753261dd09845911bb6f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -137,7 +146,7 @@ entries:
     - snyk-monitor-1.68.8.tgz
     version: 1.68.8
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.198011591Z"
+    created: "2022-01-17T18:28:43.757216249Z"
     description: A Helm chart for the Snyk Monitor
     digest: ecf46130fa95a624f5c92ea25448c4e488d319d183bcb1fc2e4bec5081050795
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -146,7 +155,7 @@ entries:
     - snyk-monitor-1.68.7.tgz
     version: 1.68.7
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.197371881Z"
+    created: "2022-01-17T18:28:43.756594204Z"
     description: A Helm chart for the Snyk Monitor
     digest: 10682095666b7d15b123256e4e1e5a84bc752cbd1de172a72b435cfb7f67b905
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -155,7 +164,7 @@ entries:
     - snyk-monitor-1.68.4.tgz
     version: 1.68.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.196752764Z"
+    created: "2022-01-17T18:28:43.755925507Z"
     description: A Helm chart for the Snyk Monitor
     digest: 38ab5b86036e64ee9cd089c458978e87fcc192b4b7a7d6fc62fd50cfe6530e48
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -164,7 +173,7 @@ entries:
     - snyk-monitor-1.68.2.tgz
     version: 1.68.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.196091371Z"
+    created: "2022-01-17T18:28:43.755298709Z"
     description: A Helm chart for the Snyk Monitor
     digest: b267361bca64e80ec6f44ff3ac269e2c8172584322c869666ee05a78515ed1ed
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -173,7 +182,7 @@ entries:
     - snyk-monitor-1.68.1.tgz
     version: 1.68.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.195462971Z"
+    created: "2022-01-17T18:28:43.754668855Z"
     description: A Helm chart for the Snyk Monitor
     digest: 5242ac0d74cbfe43bb828a19cdbd09977ace97261f358747f41ff2cc93f10d01
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -182,7 +191,7 @@ entries:
     - snyk-monitor-1.68.0.tgz
     version: 1.68.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.194802819Z"
+    created: "2022-01-17T18:28:43.754046286Z"
     description: A Helm chart for the Snyk Monitor
     digest: 91ac03cf55f7a12425136795c70762bbc8737ac68bdab8cb87f7411f500cee1e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -191,7 +200,7 @@ entries:
     - snyk-monitor-1.67.2.tgz
     version: 1.67.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.194154009Z"
+    created: "2022-01-17T18:28:43.753407044Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8a271f574df5b4ca2848ede18de454d8a6996e9ad4d816a160f39a2ae3a3b30a
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -200,7 +209,7 @@ entries:
     - snyk-monitor-1.67.1.tgz
     version: 1.67.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.19352519Z"
+    created: "2022-01-17T18:28:43.752778435Z"
     description: A Helm chart for the Snyk Monitor
     digest: ec35ddcbb154f720babb025e7806b0cd4718d5cb9211270d1f2f016dc5c52c3a
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -209,7 +218,7 @@ entries:
     - snyk-monitor-1.67.0.tgz
     version: 1.67.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.18629298Z"
+    created: "2022-01-17T18:28:43.747283106Z"
     description: A Helm chart for the Snyk Monitor
     digest: 787a8591afab8a8aca3c3b2c99ff0e484cd148eae89c1cf24a5f7d83caa81c28
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -218,7 +227,7 @@ entries:
     - snyk-monitor-1.66.23.tgz
     version: 1.66.23
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.185267306Z"
+    created: "2022-01-17T18:28:43.746627835Z"
     description: A Helm chart for the Snyk Monitor
     digest: 7b410aa8d58bdb7e34aba26d306f5229661917eafda3e8f0d8a3723a241042ff
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -227,7 +236,7 @@ entries:
     - snyk-monitor-1.66.20.tgz
     version: 1.66.20
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.183222528Z"
+    created: "2022-01-17T18:28:43.745387818Z"
     description: A Helm chart for the Snyk Monitor
     digest: 91094041b0bdd8c88ba3f0cd518da4d202b27994e438ce009970bd197a0e4208
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -236,7 +245,7 @@ entries:
     - snyk-monitor-1.66.18.tgz
     version: 1.66.18
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.18215546Z"
+    created: "2022-01-17T18:28:43.744738292Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9ec1091f30c162836745593527505d5c6e0981f384c311347c6e254f371f1071
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -245,7 +254,7 @@ entries:
     - snyk-monitor-1.66.16.tgz
     version: 1.66.16
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.181124194Z"
+    created: "2022-01-17T18:28:43.744085772Z"
     description: A Helm chart for the Snyk Monitor
     digest: cd668a3f222cdfaaeddeb9e49bd9277a540460a634cd1dda5a211a3cedf416c4
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -254,7 +263,7 @@ entries:
     - snyk-monitor-1.66.13.tgz
     version: 1.66.13
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.18007571Z"
+    created: "2022-01-17T18:28:43.743440171Z"
     description: A Helm chart for the Snyk Monitor
     digest: cca5e4b95f37fea038bf10d5ce37335ad38ec68892d5ae9e96f824400c1ab1f6
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -263,7 +272,7 @@ entries:
     - snyk-monitor-1.66.10.tgz
     version: 1.66.10
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.192897058Z"
+    created: "2022-01-17T18:28:43.752127199Z"
     description: A Helm chart for the Snyk Monitor
     digest: dde259915d6671490e7e08ebc255d88f7f7303f85226c624075c7d6ed98b5db8
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -272,7 +281,7 @@ entries:
     - snyk-monitor-1.66.9.tgz
     version: 1.66.9
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.192305526Z"
+    created: "2022-01-17T18:28:43.75151971Z"
     description: A Helm chart for the Snyk Monitor
     digest: 7fed3a590e9e7cd4309a61fcdc57eb678cdebdf9dd57ed51d21b55e8dbb0328e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -281,7 +290,7 @@ entries:
     - snyk-monitor-1.66.8.tgz
     version: 1.66.8
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.191686814Z"
+    created: "2022-01-17T18:28:43.750337319Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8a74a5551fed24e10b71d13c76493444190d973437bc2effc1145713f30f32e4
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -290,7 +299,7 @@ entries:
     - snyk-monitor-1.66.7.tgz
     version: 1.66.7
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.19022428Z"
+    created: "2022-01-17T18:28:43.749724952Z"
     description: A Helm chart for the Snyk Monitor
     digest: 26252676b5e48982f927c5aba2a4863f5f39c6384780dfd577d408e61b7ddb7f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -299,7 +308,7 @@ entries:
     - snyk-monitor-1.66.6.tgz
     version: 1.66.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.189256226Z"
+    created: "2022-01-17T18:28:43.749098227Z"
     description: A Helm chart for the Snyk Monitor
     digest: 2327e52b7e2a023f6fa303b2d5a2ee23249a21e310779ace2b57b902a4457094
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -308,7 +317,7 @@ entries:
     - snyk-monitor-1.66.5.tgz
     version: 1.66.5
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.188274223Z"
+    created: "2022-01-17T18:28:43.748495791Z"
     description: A Helm chart for the Snyk Monitor
     digest: e84f98f29326f99701f0b26ffb95b300ba1b99e653b498f47fdaf9de3e573f8f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -317,7 +326,7 @@ entries:
     - snyk-monitor-1.66.4.tgz
     version: 1.66.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.187289811Z"
+    created: "2022-01-17T18:28:43.747876802Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6b04f2adcbcb6951195966df9665d355ede52dbdc2eb0209cab2902b6605e96e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -326,7 +335,7 @@ entries:
     - snyk-monitor-1.66.3.tgz
     version: 1.66.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.184232925Z"
+    created: "2022-01-17T18:28:43.745989995Z"
     description: A Helm chart for the Snyk Monitor
     digest: fcf2a75b280682fe9bdc59eb998cf5afef27cd0bbdc5051548bab1b0684f5517
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -335,7 +344,7 @@ entries:
     - snyk-monitor-1.66.2.tgz
     version: 1.66.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.179011567Z"
+    created: "2022-01-17T18:28:43.74280663Z"
     description: A Helm chart for the Snyk Monitor
     digest: f24fe6e73aa21940de8fe69f4d0dee70938ee18ff1ff790bbd0cad0b212beb81
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -344,7 +353,7 @@ entries:
     - snyk-monitor-1.66.0.tgz
     version: 1.66.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.177484187Z"
+    created: "2022-01-17T18:28:43.741641654Z"
     description: A Helm chart for the Snyk Monitor
     digest: 4c4d0f6214f804e9de801f0fb05b52e1d3f8ea2df30443309e919d5b4b3a512c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -353,7 +362,7 @@ entries:
     - snyk-monitor-1.65.6.tgz
     version: 1.65.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.176892608Z"
+    created: "2022-01-17T18:28:43.741016223Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8d2e2719c79a1309f078995e570d63ab41f04d89c070e30e73e7f816452a4f2d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -362,7 +371,7 @@ entries:
     - snyk-monitor-1.65.4.tgz
     version: 1.65.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.176301128Z"
+    created: "2022-01-17T18:28:43.740395457Z"
     description: A Helm chart for the Snyk Monitor
     digest: 256ef4a97a2b2cc9128559d5c352a147c8bed2f16371b0564402aac36d4209ec
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -371,7 +380,7 @@ entries:
     - snyk-monitor-1.65.3.tgz
     version: 1.65.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.175687563Z"
+    created: "2022-01-17T18:28:43.73976845Z"
     description: A Helm chart for the Snyk Monitor
     digest: ec56aaf0a92e1016c6a2d7454b52832f9b550ce14dedb948f3154b8b59376271
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -380,7 +389,7 @@ entries:
     - snyk-monitor-1.65.2.tgz
     version: 1.65.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.175085827Z"
+    created: "2022-01-17T18:28:43.739138711Z"
     description: A Helm chart for the Snyk Monitor
     digest: 0c34fbadb043f733a294eae7c89075b987b7ef99d19d6fe0cad83bdd50427e7c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -389,7 +398,7 @@ entries:
     - snyk-monitor-1.65.0.tgz
     version: 1.65.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.174456213Z"
+    created: "2022-01-17T18:28:43.738543033Z"
     description: A Helm chart for the Snyk Monitor
     digest: b340ff44ecf6aadf37e1fe502c26da1c0bf3c33edb4da7aa34730a70b46c7c5f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -398,7 +407,7 @@ entries:
     - snyk-monitor-1.64.9.tgz
     version: 1.64.9
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.17385665Z"
+    created: "2022-01-17T18:28:43.737947082Z"
     description: A Helm chart for the Snyk Monitor
     digest: 5328ac2feae6534a04983752086dd8b3600c0e022a02e8f56ae4389d9736466f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -407,7 +416,7 @@ entries:
     - snyk-monitor-1.64.4.tgz
     version: 1.64.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.17325286Z"
+    created: "2022-01-17T18:28:43.737337485Z"
     description: A Helm chart for the Snyk Monitor
     digest: 36ecf563e87bacf6ec79b7dde3fe109e1c8afd105fe293578fb90ec9e408634b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -416,7 +425,7 @@ entries:
     - snyk-monitor-1.64.2.tgz
     version: 1.64.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.172668193Z"
+    created: "2022-01-17T18:28:43.736751318Z"
     description: A Helm chart for the Snyk Monitor
     digest: bbe6e13b972245079f2d30eee316c196b63b9f03fc95a39e55701c05fc906a43
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -425,7 +434,7 @@ entries:
     - snyk-monitor-1.64.1.tgz
     version: 1.64.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.172082112Z"
+    created: "2022-01-17T18:28:43.736101693Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8a65893fc67690d024a6070c53f5862ff58cf95eb7b54874290ecf9319027d51
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -434,7 +443,7 @@ entries:
     - snyk-monitor-1.64.0.tgz
     version: 1.64.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.171487271Z"
+    created: "2022-01-17T18:28:43.73549173Z"
     description: A Helm chart for the Snyk Monitor
     digest: 356cca7a05924fbeb80b4c4c70a4a31edf78f45f0343fea4c6fbed674ba46cc4
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -443,7 +452,7 @@ entries:
     - snyk-monitor-1.63.0.tgz
     version: 1.63.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.170857134Z"
+    created: "2022-01-17T18:28:43.7348923Z"
     description: A Helm chart for the Snyk Monitor
     digest: 000dc72f86e01f1ebe95334511d5e937a696e221f18b4be78303d342bac32e10
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -452,7 +461,7 @@ entries:
     - snyk-monitor-1.62.1.tgz
     version: 1.62.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.169378298Z"
+    created: "2022-01-17T18:28:43.733325786Z"
     description: A Helm chart for the Snyk Monitor
     digest: 177ee40b440aad5e610ce1db8cc19fcc63428cbac9c9ddca54e6568d8035bba9
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -461,7 +470,7 @@ entries:
     - snyk-monitor-1.59.3.tgz
     version: 1.59.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.168537742Z"
+    created: "2022-01-17T18:28:43.732782357Z"
     description: A Helm chart for the Snyk Monitor
     digest: 3e477560b3819cd8cbf2347f12e3dc77eeafbe1797b78c79fec2dbd65f7f1de9
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -470,7 +479,7 @@ entries:
     - snyk-monitor-1.59.1.tgz
     version: 1.59.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.167986462Z"
+    created: "2022-01-17T18:28:43.732207314Z"
     description: A Helm chart for the Snyk Monitor
     digest: 783751552ac8fff49cbb43100a1b6155f6a7a99ef0f3396c60546a7f41e547f2
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -479,7 +488,7 @@ entries:
     - snyk-monitor-1.59.0.tgz
     version: 1.59.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.167453413Z"
+    created: "2022-01-17T18:28:43.731656969Z"
     description: A Helm chart for the Snyk Monitor
     digest: cf48a2d212e5c02065bb718d7f8b718fe8a2266165fef4c50467318cde80e7d2
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -488,7 +497,7 @@ entries:
     - snyk-monitor-1.58.2.tgz
     version: 1.58.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.166881991Z"
+    created: "2022-01-17T18:28:43.731112807Z"
     description: A Helm chart for the Snyk Monitor
     digest: 20eaa89cf0e7cf1bff94fa953f2a238ea492cfc78a338391c006dd1aea93f06d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -497,7 +506,7 @@ entries:
     - snyk-monitor-1.58.0.tgz
     version: 1.58.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.166340505Z"
+    created: "2022-01-17T18:28:43.73056154Z"
     description: A Helm chart for the Snyk Monitor
     digest: a783cd44d87e0beb2fc0fcc3ff85a95dfe1e3808928eaba90f7cbdff6a3f6569
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -506,7 +515,7 @@ entries:
     - snyk-monitor-1.57.0.tgz
     version: 1.57.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.16579727Z"
+    created: "2022-01-17T18:28:43.730039003Z"
     description: A Helm chart for the Snyk Monitor
     digest: 44b07d0e568c7c15ca1326c843fc7aabed36d413bdde56b58ba24e7a1192417e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -515,7 +524,7 @@ entries:
     - snyk-monitor-1.55.0.tgz
     version: 1.55.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.165265971Z"
+    created: "2022-01-17T18:28:43.729514607Z"
     description: A Helm chart for the Snyk Monitor
     digest: f5eb646335622b0d8b23eb8df9cf97f4f0aa210175536dbc77e4bae6a3aab716
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -524,7 +533,7 @@ entries:
     - snyk-monitor-1.54.0.tgz
     version: 1.54.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.164749437Z"
+    created: "2022-01-17T18:28:43.728970281Z"
     description: A Helm chart for the Snyk Monitor
     digest: 2c1804a1ee7411b0dcf0d5fa58395f3512d27830b636859b4f45daf2e722aada
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -533,7 +542,7 @@ entries:
     - snyk-monitor-1.53.4.tgz
     version: 1.53.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.164239899Z"
+    created: "2022-01-17T18:28:43.728450176Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9dbd1e31bcd3513e38450b4a83259b0ff355bbeeca461a2e04489d2154a4b661
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -542,7 +551,7 @@ entries:
     - snyk-monitor-1.53.2.tgz
     version: 1.53.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.163720856Z"
+    created: "2022-01-17T18:28:43.727902522Z"
     description: A Helm chart for the Snyk Monitor
     digest: a21f88eea27e07cd4a4f76cee9f52922d0d86a9a0cc2d526c21a6a502982092c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -551,7 +560,7 @@ entries:
     - snyk-monitor-1.53.1.tgz
     version: 1.53.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.163178081Z"
+    created: "2022-01-17T18:28:43.727405248Z"
     description: A Helm chart for the Snyk Monitor
     digest: f977100e625f1f33876d4887d00ae0893f97003c2326bb0dce6dbd251efc6013
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -560,7 +569,7 @@ entries:
     - snyk-monitor-1.53.0.tgz
     version: 1.53.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.162608525Z"
+    created: "2022-01-17T18:28:43.726898981Z"
     description: A Helm chart for the Snyk Monitor
     digest: 0660fb7de323596c96e07518582bda07ac4d9ecc41dc5e7ce3941e4e391d27d1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -569,7 +578,7 @@ entries:
     - snyk-monitor-1.52.0.tgz
     version: 1.52.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.162103712Z"
+    created: "2022-01-17T18:28:43.726398945Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9c71292f7bcf6af6aa9a6a6066b3b140cc2361be7e51c28dcd2ec7d729504285
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -578,7 +587,7 @@ entries:
     - snyk-monitor-1.51.1.tgz
     version: 1.51.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.161088323Z"
+    created: "2022-01-17T18:28:43.725869289Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9e6c97eb690688abff3374ec07dad60edb0a414a9b1ccb015d9a3a8686c65c2c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -587,7 +596,7 @@ entries:
     - snyk-monitor-1.51.0.tgz
     version: 1.51.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.160566096Z"
+    created: "2022-01-17T18:28:43.724762369Z"
     description: A Helm chart for the Snyk Monitor
     digest: ff7e7c379f89dc38bf03bb57034d968ce791b2d9459bfae3a6df4748c85d9526
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -596,7 +605,7 @@ entries:
     - snyk-monitor-1.50.6.tgz
     version: 1.50.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.160070721Z"
+    created: "2022-01-17T18:28:43.724227434Z"
     description: A Helm chart for the Snyk Monitor
     digest: adde209be72176d9de24638635a516418aa859cdc71ed15abb35d969038e3f67
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -605,7 +614,7 @@ entries:
     - snyk-monitor-1.50.4.tgz
     version: 1.50.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.159582302Z"
+    created: "2022-01-17T18:28:43.723723789Z"
     description: A Helm chart for the Snyk Monitor
     digest: 59b05805760c0ddacf9a0db647a5fb7db0bda0033741b8ac52fc7bef47f357fd
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -614,7 +623,7 @@ entries:
     - snyk-monitor-1.50.2.tgz
     version: 1.50.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.159084424Z"
+    created: "2022-01-17T18:28:43.723204764Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9c21b260e5bee435ac335a319904ef021e59e2e62df1775191c7a430e21db8e8
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -623,7 +632,7 @@ entries:
     - snyk-monitor-1.50.1.tgz
     version: 1.50.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.158563775Z"
+    created: "2022-01-17T18:28:43.722689001Z"
     description: A Helm chart for the Snyk Monitor
     digest: ee72088a77b8736697a63da97b8a3ff5d57a30fec0d8a18513487c42eb2024e2
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -632,7 +641,7 @@ entries:
     - snyk-monitor-1.50.0.tgz
     version: 1.50.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.158057932Z"
+    created: "2022-01-17T18:28:43.722174266Z"
     description: A Helm chart for the Snyk Monitor
     digest: be655a960c6980ace681f7e7857d683678155f7982d6a40d77fb960bd65f770c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -641,7 +650,7 @@ entries:
     - snyk-monitor-1.49.8.tgz
     version: 1.49.8
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.157541522Z"
+    created: "2022-01-17T18:28:43.721681891Z"
     description: A Helm chart for the Snyk Monitor
     digest: a5fe1ccbd37a2977f74b2d4a5cc77deac86f91717b849b0222d7f29be70995c1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -650,7 +659,7 @@ entries:
     - snyk-monitor-1.49.7.tgz
     version: 1.49.7
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.157046362Z"
+    created: "2022-01-17T18:28:43.721201497Z"
     description: A Helm chart for the Snyk Monitor
     digest: be9e5a602d438dcffa0624cf875d98452c3b429b094b5295fdeab0d07db92be8
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -659,7 +668,7 @@ entries:
     - snyk-monitor-1.49.6.tgz
     version: 1.49.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.156561894Z"
+    created: "2022-01-17T18:28:43.720721993Z"
     description: A Helm chart for the Snyk Monitor
     digest: 4b819731537fbaab3b71b51524ec49fe8a77d70b03768b2f1292b5c3fbc3c897
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -668,7 +677,7 @@ entries:
     - snyk-monitor-1.49.4.tgz
     version: 1.49.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.156076186Z"
+    created: "2022-01-17T18:28:43.720160116Z"
     description: A Helm chart for the Snyk Monitor
     digest: 786f76ccce4a3dcdcec75260d0605b96899854d2dedee407ce9994619e07b804
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -677,7 +686,7 @@ entries:
     - snyk-monitor-1.49.3.tgz
     version: 1.49.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.155583748Z"
+    created: "2022-01-17T18:28:43.719672145Z"
     description: A Helm chart for the Snyk Monitor
     digest: 77933d2d1d37454d6c16c7f27c72e74932927a23a457bfcef488fbe5553da942
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -686,7 +695,7 @@ entries:
     - snyk-monitor-1.49.2.tgz
     version: 1.49.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.155091463Z"
+    created: "2022-01-17T18:28:43.719177831Z"
     description: A Helm chart for the Snyk Monitor
     digest: dfe259d98e428fdd4e5a9eefee7e77bd77171a98eab54b6ee98914b091b88f32
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -695,7 +704,7 @@ entries:
     - snyk-monitor-1.49.1.tgz
     version: 1.49.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.15454871Z"
+    created: "2022-01-17T18:28:43.718670171Z"
     description: A Helm chart for the Snyk Monitor
     digest: 0fd0fa8ca7f5f1e2c3a51a0f02beab81f02b15263f07294934b23557bd3ae0f8
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -704,7 +713,7 @@ entries:
     - snyk-monitor-1.49.0.tgz
     version: 1.49.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.154034827Z"
+    created: "2022-01-17T18:28:43.718175996Z"
     description: A Helm chart for the Snyk Monitor
     digest: 5fb5acba166898d8382e7cbf7f9368cbbe93d25490309bf694cde27afd67d2c9
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -713,7 +722,7 @@ entries:
     - snyk-monitor-1.47.1.tgz
     version: 1.47.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.153502938Z"
+    created: "2022-01-17T18:28:43.717685584Z"
     description: A Helm chart for the Snyk Monitor
     digest: 709946519bcec91aa3654e29a94428a4daf7b1938e08c17833ff2f2673d3a958
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -722,7 +731,7 @@ entries:
     - snyk-monitor-1.47.0.tgz
     version: 1.47.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.152414767Z"
+    created: "2022-01-17T18:28:43.716920969Z"
     description: A Helm chart for the Snyk Monitor
     digest: 7bf459630ac9f803e623fef4763f3e5333dfac1ad0de0796a156c260a1b116e1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -731,7 +740,7 @@ entries:
     - snyk-monitor-1.46.1.tgz
     version: 1.46.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.151927352Z"
+    created: "2022-01-17T18:28:43.716083115Z"
     description: A Helm chart for the Snyk Monitor
     digest: 7af5f4b2067982544b980dfd37f6a5d10d55d0c1c80296e8e064a8a3e8b0e9b1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -740,7 +749,7 @@ entries:
     - snyk-monitor-1.46.0.tgz
     version: 1.46.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.15143802Z"
+    created: "2022-01-17T18:28:43.715555605Z"
     description: A Helm chart for the Snyk Monitor
     digest: 04d568e4301554b390b61e873f21d40d4b9ec9c595105704544795e3d42bc6bb
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -749,7 +758,7 @@ entries:
     - snyk-monitor-1.44.0.tgz
     version: 1.44.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.150949467Z"
+    created: "2022-01-17T18:28:43.7150833Z"
     description: A Helm chart for the Snyk Monitor
     digest: 52f1c948eb1092a04d794f020106d42cab473142d31dd9ad651b95a08191316b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -758,7 +767,7 @@ entries:
     - snyk-monitor-1.43.0.tgz
     version: 1.43.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.150425626Z"
+    created: "2022-01-17T18:28:43.714609356Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6715b0f56f81a0dbd36c27dc797604d446d9d1ecce2b856d0a25379f4aa153a5
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -767,7 +776,7 @@ entries:
     - snyk-monitor-1.42.0.tgz
     version: 1.42.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.149931244Z"
+    created: "2022-01-17T18:28:43.714127122Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6d0dfb333d15d068625a022685206b2918ee6d97ff7cc43f28a5228795672637
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -776,7 +785,7 @@ entries:
     - snyk-monitor-1.41.0.tgz
     version: 1.41.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.149456813Z"
+    created: "2022-01-17T18:28:43.713645484Z"
     description: A Helm chart for the Snyk Monitor
     digest: ab5ed39bb19a9e196b7951d17ab00d2f731a8718a31cfa6d16f86e3ec8cf07e4
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -785,7 +794,7 @@ entries:
     - snyk-monitor-1.40.3.tgz
     version: 1.40.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.148969768Z"
+    created: "2022-01-17T18:28:43.713158856Z"
     description: A Helm chart for the Snyk Monitor
     digest: 0070c00e671c14b76c9a3a8e30b2e3ff573bba748b25b5c2bc8a562c0d4ebcd6
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -794,7 +803,7 @@ entries:
     - snyk-monitor-1.40.1.tgz
     version: 1.40.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.14848783Z"
+    created: "2022-01-17T18:28:43.712689932Z"
     description: A Helm chart for the Snyk Monitor
     digest: 828e30bf6f9d108855eeff917bfe9b5853138f46e4ae7f2896d37e3971ee3173
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -803,7 +812,7 @@ entries:
     - snyk-monitor-1.40.0.tgz
     version: 1.40.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.147754611Z"
+    created: "2022-01-17T18:28:43.711957638Z"
     description: A Helm chart for the Snyk Monitor
     digest: 3f0a74129d63414b3a535d5cd1280486d12d895c0533810b5d3bf4c0e8c0524e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -812,7 +821,7 @@ entries:
     - snyk-monitor-1.37.2.tgz
     version: 1.37.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.147359562Z"
+    created: "2022-01-17T18:28:43.711534172Z"
     description: A Helm chart for the Snyk Monitor
     digest: f6e9353b1fd0a0e2a85eff35368081f054ec5f5a25841f3dc74ef087ca8c87e7
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -821,7 +830,7 @@ entries:
     - snyk-monitor-1.37.1.tgz
     version: 1.37.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.146945693Z"
+    created: "2022-01-17T18:28:43.711130348Z"
     description: A Helm chart for the Snyk Monitor
     digest: 06d9d9d140ec13dac7650b3dcc48252cf6495757573c3d2b76fccb655a353a3c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -830,7 +839,7 @@ entries:
     - snyk-monitor-1.37.0.tgz
     version: 1.37.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.146491648Z"
+    created: "2022-01-17T18:28:43.710724961Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6d08aa2be645391886a31db810acec590e725d57a960c40be3523a09077eab9d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -839,7 +848,7 @@ entries:
     - snyk-monitor-1.36.2.tgz
     version: 1.36.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.146086796Z"
+    created: "2022-01-17T18:28:43.710329692Z"
     description: A Helm chart for the Snyk Monitor
     digest: 895e97a6c9a8f269429a6d71c06f340ba7203bdfef24b6e09e58d98aeac827c9
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -848,7 +857,7 @@ entries:
     - snyk-monitor-1.36.1.tgz
     version: 1.36.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.14568501Z"
+    created: "2022-01-17T18:28:43.70992912Z"
     description: A Helm chart for the Snyk Monitor
     digest: c2754cc2714bf584098730bdc711dc9313cb012cb586e1704aa204777c929d0b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -857,7 +866,7 @@ entries:
     - snyk-monitor-1.36.0.tgz
     version: 1.36.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.145054297Z"
+    created: "2022-01-17T18:28:43.709179524Z"
     description: A Helm chart for the Snyk Monitor
     digest: d6fab93b5ba9e657c9beba7b6228d6ed36dc966b19a23620294c381ff26afa26
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -866,7 +875,7 @@ entries:
     - snyk-monitor-1.35.1.tgz
     version: 1.35.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.144302673Z"
+    created: "2022-01-17T18:28:43.70852925Z"
     description: A Helm chart for the Snyk Monitor
     digest: ac5d3a7fd85bf40fa194b8dc91359776502414a35110faffe50693a4897ab8ca
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -875,7 +884,7 @@ entries:
     - snyk-monitor-1.34.0.tgz
     version: 1.34.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.143915272Z"
+    created: "2022-01-17T18:28:43.708105009Z"
     description: A Helm chart for the Snyk Monitor
     digest: 60567cc54cc100fb39e2778c602efeed0a0e269f3c6da2d7665ca1c13dbef07d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -884,7 +893,7 @@ entries:
     - snyk-monitor-1.33.1.tgz
     version: 1.33.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.143527191Z"
+    created: "2022-01-17T18:28:43.707711036Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9aa845583039d47a34dbffef65fc70ed36ab6fa8efa8ce430c02eda0a4c52d07
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -893,7 +902,7 @@ entries:
     - snyk-monitor-1.33.0.tgz
     version: 1.33.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.143143088Z"
+    created: "2022-01-17T18:28:43.707280619Z"
     description: A Helm chart for the Snyk Monitor
     digest: c62c0061961d1573d0fadd1f144f2870f6e51778d4cc39e9a30d0c358d5185a0
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -902,7 +911,7 @@ entries:
     - snyk-monitor-1.32.3.tgz
     version: 1.32.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.142750551Z"
+    created: "2022-01-17T18:28:43.706911779Z"
     description: A Helm chart for the Snyk Monitor
     digest: 28a9ed65e45289bff0e16ba0b79225f54c1d073a464eb61bcacf1ffc543913c9
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -911,7 +920,7 @@ entries:
     - snyk-monitor-1.32.2.tgz
     version: 1.32.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.142384964Z"
+    created: "2022-01-17T18:28:43.706551003Z"
     description: A Helm chart for the Snyk Monitor
     digest: f8a40324b6d413d0b375a960ea00722ca86848eabb66292c3b04e6eae45c1653
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -920,7 +929,7 @@ entries:
     - snyk-monitor-1.32.1.tgz
     version: 1.32.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.141983008Z"
+    created: "2022-01-17T18:28:43.706199033Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8fe3a3eed1fdec56d62925216175dabf6cd53bed864f36280259a34230e93a99
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -929,7 +938,7 @@ entries:
     - snyk-monitor-1.32.0.tgz
     version: 1.32.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.141616098Z"
+    created: "2022-01-17T18:28:43.705848667Z"
     description: A Helm chart for the Snyk Monitor
     digest: c7d2a943f4730b141addf3c7d64b3f7c4a391b8159549efe12247345772d43c7
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -938,7 +947,7 @@ entries:
     - snyk-monitor-1.31.1.tgz
     version: 1.31.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.141262247Z"
+    created: "2022-01-17T18:28:43.705496967Z"
     description: A Helm chart for the Snyk Monitor
     digest: 596cc21aa1a8a6c9381267af7a4e95c082fca8bb4d8c5ae652674edc6c6fc140
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -947,7 +956,7 @@ entries:
     - snyk-monitor-1.31.0.tgz
     version: 1.31.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.140895553Z"
+    created: "2022-01-17T18:28:43.705142054Z"
     description: A Helm chart for the Snyk Monitor
     digest: 0898157501a38cab7e475dd3ba3ca5243d68019ab704cfcc4228196ae67d071d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -956,7 +965,7 @@ entries:
     - snyk-monitor-1.30.6.tgz
     version: 1.30.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.140522745Z"
+    created: "2022-01-17T18:28:43.704794653Z"
     description: A Helm chart for the Snyk Monitor
     digest: 5ae5f396961dfb06df7265472245240f81afd5c46b9814eb4a57f76aef0ed1e1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -965,7 +974,7 @@ entries:
     - snyk-monitor-1.30.5.tgz
     version: 1.30.5
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.14017498Z"
+    created: "2022-01-17T18:28:43.704443948Z"
     description: A Helm chart for the Snyk Monitor
     digest: 19f2326d08c354ae191a4e2d3092cbba389efe58e03e3cb3ccec4614d6d5d601
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -974,7 +983,7 @@ entries:
     - snyk-monitor-1.30.4.tgz
     version: 1.30.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.139809024Z"
+    created: "2022-01-17T18:28:43.704059187Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8f352a775ffad78a641644b90da6ec5ca50811f7ea87157f256a4f66dd5a5e6f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -983,7 +992,7 @@ entries:
     - snyk-monitor-1.30.3.tgz
     version: 1.30.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.139447888Z"
+    created: "2022-01-17T18:28:43.70368973Z"
     description: A Helm chart for the Snyk Monitor
     digest: 4026ab3bba77c7939ee375ad3af5bcbebf6811ee9b2bcf031d504674adab6ca1
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -992,7 +1001,7 @@ entries:
     - snyk-monitor-1.30.2.tgz
     version: 1.30.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.139088017Z"
+    created: "2022-01-17T18:28:43.703337052Z"
     description: A Helm chart for the Snyk Monitor
     digest: de2c849490ed7a2d532d869d1df44ac41624e52d84fd40e4b41a7e56d783bad8
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1001,7 +1010,7 @@ entries:
     - snyk-monitor-1.30.1.tgz
     version: 1.30.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.138695555Z"
+    created: "2022-01-17T18:28:43.702991651Z"
     description: A Helm chart for the Snyk Monitor
     digest: 75e5f87a97a9770f1d361f9ea6c866f29fbfd774c2ae17ce28fcdd6b3e57364c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1010,7 +1019,7 @@ entries:
     - snyk-monitor-1.30.0.tgz
     version: 1.30.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.137061127Z"
+    created: "2022-01-17T18:28:43.701337441Z"
     description: A Helm chart for the Snyk Monitor
     digest: c722267e8cb9152ec487ea2495a465a53c6952aaaa179a8784fb8576b4462cca
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1019,7 +1028,7 @@ entries:
     - snyk-monitor-1.29.0.tgz
     version: 1.29.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.136699234Z"
+    created: "2022-01-17T18:28:43.700988081Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9f177466d49203872f2d5394feaa428175093837e7401c6a9c50af2e97df1b95
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1028,7 +1037,7 @@ entries:
     - snyk-monitor-1.28.3.tgz
     version: 1.28.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.136364445Z"
+    created: "2022-01-17T18:28:43.700660848Z"
     description: A Helm chart for the Snyk Monitor
     digest: 39541f107b78d57e5d270d08f208797933b2e07ef6eb76beb4fbe084204c0e72
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1037,7 +1046,7 @@ entries:
     - snyk-monitor-1.28.1.tgz
     version: 1.28.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.135997816Z"
+    created: "2022-01-17T18:28:43.700286998Z"
     description: A Helm chart for the Snyk Monitor
     digest: c1f95e2352b05fe8b8219d7b9458e25db5b23ec74a9af54a05d57cdae7b9e99e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1046,7 +1055,7 @@ entries:
     - snyk-monitor-1.27.3.tgz
     version: 1.27.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.135668094Z"
+    created: "2022-01-17T18:28:43.699957546Z"
     description: A Helm chart for the Snyk Monitor
     digest: 5741f8efb4df5167a2dbdfd37db8fae7e0f0f6c051b41246c3f99d35b5412bf7
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1055,7 +1064,7 @@ entries:
     - snyk-monitor-1.27.2.tgz
     version: 1.27.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.135336319Z"
+    created: "2022-01-17T18:28:43.699627687Z"
     description: A Helm chart for the Snyk Monitor
     digest: bc1d4997ea739dc0366d971c63beae3cc96f586ea3059f0f64c7e2e25d9607e7
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1064,7 +1073,7 @@ entries:
     - snyk-monitor-1.27.1.tgz
     version: 1.27.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.134990899Z"
+    created: "2022-01-17T18:28:43.699297194Z"
     description: A Helm chart for the Snyk Monitor
     digest: 3559791c8ed382c18c5173dd09a47c6d9066791afcada8bbc236d74f6b804b96
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1073,7 +1082,7 @@ entries:
     - snyk-monitor-1.27.0.tgz
     version: 1.27.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.134630629Z"
+    created: "2022-01-17T18:28:43.698951694Z"
     description: A Helm chart for the Snyk Monitor
     digest: b444240d8896e8117a80f4803c1d8247664a2db3568ae81f2e5cd2ce7c65012a
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1082,7 +1091,7 @@ entries:
     - snyk-monitor-1.26.0.tgz
     version: 1.26.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.134325173Z"
+    created: "2022-01-17T18:28:43.698651289Z"
     description: A Helm chart for the Snyk Monitor
     digest: 69ce922fec085970a3b712be00e527e8fa774344526f80fb3de49774d8f3554e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1091,7 +1100,7 @@ entries:
     - snyk-monitor-1.25.2.tgz
     version: 1.25.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.134019612Z"
+    created: "2022-01-17T18:28:43.698349639Z"
     description: A Helm chart for the Snyk Monitor
     digest: 18ac378eed3e20736374a4c0956f26d4ffc9ae1332d6123a3ee2308438e14e08
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1100,7 +1109,7 @@ entries:
     - snyk-monitor-1.25.1.tgz
     version: 1.25.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.133726545Z"
+    created: "2022-01-17T18:28:43.698042865Z"
     description: A Helm chart for the Snyk Monitor
     digest: 1b6a739729b988a792930aadc45a939d12dc971ffdfe9555a7f8cab2c93a6716
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1109,7 +1118,7 @@ entries:
     - snyk-monitor-1.25.0.tgz
     version: 1.25.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.133418607Z"
+    created: "2022-01-17T18:28:43.697733023Z"
     description: A Helm chart for the Snyk Monitor
     digest: d76adbf9dd20f333a12cda2ad5f8bb090aaaf0174151fd9f76e6ebc2dc801e80
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1118,7 +1127,7 @@ entries:
     - snyk-monitor-1.24.0.tgz
     version: 1.24.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.133121605Z"
+    created: "2022-01-17T18:28:43.697426029Z"
     description: A Helm chart for the Snyk Monitor
     digest: 64c99d832829baf08c5b7749d03653e65dcb9c646ecdab7fc451308fca5d068b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1127,7 +1136,7 @@ entries:
     - snyk-monitor-1.23.2.tgz
     version: 1.23.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.132818949Z"
+    created: "2022-01-17T18:28:43.697087966Z"
     description: A Helm chart for the Snyk Monitor
     digest: 328565ff9c05b45ebf9b925074f76519a6e595ec7ce728e27034c71d8a357a26
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1136,7 +1145,7 @@ entries:
     - snyk-monitor-1.23.1.tgz
     version: 1.23.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.132500668Z"
+    created: "2022-01-17T18:28:43.696771708Z"
     description: A Helm chart for the Snyk Monitor
     digest: 90abe2a2d30015ca22a0bb513bea9b579fcae047c5d064743693597727e0a90e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1145,7 +1154,7 @@ entries:
     - snyk-monitor-1.23.0.tgz
     version: 1.23.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.132198987Z"
+    created: "2022-01-17T18:28:43.696400484Z"
     description: A Helm chart for the Snyk Monitor
     digest: eb9ecd073ed4b63c18d4417702de8722df3e4680aa3c00128312cd89228db244
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1154,7 +1163,7 @@ entries:
     - snyk-monitor-1.22.1.tgz
     version: 1.22.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.131895858Z"
+    created: "2022-01-17T18:28:43.696026597Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6a21ef7a5314aabf7202de233e9ad2875e49d2f14ae6122f017876f79907b843
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1163,7 +1172,7 @@ entries:
     - snyk-monitor-1.22.0.tgz
     version: 1.22.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.129450618Z"
+    created: "2022-01-17T18:28:43.693234602Z"
     description: A Helm chart for the Snyk Monitor
     digest: 4f1e99d9f3c3aa1b9a089702145b05fd33184a3bf77d13fee4cb97d522f61ccd
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1172,7 +1181,7 @@ entries:
     - snyk-monitor-1.21.13.tgz
     version: 1.21.13
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.1291388Z"
+    created: "2022-01-17T18:28:43.692918693Z"
     description: A Helm chart for the Snyk Monitor
     digest: 23820a05cd7f2c8c52df2cf2a6ba36dc88f8c1b041b350ddf45fc8c40f5a4137
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1181,7 +1190,7 @@ entries:
     - snyk-monitor-1.21.12.tgz
     version: 1.21.12
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.128844503Z"
+    created: "2022-01-17T18:28:43.692620117Z"
     description: A Helm chart for the Snyk Monitor
     digest: de290553601371148b839fc3bfd21fadb779efb6f5538453bf74b8b93974fe24
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1190,7 +1199,7 @@ entries:
     - snyk-monitor-1.21.11.tgz
     version: 1.21.11
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.128532711Z"
+    created: "2022-01-17T18:28:43.692288555Z"
     description: A Helm chart for the Snyk Monitor
     digest: 490099481acdb1cbdaa499ea7e139920637602e287ceecc270b201347f31908c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1199,7 +1208,7 @@ entries:
     - snyk-monitor-1.21.10.tgz
     version: 1.21.10
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.131577875Z"
+    created: "2022-01-17T18:28:43.695653023Z"
     description: A Helm chart for the Snyk Monitor
     digest: ca1f163f87272a9108413d6f5f5a56ea3e47910b4c98cb46020cbeefebd43278
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1208,7 +1217,7 @@ entries:
     - snyk-monitor-1.21.8.tgz
     version: 1.21.8
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.131294795Z"
+    created: "2022-01-17T18:28:43.695314114Z"
     description: A Helm chart for the Snyk Monitor
     digest: c1cc9d59113bebb48cabe2b1916b042a61ac9535bb52f81f77fbc0bb4c790a73
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1217,7 +1226,7 @@ entries:
     - snyk-monitor-1.21.5.tgz
     version: 1.21.5
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.13096589Z"
+    created: "2022-01-17T18:28:43.694983147Z"
     description: A Helm chart for the Snyk Monitor
     digest: 2ec546d6ab07edfdf969b3bb0860abb427d5bb172b1f9ffafccca3631ea30f77
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1226,7 +1235,7 @@ entries:
     - snyk-monitor-1.21.4.tgz
     version: 1.21.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.130228557Z"
+    created: "2022-01-17T18:28:43.693881689Z"
     description: A Helm chart for the Snyk Monitor
     digest: 92fa9557e560b499ec56a36f3dba99343979c8d3b1b4b18d5839adede6b0ec51
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1235,7 +1244,7 @@ entries:
     - snyk-monitor-1.21.3.tgz
     version: 1.21.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.129770663Z"
+    created: "2022-01-17T18:28:43.693555365Z"
     description: A Helm chart for the Snyk Monitor
     digest: 1737bda93472330696891bfd26a537e5ce8cf9e454ba69e94c20a9bb853a2d9b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1244,7 +1253,7 @@ entries:
     - snyk-monitor-1.21.2.tgz
     version: 1.21.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.128232867Z"
+    created: "2022-01-17T18:28:43.691975942Z"
     description: A Helm chart for the Snyk Monitor
     digest: a12bef08d62e06398afee1e57c7d890cfc61e626238b6de2241b4fae29b4902d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1253,7 +1262,7 @@ entries:
     - snyk-monitor-1.21.1.tgz
     version: 1.21.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.12790743Z"
+    created: "2022-01-17T18:28:43.691685374Z"
     description: A Helm chart for the Snyk Monitor
     digest: c2f19189a023f599a0c3bf6e61316dca02d7f8d7ebd9dc714b92e687e2e0998c
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1262,7 +1271,7 @@ entries:
     - snyk-monitor-1.20.8.tgz
     version: 1.20.8
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.127611845Z"
+    created: "2022-01-17T18:28:43.691374222Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8acabe55e9049c781bb3a9f85468da5866629954c614c799d033c182508c0e50
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1271,7 +1280,7 @@ entries:
     - snyk-monitor-1.20.7.tgz
     version: 1.20.7
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.127323828Z"
+    created: "2022-01-17T18:28:43.691039386Z"
     description: A Helm chart for the Snyk Monitor
     digest: 64daa79043d9eb0f241a09f6264582046c61af61be2ff16392595218330b0217
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1280,7 +1289,7 @@ entries:
     - snyk-monitor-1.20.6.tgz
     version: 1.20.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.12704087Z"
+    created: "2022-01-17T18:28:43.690731725Z"
     description: A Helm chart for the Snyk Monitor
     digest: f815568b6b02289e602488722018ae9306e546a5b9c32cc10adeb1c49f969270
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1289,7 +1298,7 @@ entries:
     - snyk-monitor-1.20.5.tgz
     version: 1.20.5
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.126716219Z"
+    created: "2022-01-17T18:28:43.690409353Z"
     description: A Helm chart for the Snyk Monitor
     digest: 772be12b42147e64879a5b3b2c4c0ee699c647a237912ec09847fde62d3cc86e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1298,7 +1307,7 @@ entries:
     - snyk-monitor-1.20.4.tgz
     version: 1.20.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.126421407Z"
+    created: "2022-01-17T18:28:43.69013893Z"
     description: A Helm chart for the Snyk Monitor
     digest: 95875a23c80ea2b48d86261eb8ce08500e148653d22ab9f89eca1017f3215f9f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1307,7 +1316,7 @@ entries:
     - snyk-monitor-1.20.3.tgz
     version: 1.20.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.126137191Z"
+    created: "2022-01-17T18:28:43.689860974Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6857fce9639375504dec87242547591347bd2677056e5309074c929186eb6dda
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1316,7 +1325,7 @@ entries:
     - snyk-monitor-1.20.2.tgz
     version: 1.20.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.125851585Z"
+    created: "2022-01-17T18:28:43.689566185Z"
     description: A Helm chart for the Snyk Monitor
     digest: ea1cce1555eda4ac71f8c39271f299b186a19c9738eae13e1f5e90200154ce7b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1325,7 +1334,7 @@ entries:
     - snyk-monitor-1.20.0.tgz
     version: 1.20.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.125547533Z"
+    created: "2022-01-17T18:28:43.689288034Z"
     description: A Helm chart for the Snyk Monitor
     digest: c541eaf38e5aa1f4e1d4e51205f028eaf43e91bb5ac640b90ffc7f0db6d73220
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1334,7 +1343,7 @@ entries:
     - snyk-monitor-1.19.0.tgz
     version: 1.19.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.125266958Z"
+    created: "2022-01-17T18:28:43.688997217Z"
     description: A Helm chart for the Snyk Monitor
     digest: 00038df6a74e18a260e1aac2c77b4dfbedad2269a98e101689fbc3420c3fca58
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1343,7 +1352,7 @@ entries:
     - snyk-monitor-1.18.6.tgz
     version: 1.18.6
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.124980364Z"
+    created: "2022-01-17T18:28:43.688696178Z"
     description: A Helm chart for the Snyk Monitor
     digest: 323ba39408ac1e713d7144cf830a417a7461e7dfbd0445b0eba5f304acf5b228
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1352,7 +1361,7 @@ entries:
     - snyk-monitor-1.18.5.tgz
     version: 1.18.5
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.124639279Z"
+    created: "2022-01-17T18:28:43.688406066Z"
     description: A Helm chart for the Snyk Monitor
     digest: df3b3faa5db5597dd48d4cbf9f724c25dca83deee1e35523069ceb033671a28b
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1361,7 +1370,7 @@ entries:
     - snyk-monitor-1.18.4.tgz
     version: 1.18.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.124272908Z"
+    created: "2022-01-17T18:28:43.688064383Z"
     description: A Helm chart for the Snyk Monitor
     digest: 748100467156f5caf99652fb7b02bea800836cfd587314b05f6c0d030291fadb
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1370,7 +1379,7 @@ entries:
     - snyk-monitor-1.18.3.tgz
     version: 1.18.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.123925547Z"
+    created: "2022-01-17T18:28:43.687733054Z"
     description: A Helm chart for the Snyk Monitor
     digest: 266aace17302eb1cfea295fe0611247e7b7eadc3bfb489f29c0f6b328c9f7b41
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1379,7 +1388,7 @@ entries:
     - snyk-monitor-1.18.2.tgz
     version: 1.18.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.122922019Z"
+    created: "2022-01-17T18:28:43.687382516Z"
     description: A Helm chart for the Snyk Monitor
     digest: 1d18ba7b6e6ab5edc0f136aedcc720f1e8140890974ebad4f2f43a35155bdde7
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1388,7 +1397,7 @@ entries:
     - snyk-monitor-1.18.1.tgz
     version: 1.18.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.122591883Z"
+    created: "2022-01-17T18:28:43.686861042Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6ab7212547f6f881a295cd76746aee24092df063c76d75c903366f15d22c27c5
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1397,7 +1406,7 @@ entries:
     - snyk-monitor-1.18.0.tgz
     version: 1.18.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.122275472Z"
+    created: "2022-01-17T18:28:43.686161722Z"
     description: A Helm chart for the Snyk Monitor
     digest: f8cebcfa3894e0a6bc42127c84120eb4e3fed1bed17520fd600a16de9b77c530
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1406,7 +1415,7 @@ entries:
     - snyk-monitor-1.16.1.tgz
     version: 1.16.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.121946612Z"
+    created: "2022-01-17T18:28:43.685842548Z"
     description: A Helm chart for the Snyk Monitor
     digest: 875a0926f75492d261d94427687a5c7db49047462685da39fe012734316e8141
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1415,7 +1424,7 @@ entries:
     - snyk-monitor-1.16.0.tgz
     version: 1.16.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.121616173Z"
+    created: "2022-01-17T18:28:43.685519276Z"
     description: A Helm chart for the Snyk Monitor
     digest: d257d5c12bddf2d88b9f69874f9784548987e6b4e648385fdf146bdfc32bbfbf
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1424,7 +1433,7 @@ entries:
     - snyk-monitor-1.15.0.tgz
     version: 1.15.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.121291092Z"
+    created: "2022-01-17T18:28:43.685203818Z"
     description: A Helm chart for the Snyk Monitor
     digest: 8a68439a0ef889116db721e6a48e5b5c8200b3ad86b92e9544d29935890f5565
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1433,7 +1442,7 @@ entries:
     - snyk-monitor-1.14.0.tgz
     version: 1.14.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.120968048Z"
+    created: "2022-01-17T18:28:43.684868868Z"
     description: A Helm chart for the Snyk Monitor
     digest: a55194f32c7540a5646f5ccef156b085c208e8bf017c9ddf4c19c30e6591a4fc
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1442,7 +1451,7 @@ entries:
     - snyk-monitor-1.13.3.tgz
     version: 1.13.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.120645943Z"
+    created: "2022-01-17T18:28:43.684552178Z"
     description: A Helm chart for the Snyk Monitor
     digest: bdb206137f342a692129691d673aad32eb5285560606158ac6dd84e21fda787a
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1451,7 +1460,7 @@ entries:
     - snyk-monitor-1.13.2.tgz
     version: 1.13.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.120355906Z"
+    created: "2022-01-17T18:28:43.684178592Z"
     description: A Helm chart for the Snyk Monitor
     digest: a73e84e85b56da7b0c072a7ec557fdcabbb9db030e98adfcbbe2b1ac40dac06f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1460,7 +1469,7 @@ entries:
     - snyk-monitor-1.12.0.tgz
     version: 1.12.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.120055998Z"
+    created: "2022-01-17T18:28:43.683874782Z"
     description: A Helm chart for the Snyk Monitor
     digest: 7e92d41ed8ed4612a926d2d7bbfd3e065ed72a0dfb8755de4846eef122d5822d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1469,7 +1478,7 @@ entries:
     - snyk-monitor-1.11.0.tgz
     version: 1.11.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.119742243Z"
+    created: "2022-01-17T18:28:43.683561108Z"
     description: A Helm chart for the Snyk Monitor
     digest: 25662b0f6155e581aab8ab788330ffcc99e8b218f45b51f9ebca860c08458d14
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1478,7 +1487,7 @@ entries:
     - snyk-monitor-1.10.3.tgz
     version: 1.10.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.119430184Z"
+    created: "2022-01-17T18:28:43.683239657Z"
     description: A Helm chart for the Snyk Monitor
     digest: 6491f028c70335167ad98587a06dfda98cc18000c4b5260fe32b9cb2dd9aa2f7
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1487,7 +1496,7 @@ entries:
     - snyk-monitor-1.10.1.tgz
     version: 1.10.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.119120264Z"
+    created: "2022-01-17T18:28:43.682908912Z"
     description: A Helm chart for the Snyk Monitor
     digest: d4d109a818ad1d1631e773fd54ffc9cdc37d6e26e4ccd5a69d1c27c711cc539d
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1496,7 +1505,7 @@ entries:
     - snyk-monitor-1.10.0.tgz
     version: 1.10.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.212119638Z"
+    created: "2022-01-17T18:28:43.771733165Z"
     description: A Helm chart for the Snyk Monitor
     digest: 26598f11e0319a78235eade0214a89ff5266b68b45a13a42fb2860e4f97187c5
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1505,7 +1514,7 @@ entries:
     - snyk-monitor-1.9.1.tgz
     version: 1.9.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.211817261Z"
+    created: "2022-01-17T18:28:43.771410981Z"
     description: A Helm chart for the Snyk Monitor
     digest: d3c6e825a775c2c47bcbccb8a22bc72d5b8266eaa552a14d06e10fe9b766ba47
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1514,7 +1523,7 @@ entries:
     - snyk-monitor-1.9.0.tgz
     version: 1.9.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.211492841Z"
+    created: "2022-01-17T18:28:43.770411295Z"
     description: A Helm chart for the Snyk Monitor
     digest: cec01ca67e6b1f2f3f5ed1707a2c900d0cce8ab620bf6f59bc044902380c164e
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1523,7 +1532,7 @@ entries:
     - snyk-monitor-1.8.5.tgz
     version: 1.8.5
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.2111637Z"
+    created: "2022-01-17T18:28:43.770095142Z"
     description: A Helm chart for the Snyk Monitor
     digest: cb8e1bfeaa3bbb78a80faf8eab78621787ea08ffdb795abe43d24c92ee19fbee
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1532,7 +1541,7 @@ entries:
     - snyk-monitor-1.8.4.tgz
     version: 1.8.4
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.210811528Z"
+    created: "2022-01-17T18:28:43.769771043Z"
     description: A Helm chart for the Snyk Monitor
     digest: 65bdef1b1c0981108dd90a0566a7a99369f755827cfe9e2f2facfcd94a6df505
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1541,7 +1550,7 @@ entries:
     - snyk-monitor-1.8.3.tgz
     version: 1.8.3
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.210506645Z"
+    created: "2022-01-17T18:28:43.76943481Z"
     description: A Helm chart for the Snyk Monitor
     digest: 53de25ee0d2d3b8b5a3fa74a185d5c2c387e0cfbc0a114941f657b0ffb6dda11
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1550,7 +1559,7 @@ entries:
     - snyk-monitor-1.8.2.tgz
     version: 1.8.2
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.210200427Z"
+    created: "2022-01-17T18:28:43.769127376Z"
     description: A Helm chart for the Snyk Monitor
     digest: 4cd1dfe6f7fa1818bdd6594c612244841a084f5581c2f0f1e8cde8ab7f8bf9e3
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1559,7 +1568,7 @@ entries:
     - snyk-monitor-1.8.1.tgz
     version: 1.8.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.20989339Z"
+    created: "2022-01-17T18:28:43.768776973Z"
     description: A Helm chart for the Snyk Monitor
     digest: 3e27f16a861bdcb23deaae504e5803843068b4905a1c506a9b2e9c73781ee965
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1568,7 +1577,7 @@ entries:
     - snyk-monitor-1.8.0.tgz
     version: 1.8.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.198988087Z"
+    created: "2022-01-17T18:28:43.758142265Z"
     description: A Helm chart for the Snyk Monitor
     digest: 9e76cb882911be50314deadd34d2b1939d46d9550d08e58e2f36fea3a9e9e02f
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1577,7 +1586,7 @@ entries:
     - snyk-monitor-1.7.0.tgz
     version: 1.7.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.170239175Z"
+    created: "2022-01-17T18:28:43.734282414Z"
     description: A Helm chart for the Snyk Monitor
     digest: 75a80ef3918d59cff2bde9f9d5c9e82117fd71f408a48373c4102f3496b44d60
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1586,7 +1595,7 @@ entries:
     - snyk-monitor-1.6.0.tgz
     version: 1.6.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.148035799Z"
+    created: "2022-01-17T18:28:43.712236373Z"
     description: A Helm chart for the Snyk Monitor
     digest: a39b5ec43a5bdff8c7882ab406e1c66194996c0937669674bf85a535e5a722f6
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1595,7 +1604,7 @@ entries:
     - snyk-monitor-1.4.0.tgz
     version: 1.4.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.138347015Z"
+    created: "2022-01-17T18:28:43.702639792Z"
     description: A Helm chart for the Snyk Monitor
     digest: acc90387614359c8bd017e7a61d0acaa35f4213d599eca2bd913851d0a3b9deb
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1604,7 +1613,7 @@ entries:
     - snyk-monitor-1.3.1.tgz
     version: 1.3.1
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.138053087Z"
+    created: "2022-01-17T18:28:43.702329787Z"
     description: A Helm chart for the Snyk Monitor
     digest: d6138bcc9963c6a566a5ef469340a604b9fee6ef040823dc8b82f0aba57279e3
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1613,7 +1622,7 @@ entries:
     - snyk-monitor-1.3.0.tgz
     version: 1.3.0
   - apiVersion: v1
-    created: "2022-01-13T09:33:32.118760601Z"
+    created: "2022-01-17T18:28:43.682596789Z"
     description: A Helm chart for the Snyk Monitor
     digest: 49c57bc7b018341ab8e74dfe9d1d3a13b37e13e01150b288c80414f3469aa9da
     icon: https://res.cloudinary.com/snyk/image/upload/v1533761770/logo-1_wtob68.svg
@@ -1621,4 +1630,4 @@ entries:
     urls:
     - snyk-monitor-0.1.0.tgz
     version: 0.1.0
-generated: "2022-01-13T09:33:32.118270676Z"
+generated: "2022-01-17T18:28:43.682139715Z"

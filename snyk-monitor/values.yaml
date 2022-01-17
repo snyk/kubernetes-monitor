@@ -31,7 +31,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.79.1
+  tag: 1.80.0
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -136,3 +136,10 @@ tolerations: []
 volumes:
   projected:
     serviceAccountToken: false
+
+skopeo:
+  compression:
+    level: 6
+
+workers:
+  count: 10
