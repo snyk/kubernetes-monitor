@@ -4,7 +4,6 @@ import { V1Namespace } from '@kubernetes/client-node';
 import { logger } from '../../common/logger';
 import { config } from '../../common/config';
 import { WorkloadKind } from '../types';
-import { ECONNRESET_ERROR_CODE } from './types';
 import { setupInformer } from './handlers';
 import { kubeConfig, k8sApi } from '../cluster';
 import * as kubernetesApiWrappers from '../kuberenetes-api-wrappers';
@@ -13,6 +12,7 @@ import {
   openshiftInternalNamespaces,
 } from './internal-namespaces';
 import { state } from '../../state';
+import { RETRYABLE_NETWORK_ERRORS } from './types';
 
 async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
   const namespaceName = extractNamespaceName(namespace);
@@ -73,10 +73,9 @@ async function setupWatchesForCluster(): Promise<void> {
 
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type V1Namespace
-    if ((err as any).code === ECONNRESET_ERROR_CODE) {
-      logger.debug(
-        `namespace informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`,
-      );
+    const code = (err as any).code || '';
+    if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
+      logger.debug(`namespace informer ${code} occurred, restarting informer`);
 
       // Restart informer after 1sec
       setTimeout(async () => {

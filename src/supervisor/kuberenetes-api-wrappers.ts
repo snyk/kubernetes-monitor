@@ -3,17 +3,12 @@ import sleep from 'sleep-promise';
 
 import { logger } from '../common/logger';
 import { IRequestError } from './types';
+import { RETRYABLE_NETWORK_ERRORS } from './watchers/types';
 
 export const ATTEMPTS_MAX = 3;
 export const DEFAULT_SLEEP_SEC = 1;
 export const MAX_SLEEP_SEC = 5;
 type IKubernetesApiFunction<ResponseType> = () => Promise<ResponseType>;
-
-const RETRYABLE_NETWORK_ERRORS: string[] = [
-  'ECONNREFUSED',
-  'ETIMEDOUT',
-  'ECONNRESET',
-];
 
 export async function retryKubernetesApiRequest<ResponseType>(
   func: IKubernetesApiFunction<ResponseType>,

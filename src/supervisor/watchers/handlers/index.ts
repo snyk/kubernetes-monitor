@@ -30,7 +30,7 @@ import {
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { ECONNRESET_ERROR_CODE } from '../types';
+import { RETRYABLE_NETWORK_ERRORS } from '../types';
 
 /**
  * This map is used in combination with the kubernetes-client Informer API
@@ -173,10 +173,11 @@ export async function setupInformer(
   namespace: string,
   workloadKind: WorkloadKind,
 ): Promise<void> {
+  const logContext: Record<string, unknown> = { namespace, workloadKind };
   const isSupported = await isSupportedWorkload(namespace, workloadKind);
   if (!isSupported) {
     logger.info(
-      { namespace, workloadKind },
+      logContext,
       'The Kubernetes cluster does not support this workload',
     );
     return;
@@ -196,7 +197,7 @@ export async function setupInformer(
       );
     } catch (err) {
       logger.error(
-        { err, namespace, workloadKind },
+        { ...logContext, err },
         'error while listing entities on namespace',
       );
       throw err;
@@ -211,10 +212,11 @@ export async function setupInformer(
 
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
-    if ((err as any).code === ECONNRESET_ERROR_CODE) {
+    const code = (err as any).code || '';
+    if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(
-        {},
-        `informer ${ECONNRESET_ERROR_CODE} occurred, restarting informer`,
+        logContext,
+        `informer ${code} occurred, restarting informer`,
       );
 
       // Restart informer after 1sec
@@ -222,7 +224,10 @@ export async function setupInformer(
         await informer.start();
       }, 1000);
     } else {
-      logger.error({ err }, 'unexpected informer error event occurred');
+      logger.error(
+        { ...logContext, err },
+        'unexpected informer error event occurred',
+      );
     }
   });
 
@@ -235,7 +240,7 @@ export async function setupInformer(
           (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
           FALSY_WORKLOAD_NAME_MARKER;
         logger.warn(
-          { error, namespace, name, workloadKind },
+          { ...logContext, error, name },
           'could not execute the informer handler for a workload',
         );
       }
