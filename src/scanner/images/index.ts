@@ -1,4 +1,5 @@
-import { unlink } from 'fs';
+import { unlink, stat } from 'fs';
+import { promisify } from 'util';
 import { PluginResponse, scan } from 'snyk-docker-plugin';
 import { DepGraph, legacy } from '@snyk/dep-graph';
 
@@ -12,6 +13,9 @@ import {
   extractFactsFromDockerPluginResponse,
   LegacyPluginResponse,
 } from './docker-plugin-shim';
+import type { Telemetry } from '../../transmitter/types';
+
+const statAsync = promisify(stat);
 
 /*
  pulled images by skopeo archive repo type:
@@ -105,6 +109,7 @@ export function getImageParts(imageWithTag: string): {
 
 export async function scanImages(
   images: IPullableImage[],
+  telemetry: Partial<Telemetry>,
 ): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
@@ -125,6 +130,19 @@ export async function scanImages(
         pluginResponse.scanResults.length === 0
       ) {
         throw Error('Unexpected empty result from docker-plugin');
+      }
+
+      try {
+        const fileStats = await statAsync(fileSystemPath);
+        if (!telemetry.imageSizeBytes) {
+          telemetry.imageSizeBytes = 0;
+        }
+        telemetry.imageSizeBytes += fileStats.size;
+      } catch (err) {
+        logger.warn(
+          { error: err, imageName, imageWithDigest, fileSystemPath },
+          'could not determine archive size',
+        );
       }
 
       const depTree = await getDependencyTreeFromPluginResponse(

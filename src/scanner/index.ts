@@ -120,7 +120,7 @@ async function scanImagesAndSendResults(
   telemetry: Partial<Telemetry>,
 ): Promise<void> {
   const imageScanStartTimestampMs = Date.now();
-  const scannedImages = await scanImages(pulledImages);
+  const scannedImages = await scanImages(pulledImages, telemetry);
   const imageScanDurationMs = Date.now() - imageScanStartTimestampMs;
 
   if (scannedImages.length === 0) {

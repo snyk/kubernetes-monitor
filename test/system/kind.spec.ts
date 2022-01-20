@@ -254,6 +254,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
             enqueueDurationMs: expect.any(Number),
             imagePullDurationMs: expect.any(Number),
             imageScanDurationMs: expect.any(Number),
+            imageSizeBytes: expect.any(Number),
             queueSize: expect.any(Number),
           },
           imageLocator: expect.objectContaining({
@@ -270,10 +271,7 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
                 { type: 'imageOsReleasePrettyName', data: expect.any(String) },
               ]),
               target: { image: 'docker-image|docker.io/library/java' },
-              identity: {
-                type: 'deb',
-                args: { platform: 'linux/amd64' },
-              },
+              identity: { type: 'deb', args: { platform: 'linux/amd64' } },
             },
             {
               facts: [

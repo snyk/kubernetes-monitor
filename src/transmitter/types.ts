@@ -101,6 +101,10 @@ export interface IRequestError {
 export interface Telemetry {
   enqueueDurationMs: number;
   queueSize: number;
+  /** This metric captures the total duration to pull all images of a workload. */
   imagePullDurationMs: number;
+  /** This metric captures the total duration to scan all images of a workload. */
   imageScanDurationMs: number;
+  /** This metric captures the combined size of all images of a workload. */
+  imageSizeBytes: number;
 }
