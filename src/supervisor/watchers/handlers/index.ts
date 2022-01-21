@@ -161,7 +161,7 @@ async function isSupportedWorkload(
       attemptedApiCall.response.statusCode < 300
     );
   } catch (error) {
-    logger.info(
+    logger.debug(
       { error, workloadKind },
       'Failed on Kubernetes API call to list DeploymentConfig',
     );
@@ -176,7 +176,7 @@ export async function setupInformer(
   const logContext: Record<string, unknown> = { namespace, workloadKind };
   const isSupported = await isSupportedWorkload(namespace, workloadKind);
   if (!isSupported) {
-    logger.info(
+    logger.debug(
       logContext,
       'The Kubernetes cluster does not support this workload',
     );
