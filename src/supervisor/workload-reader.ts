@@ -206,13 +206,10 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   return metadata;
 };
 
-// Keep an eye on this! We need v1beta1 API for CronJobs.
-// https://kubernetes.io/docs/concepts/overview/kubernetes-api/#api-versioning
-// CronJobs will appear in v2 API, but for now there' only v2alpha1, so it's a bad idea to use it.
+// cronJobReader can read v1 and v1beta1 CronJobs
 const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const cronJobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () =>
-      k8sApi.batchUnstableClient.readNamespacedCronJob(workloadName, namespace),
+    () => k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
   );
   const cronJob = trimWorkload(cronJobResult.body);
 
