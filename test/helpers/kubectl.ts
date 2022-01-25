@@ -231,7 +231,7 @@ export async function waitForDeployment(
   namespace: string,
 ): Promise<void> {
   console.log(`Trying to find deployment ${name} in namespace ${namespace}`);
-  for (let attempt = 0; attempt < 120; attempt++) {
+  for (let attempt = 0; attempt < 180; attempt++) {
     try {
       await exec(`./kubectl get deployment.apps/${name} -n ${namespace}`);
     } catch (error) {

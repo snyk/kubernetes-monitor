@@ -69,7 +69,7 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       paginatedReplicationControllerList(namespace),
   },
   [WorkloadKind.CronJob]: {
-    endpoint: '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
+    endpoint: '/apis/batch/v1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJobWatchHandler,
     },
