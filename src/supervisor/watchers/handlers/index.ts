@@ -125,10 +125,17 @@ async function isSupportedWorkload(
   namespace: string,
   workloadKind: WorkloadKind,
 ): Promise<boolean> {
-  if (workloadKind !== WorkloadKind.DeploymentConfig) {
-    return true;
+  switch (workloadKind) {
+    case WorkloadKind.DeploymentConfig:
+      return await isDeploymentConfigSupported(namespace);
+    default:
+      return true;
   }
+}
 
+async function isDeploymentConfigSupported(
+  namespace: string,
+): Promise<boolean> {
   try {
     const pretty = undefined;
     const continueToken = undefined;
@@ -162,7 +169,7 @@ async function isSupportedWorkload(
     );
   } catch (error) {
     logger.debug(
-      { error, workloadKind },
+      { error, workloadKind: WorkloadKind.DeploymentConfig },
       'Failed on Kubernetes API call to list DeploymentConfig',
     );
     return false;
