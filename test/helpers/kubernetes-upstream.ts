@@ -13,7 +13,7 @@ import { config } from '../../src/common/config';
 
 const UPSTREAM_POLLING_CONFIGURATION = {
   WAIT_BETWEEN_REQUESTS_MS: 5000,
-  MAXIMUM_REQUESTS: 120,
+  MAXIMUM_REQUESTS: 180,
 };
 
 export async function getUpstreamResponseBody(
@@ -73,9 +73,11 @@ export async function validateUpstreamStoredMetadata(
   remainingChecks: number = UPSTREAM_POLLING_CONFIGURATION.MAXIMUM_REQUESTS,
 ): Promise<boolean> {
   while (remainingChecks > 0) {
-    console.log(
-      `Pinging upstream for existing metadata (${remainingChecks} checks remaining)...`,
-    );
+    if (remainingChecks % 10 === 0) {
+      console.log(
+        `Pinging upstream for existing metadata (${remainingChecks} checks remaining)...`,
+      );
+    }
     const responseBody = await getUpstreamResponseBody(relativeUrl);
     const workloadInfo: IWorkloadMetadata | undefined =
       responseBody.workloadInfo;
