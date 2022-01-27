@@ -5,12 +5,18 @@ import {
   ERROR,
   UPDATE,
   KubernetesObject,
+  BatchV1beta1Api,
+  BatchV1Api,
 } from '@kubernetes/client-node';
 
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
 import { podWatchHandler, podDeletedHandler, paginatedPodList } from './pod';
-import { cronJobWatchHandler, paginatedCronJobList } from './cron-job';
+import {
+  cronJobWatchHandler,
+  paginatedCronJobList,
+  paginatedCronJobV1Beta1List,
+} from './cron-job';
 import { daemonSetWatchHandler, paginatedDaemonSetList } from './daemon-set';
 import { deploymentWatchHandler, paginatedDeploymentList } from './deployment';
 import { jobWatchHandler, paginatedJobList } from './job';
@@ -75,6 +81,13 @@ const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     },
     listFactory: (namespace) => () => paginatedCronJobList(namespace),
   },
+  [WorkloadKind.CronJobV1Beta1]: {
+    endpoint: '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
+    handlers: {
+      [DELETE]: cronJobWatchHandler,
+    },
+    listFactory: (namespace) => () => paginatedCronJobV1Beta1List(namespace),
+  },
   [WorkloadKind.Job]: {
     endpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
     handlers: {
@@ -125,10 +138,75 @@ async function isSupportedWorkload(
   namespace: string,
   workloadKind: WorkloadKind,
 ): Promise<boolean> {
-  if (workloadKind !== WorkloadKind.DeploymentConfig) {
-    return true;
+  switch (workloadKind) {
+    case WorkloadKind.DeploymentConfig:
+      return await isDeploymentConfigSupported(namespace);
+    case WorkloadKind.CronJobV1Beta1:
+      return await isCronJobVersionSupported(
+        workloadKind,
+        namespace,
+        k8sApi.batchUnstableClient,
+      );
+    case WorkloadKind.CronJob:
+      return await isCronJobVersionSupported(
+        workloadKind,
+        namespace,
+        k8sApi.batchClient,
+      );
+    default:
+      return true;
   }
+}
 
+async function isCronJobVersionSupported(
+  workloadKind: WorkloadKind,
+  namespace: string,
+  client: BatchV1Api | BatchV1beta1Api,
+): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const allowWatchBookmarks = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const resourceVersionMatch = undefined;
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall =
+      await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+        client.listNamespacedCronJob(
+          namespace,
+          pretty,
+          allowWatchBookmarks,
+          continueToken,
+          fieldSelector,
+          labelSelector,
+          limit,
+          resourceVersion,
+          resourceVersionMatch,
+          timeoutSeconds,
+        ),
+      );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: workloadKind },
+      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
+    );
+    return false;
+  }
+}
+
+async function isDeploymentConfigSupported(
+  namespace: string,
+): Promise<boolean> {
   try {
     const pretty = undefined;
     const continueToken = undefined;
@@ -162,7 +240,7 @@ async function isSupportedWorkload(
     );
   } catch (error) {
     logger.debug(
-      { error, workloadKind },
+      { error, workloadKind: WorkloadKind.DeploymentConfig },
       'Failed on Kubernetes API call to list DeploymentConfig',
     );
     return false;
