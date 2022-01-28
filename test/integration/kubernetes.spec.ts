@@ -14,6 +14,7 @@ import {
 } from '../helpers/kubernetes-upstream';
 import * as kubectl from '../helpers/kubectl';
 import { execWrapper as exec } from '../helpers/exec';
+import { IWorkloadLocator } from '../../src/transmitter/types';
 
 let integrationId: string;
 let namespace: string;
@@ -37,6 +38,21 @@ test('deploy snyk-monitor', async () => {
   integrationId = await setup.deployMonitor();
 });
 
+const cronJobValidator = (workloads: IWorkloadLocator[]) =>
+  workloads.find(
+    (workload) =>
+      workload.name === 'cron-job' && workload.type === WorkloadKind.CronJob,
+  ) !== undefined;
+
+const cronJobV1Beta1Validator = (workloads: IWorkloadLocator[]) =>
+  workloads.find(
+    (workload) =>
+      workload.name === 'cron-job-v1beta1' &&
+      workload.type === WorkloadKind.CronJob,
+  ) !== undefined;
+
+let cronJobV1Supported = true;
+let cronJobV1Beta1Supported = true;
 // Next we apply some sample workloads
 test('deploy sample workloads', async () => {
   const servicesNamespace = 'services';
@@ -50,6 +66,16 @@ test('deploy sample workloads', async () => {
     kubectl.applyK8sYaml('./test/fixtures/centos-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/scratch-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/consul-deployment.yaml'),
+    kubectl.applyK8sYaml('./test/fixtures/cronjob.yaml').catch((error) => {
+      console.log('CronJob is possibly unsupported', error);
+      cronJobV1Supported = false;
+    }),
+    kubectl
+      .applyK8sYaml('./test/fixtures/cronjob-v1beta1.yaml')
+      .catch((error) => {
+        console.log('CronJobV1Beta1 is possibly unsupported', error);
+        cronJobV1Beta1Supported = false;
+      }),
     kubectl.createPodFromImage(
       'alpine-from-sha',
       someImageWithSha,
@@ -112,7 +138,6 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   const validatorFn: WorkloadLocatorValidator = (workloads) => {
     return (
       workloads !== undefined &&
-      workloads.length === 8 &&
       workloads.find(
         (workload) =>
           workload.name === 'alpine' && workload.type === WorkloadKind.Pod,
@@ -150,7 +175,9 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
         (workload) =>
           workload.name === 'consul' &&
           workload.type === WorkloadKind.Deployment,
-      ) !== undefined
+      ) !== undefined &&
+      // only one of the cronjob versions needs to be valid
+      (cronJobValidator(workloads) || cronJobV1Beta1Validator(workloads))
     );
   };
 
@@ -226,6 +253,36 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
       target: { image: 'docker-image|docker.io/snyk/runtime-fixtures' },
     },
   ]);
+
+  if (cronJobV1Beta1Supported) {
+    const scanResultsCronJobBeta = await getUpstreamResponseBody(
+      `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job-v1beta1`,
+    );
+    expect(scanResultsCronJobBeta.workloadScanResults['busybox']).toEqual<
+      ScanResult[]
+    >([
+      {
+        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|busybox' },
+      },
+    ]);
+  }
+
+  if (cronJobV1Supported) {
+    const scanResultsCronJob = await getUpstreamResponseBody(
+      `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job`,
+    );
+    expect(scanResultsCronJob.workloadScanResults['busybox']).toEqual<
+      ScanResult[]
+    >([
+      {
+        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|busybox' },
+      },
+    ]);
+  }
 });
 
 test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async () => {

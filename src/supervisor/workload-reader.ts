@@ -206,14 +206,21 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   return metadata;
 };
 
-// Keep an eye on this! We need v1beta1 API for CronJobs.
-// https://kubernetes.io/docs/concepts/overview/kubernetes-api/#api-versioning
-// CronJobs will appear in v2 API, but for now there' only v2alpha1, so it's a bad idea to use it.
+// cronJobReader can read v1 and v1beta1 CronJobs
 const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
-  const cronJobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () =>
-      k8sApi.batchUnstableClient.readNamespacedCronJob(workloadName, namespace),
-  );
+  const cronJobResult = await kubernetesApiWrappers
+    .retryKubernetesApiRequest(() =>
+      k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
+    )
+    // In case the V1 client fails, try using the V1Beta1 client.
+    .catch(() =>
+      kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+        k8sApi.batchUnstableClient.readNamespacedCronJob(
+          workloadName,
+          namespace,
+        ),
+      ),
+    );
   const cronJob = trimWorkload(cronJobResult.body);
 
   if (
@@ -283,13 +290,17 @@ function logIncompleteWorkload(workloadName: string, namespace: string): void {
 // Here we are using the "kind" property of a k8s object as a key to map it to a reader.
 // This gives us a quick look up table where we can abstract away the internal implementation of reading a resource
 // and just grab a generic handler/reader that does that for us (based on the "kind").
-const workloadReader = {
+const workloadReader: Record<string, IWorkloadReaderFunc> = {
   [WorkloadKind.Deployment]: deploymentReader,
   [WorkloadKind.ReplicaSet]: replicaSetReader,
   [WorkloadKind.StatefulSet]: statefulSetReader,
   [WorkloadKind.DaemonSet]: daemonSetReader,
   [WorkloadKind.Job]: jobReader,
   [WorkloadKind.CronJob]: cronJobReader,
+  // ------------
+  // Note: WorkloadKind.CronJobV1Beta1 is intentionally not listed here.
+  // The WorkloadKind.CronJob reader can handle both v1 and v1beta1 API versions.
+  // ------------
   [WorkloadKind.ReplicationController]: replicationControllerReader,
   [WorkloadKind.DeploymentConfig]: deploymentConfigReader,
 };

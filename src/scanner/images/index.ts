@@ -1,10 +1,11 @@
-import { unlink } from 'fs';
+import { unlink, stat } from 'fs';
+import { promisify } from 'util';
 import { PluginResponse, scan } from 'snyk-docker-plugin';
 import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { logger } from '../../common/logger';
 import { pull as skopeoCopy, getDestinationForImage } from './skopeo';
-import { IPullableImage, IScanImage, SkopeoRepositoryType } from './types';
+import { IPullableImage, IScanImage } from './types';
 import { IScanResult } from '../types';
 import {
   buildDockerPropertiesOnDepTree,
@@ -12,6 +13,9 @@ import {
   extractFactsFromDockerPluginResponse,
   LegacyPluginResponse,
 } from './docker-plugin-shim';
+import type { Telemetry } from '../../transmitter/types';
+
+const statAsync = promisify(stat);
 
 /*
  pulled images by skopeo archive repo type:
@@ -22,23 +26,11 @@ async function pullImageBySkopeoRepo(
 ): Promise<IPullableImage> {
   // Scan image by digest if exists, other way fallback tag
   const scanId = imageToPull.imageWithDigest ?? imageToPull.imageName;
-  imageToPull.skopeoRepoType = SkopeoRepositoryType.DockerArchive;
-  try {
-    // copy docker archive image
-    await skopeoCopy(
-      scanId,
-      imageToPull.fileSystemPath,
-      imageToPull.skopeoRepoType,
-    );
-  } catch (dockerError) {
-    imageToPull.skopeoRepoType = SkopeoRepositoryType.OciArchive;
-    // copy oci archive image
-    await skopeoCopy(
-      scanId,
-      imageToPull.fileSystemPath,
-      imageToPull.skopeoRepoType,
-    );
-  }
+  await skopeoCopy(
+    scanId,
+    imageToPull.fileSystemPath,
+    imageToPull.skopeoRepoType,
+  );
   return imageToPull;
 }
 
@@ -117,25 +109,17 @@ export function getImageParts(imageWithTag: string): {
 
 export async function scanImages(
   images: IPullableImage[],
+  telemetry: Partial<Telemetry>,
 ): Promise<IScanResult[]> {
   const scannedImages: IScanResult[] = [];
 
-  for (const {
-    imageName,
-    fileSystemPath,
-    imageWithDigest,
-    skopeoRepoType,
-  } of images) {
+  for (const { imageName, fileSystemPath, imageWithDigest } of images) {
     try {
       const shouldIncludeAppVulns = true;
-      const archiveType =
-        skopeoRepoType == SkopeoRepositoryType.DockerArchive
-          ? 'docker-archive'
-          : 'oci-archive';
-      const dockerArchivePath = `${archiveType}:${fileSystemPath}`;
+      const archivePath = `docker-archive:${fileSystemPath}`;
 
       const pluginResponse = await scan({
-        path: dockerArchivePath,
+        path: archivePath,
         imageNameAndTag: imageName,
         'app-vulns': shouldIncludeAppVulns,
       });
@@ -146,6 +130,19 @@ export async function scanImages(
         pluginResponse.scanResults.length === 0
       ) {
         throw Error('Unexpected empty result from docker-plugin');
+      }
+
+      try {
+        const fileStats = await statAsync(fileSystemPath);
+        if (!telemetry.imageSizeBytes) {
+          telemetry.imageSizeBytes = 0;
+        }
+        telemetry.imageSizeBytes += fileStats.size;
+      } catch (err) {
+        logger.warn(
+          { error: err, imageName, imageWithDigest, fileSystemPath },
+          'could not determine archive size',
+        );
       }
 
       const depTree = await getDependencyTreeFromPluginResponse(

@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-job
+  namespace: services
+  labels:
+    app.kubernetes.io/name: cron-job
+spec:
+  schedule: '* * * * *'
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: cron-job
+        spec:
+          containers:
+            - name: cron-job
+              image: busybox
+              imagePullPolicy: IfNotPresent
+              command: ['/bin/sleep']
+              args: ['180']
+          restartPolicy: OnFailure
