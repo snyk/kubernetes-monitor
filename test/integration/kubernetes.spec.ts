@@ -51,6 +51,8 @@ const cronJobV1Beta1Validator = (workloads: IWorkloadLocator[]) =>
       workload.type === WorkloadKind.CronJob,
   ) !== undefined;
 
+let cronJobV1Supported = true;
+let cronJobV1Beta1Supported = true;
 // Next we apply some sample workloads
 test('deploy sample workloads', async () => {
   const servicesNamespace = 'services';
@@ -66,11 +68,13 @@ test('deploy sample workloads', async () => {
     kubectl.applyK8sYaml('./test/fixtures/consul-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/cronjob.yaml').catch((error) => {
       console.log('CronJob is possibly unsupported', error);
+      cronJobV1Supported = false;
     }),
     kubectl
       .applyK8sYaml('./test/fixtures/cronjob-v1beta1.yaml')
       .catch((error) => {
         console.log('CronJobV1Beta1 is possibly unsupported', error);
+        cronJobV1Beta1Supported = false;
       }),
     kubectl.createPodFromImage(
       'alpine-from-sha',
@@ -250,32 +254,35 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
     },
   ]);
 
-  const scanResultsCronJob = await getUpstreamResponseBody(
-    `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job`,
-  );
-  expect(scanResultsCronJob.workloadScanResults['busybox']).toEqual<
-    ScanResult[]
-  >([
-    {
-      identity: { type: 'linux', args: { platform: 'linux/amd64' } },
-      facts: expect.any(Array),
-      target: { image: 'docker-image|busybox' },
-    },
-  ]);
+  if (cronJobV1Beta1Supported) {
+    const scanResultsCronJobBeta = await getUpstreamResponseBody(
+      `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job-v1beta1`,
+    );
+    expect(scanResultsCronJobBeta.workloadScanResults['busybox']).toEqual<
+      ScanResult[]
+    >([
+      {
+        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|busybox' },
+      },
+    ]);
+  }
 
-  // the v1 reader works for both v1 and v1beta1
-  const scanResultsCronJobBeta = await getUpstreamResponseBody(
-    `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job-v1beta1`,
-  );
-  expect(scanResultsCronJobBeta.workloadScanResults['busybox']).toEqual<
-    ScanResult[]
-  >([
-    {
-      identity: { type: 'linux', args: { platform: 'linux/amd64' } },
-      facts: expect.any(Array),
-      target: { image: 'docker-image|busybox' },
-    },
-  ]);
+  if (cronJobV1Supported) {
+    const scanResultsCronJob = await getUpstreamResponseBody(
+      `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job`,
+    );
+    expect(scanResultsCronJob.workloadScanResults['busybox']).toEqual<
+      ScanResult[]
+    >([
+      {
+        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|busybox' },
+      },
+    ]);
+  }
 });
 
 test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async () => {
