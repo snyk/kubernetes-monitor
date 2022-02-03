@@ -6,7 +6,7 @@ import {
   V1DeploymentConfig,
   V1DeploymentConfigList,
 } from './types';
-import { paginatedNamespacedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import { k8sApi } from '../../cluster';
 import {
   deleteWorkloadAlreadyScanned,
@@ -41,6 +41,38 @@ export async function paginatedNamespacedDeploymentConfigList(
         'apps.openshift.io',
         'v1',
         namespace,
+        'deploymentconfigs',
+        pretty,
+        _continue,
+        fieldSelector,
+        labelSelector,
+        limit,
+      ) as any,
+  );
+}
+
+export async function paginatedClusterDeploymentConfigList(): Promise<{
+  response: IncomingMessage;
+  body: V1DeploymentConfigList;
+}> {
+  const v1DeploymentConfigList = new V1DeploymentConfigList();
+  v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
+  v1DeploymentConfigList.kind = 'DeploymentConfigList';
+  v1DeploymentConfigList.items = new Array<V1DeploymentConfig>();
+
+  return await paginatedClusterList(
+    v1DeploymentConfigList,
+    async (
+      _allowWatchBookmarks?: boolean,
+      _continue?: string,
+      fieldSelector?: string,
+      labelSelector?: string,
+      limit?: number,
+      pretty?: string,
+    ) =>
+      k8sApi.customObjectsClient.listClusterCustomObject(
+        'apps.openshift.io',
+        'v1',
         'deploymentconfigs',
         pretty,
         _continue,

@@ -18,12 +18,19 @@ type ListNamespacedWorkloadFunctionFactory = (
   body: any;
 }>;
 
+type ListClusterWorkloadFunctionFactory = () => () => Promise<{
+  response: any;
+  body: any;
+}>;
+
 export interface IWorkloadWatchMetadata {
   [workloadKind: string]: {
+    clusterEndpoint: string;
     namespacedEndpoint: string;
     handlers: {
       [kubernetesInformerVerb: string]: WorkloadHandlerFunc;
     };
+    clusterListFactory: ListClusterWorkloadFunctionFactory;
     namespacedListFactory: ListNamespacedWorkloadFunctionFactory;
   };
 }
@@ -52,6 +59,27 @@ export interface V1DeploymentConfigSpec {
 export interface V1DeploymentConfigStatus {
   observedGeneration?: number;
 }
+
+export type V1ClusterList<T> = (
+  allowWatchBookmarks?: boolean,
+  _continue?: string,
+  fieldSelector?: string,
+  labelSelector?: string,
+  limit?: number,
+  pretty?: string,
+  resourceVersion?: string,
+  resourceVersionMatch?: string,
+  timeoutSeconds?: number,
+  watch?: boolean,
+  options?: {
+    headers: {
+      [name: string]: string;
+    };
+  },
+) => Promise<{
+  response: IncomingMessage;
+  body: T;
+}>;
 
 export type V1NamespacedList<T> = (
   namespace: string,

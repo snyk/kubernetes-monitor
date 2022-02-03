@@ -4,7 +4,7 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedNamespacedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
@@ -26,6 +26,21 @@ export async function paginatedNamespacedReplicaSetList(
     namespace,
     v1ReplicaSetList,
     k8sApi.appsClient.listNamespacedReplicaSet.bind(k8sApi.appsClient),
+  );
+}
+
+export async function paginatedClusterReplicaSetList(): Promise<{
+  response: IncomingMessage;
+  body: V1ReplicaSetList;
+}> {
+  const v1ReplicaSetList = new V1ReplicaSetList();
+  v1ReplicaSetList.apiVersion = 'apps/v1';
+  v1ReplicaSetList.kind = 'ReplicaSetList';
+  v1ReplicaSetList.items = new Array<V1ReplicaSet>();
+
+  return await paginatedClusterList(
+    v1ReplicaSetList,
+    k8sApi.appsClient.listReplicaSetForAllNamespaces.bind(k8sApi.appsClient),
   );
 }
 

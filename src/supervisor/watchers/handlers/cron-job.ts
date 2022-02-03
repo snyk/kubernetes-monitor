@@ -9,7 +9,7 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedNamespacedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
@@ -34,6 +34,21 @@ export async function paginatedNamespacedCronJobList(
   );
 }
 
+export async function paginatedClusterCronJobList(): Promise<{
+  response: IncomingMessage;
+  body: V1CronJobList;
+}> {
+  const v1CronJobList = new V1CronJobList();
+  v1CronJobList.apiVersion = 'batch/v1';
+  v1CronJobList.kind = 'CronJobList';
+  v1CronJobList.items = new Array<V1CronJob>();
+
+  return await paginatedClusterList(
+    v1CronJobList,
+    k8sApi.batchClient.listCronJobForAllNamespaces.bind(k8sApi.batchClient),
+  );
+}
+
 export async function paginatedNamespacedCronJobV1Beta1List(
   namespace: string,
 ): Promise<{
@@ -49,6 +64,23 @@ export async function paginatedNamespacedCronJobV1Beta1List(
     namespace,
     cronJobList,
     k8sApi.batchUnstableClient.listNamespacedCronJob.bind(
+      k8sApi.batchUnstableClient,
+    ),
+  );
+}
+
+export async function paginatedClusterCronJobV1Beta1List(): Promise<{
+  response: IncomingMessage;
+  body: V1beta1CronJobList;
+}> {
+  const cronJobList = new V1beta1CronJobList();
+  cronJobList.apiVersion = 'batch/v1beta1';
+  cronJobList.kind = 'CronJobList';
+  cronJobList.items = new Array<V1beta1CronJob>();
+
+  return await paginatedClusterList(
+    cronJobList,
+    k8sApi.batchUnstableClient.listCronJobForAllNamespaces.bind(
       k8sApi.batchUnstableClient,
     ),
   );

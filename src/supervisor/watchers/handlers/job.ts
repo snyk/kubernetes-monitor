@@ -4,7 +4,7 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedNamespacedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
@@ -24,6 +24,21 @@ export async function paginatedNamespacedJobList(namespace: string): Promise<{
     namespace,
     v1JobList,
     k8sApi.batchClient.listNamespacedJob.bind(k8sApi.batchClient),
+  );
+}
+
+export async function paginatedClusterJobList(): Promise<{
+  response: IncomingMessage;
+  body: V1JobList;
+}> {
+  const v1JobList = new V1JobList();
+  v1JobList.apiVersion = 'batch/v1';
+  v1JobList.kind = 'JobList';
+  v1JobList.items = new Array<V1Job>();
+
+  return await paginatedClusterList(
+    v1JobList,
+    k8sApi.batchClient.listJobForAllNamespaces.bind(k8sApi.batchClient),
   );
 }
 

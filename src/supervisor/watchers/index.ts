@@ -1,18 +1,15 @@
-import { makeInformer, ADD, ERROR } from '@kubernetes/client-node';
 import { V1Namespace } from '@kubernetes/client-node';
 
 import { logger } from '../../common/logger';
 import { config } from '../../common/config';
 import { WorkloadKind } from '../types';
-import { setupInformer } from './handlers';
-import { kubeConfig, k8sApi } from '../cluster';
-import * as kubernetesApiWrappers from '../kuberenetes-api-wrappers';
+import { setupInformer, WATCH_WHOLE_CLUSTER } from './handlers';
+import { k8sApi } from '../cluster';
 import {
   kubernetesInternalNamespaces,
   openshiftInternalNamespaces,
 } from './internal-namespaces';
 import { state } from '../../state';
-import { RETRYABLE_NETWORK_ERRORS } from './types';
 
 async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
   const namespaceName = extractNamespaceName(namespace);
@@ -60,52 +57,18 @@ export function isExcludedNamespace(namespace: string): boolean {
 }
 
 async function setupWatchesForCluster(): Promise<void> {
-  const informer = makeInformer(kubeConfig, '/api/v1/namespaces', async () => {
+  for (const workloadKind of Object.values(WorkloadKind)) {
+    // Disable handling events for k8s Jobs for debug purposes
+    if (config.SKIP_K8S_JOBS === true && workloadKind === WorkloadKind.Job) {
+      continue;
+    }
+
     try {
-      return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-        k8sApi.coreClient.listNamespace(),
-      );
-    } catch (err) {
-      logger.error({ err }, 'error while listing namespaces');
-      throw err;
+      await setupInformer(WATCH_WHOLE_CLUSTER, workloadKind);
+    } catch (error) {
+      logger.warn({ workloadKind }, 'could not setup workload watch, skipping');
     }
-  });
-
-  informer.on(ERROR, (err) => {
-    // Types from client library insists that callback is of type V1Namespace
-    const code = (err as any).code || '';
-    if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(`namespace informer ${code} occurred, restarting informer`);
-
-      // Restart informer after 1sec
-      setTimeout(async () => {
-        await informer.start();
-      }, 1000);
-    } else {
-      logger.error(
-        { err },
-        'unexpected namespace informer error event occurred',
-      );
-    }
-  });
-
-  informer.on(ADD, async (namespace: V1Namespace) => {
-    try {
-      const namespaceName = extractNamespaceName(namespace);
-      if (isExcludedNamespace(namespaceName)) {
-        // disregard excluded namespaces
-        logger.info({ namespaceName }, 'ignoring blacklisted namespace');
-        return;
-      }
-
-      await setupWatchesForNamespace(namespace);
-    } catch (err) {
-      logger.error({ err, namespace }, 'error handling a namespace event');
-      return;
-    }
-  });
-
-  await informer.start();
+  }
 }
 
 export async function beginWatchingWorkloads(): Promise<void> {

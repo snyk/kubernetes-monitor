@@ -15,41 +15,55 @@ import {
   podWatchHandler,
   podDeletedHandler,
   paginatedNamespacedPodList,
+  paginatedClusterPodList,
 } from './pod';
 import {
   cronJobWatchHandler,
+  paginatedClusterCronJobList,
+  paginatedClusterCronJobV1Beta1List,
   paginatedNamespacedCronJobList,
   paginatedNamespacedCronJobV1Beta1List,
 } from './cron-job';
 import {
   daemonSetWatchHandler,
+  paginatedClusterDaemonSetList,
   paginatedNamespacedDaemonSetList,
 } from './daemon-set';
 import {
   deploymentWatchHandler,
+  paginatedClusterDeploymentList,
   paginatedNamespacedDeploymentList,
 } from './deployment';
-import { jobWatchHandler, paginatedNamespacedJobList } from './job';
 import {
+  jobWatchHandler,
+  paginatedClusterJobList,
+  paginatedNamespacedJobList,
+} from './job';
+import {
+  paginatedClusterReplicaSetList,
   paginatedNamespacedReplicaSetList,
   replicaSetWatchHandler,
 } from './replica-set';
 import {
+  paginatedClusterReplicationControllerList,
   paginatedNamespacedReplicationControllerList,
   replicationControllerWatchHandler,
 } from './replication-controller';
 import {
+  paginatedClusterStatefulSetList,
   paginatedNamespacedStatefulSetList,
   statefulSetWatchHandler,
 } from './stateful-set';
 import {
   deploymentConfigWatchHandler,
+  paginatedClusterDeploymentConfigList,
   paginatedNamespacedDeploymentConfigList,
 } from './deployment-config';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { RETRYABLE_NETWORK_ERRORS } from '../types';
+import { isExcludedNamespace } from '..';
 
 /**
  * This map is used in combination with the kubernetes-client Informer API
@@ -71,95 +85,117 @@ import { RETRYABLE_NETWORK_ERRORS } from '../types';
  */
 const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   [WorkloadKind.Pod]: {
+    clusterEndpoint: '/api/v1/pods',
     namespacedEndpoint: '/api/v1/namespaces/{namespace}/pods',
     handlers: {
       [ADD]: podWatchHandler,
       [UPDATE]: podWatchHandler,
       [DELETE]: podDeletedHandler,
     },
+    clusterListFactory: () => () => paginatedClusterPodList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedPodList(namespace),
   },
   [WorkloadKind.ReplicationController]: {
+    clusterEndpoint: '/api/v1/replicationcontrollers',
     namespacedEndpoint:
       '/api/v1/watch/namespaces/{namespace}/replicationcontrollers',
     handlers: {
       [DELETE]: replicationControllerWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterReplicationControllerList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedReplicationControllerList(namespace),
   },
   [WorkloadKind.CronJob]: {
+    clusterEndpoint: '/apis/batch/v1/cronjobs',
     namespacedEndpoint: '/apis/batch/v1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJobWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterCronJobList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedCronJobList(namespace),
   },
   [WorkloadKind.CronJobV1Beta1]: {
+    clusterEndpoint: '/apis/batch/v1beta1/cronjobs',
     namespacedEndpoint:
       '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJobWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterCronJobV1Beta1List(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedCronJobV1Beta1List(namespace),
   },
   [WorkloadKind.Job]: {
+    clusterEndpoint: '/apis/batch/v1/jobs',
     namespacedEndpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
     handlers: {
       [DELETE]: jobWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterJobList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedJobList(namespace),
   },
   [WorkloadKind.DaemonSet]: {
+    clusterEndpoint: '/apis/apps/v1/daemonsets',
     namespacedEndpoint: '/apis/apps/v1/watch/namespaces/{namespace}/daemonsets',
     handlers: {
       [DELETE]: daemonSetWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterDaemonSetList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedDaemonSetList(namespace),
   },
   [WorkloadKind.Deployment]: {
+    clusterEndpoint: '/apis/apps/v1/deployments',
     namespacedEndpoint:
       '/apis/apps/v1/watch/namespaces/{namespace}/deployments',
     handlers: {
       [DELETE]: deploymentWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterDeploymentList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedDeploymentList(namespace),
   },
   [WorkloadKind.ReplicaSet]: {
+    clusterEndpoint: '/apis/apps/v1/replicasets',
     namespacedEndpoint:
       '/apis/apps/v1/watch/namespaces/{namespace}/replicasets',
     handlers: {
       [DELETE]: replicaSetWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterReplicaSetList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedReplicaSetList(namespace),
   },
   [WorkloadKind.StatefulSet]: {
+    clusterEndpoint: '/apis/apps/v1/statefulsets',
     namespacedEndpoint:
       '/apis/apps/v1/watch/namespaces/{namespace}/statefulsets',
     handlers: {
       [DELETE]: statefulSetWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterStatefulSetList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedStatefulSetList(namespace),
   },
   [WorkloadKind.DeploymentConfig]: {
+    clusterEndpoint: '/apis/apps.openshift.io/v1/deploymentconfigs',
     /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
     namespacedEndpoint:
       '/apis/apps.openshift.io/v1/watch/namespaces/{namespace}/deploymentconfigs',
     handlers: {
       [DELETE]: deploymentConfigWatchHandler,
     },
+    clusterListFactory: () => () => paginatedClusterDeploymentConfigList(),
     namespacedListFactory: (namespace) => () =>
       paginatedNamespacedDeploymentConfigList(namespace),
   },
 };
+
+export const WATCH_WHOLE_CLUSTER = '';
 
 async function isSupportedNamespacedWorkload(
   namespace: string,
@@ -180,6 +216,24 @@ async function isSupportedNamespacedWorkload(
         namespace,
         k8sApi.batchClient,
       );
+    default:
+      return true;
+  }
+}
+
+async function isSupportedClusterWorkload(
+  workloadKind: WorkloadKind,
+): Promise<boolean> {
+  switch (workloadKind) {
+    case WorkloadKind.DeploymentConfig:
+      return await isClusterDeploymentConfigSupported();
+    case WorkloadKind.CronJobV1Beta1:
+      return await isClusterCronJobSupported(
+        workloadKind,
+        k8sApi.batchUnstableClient,
+      );
+    case WorkloadKind.CronJob:
+      return await isClusterCronJobSupported(workloadKind, k8sApi.batchClient);
     default:
       return true;
   }
@@ -210,6 +264,50 @@ async function isNamespacedCronJobSupported(
           fieldSelector,
           labelSelector,
           limit,
+          resourceVersion,
+          resourceVersionMatch,
+          timeoutSeconds,
+        ),
+      );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: workloadKind },
+      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
+    );
+    return false;
+  }
+}
+
+async function isClusterCronJobSupported(
+  workloadKind: WorkloadKind,
+  client: BatchV1Api | BatchV1beta1Api,
+): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const allowWatchBookmarks = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const resourceVersionMatch = undefined;
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall =
+      await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+        client.listCronJobForAllNamespaces(
+          allowWatchBookmarks,
+          continueToken,
+          fieldSelector,
+          labelSelector,
+          limit,
+          pretty,
           resourceVersion,
           resourceVersionMatch,
           timeoutSeconds,
@@ -274,15 +372,55 @@ async function isNamespacedDeploymentConfigSupported(
   }
 }
 
+async function isClusterDeploymentConfigSupported(): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall =
+      await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+        k8sApi.customObjectsClient.listClusterCustomObject(
+          'apps.openshift.io',
+          'v1',
+          'deploymentconfigs',
+          pretty,
+          continueToken,
+          fieldSelector,
+          labelSelector,
+          limit,
+          resourceVersion,
+          timeoutSeconds,
+        ),
+      );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: WorkloadKind.DeploymentConfig },
+      'Failed on Kubernetes API call to list DeploymentConfig',
+    );
+    return false;
+  }
+}
+
 export async function setupInformer(
   namespace: string,
   workloadKind: WorkloadKind,
 ): Promise<void> {
+  const shouldWatchCluster = namespace === WATCH_WHOLE_CLUSTER;
   const logContext: Record<string, unknown> = { namespace, workloadKind };
-  const isSupported = await isSupportedNamespacedWorkload(
-    namespace,
-    workloadKind,
-  );
+  const isSupported = shouldWatchCluster
+    ? await isSupportedClusterWorkload(workloadKind)
+    : await isSupportedNamespacedWorkload(namespace, workloadKind);
   if (!isSupported) {
     logger.debug(
       logContext,
@@ -292,12 +430,13 @@ export async function setupInformer(
   }
 
   const workloadMetadata = workloadWatchMetadata[workloadKind];
-  const namespacedEndpoint = workloadMetadata.namespacedEndpoint.replace(
-    '{namespace}',
-    namespace,
-  );
+  const endpoint = shouldWatchCluster
+    ? workloadMetadata.clusterEndpoint
+    : workloadMetadata.namespacedEndpoint.replace('{namespace}', namespace);
 
-  const listMethod = workloadMetadata.namespacedListFactory(namespace);
+  const listMethod = shouldWatchCluster
+    ? workloadMetadata.clusterListFactory()
+    : workloadMetadata.namespacedListFactory(namespace);
   const loggedListMethod = async () => {
     try {
       return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
@@ -314,7 +453,7 @@ export async function setupInformer(
 
   const informer = makeInformer<KubernetesObject>(
     kubeConfig,
-    namespacedEndpoint,
+    endpoint,
     loggedListMethod,
   );
 
@@ -342,6 +481,10 @@ export async function setupInformer(
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(informerVerb, async (watchedWorkload) => {
       try {
+        if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
+          return;
+        }
+
         await workloadMetadata.handlers[informerVerb](watchedWorkload);
       } catch (error) {
         const name =

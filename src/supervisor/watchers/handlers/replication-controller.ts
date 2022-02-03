@@ -7,7 +7,7 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedNamespacedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
@@ -29,6 +29,23 @@ export async function paginatedNamespacedReplicationControllerList(
     namespace,
     v1ReplicationControllerList,
     k8sApi.coreClient.listNamespacedReplicationController.bind(
+      k8sApi.coreClient,
+    ),
+  );
+}
+
+export async function paginatedClusterReplicationControllerList(): Promise<{
+  response: IncomingMessage;
+  body: V1ReplicationControllerList;
+}> {
+  const v1ReplicationControllerList = new V1ReplicationControllerList();
+  v1ReplicationControllerList.apiVersion = 'v1';
+  v1ReplicationControllerList.kind = 'ReplicationControllerList';
+  v1ReplicationControllerList.items = new Array<V1ReplicationController>();
+
+  return await paginatedClusterList(
+    v1ReplicationControllerList,
+    k8sApi.coreClient.listReplicationControllerForAllNamespaces.bind(
       k8sApi.coreClient,
     ),
   );
