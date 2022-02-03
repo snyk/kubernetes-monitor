@@ -7,14 +7,14 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 
-export async function paginatedReplicationControllerList(
+export async function paginatedNamespacedReplicationControllerList(
   namespace: string,
 ): Promise<{
   response: IncomingMessage;
@@ -25,7 +25,7 @@ export async function paginatedReplicationControllerList(
   v1ReplicationControllerList.kind = 'ReplicationControllerList';
   v1ReplicationControllerList.items = new Array<V1ReplicationController>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1ReplicationControllerList,
     k8sApi.coreClient.listNamespacedReplicationController.bind(

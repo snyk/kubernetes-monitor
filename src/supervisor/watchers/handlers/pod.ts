@@ -23,7 +23,7 @@ import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
 import { deleteWorkload, trimWorkload } from './workload';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedNamespacedList } from './pagination';
 
 export interface ImagesToScanQueueData {
   workloadMetadata: IWorkload[];
@@ -125,7 +125,7 @@ export function isPodReady(pod: V1Pod): boolean {
   );
 }
 
-export async function paginatedPodList(namespace: string): Promise<{
+export async function paginatedNamespacedPodList(namespace: string): Promise<{
   response: IncomingMessage;
   body: V1PodList;
 }> {
@@ -134,7 +134,7 @@ export async function paginatedPodList(namespace: string): Promise<{
   v1PodList.kind = 'PodList';
   v1PodList.items = new Array<V1Pod>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1PodList,
     k8sApi.coreClient.listNamespacedPod.bind(k8sApi.coreClient),

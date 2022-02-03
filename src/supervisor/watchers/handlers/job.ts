@@ -4,14 +4,14 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 
-export async function paginatedJobList(namespace: string): Promise<{
+export async function paginatedNamespacedJobList(namespace: string): Promise<{
   response: IncomingMessage;
   body: V1JobList;
 }> {
@@ -20,7 +20,7 @@ export async function paginatedJobList(namespace: string): Promise<{
   v1JobList.kind = 'JobList';
   v1JobList.items = new Array<V1Job>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1JobList,
     k8sApi.batchClient.listNamespacedJob.bind(k8sApi.batchClient),

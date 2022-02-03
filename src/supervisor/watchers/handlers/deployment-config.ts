@@ -6,7 +6,7 @@ import {
   V1DeploymentConfig,
   V1DeploymentConfigList,
 } from './types';
-import { paginatedList } from './pagination';
+import { paginatedNamespacedList } from './pagination';
 import { k8sApi } from '../../cluster';
 import {
   deleteWorkloadAlreadyScanned,
@@ -14,7 +14,7 @@ import {
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 
-export async function paginatedDeploymentConfigList(
+export async function paginatedNamespacedDeploymentConfigList(
   namespace: string,
 ): Promise<{
   response: IncomingMessage;
@@ -25,7 +25,7 @@ export async function paginatedDeploymentConfigList(
   v1DeploymentConfigList.kind = 'DeploymentConfigList';
   v1DeploymentConfigList.items = new Array<V1DeploymentConfig>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1DeploymentConfigList,
     async (

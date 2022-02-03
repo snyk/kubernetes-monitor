@@ -17,7 +17,7 @@ const PAGE_SIZE = 100;
  * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
  * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
  */
-export async function paginatedList<
+export async function paginatedNamespacedList<
   T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
 >(
   namespace: string,

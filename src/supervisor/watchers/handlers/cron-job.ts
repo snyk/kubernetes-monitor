@@ -9,14 +9,16 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 
-export async function paginatedCronJobList(namespace: string): Promise<{
+export async function paginatedNamespacedCronJobList(
+  namespace: string,
+): Promise<{
   response: IncomingMessage;
   body: V1CronJobList;
 }> {
@@ -25,14 +27,16 @@ export async function paginatedCronJobList(namespace: string): Promise<{
   v1CronJobList.kind = 'CronJobList';
   v1CronJobList.items = new Array<V1CronJob>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1CronJobList,
     k8sApi.batchClient.listNamespacedCronJob.bind(k8sApi.batchClient),
   );
 }
 
-export async function paginatedCronJobV1Beta1List(namespace: string): Promise<{
+export async function paginatedNamespacedCronJobV1Beta1List(
+  namespace: string,
+): Promise<{
   response: IncomingMessage;
   body: V1beta1CronJobList;
 }> {
@@ -41,7 +45,7 @@ export async function paginatedCronJobV1Beta1List(namespace: string): Promise<{
   cronJobList.kind = 'CronJobList';
   cronJobList.items = new Array<V1beta1CronJob>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     cronJobList,
     k8sApi.batchUnstableClient.listNamespacedCronJob.bind(

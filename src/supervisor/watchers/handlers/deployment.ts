@@ -4,14 +4,16 @@ import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 
-export async function paginatedDeploymentList(namespace: string): Promise<{
+export async function paginatedNamespacedDeploymentList(
+  namespace: string,
+): Promise<{
   response: IncomingMessage;
   body: V1DeploymentList;
 }> {
@@ -20,7 +22,9 @@ export async function paginatedDeploymentList(namespace: string): Promise<{
   v1DeploymentList.kind = 'DeploymentList';
   v1DeploymentList.items = new Array<V1Deployment>();
 
-  return await paginatedList(
+  k8sApi.appsClient.listDeploymentForAllNamespaces();
+
+  return await paginatedNamespacedList(
     namespace,
     v1DeploymentList,
     k8sApi.appsClient.listNamespacedDeployment.bind(k8sApi.appsClient),
