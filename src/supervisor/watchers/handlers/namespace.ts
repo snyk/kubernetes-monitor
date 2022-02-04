@@ -33,7 +33,7 @@ import { PAGE_SIZE } from './pagination';
  * This feature should be removed at some point!
  */
 export async function trackNamespaces(): Promise<void> {
-  const logContext = {};
+  const logContext: Record<string, unknown> = {};
   const endpoint = '/api/v1/namespaces';
 
   const loggedListMethod = async () => {
@@ -60,11 +60,9 @@ export async function trackNamespaces(): Promise<void> {
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
     const code = (err as any).code || '';
+    logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(
-        logContext,
-        `informer ${code} occurred, restarting informer`,
-      );
+      logger.debug(logContext, 'informer error occurred, restarting informer');
 
       // Restart informer after 1sec
       setTimeout(async () => {
@@ -93,7 +91,7 @@ export async function trackNamespaces(): Promise<void> {
  * This feature should be removed at some point!
  */
 export async function trackNamespace(namespace: string): Promise<void> {
-  const logContext = {};
+  const logContext: Record<string, unknown> = {};
   const endpoint = `/api/v1/watch/namespaces/${namespace}`;
 
   const loggedListMethod = async () => {
@@ -127,11 +125,9 @@ export async function trackNamespace(namespace: string): Promise<void> {
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
     const code = (err as any).code || '';
+    logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(
-        logContext,
-        `informer ${code} occurred, restarting informer`,
-      );
+      logger.debug(logContext, 'informer error occurred, restarting informer');
 
       // Restart informer after 1sec
       setTimeout(async () => {

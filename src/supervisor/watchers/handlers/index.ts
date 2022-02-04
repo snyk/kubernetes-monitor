@@ -105,11 +105,9 @@ export async function setupNamespacedInformer(
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
     const code = (err as any).code || '';
+    logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(
-        logContext,
-        `informer ${code} occurred, restarting informer`,
-      );
+      logger.debug(logContext, 'informer error occurred, restarting informer');
 
       // Restart informer after 1sec
       setTimeout(async () => {
@@ -182,11 +180,9 @@ export async function setupClusterInformer(
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
     const code = (err as any).code || '';
+    logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(
-        logContext,
-        `informer ${code} occurred, restarting informer`,
-      );
+      logger.debug(logContext, 'informer error occurred, restarting informer');
 
       // Restart informer after 1sec
       setTimeout(async () => {
