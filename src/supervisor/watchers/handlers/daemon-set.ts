@@ -1,17 +1,20 @@
 import { V1DaemonSet, V1DaemonSetList } from '@kubernetes/client-node';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
+import { trimWorkload } from '../../workload-sanitization';
 
-export async function paginatedDaemonSetList(namespace: string): Promise<{
+export async function paginatedNamespacedDaemonSetList(
+  namespace: string,
+): Promise<{
   response: IncomingMessage;
   body: V1DaemonSetList;
 }> {
@@ -20,10 +23,25 @@ export async function paginatedDaemonSetList(namespace: string): Promise<{
   v1DaemonSetList.kind = 'DaemonSetList';
   v1DaemonSetList.items = new Array<V1DaemonSet>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1DaemonSetList,
     k8sApi.appsClient.listNamespacedDaemonSet.bind(k8sApi.appsClient),
+  );
+}
+
+export async function paginatedClusterDaemonSetList(): Promise<{
+  response: IncomingMessage;
+  body: V1DaemonSetList;
+}> {
+  const v1DaemonSetList = new V1DaemonSetList();
+  v1DaemonSetList.apiVersion = 'apps/v1';
+  v1DaemonSetList.kind = 'DaemonSetList';
+  v1DaemonSetList.items = new Array<V1DaemonSet>();
+
+  return await paginatedClusterList(
+    v1DaemonSetList,
+    k8sApi.appsClient.listDaemonSetForAllNamespaces.bind(k8sApi.appsClient),
   );
 }
 

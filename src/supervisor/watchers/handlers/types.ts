@@ -11,18 +11,27 @@ export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
 type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
-type ListWorkloadFunctionFactory = (namespace: string) => () => Promise<{
+type ListNamespacedWorkloadFunctionFactory = (
+  namespace: string,
+) => () => Promise<{
+  response: any;
+  body: any;
+}>;
+
+type ListClusterWorkloadFunctionFactory = () => () => Promise<{
   response: any;
   body: any;
 }>;
 
 export interface IWorkloadWatchMetadata {
   [workloadKind: string]: {
-    endpoint: string;
+    clusterEndpoint: string;
+    namespacedEndpoint: string;
     handlers: {
       [kubernetesInformerVerb: string]: WorkloadHandlerFunc;
     };
-    listFactory: ListWorkloadFunctionFactory;
+    clusterListFactory: ListClusterWorkloadFunctionFactory;
+    namespacedListFactory: ListNamespacedWorkloadFunctionFactory;
   };
 }
 
@@ -50,6 +59,27 @@ export interface V1DeploymentConfigSpec {
 export interface V1DeploymentConfigStatus {
   observedGeneration?: number;
 }
+
+export type V1ClusterList<T> = (
+  allowWatchBookmarks?: boolean,
+  _continue?: string,
+  fieldSelector?: string,
+  labelSelector?: string,
+  limit?: number,
+  pretty?: string,
+  resourceVersion?: string,
+  resourceVersionMatch?: string,
+  timeoutSeconds?: number,
+  watch?: boolean,
+  options?: {
+    headers: {
+      [name: string]: string;
+    };
+  },
+) => Promise<{
+  response: IncomingMessage;
+  body: T;
+}>;
 
 export type V1NamespacedList<T> = (
   namespace: string,
