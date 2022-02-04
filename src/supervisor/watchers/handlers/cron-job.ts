@@ -3,6 +3,8 @@ import {
   V1CronJobList,
   V1beta1CronJob,
   V1beta1CronJobList,
+  BatchV1Api,
+  BatchV1beta1Api,
 } from '@kubernetes/client-node';
 import { deleteWorkload, trimWorkload } from './workload';
 import { WorkloadKind } from '../../types';
@@ -15,6 +17,8 @@ import {
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
+import { logger } from '../../../common/logger';
+import { retryKubernetesApiRequest } from '../../kuberenetes-api-wrappers';
 
 export async function paginatedNamespacedCronJobList(
   namespace: string,
@@ -127,4 +131,92 @@ export async function cronJobWatchHandler(
     },
     workloadName,
   );
+}
+
+export async function isNamespacedCronJobSupported(
+  workloadKind: WorkloadKind,
+  namespace: string,
+  client: BatchV1Api | BatchV1beta1Api,
+): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const allowWatchBookmarks = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const resourceVersionMatch = undefined;
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall = await retryKubernetesApiRequest(() =>
+      client.listNamespacedCronJob(
+        namespace,
+        pretty,
+        allowWatchBookmarks,
+        continueToken,
+        fieldSelector,
+        labelSelector,
+        limit,
+        resourceVersion,
+        resourceVersionMatch,
+        timeoutSeconds,
+      ),
+    );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: workloadKind },
+      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
+    );
+    return false;
+  }
+}
+
+export async function isClusterCronJobSupported(
+  workloadKind: WorkloadKind,
+  client: BatchV1Api | BatchV1beta1Api,
+): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const allowWatchBookmarks = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const resourceVersionMatch = undefined;
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall = await retryKubernetesApiRequest(() =>
+      client.listCronJobForAllNamespaces(
+        allowWatchBookmarks,
+        continueToken,
+        fieldSelector,
+        labelSelector,
+        limit,
+        pretty,
+        resourceVersion,
+        resourceVersionMatch,
+        timeoutSeconds,
+      ),
+    );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: workloadKind },
+      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
+    );
+    return false;
+  }
 }

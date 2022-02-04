@@ -3,15 +3,15 @@ import * as fs from 'fs';
 import sleep from 'sleep-promise';
 import * as YAML from 'yaml';
 
-import { V1PodSpec, V1Pod } from '@kubernetes/client-node';
-import { IWorkload } from '../../../src/transmitter/types';
-import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
-
+// NOTE: Very important that the mock is set up before application code is imported!
 let pushCallCount = 0;
 const asyncQueueSpy = jest
   .spyOn(async, 'queue')
   .mockReturnValue({ error: () => {}, push: () => pushCallCount++ } as any);
 
+import { V1PodSpec, V1Pod } from '@kubernetes/client-node';
+import { IWorkload } from '../../../src/transmitter/types';
+import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
 import * as pod from '../../../src/supervisor/watchers/handlers/pod';
 
 describe('image and workload image cache', () => {

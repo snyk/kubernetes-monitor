@@ -13,6 +13,8 @@ import {
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
+import { retryKubernetesApiRequest } from '../../kuberenetes-api-wrappers';
+import { logger } from '../../../common/logger';
 
 export async function paginatedNamespacedDeploymentConfigList(
   namespace: string,
@@ -47,6 +49,7 @@ export async function paginatedNamespacedDeploymentConfigList(
         fieldSelector,
         labelSelector,
         limit,
+        // TODO: Why any?
       ) as any,
   );
 }
@@ -126,4 +129,85 @@ export async function deploymentConfigWatchHandler(
     },
     workloadName,
   );
+}
+
+export async function isNamespacedDeploymentConfigSupported(
+  namespace: string,
+): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall = await retryKubernetesApiRequest(() =>
+      k8sApi.customObjectsClient.listNamespacedCustomObject(
+        'apps.openshift.io',
+        'v1',
+        namespace,
+        'deploymentconfigs',
+        pretty,
+        continueToken,
+        fieldSelector,
+        labelSelector,
+        limit,
+        resourceVersion,
+        timeoutSeconds,
+      ),
+    );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: WorkloadKind.DeploymentConfig },
+      'Failed on Kubernetes API call to list namespaced DeploymentConfig',
+    );
+    return false;
+  }
+}
+
+export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
+  try {
+    const pretty = undefined;
+    const continueToken = undefined;
+    const fieldSelector = undefined;
+    const labelSelector = undefined;
+    const limit = 1; // Try to grab only a single object
+    const resourceVersion = undefined; // List anything in the cluster
+    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
+    const attemptedApiCall = await retryKubernetesApiRequest(() =>
+      k8sApi.customObjectsClient.listClusterCustomObject(
+        'apps.openshift.io',
+        'v1',
+        'deploymentconfigs',
+        pretty,
+        continueToken,
+        fieldSelector,
+        labelSelector,
+        limit,
+        resourceVersion,
+        timeoutSeconds,
+      ),
+    );
+    return (
+      attemptedApiCall !== undefined &&
+      attemptedApiCall.response !== undefined &&
+      attemptedApiCall.response.statusCode !== undefined &&
+      attemptedApiCall.response.statusCode >= 200 &&
+      attemptedApiCall.response.statusCode < 300
+    );
+  } catch (error) {
+    logger.debug(
+      { error, workloadKind: WorkloadKind.DeploymentConfig },
+      'Failed on Kubernetes API call to list cluster DeploymentConfig',
+    );
+    return false;
+  }
 }

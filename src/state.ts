@@ -2,6 +2,7 @@ import { KubernetesObject, V1Namespace } from '@kubernetes/client-node';
 import LruCache from 'lru-cache';
 
 import { config } from './common/config';
+import { extractNamespaceName } from './supervisor/watchers';
 
 const imagesLruCacheOptions: LruCache.Options<string, string> = {
   // limit cache size so we don't exceed memory limit
@@ -111,6 +112,16 @@ export function kubernetesObjectToWorkloadAlreadyScanned(
     };
   }
   return undefined;
+}
+
+export function storeNamespace(namespace: V1Namespace): void {
+  const namespaceName = extractNamespaceName(namespace);
+  state.watchedNamespaces[namespaceName] = namespace;
+}
+
+export function deleteNamespace(namespace: V1Namespace): void {
+  const namespaceName = extractNamespaceName(namespace);
+  delete state.watchedNamespaces[namespaceName];
 }
 
 export const state = {

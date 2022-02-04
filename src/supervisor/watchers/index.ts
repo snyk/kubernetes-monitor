@@ -3,24 +3,20 @@ import { V1Namespace } from '@kubernetes/client-node';
 import { logger } from '../../common/logger';
 import { config } from '../../common/config';
 import { WorkloadKind } from '../types';
-import { setupInformer, WATCH_WHOLE_CLUSTER } from './handlers';
+import { setupNamespacedInformer, setupClusterInformer } from './handlers';
 import { k8sApi } from '../cluster';
 import {
   kubernetesInternalNamespaces,
   openshiftInternalNamespaces,
 } from './internal-namespaces';
-import { state } from '../../state';
+import { trackNamespace, trackNamespaces } from './handlers/namespace';
 
 async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
   const namespaceName = extractNamespaceName(namespace);
 
-  if (state.watchedNamespaces[namespaceName] !== undefined) {
-    logger.info({ namespace }, 'already set up namespace watch, skipping');
-    return;
-  }
-  state.watchedNamespaces[namespaceName] = namespace;
+  logger.info({ namespace: namespaceName }, 'setting up namespaced informers');
 
-  logger.info({ namespace: namespaceName }, 'setting up namespace watch');
+  await trackNamespace(namespaceName);
 
   for (const workloadKind of Object.values(WorkloadKind)) {
     // Disable handling events for k8s Jobs for debug purposes
@@ -29,11 +25,11 @@ async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
     }
 
     try {
-      await setupInformer(namespaceName, workloadKind);
+      await setupNamespacedInformer(namespaceName, workloadKind);
     } catch (error) {
       logger.warn(
         { namespace, workloadKind },
-        'could not setup workload watch, skipping',
+        'could not setup namespaced workload informer, skipping',
       );
     }
   }
@@ -57,6 +53,10 @@ export function isExcludedNamespace(namespace: string): boolean {
 }
 
 async function setupWatchesForCluster(): Promise<void> {
+  logger.info({}, 'setting up cluster informers');
+
+  await trackNamespaces();
+
   for (const workloadKind of Object.values(WorkloadKind)) {
     // Disable handling events for k8s Jobs for debug purposes
     if (config.SKIP_K8S_JOBS === true && workloadKind === WorkloadKind.Job) {
@@ -64,9 +64,12 @@ async function setupWatchesForCluster(): Promise<void> {
     }
 
     try {
-      await setupInformer(WATCH_WHOLE_CLUSTER, workloadKind);
+      await setupClusterInformer(workloadKind);
     } catch (error) {
-      logger.warn({ workloadKind }, 'could not setup workload watch, skipping');
+      logger.warn(
+        { workloadKind },
+        'could not setup cluster workload informer, skipping',
+      );
     }
   }
 }

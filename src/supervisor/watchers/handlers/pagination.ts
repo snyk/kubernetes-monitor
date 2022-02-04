@@ -10,7 +10,7 @@ import { calculateSleepSeconds } from '../../kuberenetes-api-wrappers';
 import { V1ClusterList, V1NamespacedList } from './types';
 import type { IRequestError } from '../../types';
 
-const PAGE_SIZE = 100;
+export const PAGE_SIZE = 100;
 
 /**
  * This function ensures that when listing workloads from the Kubernetes API, they are paginated in batches of 100.
