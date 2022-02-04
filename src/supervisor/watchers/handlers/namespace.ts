@@ -18,9 +18,9 @@ import {
   retryKubernetesApiRequest,
 } from '../../kuberenetes-api-wrappers';
 import { IRequestError } from '../../types';
+import { trimWorkloads } from '../../workload-sanitization';
 import { RETRYABLE_NETWORK_ERRORS } from '../types';
 import { PAGE_SIZE } from './pagination';
-import { trimWorkloads } from './workload';
 
 /**
  * We need to track all namespaces in the cluster so that we can detect usage of the namespaced annotated import.

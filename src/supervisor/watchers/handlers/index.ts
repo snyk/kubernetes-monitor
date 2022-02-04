@@ -8,8 +8,8 @@ import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { RETRYABLE_NETWORK_ERRORS } from '../types';
-import { isExcludedNamespace } from '..';
 import { workloadWatchMetadata } from './informer-config';
+import { isExcludedNamespace } from '../internal-namespaces';
 
 async function isSupportedNamespacedWorkload(
   namespace: string,

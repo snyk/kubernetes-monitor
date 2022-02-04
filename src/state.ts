@@ -2,7 +2,7 @@ import { KubernetesObject, V1Namespace } from '@kubernetes/client-node';
 import LruCache from 'lru-cache';
 
 import { config } from './common/config';
-import { extractNamespaceName } from './supervisor/watchers';
+import { extractNamespaceName } from './supervisor/watchers/internal-namespaces';
 
 const imagesLruCacheOptions: LruCache.Options<string, string> = {
   // limit cache size so we don't exceed memory limit

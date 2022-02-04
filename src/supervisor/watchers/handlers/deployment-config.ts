@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
   FALSY_WORKLOAD_NAME_MARKER,
@@ -210,4 +210,9 @@ export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
     );
     return false;
   }
+}
+function trimWorkload(
+  deploymentConfig: V1DeploymentConfig,
+): V1DeploymentConfig {
+  throw new Error('Function not implemented.');
 }

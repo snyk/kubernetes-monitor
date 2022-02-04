@@ -1,5 +1,5 @@
 import { V1Job, V1JobList } from '@kubernetes/client-node';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -10,6 +10,7 @@ import {
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
+import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedJobList(namespace: string): Promise<{
   response: IncomingMessage;

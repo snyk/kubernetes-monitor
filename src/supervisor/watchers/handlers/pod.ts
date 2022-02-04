@@ -21,9 +21,10 @@ import {
 } from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
+import { trimWorkload } from '../../workload-sanitization';
 
 export interface ImagesToScanQueueData {
   workloadMetadata: IWorkload[];

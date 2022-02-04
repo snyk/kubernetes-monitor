@@ -5,7 +5,7 @@ import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
 import { V1DeploymentConfig } from './watchers/handlers/types';
-import { trimWorkload } from './watchers/handlers/workload';
+import { trimWorkload } from './workload-sanitization';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (

@@ -5,9 +5,9 @@ import type {
   KubernetesObject,
 } from '@kubernetes/client-node';
 
-import { trimWorkloads } from './workload';
 import { calculateSleepSeconds } from '../../kuberenetes-api-wrappers';
 import { V1ClusterList, V1NamespacedList } from './types';
+import { trimWorkloads } from '../../workload-sanitization';
 import type { IRequestError } from '../../types';
 
 export const PAGE_SIZE = 100;

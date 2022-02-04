@@ -5,10 +5,7 @@ import { config } from '../../common/config';
 import { WorkloadKind } from '../types';
 import { setupNamespacedInformer, setupClusterInformer } from './handlers';
 import { k8sApi } from '../cluster';
-import {
-  kubernetesInternalNamespaces,
-  openshiftInternalNamespaces,
-} from './internal-namespaces';
+import { extractNamespaceName } from './internal-namespaces';
 import { trackNamespace, trackNamespaces } from './handlers/namespace';
 
 async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
@@ -33,23 +30,6 @@ async function setupWatchesForNamespace(namespace: V1Namespace): Promise<void> {
       );
     }
   }
-}
-
-export function extractNamespaceName(namespace: V1Namespace): string {
-  if (namespace && namespace.metadata && namespace.metadata.name) {
-    return namespace.metadata.name;
-  }
-  throw new Error('Namespace missing metadata.name');
-}
-
-export function isExcludedNamespace(namespace: string): boolean {
-  return (
-    (config.EXCLUDED_NAMESPACES
-      ? config.EXCLUDED_NAMESPACES.includes(namespace)
-      : kubernetesInternalNamespaces.has(namespace)) ||
-    // always check openshift excluded namespaces
-    openshiftInternalNamespaces.has(namespace)
-  );
 }
 
 async function setupWatchesForCluster(): Promise<void> {

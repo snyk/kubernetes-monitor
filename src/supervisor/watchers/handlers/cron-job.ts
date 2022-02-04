@@ -6,7 +6,7 @@ import {
   BatchV1Api,
   BatchV1beta1Api,
 } from '@kubernetes/client-node';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
@@ -19,6 +19,7 @@ import {
 } from '../../../state';
 import { logger } from '../../../common/logger';
 import { retryKubernetesApiRequest } from '../../kuberenetes-api-wrappers';
+import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedCronJobList(
   namespace: string,
