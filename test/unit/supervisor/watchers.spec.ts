@@ -1,8 +1,9 @@
 import { V1Namespace } from '@kubernetes/client-node';
 import { config } from '../../../src/common/config';
 
-import * as watchers from '../../../src/supervisor/watchers';
 import {
+  extractNamespaceName,
+  isExcludedNamespace,
   kubernetesInternalNamespaces,
   openshiftInternalNamespaces,
 } from '../../../src/supervisor/watchers/internal-namespaces';
@@ -14,14 +15,14 @@ describe('extractNamespaceName()', () => {
     ['undefined name', { metadata: { name: undefined } } as V1Namespace],
     ['empty name', { metadata: { name: '' } } as V1Namespace],
   ])('throws on %s', (_testCaseName, input) => {
-    expect(() => watchers.extractNamespaceName(input)).toThrowError(
+    expect(() => extractNamespaceName(input)).toThrowError(
       'Namespace missing metadata.name',
     );
   });
 
   test('returns namespace.metadata.name', () => {
     expect(
-      watchers.extractNamespaceName({
+      extractNamespaceName({
         metadata: { name: 'literally anything else' },
       }),
     ).toEqual('literally anything else');
@@ -35,7 +36,7 @@ describe('isExcludedNamespace() internal Kubernetes namespaces', () => {
 
   for (const internalNamespace of kubernetesInternalNamespaces) {
     test(`isExcludedNamespace(${internalNamespace}) -> true`, () => {
-      expect(watchers.isExcludedNamespace(internalNamespace)).toEqual(true);
+      expect(isExcludedNamespace(internalNamespace)).toEqual(true);
     });
   }
 
@@ -47,7 +48,7 @@ describe('isExcludedNamespace() internal Kubernetes namespaces', () => {
     [''],
     [undefined as unknown as string],
   ])('isExcludedNamespace(%s) -> false', (input) => {
-    expect(watchers.isExcludedNamespace(input)).toEqual(false);
+    expect(isExcludedNamespace(input)).toEqual(false);
   });
 });
 
@@ -58,7 +59,7 @@ describe('isExcludedNamespace() openshift internal namespaces', () => {
 
   for (const internalNamespace of openshiftInternalNamespaces) {
     test(`isExcludedNamespace(${internalNamespace}) -> true`, () => {
-      expect(watchers.isExcludedNamespace(internalNamespace)).toEqual(true);
+      expect(isExcludedNamespace(internalNamespace)).toEqual(true);
     });
   }
 
@@ -69,7 +70,7 @@ describe('isExcludedNamespace() openshift internal namespaces', () => {
     [''],
     [undefined as unknown as string],
   ])('isExcludedNamespace(%s) -> false', (input) => {
-    expect(watchers.isExcludedNamespace(input)).toEqual(false);
+    expect(isExcludedNamespace(input)).toEqual(false);
   });
 });
 
@@ -85,20 +86,20 @@ describe('isExcludedNamespace() excluded namespaces from config', () => {
 
   excludedNamespacesFromConfig.forEach((namespace) => {
     test(`[excluded namespaces from config] isExcludedNamespace(${namespace}) -> true`, () => {
-      expect(watchers.isExcludedNamespace(namespace)).toEqual(true);
+      expect(isExcludedNamespace(namespace)).toEqual(true);
     });
   });
 
   for (const internalNamespace of openshiftInternalNamespaces) {
     test(`[openshift internal namespaces] isExcludedNamespace(${internalNamespace}) -> true`, () => {
-      expect(watchers.isExcludedNamespace(internalNamespace)).toEqual(true);
+      expect(isExcludedNamespace(internalNamespace)).toEqual(true);
     });
   }
 
   test.each([['kube-system']['egg'], [''], [undefined as unknown as string]])(
     'isExcludedNamespace(%s) -> false',
     (input) => {
-      expect(watchers.isExcludedNamespace(input)).toEqual(false);
+      expect(isExcludedNamespace(input)).toEqual(false);
     },
   );
 });

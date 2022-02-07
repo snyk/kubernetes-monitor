@@ -154,26 +154,13 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
       },
     );
 
-  // Setup nocks
   nock(/https\:\/\/127\.0\.0\.1\:\d+/, { allowUnmocked: true })
-    .get('/api/v1/namespaces')
+    .get('/apis/apps/v1/deployments')
     .times(1)
     .replyWithError({
       code: 'ECONNREFUSED',
     })
-    .get('/api/v1/namespaces')
-    .times(1)
-    .replyWithError({
-      code: 'ETIMEDOUT',
-    });
-
-  nock(/https\:\/\/127\.0\.0\.1\:\d+/, { allowUnmocked: true })
-    .get('/apis/apps/v1/namespaces/snyk-monitor/deployments')
-    .times(1)
-    .replyWithError({
-      code: 'ECONNREFUSED',
-    })
-    .get('/apis/apps/v1/namespaces/snyk-monitor/deployments')
+    .get('/apis/apps/v1/deployments')
     .times(1)
     .replyWithError({
       code: 'ECONNRESET',

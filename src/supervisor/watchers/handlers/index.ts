@@ -1,154 +1,33 @@
-import {
-  makeInformer,
-  ADD,
-  DELETE,
-  ERROR,
-  UPDATE,
-  KubernetesObject,
-  BatchV1beta1Api,
-  BatchV1Api,
-} from '@kubernetes/client-node';
+import { makeInformer, ERROR, KubernetesObject } from '@kubernetes/client-node';
 
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
-import { podWatchHandler, podDeletedHandler, paginatedPodList } from './pod';
-import {
-  cronJobWatchHandler,
-  paginatedCronJobList,
-  paginatedCronJobV1Beta1List,
-} from './cron-job';
-import { daemonSetWatchHandler, paginatedDaemonSetList } from './daemon-set';
-import { deploymentWatchHandler, paginatedDeploymentList } from './deployment';
-import { jobWatchHandler, paginatedJobList } from './job';
-import { paginatedReplicaSetList, replicaSetWatchHandler } from './replica-set';
-import {
-  paginatedReplicationControllerList,
-  replicationControllerWatchHandler,
-} from './replication-controller';
-import {
-  paginatedStatefulSetList,
-  statefulSetWatchHandler,
-} from './stateful-set';
-import {
-  deploymentConfigWatchHandler,
-  paginatedDeploymentConfigList,
-} from './deployment-config';
+import * as cronJob from './cron-job';
+import * as deploymentConfig from './deployment-config';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
-import { IWorkloadWatchMetadata, FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { RETRYABLE_NETWORK_ERRORS } from '../types';
+import { workloadWatchMetadata } from './informer-config';
+import { isExcludedNamespace } from '../internal-namespaces';
 
-/**
- * This map is used in combination with the kubernetes-client Informer API
- * to abstract which resources to watch, what their endpoint is, how to grab
- * a list of the resources, and which watch actions to handle (e.g. a newly added resource).
- *
- * The Informer API is just a wrapper around Kubernetes watches that makes sure the watch
- * gets restarted if it dies and it also efficiently tracks changes to the watched workloads
- * by comparing their resourceVersion.
- *
- * The map is keyed by the "WorkloadKind" -- the type of resource we want to watch.
- * Legal verbs for the "handlers" are pulled from '@kubernetes/client-node'. You can
- * set a different handler for every verb.
- * (e.g. ADD-ed workloads are processed differently than DELETE-d ones)
- *
- * The "listFunc" is a callback used by the kubernetes-client to grab the watched resource
- * whenever Kubernetes fires a "workload changed" event and it uses the result to figure out
- * if the workload actually changed (by inspecting the resourceVersion).
- */
-const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
-  [WorkloadKind.Pod]: {
-    endpoint: '/api/v1/namespaces/{namespace}/pods',
-    handlers: {
-      [ADD]: podWatchHandler,
-      [UPDATE]: podWatchHandler,
-      [DELETE]: podDeletedHandler,
-    },
-    listFactory: (namespace) => () => paginatedPodList(namespace),
-  },
-  [WorkloadKind.ReplicationController]: {
-    endpoint: '/api/v1/watch/namespaces/{namespace}/replicationcontrollers',
-    handlers: {
-      [DELETE]: replicationControllerWatchHandler,
-    },
-    listFactory: (namespace) => () =>
-      paginatedReplicationControllerList(namespace),
-  },
-  [WorkloadKind.CronJob]: {
-    endpoint: '/apis/batch/v1/watch/namespaces/{namespace}/cronjobs',
-    handlers: {
-      [DELETE]: cronJobWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedCronJobList(namespace),
-  },
-  [WorkloadKind.CronJobV1Beta1]: {
-    endpoint: '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
-    handlers: {
-      [DELETE]: cronJobWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedCronJobV1Beta1List(namespace),
-  },
-  [WorkloadKind.Job]: {
-    endpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
-    handlers: {
-      [DELETE]: jobWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedJobList(namespace),
-  },
-  [WorkloadKind.DaemonSet]: {
-    endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/daemonsets',
-    handlers: {
-      [DELETE]: daemonSetWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedDaemonSetList(namespace),
-  },
-  [WorkloadKind.Deployment]: {
-    endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/deployments',
-    handlers: {
-      [DELETE]: deploymentWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedDeploymentList(namespace),
-  },
-  [WorkloadKind.ReplicaSet]: {
-    endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/replicasets',
-    handlers: {
-      [DELETE]: replicaSetWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedReplicaSetList(namespace),
-  },
-  [WorkloadKind.StatefulSet]: {
-    endpoint: '/apis/apps/v1/watch/namespaces/{namespace}/statefulsets',
-    handlers: {
-      [DELETE]: statefulSetWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedStatefulSetList(namespace),
-  },
-  [WorkloadKind.DeploymentConfig]: {
-    /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
-    endpoint:
-      '/apis/apps.openshift.io/v1/watch/namespaces/{namespace}/deploymentconfigs',
-    handlers: {
-      [DELETE]: deploymentConfigWatchHandler,
-    },
-    listFactory: (namespace) => () => paginatedDeploymentConfigList(namespace),
-  },
-};
-
-async function isSupportedWorkload(
+async function isSupportedNamespacedWorkload(
   namespace: string,
   workloadKind: WorkloadKind,
 ): Promise<boolean> {
   switch (workloadKind) {
     case WorkloadKind.DeploymentConfig:
-      return await isDeploymentConfigSupported(namespace);
+      return await deploymentConfig.isNamespacedDeploymentConfigSupported(
+        namespace,
+      );
     case WorkloadKind.CronJobV1Beta1:
-      return await isCronJobVersionSupported(
+      return await cronJob.isNamespacedCronJobSupported(
         workloadKind,
         namespace,
         k8sApi.batchUnstableClient,
       );
     case WorkloadKind.CronJob:
-      return await isCronJobVersionSupported(
+      return await cronJob.isNamespacedCronJobSupported(
         workloadKind,
         namespace,
         k8sApi.batchClient,
@@ -158,101 +37,36 @@ async function isSupportedWorkload(
   }
 }
 
-async function isCronJobVersionSupported(
+async function isSupportedClusterWorkload(
   workloadKind: WorkloadKind,
-  namespace: string,
-  client: BatchV1Api | BatchV1beta1Api,
 ): Promise<boolean> {
-  try {
-    const pretty = undefined;
-    const allowWatchBookmarks = undefined;
-    const continueToken = undefined;
-    const fieldSelector = undefined;
-    const labelSelector = undefined;
-    const limit = 1; // Try to grab only a single object
-    const resourceVersion = undefined; // List anything in the cluster
-    const resourceVersionMatch = undefined;
-    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
-    const attemptedApiCall =
-      await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-        client.listNamespacedCronJob(
-          namespace,
-          pretty,
-          allowWatchBookmarks,
-          continueToken,
-          fieldSelector,
-          labelSelector,
-          limit,
-          resourceVersion,
-          resourceVersionMatch,
-          timeoutSeconds,
-        ),
+  switch (workloadKind) {
+    case WorkloadKind.DeploymentConfig:
+      return await deploymentConfig.isClusterDeploymentConfigSupported();
+    case WorkloadKind.CronJobV1Beta1:
+      return await cronJob.isClusterCronJobSupported(
+        workloadKind,
+        k8sApi.batchUnstableClient,
       );
-    return (
-      attemptedApiCall !== undefined &&
-      attemptedApiCall.response !== undefined &&
-      attemptedApiCall.response.statusCode !== undefined &&
-      attemptedApiCall.response.statusCode >= 200 &&
-      attemptedApiCall.response.statusCode < 300
-    );
-  } catch (error) {
-    logger.debug(
-      { error, workloadKind: workloadKind },
-      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
-    );
-    return false;
+    case WorkloadKind.CronJob:
+      return await cronJob.isClusterCronJobSupported(
+        workloadKind,
+        k8sApi.batchClient,
+      );
+    default:
+      return true;
   }
 }
 
-async function isDeploymentConfigSupported(
-  namespace: string,
-): Promise<boolean> {
-  try {
-    const pretty = undefined;
-    const continueToken = undefined;
-    const fieldSelector = undefined;
-    const labelSelector = undefined;
-    const limit = 1; // Try to grab only a single object
-    const resourceVersion = undefined; // List anything in the cluster
-    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
-    const attemptedApiCall =
-      await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-        k8sApi.customObjectsClient.listNamespacedCustomObject(
-          'apps.openshift.io',
-          'v1',
-          namespace,
-          'deploymentconfigs',
-          pretty,
-          continueToken,
-          fieldSelector,
-          labelSelector,
-          limit,
-          resourceVersion,
-          timeoutSeconds,
-        ),
-      );
-    return (
-      attemptedApiCall !== undefined &&
-      attemptedApiCall.response !== undefined &&
-      attemptedApiCall.response.statusCode !== undefined &&
-      attemptedApiCall.response.statusCode >= 200 &&
-      attemptedApiCall.response.statusCode < 300
-    );
-  } catch (error) {
-    logger.debug(
-      { error, workloadKind: WorkloadKind.DeploymentConfig },
-      'Failed on Kubernetes API call to list DeploymentConfig',
-    );
-    return false;
-  }
-}
-
-export async function setupInformer(
+export async function setupNamespacedInformer(
   namespace: string,
   workloadKind: WorkloadKind,
 ): Promise<void> {
   const logContext: Record<string, unknown> = { namespace, workloadKind };
-  const isSupported = await isSupportedWorkload(namespace, workloadKind);
+  const isSupported = await isSupportedNamespacedWorkload(
+    namespace,
+    workloadKind,
+  );
   if (!isSupported) {
     logger.debug(
       logContext,
@@ -262,12 +76,12 @@ export async function setupInformer(
   }
 
   const workloadMetadata = workloadWatchMetadata[workloadKind];
-  const namespacedEndpoint = workloadMetadata.endpoint.replace(
+  const endpoint = workloadMetadata.namespacedEndpoint.replace(
     '{namespace}',
     namespace,
   );
 
-  const listMethod = workloadMetadata.listFactory(namespace);
+  const listMethod = workloadMetadata.namespacedListFactory(namespace);
   const loggedListMethod = async () => {
     try {
       return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
@@ -276,7 +90,7 @@ export async function setupInformer(
     } catch (err) {
       logger.error(
         { ...logContext, err },
-        'error while listing entities on namespace',
+        'error while listing workloads in namespace',
       );
       throw err;
     }
@@ -284,18 +98,16 @@ export async function setupInformer(
 
   const informer = makeInformer<KubernetesObject>(
     kubeConfig,
-    namespacedEndpoint,
+    endpoint,
     loggedListMethod,
   );
 
   informer.on(ERROR, (err) => {
     // Types from client library insists that callback is of type KubernetesObject
     const code = (err as any).code || '';
+    logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(
-        logContext,
-        `informer ${code} occurred, restarting informer`,
-      );
+      logger.debug(logContext, 'informer error occurred, restarting informer');
 
       // Restart informer after 1sec
       setTimeout(async () => {
@@ -319,7 +131,86 @@ export async function setupInformer(
           FALSY_WORKLOAD_NAME_MARKER;
         logger.warn(
           { ...logContext, error, name },
-          'could not execute the informer handler for a workload',
+          'could not execute the namespaced informer handler for a workload',
+        );
+      }
+    });
+  }
+
+  await informer.start();
+}
+
+export async function setupClusterInformer(
+  workloadKind: WorkloadKind,
+): Promise<void> {
+  const logContext: Record<string, unknown> = { workloadKind };
+  const isSupported = await isSupportedClusterWorkload(workloadKind);
+  if (!isSupported) {
+    logger.debug(
+      logContext,
+      'The Kubernetes cluster does not support this workload',
+    );
+    return;
+  }
+
+  const workloadMetadata = workloadWatchMetadata[workloadKind];
+  const endpoint = workloadMetadata.clusterEndpoint;
+
+  const listMethod = workloadMetadata.clusterListFactory();
+  const loggedListMethod = async () => {
+    try {
+      return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+        listMethod(),
+      );
+    } catch (err) {
+      logger.error(
+        { ...logContext, err },
+        'error while listing workloads in cluster',
+      );
+      throw err;
+    }
+  };
+
+  const informer = makeInformer<KubernetesObject>(
+    kubeConfig,
+    endpoint,
+    loggedListMethod,
+  );
+
+  informer.on(ERROR, (err) => {
+    // Types from client library insists that callback is of type KubernetesObject
+    const code = (err as any).code || '';
+    logContext.code = code;
+    if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
+      logger.debug(logContext, 'informer error occurred, restarting informer');
+
+      // Restart informer after 1sec
+      setTimeout(async () => {
+        await informer.start();
+      }, 1000);
+    } else {
+      logger.error(
+        { ...logContext, err },
+        'unexpected informer error event occurred',
+      );
+    }
+  });
+
+  for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
+    informer.on(informerVerb, async (watchedWorkload) => {
+      try {
+        if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
+          return;
+        }
+
+        await workloadMetadata.handlers[informerVerb](watchedWorkload);
+      } catch (error) {
+        const name =
+          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+          FALSY_WORKLOAD_NAME_MARKER;
+        logger.warn(
+          { ...logContext, error, name },
+          'could not execute the cluster informer handler for a workload',
         );
       }
     });

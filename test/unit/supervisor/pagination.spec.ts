@@ -2,7 +2,10 @@ let sleepMock = jest.fn();
 jest.mock('sleep-promise', () => sleepMock);
 
 import { IRequestError } from '../../../src/supervisor/types';
-import { paginatedList } from '../../../src/supervisor/watchers/handlers/pagination';
+import {
+  paginatedNamespacedList,
+  paginatedClusterList,
+} from '../../../src/supervisor/watchers/handlers/pagination';
 
 describe('pagination', () => {
   afterEach(() => {
@@ -13,7 +16,18 @@ describe('pagination', () => {
     jest.resetAllMocks();
   });
 
-  describe('error handling', () => {
+  describe.each([
+    [
+      'paginatedNamespacedList',
+      (namespace: string, workloads: { items: Array<any> }, listFn: any) =>
+        paginatedNamespacedList(namespace, workloads, listFn),
+    ],
+    [
+      'paginatedClusterList',
+      (_namespace: string, workloads: { items: Array<any> }, listFn: any) =>
+        paginatedClusterList(workloads, listFn),
+    ],
+  ])('error handling: %s', (_testCaseName, listFn) => {
     afterEach(() => {
       sleepMock.mockRestore();
     });
@@ -31,7 +45,7 @@ describe('pagination', () => {
       workloads.items.push = pushMock;
       const namespace = 'unused';
 
-      await paginatedList(namespace, workloads, listMock).catch((error) =>
+      await listFn(namespace, workloads, listMock).catch((error) =>
         expect(error).toEqual(sleepError),
       );
 
@@ -48,7 +62,7 @@ describe('pagination', () => {
       workloads.items.push = pushMock;
       const namespace = 'unused';
 
-      await paginatedList(namespace, workloads, listMock).catch((error) =>
+      await listFn(namespace, workloads, listMock).catch((error) =>
         expect(error).toEqual(listError),
       );
 
@@ -72,7 +86,7 @@ describe('pagination', () => {
         workloads.items.push = pushMock;
         const namespace = 'unused';
 
-        await paginatedList(namespace, workloads, listMock).catch((error) =>
+        await listFn(namespace, workloads, listMock).catch((error) =>
           expect(error).toEqual(sleepError),
         );
 
@@ -90,7 +104,7 @@ describe('pagination', () => {
       workloads.items.push = pushMock;
       const namespace = 'unused';
 
-      await paginatedList(namespace, workloads, listMock).catch((error) =>
+      await listFn(namespace, workloads, listMock).catch((error) =>
         expect(error).toEqual(new Error('could not list workload')),
       );
 
@@ -113,7 +127,7 @@ describe('pagination', () => {
         workloads.items.push = pushMock;
         const namespace = 'unused';
 
-        await paginatedList(namespace, workloads, listMock).catch((error) =>
+        await listFn(namespace, workloads, listMock).catch((error) =>
           expect(error).toEqual(new Error('could not list workload')),
         );
 
@@ -144,7 +158,7 @@ describe('pagination', () => {
       workloads.items.push = pushMock;
       const namespace = 'unused';
 
-      await paginatedList(namespace, workloads, listMock).catch((error) =>
+      await listFn(namespace, workloads, listMock).catch((error) =>
         expect(error).toEqual(new Error('could not list workload')),
       );
 
@@ -188,7 +202,7 @@ describe('pagination', () => {
       workloads.items.push = pushMock;
       const namespace = 'unused';
 
-      await paginatedList(namespace, workloads, listMock).catch((error) =>
+      await listFn(namespace, workloads, listMock).catch((error) =>
         expect(error).toEqual(new Error('could not list workload')),
       );
 

@@ -2,19 +2,20 @@ import {
   V1ReplicationController,
   V1ReplicationControllerList,
 } from '@kubernetes/client-node';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
   deleteWorkloadAlreadyScanned,
   deleteWorkloadImagesAlreadyScanned,
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
+import { trimWorkload } from '../../workload-sanitization';
 
-export async function paginatedReplicationControllerList(
+export async function paginatedNamespacedReplicationControllerList(
   namespace: string,
 ): Promise<{
   response: IncomingMessage;
@@ -25,10 +26,27 @@ export async function paginatedReplicationControllerList(
   v1ReplicationControllerList.kind = 'ReplicationControllerList';
   v1ReplicationControllerList.items = new Array<V1ReplicationController>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1ReplicationControllerList,
     k8sApi.coreClient.listNamespacedReplicationController.bind(
+      k8sApi.coreClient,
+    ),
+  );
+}
+
+export async function paginatedClusterReplicationControllerList(): Promise<{
+  response: IncomingMessage;
+  body: V1ReplicationControllerList;
+}> {
+  const v1ReplicationControllerList = new V1ReplicationControllerList();
+  v1ReplicationControllerList.apiVersion = 'v1';
+  v1ReplicationControllerList.kind = 'ReplicationControllerList';
+  v1ReplicationControllerList.items = new Array<V1ReplicationController>();
+
+  return await paginatedClusterList(
+    v1ReplicationControllerList,
+    k8sApi.coreClient.listReplicationControllerForAllNamespaces.bind(
       k8sApi.coreClient,
     ),
   );

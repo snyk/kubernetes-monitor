@@ -1,3 +1,6 @@
+import { V1Namespace } from '@kubernetes/client-node';
+import { config } from '../../common/config';
+
 export const kubernetesInternalNamespaces = new Set([
   'kube-node-lease',
   'kube-public',
@@ -91,3 +94,20 @@ export const openshiftInternalNamespaces = new Set([
   'openshift-velero',
   'openshift-vsphere-infra',
 ]);
+
+export function extractNamespaceName(namespace: V1Namespace): string {
+  if (namespace && namespace.metadata && namespace.metadata.name) {
+    return namespace.metadata.name;
+  }
+  throw new Error('Namespace missing metadata.name');
+}
+
+export function isExcludedNamespace(namespace: string): boolean {
+  return (
+    (config.EXCLUDED_NAMESPACES
+      ? config.EXCLUDED_NAMESPACES.includes(namespace)
+      : kubernetesInternalNamespaces.has(namespace)) ||
+    // always check openshift excluded namespaces
+    openshiftInternalNamespaces.has(namespace)
+  );
+}

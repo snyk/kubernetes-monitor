@@ -21,9 +21,10 @@ import {
 } from '../../../state';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { WorkloadKind } from '../../types';
-import { deleteWorkload, trimWorkload } from './workload';
+import { deleteWorkload } from './workload';
 import { k8sApi } from '../../cluster';
-import { paginatedList } from './pagination';
+import { paginatedClusterList, paginatedNamespacedList } from './pagination';
+import { trimWorkload } from '../../workload-sanitization';
 
 export interface ImagesToScanQueueData {
   workloadMetadata: IWorkload[];
@@ -125,7 +126,7 @@ export function isPodReady(pod: V1Pod): boolean {
   );
 }
 
-export async function paginatedPodList(namespace: string): Promise<{
+export async function paginatedNamespacedPodList(namespace: string): Promise<{
   response: IncomingMessage;
   body: V1PodList;
 }> {
@@ -134,10 +135,25 @@ export async function paginatedPodList(namespace: string): Promise<{
   v1PodList.kind = 'PodList';
   v1PodList.items = new Array<V1Pod>();
 
-  return await paginatedList(
+  return await paginatedNamespacedList(
     namespace,
     v1PodList,
     k8sApi.coreClient.listNamespacedPod.bind(k8sApi.coreClient),
+  );
+}
+
+export async function paginatedClusterPodList(): Promise<{
+  response: IncomingMessage;
+  body: V1PodList;
+}> {
+  const v1PodList = new V1PodList();
+  v1PodList.apiVersion = 'v1';
+  v1PodList.kind = 'PodList';
+  v1PodList.items = new Array<V1Pod>();
+
+  return await paginatedClusterList(
+    v1PodList,
+    k8sApi.coreClient.listPodForAllNamespaces.bind(k8sApi.coreClient),
   );
 }
 
