@@ -9,16 +9,12 @@ spec:
         - name: docker-io
       containers:
         - name: my-container
-          image: docker.io/library/golang:1.13.1-alpine3.10
+          image: docker.io/library/fedora:35
           command: 
             - "sh"
           args:
             - "-c"
-            - "apk --no-cache add git make gcc musl-dev ostree-dev go-md2man &&
-            git clone --depth 1 -b 'v0.2.0' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo &&
-            cd $GOPATH/src/github.com/containers/skopeo &&
-            make binary-local-static DISABLE_CGO=1 &&
-            make install &&
+            - "dnf install -y skopeo &&
             skopeo copy --dest-tls-verify=false docker://docker.io/library/python:rc-buster docker://kind-registry:5000/python:rc-buster"
       restartPolicy: Never
   backoffLimit: 4
