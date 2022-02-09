@@ -5,7 +5,7 @@ FROM fedora:32 AS skopeo-build
 
 RUN dnf install -y golang git make
 RUN dnf install -y go-md2man gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
-RUN git clone --depth 1 -b 'v1.5.1' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+RUN git clone --depth 1 -b 'v1.6.0' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
 RUN cd $GOPATH/src/github.com/containers/skopeo \
   && make bin/skopeo DISABLE_CGO=1 \
   && make install
