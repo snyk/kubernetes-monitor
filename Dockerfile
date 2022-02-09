@@ -3,12 +3,7 @@
 #---------------------------------------------------------------------
 FROM fedora:32 AS skopeo-build
 
-RUN dnf install -y golang git make
-RUN dnf install -y go-md2man gpgme-devel libassuan-devel btrfs-progs-devel device-mapper-devel
-RUN git clone --depth 1 -b 'v1.6.0' https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
-RUN cd $GOPATH/src/github.com/containers/skopeo \
-  && make bin/skopeo DISABLE_CGO=1 \
-  && make install
+RUN dnf install -y skopeo
 
 #---------------------------------------------------------------------
 # STAGE 2: Build credential helpers inside a temporary container
@@ -56,7 +51,7 @@ COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-acr-e
 
 WORKDIR /srv/app
 
-COPY --chown=snyk:snyk --from=skopeo-build /usr/local/bin/skopeo /usr/bin/skopeo
+COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
