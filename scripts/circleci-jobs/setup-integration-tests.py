@@ -14,7 +14,7 @@ if circle_branch == "staging":
 else:
     image_tag = "discardable"
 circle_sha1 = os.getenv("CIRCLE_SHA1")
-kubernetes_monitor_image_name_and_tag = "snyk/kubernetes-monitor-private-fork:" + image_tag + "-" + circle_sha1
+kubernetes_monitor_image_name_and_tag = "snyk/kubernetes-monitor:" + image_tag + "-" + circle_sha1
 
 subprocess.getoutput("docker pull " + kubernetes_monitor_image_name_and_tag)
 

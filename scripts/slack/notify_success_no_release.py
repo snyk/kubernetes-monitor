@@ -14,8 +14,8 @@ def notifySlack():
         {
           'color': '#7CD197',
           'fallback': 'Build Notification: ' + circle_build_url,
-          'title': 'Kubernetes-Monitor-Private-Fork Publish Notification',
-          'text': ':fork_and_knife: Successful `staging` merge, but no semantic-release occurring :fork_and_knife:'
+          'title': 'Kubernetes-Monitor Publish Notification',
+          'text': ':egg_fancy: Successful `staging` merge, but no semantic-release occurring :egg_fancy:'
         }
       ]
     }

@@ -159,7 +159,7 @@ export async function deployMonitor(): Promise<string> {
     const imageNameAndTag = getEnvVariableOrDefault(
       'KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG',
       // the default, determined by ./script/build-image.sh
-      'snyk/kubernetes-monitor-private-fork:local',
+      'snyk/kubernetes-monitor:local',
     );
 
     console.log(

@@ -9,7 +9,7 @@ echo About to update the gh-pages branch with new tag ${NEW_TAG}
 echo configuring git
 git config --global user.email "egg@snyk.io"
 git config --global user.name "Runtime CI & CD"
-git remote add origin-pages https://${GH_TOKEN}@github.com/snyk/kubernetes-monitor-private-fork.git > /dev/null 2>&1
+git remote add origin-pages https://${GH_TOKEN}@github.com/snyk/kubernetes-monitor.git > /dev/null 2>&1
 git checkout -f gh-pages
 
 if grep -Fxq "  tag: ${NEW_TAG}" ./snyk-monitor/values.yaml

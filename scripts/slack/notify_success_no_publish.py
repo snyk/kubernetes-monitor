@@ -14,8 +14,8 @@ def notifySlack():
         {
           'color': '#7CD197',
           'fallback': 'Build Notification: ' + circle_build_url,
-          'title': 'Kubernetes-Monitor-Private-Fork Publish Notification',
-          'text': ':fork_and_knife: Successful `master` merge, but no `gh-pages` release occurring :fork_and_knife:'
+          'title': 'Kubernetes-Monitor Publish Notification',
+          'text': ':egg_fancy: Successful `master` merge, but no `gh-pages` release occurring :egg_fancy:'
         }
       ]
     }

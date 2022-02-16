@@ -60,7 +60,7 @@ metadata:
     description: A Kubernetes Operator for creating and managing Snyk controller instances.
     operators.operatorframework.io/builder: operator-sdk-v1.3.0
     operators.operatorframework.io/project_layout: helm.sdk.operatorframework.io/v1
-    repository: https://github.com/docker.io/snyk/kubernetes-monitor-private-fork
+    repository: https://github.com/docker.io/snyk/kubernetes-monitor
     support: Snyk Ltd.
   name: snyk-operator-marketplace.v1.68.2
 spec:

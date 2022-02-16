@@ -162,7 +162,15 @@ export function constructRuntimeData(
         runtimeResult.workloadKind = mappedWorkloadKind;
         acc.push(runtimeResult);
       } else {
-        logger.error({ runtimeResult }, 'invalid Sysdig workload kind');
+        logger.error(
+          {
+            imageID: runtimeResult.imageID,
+            namespace: runtimeResult.namespace,
+            workloadName: runtimeResult.workloadName,
+            workloadKind: runtimeResult.workloadKind,
+          },
+          'invalid Sysdig workload kind',
+        );
       }
     }
     return acc;

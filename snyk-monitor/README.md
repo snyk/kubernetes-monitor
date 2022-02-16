@@ -1,4 +1,4 @@
-# snyk/kubernetes-monitor-private-fork-chart #
+# snyk/kubernetes-monitor-chart #
 
 ## Summary ##
 

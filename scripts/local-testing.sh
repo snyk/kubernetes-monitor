@@ -7,7 +7,7 @@ get_latest_release() {
     sed 's/v//'                                                     # Remove "v" prefix
 }
 
-LATEST_TAG=$(get_latest_release snyk/kubernetes-monitor-private-fork)
+LATEST_TAG=$(get_latest_release snyk/kubernetes-monitor)
 IP=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk 'NR==1{print $2}')
 
 if [ "$INTEGRATION_ID" == "" ]; then

@@ -1,10 +1,10 @@
 {
-  "name": "@snyk/kubernetes-monitor-private-fork",
+  "name": "@snyk/kubernetes-monitor",
   "private": true,
   "description": "Snyk Kubernetes Monitoring Container",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snyk/kubernetes-monitor-private-fork.git"
+    "url": "https://github.com/snyk/kubernetes-monitor.git"
   },
   "license": "private",
   "author": "snyk.io",

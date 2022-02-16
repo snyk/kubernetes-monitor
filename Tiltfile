@@ -1,4 +1,4 @@
-docker_build("snyk/kubernetes-monitor-private-fork", ".",
+docker_build("snyk/kubernetes-monitor", ".",
   live_update=[
     fall_back_on(["package.json", "package-lock.json"]),
     sync('.', '/srv/app'),

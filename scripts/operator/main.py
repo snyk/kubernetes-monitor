@@ -37,7 +37,7 @@ if __name__ == '__main__':
         print("Missing environment variable KUBERNETES_MONITOR_IMAGE_TAG")
         print("Building kubernetes-monitor image and pushing to DockerHub")
         new_monitor_tag = operator_version
-        monitor_name_and_tag = "snyk/kubernetes-monitor-private-fork:" + new_monitor_tag
+        monitor_name_and_tag = "snyk/kubernetes-monitor:" + new_monitor_tag
         call(["docker", "build", "-t", monitor_name_and_tag, "."])
         call(["docker", "push", monitor_name_and_tag])
 

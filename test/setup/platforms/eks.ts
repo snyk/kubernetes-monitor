@@ -60,7 +60,7 @@ export async function loadImageInCluster(
     throw new Error('aws ecr get-login-password returned an unexpected output');
   }
 
-  const targetImage = `${ecrURL}/snyk/kubernetes-monitor-private-fork:local`;
+  const targetImage = `${ecrURL}/snyk/kubernetes-monitor:local`;
 
   await exec(`docker tag ${imageNameAndTag} ${targetImage}`);
   await exec(`docker push ${targetImage}`);
