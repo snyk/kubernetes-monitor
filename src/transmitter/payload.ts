@@ -13,8 +13,13 @@ import {
   IDependencyGraphPayload,
   IWorkloadEventsPolicyPayload,
   Telemetry,
+  IRuntimeDataPayload,
+  IRuntimeDataFact,
+  IRuntimeImage,
 } from './types';
 import { state } from '../state';
+import { isExcludedNamespace } from '../supervisor/watchers/internal-namespaces';
+import { logger } from '../common/logger';
 
 export function constructDepGraph(
   scannedImages: IScanResult[],
@@ -132,5 +137,51 @@ export function constructWorkloadEventsPolicy(
     userLocator: config.INTEGRATION_ID,
     cluster: currentClusterName,
     agentId: config.AGENT_ID,
+  };
+}
+
+const workloadKindMap = {
+  deployment: 'Deployment',
+  replicaset: 'ReplicaSet',
+  statefulset: 'StatefulSet',
+  daemonset: 'DaemonSet',
+  job: 'Job',
+  cronjob: 'CronJob',
+  replicationcontroller: 'ReplicationController',
+  deploymentconfig: 'DeploymentConfig',
+  pod: 'Pod',
+};
+export function constructRuntimeData(
+  runtimeResults: IRuntimeImage[],
+): IRuntimeDataPayload {
+  const filteredRuntimeResults = runtimeResults.reduce((acc, runtimeResult) => {
+    if (!isExcludedNamespace(runtimeResult.namespace)) {
+      const mappedWorkloadKind =
+        workloadKindMap[runtimeResult.workloadKind.toLowerCase()];
+      if (mappedWorkloadKind) {
+        runtimeResult.workloadKind = mappedWorkloadKind;
+        acc.push(runtimeResult);
+      } else {
+        logger.error({ runtimeResult }, 'invalid Sysdig workload kind');
+      }
+    }
+    return acc;
+  }, [] as IRuntimeImage[]);
+
+  const dataFact: IRuntimeDataFact = {
+    type: 'loadedPackages',
+    data: filteredRuntimeResults,
+  };
+
+  return {
+    identity: {
+      type: 'sysdig',
+    },
+    target: {
+      agentId: config.AGENT_ID,
+      userLocator: config.INTEGRATION_ID,
+      cluster: currentClusterName,
+    },
+    facts: [dataFact],
   };
 }

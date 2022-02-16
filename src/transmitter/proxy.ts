@@ -1,4 +1,3 @@
-import { URL } from 'url';
 import { httpOverHttp, httpsOverHttp } from 'tunnel';
 import { Agent, globalAgent as HttpAgent } from 'http';
 import { globalAgent as HttpsAgent } from 'https';
