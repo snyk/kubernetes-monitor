@@ -48,6 +48,8 @@ describe('extractNamespaceName()', () => {
     ) => {
       if (clusterNameEnvVar) {
         process.env.SNYK_CLUSTER_NAME = clusterNameEnvVar;
+        process.env.SNYK_SYSDIG_ENDPOINT = 'https://api/v1/images/';
+        process.env.SNYK_SYSDIG_TOKEN = '1432gtrhtrw32raf';
       }
 
       const consoleSpy = jest.spyOn(console, 'log').mockReturnValue();
@@ -73,5 +75,15 @@ describe('extractNamespaceName()', () => {
     expect(config.SKIP_K8S_JOBS).toEqual(false);
     expect(config.WORKERS_COUNT).toEqual(10);
     expect(config.SKOPEO_COMPRESSION_LEVEL).toEqual(6);
+    expect(config.SYSDIG_ENDPOINT).toEqual('https://api/v1/images/');
+    expect(config.SYSDIG_TOKEN).toEqual('1432gtrhtrw32raf');
+    delete process.env.SNYK_SYSDIG_ENDPOINT;
+    delete process.env.SNYK_SYSDIG_TOKEN;
+  });
+
+  it('cannot load sysdig API and JWT values if it is not enabled', () => {
+    const { config } = require('../../src/common/config');
+    expect(config.SYSDIG_ENDPOINT).toBeUndefined();
+    expect(config.SYSDIG_TOKEN).toBeUndefined();
   });
 });
