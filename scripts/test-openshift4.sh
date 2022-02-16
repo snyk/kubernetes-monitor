@@ -18,7 +18,7 @@
 #
 # Optional environment variables:
 # - KUBERNETES_MONITOR_IMAGE_TAG (if missing the script will build a kubernetes-monitor image)
-#   Choose a published tag from https://github.com/snyk/kubernetes-monitor/releases.
+#   Choose a published tag from https://github.com/snyk/kubernetes-monitor-private-fork/releases.
 #
 
 set -eo pipefail

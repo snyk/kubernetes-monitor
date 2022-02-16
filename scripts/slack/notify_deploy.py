@@ -16,8 +16,8 @@ def notifySlack(image_name, deployment_env_name):
             {
                 'color': '#7CD197',
                 'fallback': 'Build Notification: ' + circle_build_url,
-                'title': 'Kubernetes-Monitor Deploy Notification',
-                'text': ':hatching_chick: Deploying Kubernetes-Monitor on `' + deployment_env_name + '`: `' + image_name + '` :hatching_chick:'
+                'title': 'Kubernetes-Monitor-Private-Fork Deploy Notification',
+                'text': ':hatching_chick: Deploying Kubernetes-Monitor-Private-Fork on `' + deployment_env_name + '`: `' + image_name + '` :hatching_chick:'
             }
         ]
     }

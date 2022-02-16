@@ -15,8 +15,8 @@ def notifySlack(branch_name):
         {
           'color': '#7CD197',
           'fallback': 'Build Notification: ' + circle_build_url,
-          'title': 'Kubernetes-Monitor Publish Notification',
-          'text': ':egg_fancy: Published Kubernetes-Monitor: `' + branch_name + '` :egg_fancy:'
+          'title': 'Kubernetes-Monitor-Private-Fork Publish Notification',
+          'text': ':fork_and_knife: Published Kubernetes-Monitor-Private-Fork: `' + branch_name + '` :fork_and_knife:'
         }
       ]
     }
