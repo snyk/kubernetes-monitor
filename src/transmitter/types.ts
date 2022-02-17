@@ -63,6 +63,76 @@ export interface IWorkloadEventsPolicyPayload {
   policy: string;
 }
 
+export interface IRuntimeOSPackage {
+  purl: string;
+  name: string;
+  version: string;
+  installedViaPackageManager: boolean;
+  osFamily: string;
+  osVersion: string;
+  arch: string;
+}
+
+export interface IRuntimeAppPackage {
+  purl: string;
+  name: string;
+  version: string;
+  installedViaPackageManager: boolean;
+  type: string;
+}
+
+export type IRuntimePackage = IRuntimeOSPackage | IRuntimeAppPackage;
+
+/**
+ * Metadata of an image for which there are running containers.
+ * It is uniquely identified by the tuple [imageID, namespace, workloadName, workloadKind, container].
+ */
+export interface IRuntimeImage {
+  imageID: string;
+  namespace: string;
+  workloadName: string;
+  workloadKind: string;
+  container: string;
+  packages: IRuntimePackage[];
+}
+
+export interface IRuntimeImagesResponse {
+  page: {
+    /**
+     * The number of runtime images returned.
+     * This number is always less or equal to the limit specified in the request.
+     */
+    returned: number;
+    /**
+     * The cursor that can be used to fetch the next set of runtime images.
+     * If this value is unset, then there are no other runtime images to be returned.
+     */
+    next?: string;
+  };
+  data: IRuntimeImage[];
+}
+
+export type RuntimeDataType = 'sysdig';
+
+export interface IRuntimeDataTarget {
+  userLocator: string;
+  cluster: string;
+  agentId: string;
+}
+
+export interface IRuntimeDataFact {
+  type: 'loadedPackages';
+  data: IRuntimeImage[];
+}
+
+export interface IRuntimeDataPayload extends Omit<ScanResult, 'target'> {
+  identity: {
+    type: RuntimeDataType;
+  };
+  target: IRuntimeDataTarget;
+  facts: [IRuntimeDataFact];
+}
+
 export interface IClusterMetadataPayload {
   userLocator: string;
   cluster: string;

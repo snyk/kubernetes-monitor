@@ -1,4 +1,3 @@
-import { parse } from 'url';
 import { queue } from 'async';
 import needle from 'needle';
 import sleep from 'sleep-promise';
@@ -17,6 +16,7 @@ import {
   IDependencyGraphPayload,
   IWorkloadEventsPolicyPayload,
   IClusterMetadataPayload,
+  IRuntimeDataPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
 
@@ -27,24 +27,29 @@ interface KubernetesUpstreamRequest {
     | IDependencyGraphPayload
     | ScanResultsPayload
     | IWorkloadMetadataPayload
-    | IDeleteWorkloadPayload;
+    | IDeleteWorkloadPayload
+    | IClusterMetadataPayload
+    | IRuntimeDataPayload;
 }
 
 const upstreamUrl =
   config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
-let agent = new HttpAgent({
+let httpAgent = new HttpAgent({
   keepAlive: true,
 });
 
-if (parse(upstreamUrl).protocol?.startsWith('https')) {
-  agent = new HttpsAgent({
-    keepAlive: true,
-  });
+let httpsAgent = new HttpsAgent({
+  keepAlive: true,
+});
+
+function getAgent(u: string): HttpAgent {
+  const url = new URL(u);
+  return url.protocol === 'https:' ? httpsAgent : httpAgent;
 }
 
 // Async queue wraps around the call to retryRequest in order to limit
-// the number of requests in flight to Homebase at any one time.
+// the number of requests in flight to kubernetes upstream at any one time.
 const reqQueue = queue(async function (req: KubernetesUpstreamRequest) {
   return await retryRequest(req.method, req.url, req.payload);
 }, config.REQUEST_QUEUE_LENGTH);
@@ -60,7 +65,7 @@ export async function sendDepGraph(
       const request: KubernetesUpstreamRequest = {
         method: 'post',
         url: `${upstreamUrl}/api/v1/dependency-graph`,
-        payload: payload,
+        payload,
       };
 
       const { response, attempt } = await reqQueue.pushAsync(request);
@@ -91,7 +96,7 @@ export async function sendScanResults(
       const request: KubernetesUpstreamRequest = {
         method: 'post',
         url: `${upstreamUrl}/api/v1/scan-results`,
-        payload: payload,
+        payload,
       };
 
       const { response, attempt } = await reqQueue.pushAsync(request);
@@ -127,7 +132,7 @@ export async function sendWorkloadMetadata(
     const request: KubernetesUpstreamRequest = {
       method: 'post',
       url: `${upstreamUrl}/api/v1/workload`,
-      payload: payload,
+      payload,
     };
 
     const { response, attempt } = await reqQueue.pushAsync(request);
@@ -198,7 +203,7 @@ export async function deleteWorkload(
     const request: KubernetesUpstreamRequest = {
       method: 'delete',
       url: `${upstreamUrl}/api/v1/workload`,
-      payload: payload,
+      payload,
     };
 
     const { response, attempt } = await reqQueue.pushAsync(request);
@@ -229,10 +234,11 @@ function isSuccessStatusCode(statusCode: number | undefined): boolean {
   return statusCode !== undefined && statusCode > 100 && statusCode < 400;
 }
 
-async function retryRequest(
+export async function retryRequest(
   verb: NeedleHttpVerbs,
   url: string,
   payload: object,
+  reqOptions: NeedleOptions = {},
 ): Promise<IResponseWithAttempts> {
   const retry = {
     attempts: 3,
@@ -241,7 +247,8 @@ async function retryRequest(
   const options: NeedleOptions = {
     json: true,
     compressed: true,
-    agent,
+    agent: getAgent(url),
+    ...reqOptions,
   };
 
   if (config.HTTP_PROXY || config.HTTPS_PROXY) {
@@ -317,11 +324,13 @@ export async function sendClusterMetadata(): Promise<void> {
       'attempting to send cluster metadata',
     );
 
-    const { response, attempt } = await retryRequest(
-      'post',
-      `${upstreamUrl}/api/v1/cluster`,
+    const request: KubernetesUpstreamRequest = {
+      method: 'post',
+      url: `${upstreamUrl}/api/v1/cluster`,
       payload,
-    );
+    };
+
+    const { response, attempt } = await reqQueue.pushAsync(request);
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
     }
@@ -344,6 +353,49 @@ export async function sendClusterMetadata(): Promise<void> {
         agentId: payload.agentId,
       },
       'could not send cluster metadata',
+    );
+  }
+}
+
+export async function sendRuntimeData(
+  payload: IRuntimeDataPayload,
+): Promise<void> {
+  const logContext = {
+    userLocator: payload.target.userLocator,
+    cluster: payload.target.cluster,
+    agentId: payload.target.agentId,
+    identity: payload.identity,
+  };
+
+  try {
+    logger.info(logContext, 'attempting to send runtime data');
+
+    const request: KubernetesUpstreamRequest = {
+      method: 'post',
+      url: `${upstreamUrl}/api/v1/runtime-results`,
+      payload,
+    };
+
+    const { response, attempt } = await reqQueue.pushAsync(request);
+
+    if (!isSuccessStatusCode(response.statusCode)) {
+      throw new Error(`${response.statusCode} ${response.statusMessage}`);
+    }
+
+    logger.info(
+      {
+        attempt,
+        ...logContext,
+      },
+      'runtime data sent upstream successfully',
+    );
+  } catch (error) {
+    logger.error(
+      {
+        error,
+        ...logContext,
+      },
+      'could not send runtime data',
     );
   }
 }

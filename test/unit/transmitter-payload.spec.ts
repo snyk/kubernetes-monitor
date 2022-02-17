@@ -9,6 +9,8 @@ import {
   IDeleteWorkloadPayload,
   IImageLocator,
   ILocalWorkloadLocator,
+  IRuntimeDataPayload,
+  IRuntimeImage,
   IWorkload,
   IWorkloadLocator,
   IWorkloadMetadata,
@@ -208,4 +210,92 @@ describe('transmitter payload tests', () => {
       type: 'wl-type',
     });
   });
+
+  test.concurrent('constructRuntimeData happy flow', async () => {
+    const runtimeDataPayload = payload.constructRuntimeData([
+      {
+        imageID: 'something',
+        namespace: 'sysdig',
+        workloadName: 'workload',
+        workloadKind: 'deployment',
+        container: 'box',
+        packages: [],
+      },
+    ]);
+    expect(runtimeDataPayload).toEqual<IRuntimeDataPayload>({
+      identity: {
+        type: 'sysdig',
+      },
+      target: {
+        userLocator: expect.any(String),
+        cluster: 'Default cluster',
+        agentId: expect.any(String),
+      },
+      facts: [
+        {
+          type: 'loadedPackages',
+          data: [
+            {
+              imageID: 'something',
+              namespace: 'sysdig',
+              workloadName: 'workload',
+              workloadKind: 'Deployment',
+              container: 'box',
+              packages: [],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  test.concurrent(
+    'constructRuntimeData with excluded namespace happy flow',
+    async () => {
+      config.EXCLUDED_NAMESPACES = ['test'];
+      const runtimeDataPayload = payload.constructRuntimeData([
+        {
+          imageID: 'something',
+          namespace: 'sysdig',
+          workloadName: 'workload',
+          workloadKind: 'deployment',
+          container: 'box',
+          packages: [],
+        },
+        {
+          imageID: 'something',
+          namespace: 'test',
+          workloadName: 'workload',
+          workloadKind: 'deployment',
+          container: 'box',
+          packages: [],
+        },
+      ]);
+      expect(runtimeDataPayload).toEqual<IRuntimeDataPayload>({
+        identity: {
+          type: 'sysdig',
+        },
+        target: {
+          userLocator: expect.any(String),
+          cluster: 'Default cluster',
+          agentId: expect.any(String),
+        },
+        facts: [
+          {
+            type: 'loadedPackages',
+            data: [
+              {
+                imageID: 'something',
+                namespace: 'sysdig',
+                workloadName: 'workload',
+                workloadKind: 'Deployment',
+                container: 'box',
+                packages: [],
+              },
+            ],
+          },
+        ],
+      });
+    },
+  );
 });

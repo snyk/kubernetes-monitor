@@ -2,7 +2,6 @@ import * as async from 'async';
 import * as fs from 'fs';
 import sleep from 'sleep-promise';
 import * as YAML from 'yaml';
-
 // NOTE: Very important that the mock is set up before application code is imported!
 let pushCallCount = 0;
 const asyncQueueSpy = jest
