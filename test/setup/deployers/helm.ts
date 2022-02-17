@@ -39,7 +39,8 @@ async function deployKubernetesMonitor(
       '--set volumes.projected.serviceAccountToken=true ' +
       '--set securityContext.fsGroup=65534 ' +
       '--set skopeo.compression.level=1 ' +
-      '--set workers.count=5 ',
+      '--set workers.count=5 ' +
+      '--set sysdig.enabled=true ',
   );
   console.log(
     `Deployed ${imageOptions.nameAndTag} with pull policy ${imageOptions.pullPolicy}`,

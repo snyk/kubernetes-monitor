@@ -25,13 +25,13 @@ abcd1234-abcd-1234-abcd-1234abcd1234
 ```
 The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in the next step.
 
-2. If you are not using any private registries, create a Kubernetes secret called `snyk-monitor` containing the Snyk Integration ID from the previous step running the following command:
+2. (Optional) If you are not using any private registries, create a Kubernetes secret called `snyk-monitor` containing the Snyk Integration ID from the previous step running the following command:
  ```shell
  kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
  ```
  Continue to Helm installation instructions below.
 
-3. If you're using a private registry, you should create a `dockercfg.json` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually your credentials can be found in `$HOME/.docker/config.json`. These must also be added to the `dockercfg.json` file.
+3. (Optional) If you're using a private registry, you should create a `dockercfg.json` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually your credentials can be found in `$HOME/.docker/config.json`. These must also be added to the `dockercfg.json` file.
 
 Create a file named `dockercfg.json`. Store your credentials in there; it should look like this:
 
@@ -77,12 +77,12 @@ Finally, create the secret in Kubernetes by running the following command:
 kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
 ```
 
-4. If your private registry requires installing certificates (*.crt, *.cert, *.key only) please put them in a folder and create the following ConfigMap:
+4. (Optional) If your private registry requires installing certificates (*.crt, *.cert, *.key only) please put them in a folder and create the following ConfigMap:
 ```shell
 kubectl create configmap snyk-monitor-certs -n snyk-monitor --from-file=<path_to_certs_folder>
 ```
 
-5. If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
+5. (Optional) If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
 
 Create a file named `registries.conf`, see example adding an insecure registry: 
 
@@ -127,6 +127,31 @@ helm upgrade snyk-monitor snyk-charts/snyk-monitor --reuse-values
 If '--reset-values' is specified, this is ignored.
 
 If running with Operator Lifecycle Manager (OLM) then OLM will handle upgrades for you when you request to install the latest version. This applies to OpenShift (OCP) and regular installations of OLM.
+
+## Sysdig Integration ##
+
+We have partnered with Sysdig to enrich the issues detected by Snyk for workloads with runtime data provided by Sysdig.
+
+In order for the integration with Sysdig to work, the Snyk monitor requires an extra Secret in the `snyk-monitor` namespace. The Secret name is `sysdig-eve-secret`.
+
+Please refer to the [Sysdig Secret installation guide](https://docs.sysdig.com/en/docs/sysdig-secure/integrate-effective-vulnerability-exposure-with-snyk/#copy-the-sysdig-secret) to install the Secret. Once the Sysdig Secret is installed, you need to copy it over to the snyk-monitor namespace:
+
+```bash
+kubectl get secret sysdig-eve-secret -n sysdig-agent -o yaml | grep -v '^\s*namespace:\s' | kubectl apply -n snyk-monitor  -f -
+```
+
+To enable Snyk to integrate with Sysdig and collect information about packages executed at runtime, use `--set sysdig.enabled=true` when installing the snyk-monitor:
+
+```bash
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set clusterName="Production cluster" \
+  --set sysdig.enabled=true
+```
+
+> NOTE: The above command should be executed right after installing Sysdig. This will upgrade or install the snyk monitor, to allow the detection of Sysdig in the cluster.
+
+The snyk-monitor will now collect data from Sysdig every 4 hours.
 
 ## Setting up proxying ##
 

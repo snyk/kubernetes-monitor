@@ -132,6 +132,20 @@ spec:
             value: {{ quote .Values.skopeo.compression.level }}
           - name: SNYK_WORKERS_COUNT
             value: {{ quote .Values.workers.count }}
+          {{- if .Values.sysdig.enabled }}
+          - name: SNYK_SYSDIG_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.sysdig.secretName }}
+                key: endpoint
+                optional: true
+          - name: SNYK_SYSDIG_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.sysdig.secretName }}
+                key: token
+                optional: true
+          {{- end }}
           {{- with .Values.envs }}
           {{- toYaml . | trim | nindent 10 -}}
           {{- end }}
