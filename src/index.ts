@@ -60,6 +60,22 @@ async function monitor(): Promise<void> {
   }
 }
 
+async function setupSysdigIntegration(): Promise<void> {
+  if (!config.SYSDIG_ENDPOINT || !config.SYSDIG_TOKEN) {
+    logger.info({}, 'Sysdig integration not detected');
+    return;
+  }
+
+  const interval: number = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+  setInterval(async () => {
+    try {
+      await scrapeData();
+    } catch (error) {
+      logger.error({ error }, 'an error occurred while scraping runtime data');
+    }
+  }, interval).unref();
+}
+
 SourceMapSupport.install();
 cleanUpTempStorage();
 
@@ -69,20 +85,5 @@ setImmediate(async function setUpAndMonitor(): Promise<void> {
   await sendClusterMetadata();
   await loadAndSendWorkloadEventsPolicy();
   await monitor();
-
-  const interval: number = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-  if (config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN) {
-    setInterval(async () => {
-      try {
-        await scrapeData();
-      } catch (error) {
-        logger.error(
-          { error },
-          'an error occurred while scraping runtime data',
-        );
-      }
-    }, interval).unref();
-  } else {
-    logger.info({}, 'Sysdig integration not detected');
-  }
+  await setupSysdigIntegration();
 });
