@@ -147,3 +147,6 @@ sysdig:
   enabled: false
   namespace: sysdig-agent
   secretName: sysdig-eve-secret
+
+strategy:
+  type: RollingUpdate
