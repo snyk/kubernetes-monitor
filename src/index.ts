@@ -11,6 +11,7 @@ import { loadAndSendWorkloadEventsPolicy } from './common/policy';
 import { sendClusterMetadata } from './transmitter';
 import { setSnykMonitorAgentId } from './supervisor/agent';
 import { scrapeData } from './data-scraper';
+import { setupHealthCheck } from './healthcheck';
 
 process.on('uncaughtException', (err) => {
   if (state.shutdownInProgress) {
@@ -86,4 +87,5 @@ setImmediate(async function setUpAndMonitor(): Promise<void> {
   await loadAndSendWorkloadEventsPolicy();
   await monitor();
   await setupSysdigIntegration();
+  await setupHealthCheck();
 });
