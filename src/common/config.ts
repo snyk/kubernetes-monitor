@@ -1,10 +1,11 @@
 import { readFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { loadConfig } from 'snyk-config';
+import { Config } from './types';
 
-const config: Record<string, any> = loadConfig(__dirname + '/../..', {
+const config = loadConfig(__dirname + '/../..', {
   secretConfig: process.env.CONFIG_SECRET_FILE,
-});
+}) as unknown as Config;
 
 const namespacesFilePath = '/etc/config/excludedNamespaces';
 
