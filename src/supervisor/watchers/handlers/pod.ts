@@ -95,12 +95,19 @@ async function handleReadyPod(workloadMetadata: IWorkload[]): Promise<void> {
   for (const workload of workloadMetadata) {
     const scanned = await getWorkloadImageAlreadyScanned(
       workload,
-      workload.imageId,
+      workload.imageName,
     );
-    if (scanned !== undefined) {
+    // ImageID contains the resolved image digest.
+    // ImageName may contain a tag. The image behind this tag can be mutated and can change over time.
+    // We need to compare on ImageID which will reliably tell us if the image has changed.
+    if (scanned === workload.imageId) {
       continue;
     }
-    await setWorkloadImageAlreadyScanned(workload, workload.imageId, ''); // empty string takes zero bytes and is !== undefined
+    await setWorkloadImageAlreadyScanned(
+      workload,
+      workload.imageName,
+      workload.imageId,
+    );
     workloadToScan.push(workload);
   }
 
