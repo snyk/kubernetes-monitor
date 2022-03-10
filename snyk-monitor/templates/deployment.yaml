@@ -11,6 +11,9 @@ spec:
   {{- if .Values.pvc.enabled }}
   strategy:
     type: Recreate
+  {{- else }}
+  strategy:
+    type: {{ .Values.strategy.type }}
   {{- end }}
   selector:
     matchLabels:
