@@ -136,9 +136,9 @@ async function scanImagesAndSendResults(
   const workloadState = await getWorkloadAlreadyScanned(workload);
   const imageState = await getWorkloadImageAlreadyScanned(
     workload,
-    workload.imageId,
+    workload.imageName,
   );
-  if (workloadState === undefined && imageState === undefined) {
+  if (workloadState === undefined || imageState === undefined) {
     logger.info(
       { workloadName },
       'the workload has been deleted while scanning was in progress, skipping sending scan results',
