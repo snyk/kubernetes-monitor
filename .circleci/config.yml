@@ -154,7 +154,7 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    deploy_dev:
+    deploy_to_dev:
         docker:
             - auth:
                 password: $DOCKERHUB_PASSWORD
@@ -178,7 +178,7 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    deploy_prod:
+    deploy_to_prod:
         docker:
             - auth:
                 password: $DOCKERHUB_PASSWORD
@@ -201,7 +201,7 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    deploy_sysdig_integration_cluster:
+    deploy_to_sysdig_integration_cluster:
         docker:
             - auth:
                 password: $DOCKERHUB_PASSWORD
@@ -1067,7 +1067,7 @@ workflows:
                     branches:
                         only:
                             - master
-            - deploy_prod:
+            - deploy_to_prod:
                 filters:
                     branches:
                         only:
@@ -1167,14 +1167,14 @@ workflows:
                     - integration_tests
                     - integration_tests_helm
                     - integration_tests_proxy
-            - deploy_dev:
+            - deploy_to_dev:
                 filters:
                     branches:
                         only:
                             - staging
                 requires:
                     - tag_and_push
-            - deploy_sysdig_integration_cluster:
+            - deploy_to_sysdig_integration_cluster:
                 filters:
                     branches:
                         only:
