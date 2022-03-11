@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: restarter
+  labels:
+    app.kubernetes.io/name: restarter
+spec:
+  schedule: '0 10 * * *'
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: restarter
+        spec:
+          serviceAccountName: restarter
+          containers:
+            - name: restarter
+              image: docker.io/bitnami/kubectl:1.22.7
+              imagePullPolicy: IfNotPresent
+              args: ['delete', 'pod', '--all', '--namespace', 'snyk-monitor']
+          restartPolicy: OnFailure
