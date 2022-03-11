@@ -101,6 +101,10 @@ workflows:
           requires:
             - tag_and_push
           <<: *staging_branch_only_filter
+      - deploy_sysdig_integration_cluster:
+          requires:
+            - tag_and_push
+          <<: *staging_branch_only_filter
 
   MERGE_TO_MASTER:
     jobs:

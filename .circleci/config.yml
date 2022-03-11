@@ -201,6 +201,47 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
+    deploy_sysdig_integration_cluster:
+        docker:
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/base:stable
+        steps:
+            - checkout
+            - run:
+                command: |
+                    LATEST_KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+                    curl -LO "https://dl.k8s.io/release/${LATEST_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+                    curl -LO "https://dl.k8s.io/${LATEST_KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+                    echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+                    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+                    # Ensure the kubectl command is runnable
+                    kubectl version --client
+                    # Prepare kubeconfig to point to the cluster
+                    mkdir ~/.kube || true
+                    printf "%s" "${SYSDIG_KUBECONFIG}" | base64 -d > ~/.kube/config
+                name: Install and prepare kubectl
+            - run:
+                command: |
+                    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+                    chmod 700 get_helm.sh
+                    ./get_helm.sh
+                    # Ensure the Helm command is runnable
+                    helm version
+                name: Install Helm
+            - run:
+                command: |
+                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                    LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved
+                    ./scripts/slack/notify_deploy.py $LATEST_TAG sysdig-integration-cluster
+                    helm upgrade --install snyk-monitor ./snyk-monitor --namespace snyk-monitor --set image.tag=${LATEST_TAG} --set clusterName="Sysdig cluster" --set sysdig.enabled=true
+                name: Deploy to shared Sysdig cluster
+            - run:
+                command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
     eks_integration_tests:
         machine:
             docker_layer_caching: true
@@ -1127,6 +1168,13 @@ workflows:
                     - integration_tests_helm
                     - integration_tests_proxy
             - deploy_dev:
+                filters:
+                    branches:
+                        only:
+                            - staging
+                requires:
+                    - tag_and_push
+            - deploy_sysdig_integration_cluster:
                 filters:
                     branches:
                         only:
