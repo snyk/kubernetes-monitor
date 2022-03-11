@@ -1,0 +1,44 @@
+docker:
+  - image: cimg/base:stable
+    auth:
+      username: $DOCKERHUB_USER
+      password: $DOCKERHUB_PASSWORD
+working_directory: ~/kubernetes-monitor
+steps:
+  - checkout
+
+  - run:
+      name: Install and prepare kubectl
+      command: |
+        LATEST_KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+        curl -LO "https://dl.k8s.io/release/${LATEST_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+        curl -LO "https://dl.k8s.io/${LATEST_KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+        echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        # Ensure the kubectl command is runnable
+        kubectl version --client
+        # Prepare kubeconfig to point to the cluster
+        mkdir ~/.kube || true
+        printf "%s" "${SYSDIG_KUBECONFIG}" | base64 -d > ~/.kube/config
+
+  - run:
+      name: Install Helm
+      command: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        # Ensure the Helm command is runnable
+        helm version
+
+  - run:
+      name: Deploy to shared Sysdig cluster
+      command: |
+        LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+        LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved
+        ./scripts/slack/notify_deploy.py $LATEST_TAG sysdig-integration-cluster
+        helm upgrade --install snyk-monitor ./snyk-monitor --namespace snyk-monitor --set image.tag=${LATEST_TAG} --set clusterName="Sysdig cluster" --set sysdig.enabled=true
+
+  - run:
+      name: Notify Slack on failure
+      when: on_fail
+      command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"

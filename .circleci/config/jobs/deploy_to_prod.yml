@@ -1,0 +1,24 @@
+docker:
+  - image: cimg/node:16.13
+    auth:
+      username: $DOCKERHUB_USER
+      password: $DOCKERHUB_PASSWORD
+working_directory: ~/kubernetes-monitor
+steps:
+  - checkout
+  - install_python_requests
+
+  - run:
+      name: Deploy to prod
+      command: |
+        LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
+        LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
+        ./scripts/slack/notify_deploy.py $LATEST_TAG prod &&
+        curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
+            -X POST -d "{}" \
+            https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
+
+  - run:
+      name: Notify Slack on failure
+      command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+      when: on_fail
