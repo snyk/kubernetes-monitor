@@ -97,7 +97,11 @@ workflows:
             - integration_tests_helm
             - integration_tests_proxy
           <<: *staging_branch_only_filter
-      - deploy_dev:
+      - deploy_to_dev:
+          requires:
+            - tag_and_push
+          <<: *staging_branch_only_filter
+      - deploy_to_sysdig_integration_cluster:
           requires:
             - tag_and_push
           <<: *staging_branch_only_filter
@@ -106,7 +110,7 @@ workflows:
     jobs:
       - publish:
           <<: *master_branch_only_filter
-      - deploy_prod:
+      - deploy_to_prod:
           requires:
             - publish
           <<: *master_branch_only_filter
