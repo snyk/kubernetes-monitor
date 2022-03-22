@@ -20,6 +20,7 @@ import {
 import { logger } from '../../../common/logger';
 import { retryKubernetesApiRequest } from '../../kuberenetes-api-wrappers';
 import { trimWorkload } from '../../workload-sanitization';
+import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedCronJobList(
   namespace: string,
@@ -117,6 +118,7 @@ export async function cronJobWatchHandler(
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
+      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
     ]);
   }
 

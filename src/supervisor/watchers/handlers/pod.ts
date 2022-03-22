@@ -1,12 +1,9 @@
 import { V1Pod, V1PodList } from '@kubernetes/client-node';
 import { IncomingMessage } from 'http';
-import * as async from 'async';
 
 import { logger } from '../../../common/logger';
-import { config } from '../../../common/config';
-import { processWorkload } from '../../../scanner';
 import { sendWorkloadMetadata } from '../../../transmitter';
-import { IWorkload, Telemetry } from '../../../transmitter/types';
+import { IWorkload } from '../../../transmitter/types';
 import { constructWorkloadMetadata } from '../../../transmitter/payload';
 import { buildMetadataForWorkload } from '../../metadata-extractor';
 import { PodPhase } from '../types';
@@ -25,70 +22,7 @@ import { deleteWorkload } from './workload';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import { trimWorkload } from '../../workload-sanitization';
-
-export interface ImagesToScanQueueData {
-  workloadMetadata: IWorkload[];
-  /** The timestamp when this workload was added to the image scan queue. */
-  enqueueTimestampMs: number;
-}
-
-async function queueWorkerWorkloadScan(
-  task: ImagesToScanQueueData,
-  callback,
-): Promise<void> {
-  const { workloadMetadata, enqueueTimestampMs } = task;
-  /** Represents how long this workload spent waiting in the queue to be processed. */
-  const enqueueDurationMs = Date.now() - enqueueTimestampMs;
-  const telemetry: Partial<Telemetry> = {
-    enqueueDurationMs,
-    queueSize: workloadsToScanQueue.length(),
-  };
-  try {
-    await processWorkload(workloadMetadata, telemetry);
-  } catch (err) {
-    logger.error(
-      { err, task },
-      'error processing a workload in the pod handler 2',
-    );
-    const imageIds = workloadMetadata.map((workload) => workload.imageId);
-    const workload = {
-      // every workload metadata references the same workload, grab it from the first one
-      ...workloadMetadata[0],
-      imageIds,
-    };
-    await deleteWorkloadImagesAlreadyScanned(workload);
-  }
-}
-
-const workloadsToScanQueue = async.queue<ImagesToScanQueueData>(
-  queueWorkerWorkloadScan,
-  config.WORKERS_COUNT,
-);
-
-workloadsToScanQueue.error(function (err, task) {
-  logger.error(
-    { err, task },
-    'error processing a workload in the pod handler 1',
-  );
-});
-
-function reportQueueSize(): void {
-  try {
-    const queueDataToReport: { [key: string]: any } = {};
-    queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
-    logger.debug(queueDataToReport, 'queue sizes report');
-  } catch (err) {
-    logger.debug({ err }, 'failed logging queue sizes');
-  }
-}
-
-// Report the queue size shortly after the snyk-monitor starts.
-setTimeout(reportQueueSize, 1 * 60 * 1000).unref();
-// Additionally, periodically report every X minutes.
-setInterval(
-  reportQueueSize,
-  config.QUEUE_LENGTH_LOG_FREQUENCY_MINUTES * 60 * 1000,
-).unref();
+import { deleteWorkloadFromScanQueue, workloadsToScanQueue } from './queue';
 
 async function handleReadyPod(workloadMetadata: IWorkload[]): Promise<void> {
   const workloadToScan: IWorkload[] = [];
@@ -111,8 +45,10 @@ async function handleReadyPod(workloadMetadata: IWorkload[]): Promise<void> {
     workloadToScan.push(workload);
   }
 
+  const workload = workloadToScan[0];
   if (workloadToScan.length > 0) {
     workloadsToScanQueue.push({
+      key: workload.uid,
       workloadMetadata: workloadToScan,
       enqueueTimestampMs: Date.now(),
     });
@@ -223,6 +159,7 @@ export async function podDeletedHandler(pod: V1Pod): Promise<void> {
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
+      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
     ]);
   }
 
