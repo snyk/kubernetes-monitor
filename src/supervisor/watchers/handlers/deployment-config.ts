@@ -15,6 +15,7 @@ import {
 } from '../../../state';
 import { retryKubernetesApiRequest } from '../../kuberenetes-api-wrappers';
 import { logger } from '../../../common/logger';
+import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedDeploymentConfigList(
   namespace: string,
@@ -112,6 +113,7 @@ export async function deploymentConfigWatchHandler(
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
+      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
     ]);
   }
 

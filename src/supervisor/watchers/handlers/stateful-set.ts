@@ -11,6 +11,7 @@ import {
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 import { trimWorkload } from '../../workload-sanitization';
+import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedStatefulSetList(
   namespace: string,
@@ -71,6 +72,7 @@ export async function statefulSetWatchHandler(
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
+      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
     ]);
   }
 

@@ -5,11 +5,14 @@ import {
   V1ContainerStatus,
   V1PodSpec,
 } from '@kubernetes/client-node';
-import { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 import { currentClusterName } from './cluster';
-import { IKubeObjectMetadata } from './types';
+import { WorkloadKind } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
 import { logger } from '../common/logger';
+import { config } from '../common/config';
+
+import type { IKubeObjectMetadata } from './types';
+import type { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 
 const loopingThreshold = 20;
 
@@ -168,6 +171,17 @@ export async function buildMetadataForWorkload(
       },
       pod.status.containerStatuses,
     );
+  }
+
+  const hasJobOwnerRef = pod.metadata?.ownerReferences?.find(
+    (owner) => owner.kind === WorkloadKind.Job,
+  );
+  if (hasJobOwnerRef && config.SKIP_K8S_JOBS) {
+    logger.info(
+      { podMetadata: pod.metadata },
+      'pod associated with job but jobs are skipped from processing. not building metadata.',
+    );
+    return undefined;
   }
 
   const podOwner: IKubeObjectMetadata | undefined = await findParentWorkload(

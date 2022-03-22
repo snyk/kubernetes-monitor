@@ -11,6 +11,7 @@ import {
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 import { trimWorkload } from '../../workload-sanitization';
+import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedJobList(namespace: string): Promise<{
   response: IncomingMessage;
@@ -65,6 +66,7 @@ export async function jobWatchHandler(job: V1Job): Promise<void> {
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
+      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
     ]);
   }
 

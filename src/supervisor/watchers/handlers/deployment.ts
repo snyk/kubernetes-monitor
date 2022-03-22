@@ -11,6 +11,7 @@ import {
   kubernetesObjectToWorkloadAlreadyScanned,
 } from '../../../state';
 import { trimWorkload } from '../../workload-sanitization';
+import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedDeploymentList(
   namespace: string,
@@ -71,6 +72,7 @@ export async function deploymentWatchHandler(
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
+      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
     ]);
   }
 
