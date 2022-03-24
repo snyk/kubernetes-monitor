@@ -11,7 +11,8 @@ steps:
 - run:
     name: Operator integration tests on vanilla Kubernetes
     command: |
-      export OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
+      export OPERATOR_VERSION="0.0.1-ubi8-${CIRCLE_SHA1}"
+      export IMAGE_TAG_UBI_SUFFIX="-ubi8"
       export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
       .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
 - run:

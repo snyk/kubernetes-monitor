@@ -73,8 +73,8 @@ jobs:
             - run:
                 command: |
                     export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    OPERATOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-                    MONITOR_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
+                    OPERATOR_TAG="${IMAGE_TAG}-ubi8-${CIRCLE_SHA1}"
+                    MONITOR_TAG="${IMAGE_TAG}-ubi8-${CIRCLE_SHA1}"
                     scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                     echo "export OPERATOR_TAG=$OPERATOR_TAG" >> $BASH_ENV
                 name: Create Operator and push Operator image to DockerHub
@@ -86,8 +86,8 @@ jobs:
             - run:
                 command: |
                     export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-${CIRCLE_SHA1}"
-                    export SNYK_OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-ubi8-${CIRCLE_SHA1}"
+                    export SNYK_OPERATOR_VERSION="0.0.1-ubi8-${CIRCLE_SHA1}"
                     export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
                     OPERATOR_PATH=$(scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
                     echo "export OPERATOR_PATH=$OPERATOR_PATH" >> $BASH_ENV
@@ -95,7 +95,7 @@ jobs:
             - run:
                 command: |
                     export OPERATOR_DIR=$OPERATOR_PATH
-                    export PACKAGE_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    export PACKAGE_VERSION="0.0.1-ubi8-${CIRCLE_SHA1}"
                     scripts/operator/create_operator_bundle_and_index_and_push.py "${OPERATOR_DIR}" "${PACKAGE_VERSION}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                 name: Create Operator Bundle and Index and push to Docker Hub
             - run:
@@ -106,7 +106,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     build_image:
         machine:
-            image: ubuntu-2004:202111-01
+            image: ubuntu-2004:202111-02
         steps:
             - checkout
             - install_python_requests
@@ -114,21 +114,32 @@ jobs:
                 command: |
                     IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
                     IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+                    IMAGE_NAME_CANDIDATE_UBI8=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi8-${CIRCLE_SHA1}
                     echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+                    echo "export IMAGE_NAME_CANDIDATE_UBI8=$IMAGE_NAME_CANDIDATE_UBI8" >> $BASH_ENV
                 name: Export environment variables
             - run:
                 command: |
                     docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
                     ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
+                    ./scripts/docker/build-image-ubi8.sh ${IMAGE_NAME_CANDIDATE_UBI8}
                 name: Build image
             - snyk/scan:
+                additional-arguments: --project-name=alpine
                 docker-image-name: ${IMAGE_NAME_CANDIDATE}
                 monitor-on-build: false
                 severity-threshold: high
                 target-file: Dockerfile
+            - snyk/scan:
+                additional-arguments: --project-name=ubi8
+                docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI8}
+                monitor-on-build: false
+                severity-threshold: high
+                target-file: Dockerfile.ubi8
             - run:
                 command: |
                     docker push ${IMAGE_NAME_CANDIDATE}
+                    docker push ${IMAGE_NAME_CANDIDATE_UBI8}
                 name: Push image
             - run:
                 command: |
@@ -330,7 +341,8 @@ jobs:
                 name: Create temporary directory for logs
             - run:
                 command: |
-                    export OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    export OPERATOR_VERSION="0.0.1-ubi8-${CIRCLE_SHA1}"
+                    export IMAGE_TAG_UBI_SUFFIX="-ubi8"
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
                 name: Operator integration tests on vanilla Kubernetes
@@ -387,7 +399,7 @@ jobs:
     openshift3_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+            image: ubuntu-2004:202111-02
         steps:
             - checkout
             - setup_node16
@@ -397,6 +409,7 @@ jobs:
                 name: Create temporary directory for logs
             - run:
                 command: |
+                    export IMAGE_TAG_UBI_SUFFIX="-ubi8"
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     npm run test:integration:openshift3:yaml
                 name: Integration tests OpenShift 3
@@ -410,7 +423,7 @@ jobs:
     openshift4_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+            image: ubuntu-2004:202111-02
         steps:
             - checkout
             - setup_node16
@@ -420,7 +433,8 @@ jobs:
                 name: create temp dir for logs
             - run:
                 command: |
-                    export OPERATOR_VERSION="0.0.1-${CIRCLE_SHA1}"
+                    export OPERATOR_VERSION="0.0.1-ubi8-${CIRCLE_SHA1}"
+                    export IMAGE_TAG_UBI_SUFFIX="-ubi8"
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:openshift4:operator
                 name: Integration tests OpenShift 4
@@ -673,25 +687,40 @@ jobs:
                     LATEST_TAG=${LATEST_TAG_WITH_V:1}
                     IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
                     IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
+                    IMAGE_NAME_APPROVED_UBI8=snyk/kubernetes-monitor:${LATEST_TAG}-ubi8-approved
+                    IMAGE_NAME_PUBLISHED_UBI8=snyk/kubernetes-monitor:${LATEST_TAG}-ubi8
                     echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
                     echo "export IMAGE_NAME_APPROVED=${IMAGE_NAME_APPROVED}" >> $BASH_ENV
                     echo "export IMAGE_NAME_PUBLISHED=${IMAGE_NAME_PUBLISHED}" >> $BASH_ENV
+                    echo "export IMAGE_NAME_APPROVED_UBI8=${IMAGE_NAME_APPROVED_UBI8}" >> $BASH_ENV
+                    echo "export IMAGE_NAME_PUBLISHED_UBI8=${IMAGE_NAME_PUBLISHED_UBI8}" >> $BASH_ENV
                 name: Export environment variables
             - snyk/scan:
                 monitor-on-build: true
                 severity-threshold: high
             - snyk/scan:
+                additional-arguments: --project-name=alpine
                 docker-image-name: ${IMAGE_NAME_APPROVED}
                 monitor-on-build: true
                 severity-threshold: high
                 target-file: Dockerfile
+            - snyk/scan:
+                additional-arguments: --project-name=ubi8
+                docker-image-name: ${IMAGE_NAME_APPROVED_UBI8}
+                monitor-on-build: true
+                severity-threshold: high
+                target-file: Dockerfile.ubi8
             - run:
                 command: |
                     docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
                     docker pull ${IMAGE_NAME_APPROVED} &&
                     docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
                     docker push ${IMAGE_NAME_PUBLISHED} &&
+                    docker pull ${IMAGE_NAME_APPROVED_UBI8} &&
+                    docker tag ${IMAGE_NAME_APPROVED_UBI8} ${IMAGE_NAME_PUBLISHED_UBI8} &&
+                    docker push ${IMAGE_NAME_PUBLISHED_UBI8} &&
                     ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
+                    ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED_UBI8} &&
                     ./scripts/publish-gh-pages.sh ${LATEST_TAG}
                 name: Publish
             - run:
@@ -705,7 +734,7 @@ jobs:
             - run:
                 command: |
                     export OPERATOR_TAG="${LATEST_TAG}"
-                    export MONITOR_TAG="${LATEST_TAG}"
+                    export MONITOR_TAG="${LATEST_TAG}-ubi8"
                     python3 scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
                     echo "export OPERATOR_TAG=${OPERATOR_TAG}" >> $BASH_ENV
                 name: Create Operator and push Operator image to DockerHub

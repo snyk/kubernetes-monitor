@@ -15,4 +15,12 @@ else
   docker tag ${IMAGE_NAME_CANDIDATE} ${IMAGE_NAME_APPROVED}
   docker push ${IMAGE_NAME_APPROVED}
   ./scripts/slack/notify_push.py ${IMAGE_NAME_APPROVED}
+
+  IMAGE_NAME_CANDIDATE_UBI8=snyk/kubernetes-monitor:staging-candidate-ubi8-${CIRCLE_SHA1}
+  IMAGE_NAME_APPROVED_UBI8=snyk/kubernetes-monitor:${1}-ubi8-approved
+
+  docker pull ${IMAGE_NAME_CANDIDATE_UBI8}
+  docker tag ${IMAGE_NAME_CANDIDATE_UBI8} ${IMAGE_NAME_APPROVED_UBI8}
+  docker push ${IMAGE_NAME_APPROVED_UBI8}
+  ./scripts/slack/notify_push.py ${IMAGE_NAME_APPROVED_UBI8}
 fi
