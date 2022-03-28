@@ -26,7 +26,7 @@ steps:
       additional-arguments: --project-name=alpine
   - snyk/scan:
       docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI8}
-      severity-threshold: high
+      severity-threshold: critical
       target-file: Dockerfile.ubi8
       monitor-on-build: false
       additional-arguments: --project-name=ubi8

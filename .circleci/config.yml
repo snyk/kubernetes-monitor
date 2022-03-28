@@ -134,7 +134,7 @@ jobs:
                 additional-arguments: --project-name=ubi8
                 docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI8}
                 monitor-on-build: false
-                severity-threshold: high
+                severity-threshold: critical
                 target-file: Dockerfile.ubi8
             - run:
                 command: |
