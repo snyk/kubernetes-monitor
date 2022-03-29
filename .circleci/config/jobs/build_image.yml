@@ -9,7 +9,7 @@ steps:
       command: |
         IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
         IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
-        IMAGE_NAME_CANDIDATE_UBI8=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi8-${CIRCLE_SHA1}
+        IMAGE_NAME_CANDIDATE_UBI8=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi8-${CIRCLE_SHA1:0:8}
         echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
         echo "export IMAGE_NAME_CANDIDATE_UBI8=$IMAGE_NAME_CANDIDATE_UBI8" >> $BASH_ENV
   - run:
