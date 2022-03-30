@@ -1,0 +1,42 @@
+machine:
+  image: ubuntu-2004:202111-02
+working_directory: ~/kubernetes-monitor
+steps:
+  - checkout
+  - install_python_requests
+  - run:
+      name: Export environment variables
+      command: |
+        IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+        IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+        IMAGE_NAME_CANDIDATE_UBI8=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi8-${CIRCLE_SHA1:0:8}
+        echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+        echo "export IMAGE_NAME_CANDIDATE_UBI8=$IMAGE_NAME_CANDIDATE_UBI8" >> $BASH_ENV
+  - run:
+      name: Build image
+      command: |
+        docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+        ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
+        ./scripts/docker/build-image-ubi8.sh ${IMAGE_NAME_CANDIDATE_UBI8}
+  - snyk/scan:
+      docker-image-name: ${IMAGE_NAME_CANDIDATE}
+      severity-threshold: high
+      target-file: Dockerfile
+      monitor-on-build: false
+      additional-arguments: --project-name=alpine
+  - snyk/scan:
+      docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI8}
+      severity-threshold: critical
+      target-file: Dockerfile.ubi8
+      monitor-on-build: false
+      additional-arguments: --project-name=ubi8
+  - run:
+      name: Push image
+      command: |
+        docker push ${IMAGE_NAME_CANDIDATE}
+        docker push ${IMAGE_NAME_CANDIDATE_UBI8}
+  - run:
+      name: Notify Slack on failure
+      command: |
+        ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+      when: on_fail
