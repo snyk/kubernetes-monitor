@@ -708,7 +708,7 @@ jobs:
                 additional-arguments: --project-name=ubi8
                 docker-image-name: ${IMAGE_NAME_APPROVED_UBI8}
                 monitor-on-build: true
-                severity-threshold: high
+                severity-threshold: critical
                 target-file: Dockerfile.ubi8
             - run:
                 command: |
@@ -741,7 +741,7 @@ jobs:
             - snyk/scan:
                 docker-image-name: snyk/kubernetes-operator:${OPERATOR_TAG}
                 monitor-on-build: true
-                severity-threshold: high
+                severity-threshold: critical
                 target-file: snyk-operator/build/Dockerfile
             - run:
                 command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
