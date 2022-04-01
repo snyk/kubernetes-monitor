@@ -24,7 +24,10 @@ import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import { trimWorkload } from '../../workload-sanitization';
 import { deleteWorkloadFromScanQueue, workloadsToScanQueue } from './queue';
 
-async function handleReadyPod(workloadMetadata: IWorkload[]): Promise<void> {
+/** Exported for testing */
+export async function handleReadyPod(
+  workloadMetadata: IWorkload[],
+): Promise<void> {
   const workloadToScan: IWorkload[] = [];
   for (const workload of workloadMetadata) {
     const scanned = await getWorkloadImageAlreadyScanned(
