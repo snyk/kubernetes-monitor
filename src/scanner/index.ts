@@ -113,7 +113,8 @@ export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {
   return Object.values(uniqueImages);
 }
 
-async function scanImagesAndSendResults(
+/** Exported for testing */
+export async function scanImagesAndSendResults(
   workloadName: string,
   pulledImages: IPullableImage[],
   workloadMetadata: IWorkload[],
