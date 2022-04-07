@@ -28,7 +28,8 @@ export function exec(
   const allArguments = processArgs.map((arg) => arg.body);
   return spawn(bin, allArguments, { env, capture: ['stdout', 'stderr'] }).catch(
     (error) => {
-      const message = (error && error.stderr) || 'Unknown reason';
+      const message =
+        error?.stderr || error?.stdout || error?.message || 'Unknown reason';
       const loggableArguments = processArgs
         .filter((arg) => !arg.sanitise)
         .map((arg) => arg.body);
