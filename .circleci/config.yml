@@ -81,7 +81,7 @@ jobs:
             - snyk/scan:
                 docker-image-name: snyk/kubernetes-operator:${OPERATOR_TAG}
                 monitor-on-build: false
-                severity-threshold: high
+                severity-threshold: critical
                 target-file: snyk-operator/build/Dockerfile
             - run:
                 command: |

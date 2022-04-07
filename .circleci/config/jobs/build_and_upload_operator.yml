@@ -23,7 +23,7 @@ steps:
         echo "export OPERATOR_TAG=$OPERATOR_TAG" >> $BASH_ENV
   - snyk/scan:
       docker-image-name: snyk/kubernetes-operator:${OPERATOR_TAG}
-      severity-threshold: high
+      severity-threshold: critical
       target-file: snyk-operator/build/Dockerfile
       monitor-on-build: false
   - run:
