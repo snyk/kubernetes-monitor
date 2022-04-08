@@ -38,8 +38,16 @@ export async function handleReadyPod(
     // ImageName may contain a tag. The image behind this tag can be mutated and can change over time.
     // We need to compare on ImageID which will reliably tell us if the image has changed.
     if (scanned === workload.imageId) {
+      logger.debug(
+        { workloadToScan, imageId: workload.imageId },
+        'image already scanned',
+      );
       continue;
     }
+    logger.debug(
+      { workloadToScan, imageId: workload.imageId },
+      'image has not been scanned',
+    );
     await setWorkloadImageAlreadyScanned(
       workload,
       workload.imageName,
@@ -59,16 +67,28 @@ export async function handleReadyPod(
 }
 
 export function isPodReady(pod: V1Pod): boolean {
+  const podStatus = pod.status !== undefined;
+  const podStatusPhase = pod.status?.phase === PodPhase.Running;
+  const podContainerStatuses = pod.status?.containerStatuses !== undefined;
+  const containerReadyStatuses = pod.status?.containerStatuses?.some(
+    (container) =>
+      container.state !== undefined &&
+      (container.state.running !== undefined ||
+        container.state.waiting !== undefined),
+  ) as boolean;
+
+  const logContext = {
+    podStatus,
+    podStatusPhase,
+    podContainerStatuses,
+    containerReadyStatuses,
+  };
+  logger.debug(logContext, 'checking to see if pod is ready to process');
   return (
-    pod.status !== undefined &&
-    pod.status.phase === PodPhase.Running &&
-    pod.status.containerStatuses !== undefined &&
-    pod.status.containerStatuses.some(
-      (container) =>
-        container.state !== undefined &&
-        (container.state.running !== undefined ||
-          container.state.waiting !== undefined),
-    )
+    podStatus &&
+    podStatusPhase &&
+    podContainerStatuses &&
+    containerReadyStatuses
   );
 }
 

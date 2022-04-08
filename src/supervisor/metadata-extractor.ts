@@ -30,6 +30,7 @@ export function buildImageMetadata(
     delete container.args;
     delete container.env;
     delete container.command;
+    //! would container.envFrom also include sensitive data?
     containerNameToSpec[container.name] = container;
   }
 
@@ -41,6 +42,17 @@ export function buildImageMetadata(
   const images: IWorkload[] = [];
   for (const containerStatus of containerStatuses) {
     if (!(containerStatus.name in containerNameToSpec)) {
+      logger.debug(
+        {
+          workloadName: workloadMeta.objectMeta.name,
+          workloadType: workloadMeta.kind,
+          workloadNamespace: workloadMeta.objectMeta.namespace,
+          containerName: containerStatus.name,
+          image: containerStatus.image,
+          imageId: containerStatus.imageID,
+        },
+        'container name is not in containerNameToSpec lists',
+      );
       continue;
     }
     images.push({
@@ -143,6 +155,16 @@ export async function buildMetadataForWorkload(
   const isAssociatedWithParent = isPodAssociatedWithParent(pod);
 
   if (!pod.metadata || pod.metadata.namespace === undefined || !pod.spec) {
+    const logContext = {
+      workloadName: pod.metadata?.name,
+      workloadType: pod.kind,
+      workloadNamespace: pod.metadata?.namespace,
+      clusterName: pod.metadata?.clusterName,
+    };
+    logger.debug(
+      logContext,
+      'cannot build metadata for workload without pod information',
+    );
     // Some required parameters are missing, we cannot process further
     return undefined;
   }
