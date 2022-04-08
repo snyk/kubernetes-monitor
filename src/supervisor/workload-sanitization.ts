@@ -1,4 +1,5 @@
 import { KubernetesObject, V1ObjectMeta } from '@kubernetes/client-node';
+import { logger } from '../common/logger';
 
 export function trimWorkloads<
   T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
@@ -14,6 +15,7 @@ export function trimWorkloads<
 export function trimWorkload<
   T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
 >(workload: T): T & { metadata: V1ObjectMeta } {
+  logger.debug(workload.metadata, 'workload metadata state before trimming');
   return {
     apiVersion: workload.apiVersion,
     kind: workload.kind,
@@ -24,7 +26,7 @@ export function trimWorkload<
 }
 
 export function trimMetadata(metadata?: V1ObjectMeta): V1ObjectMeta {
-  return {
+  const trimmedMetadata = {
     name: metadata?.name,
     namespace: metadata?.namespace,
     annotations: metadata?.annotations,
@@ -34,4 +36,6 @@ export function trimMetadata(metadata?: V1ObjectMeta): V1ObjectMeta {
     resourceVersion: metadata?.resourceVersion,
     generation: metadata?.generation,
   };
+  logger.debug(trimmedMetadata, 'workload metadata state after trimming');
+  return trimmedMetadata;
 }
