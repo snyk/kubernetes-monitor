@@ -109,8 +109,8 @@ async function findParentWorkload(
       if (err?.response?.body?.code === 404) {
         logger.info(
           {
-            name: supportedWorkload.name,
-            kind: supportedWorkload.kind,
+            supportedWorkloadName: supportedWorkload.name,
+            supportedWorkloadKind: supportedWorkload.kind,
             namespace,
           },
           'could not find workload, it probably no longer exists',

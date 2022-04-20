@@ -13,15 +13,15 @@ import { setSnykMonitorAgentId } from './supervisor/agent';
 import { scrapeData } from './data-scraper';
 import { setupHealthCheck } from './healthcheck';
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', (error) => {
   if (state.shutdownInProgress) {
     return;
   }
 
   try {
-    logger.error({ err }, 'UNCAUGHT EXCEPTION!');
+    logger.error({ error }, 'UNCAUGHT EXCEPTION!');
   } catch (ignore) {
-    console.log('UNCAUGHT EXCEPTION!', err);
+    console.log('UNCAUGHT EXCEPTION!', error);
   } finally {
     process.exit(1);
   }

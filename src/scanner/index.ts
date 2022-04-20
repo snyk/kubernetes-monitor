@@ -82,7 +82,7 @@ export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {
     logger.info(
       {
         workloadName: workloadMetadata[0].name,
-        name: meta.imageName,
+        imageName: meta.imageName,
         id: meta.imageId,
       },
       'image metadata',
