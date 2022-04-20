@@ -31,6 +31,7 @@ export interface Config {
   HTTPS_PROXY: string | undefined;
   HTTP_PROXY: string | undefined;
   NO_PROXY: string | undefined;
+  USE_KEEPALIVE: boolean;
   SKIP_K8S_JOBS: boolean;
   DEPLOYMENT_NAME: string;
   DEPLOYMENT_NAMESPACE: string;

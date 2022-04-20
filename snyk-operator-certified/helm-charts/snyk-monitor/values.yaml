@@ -83,6 +83,7 @@ limits:
 http_proxy:
 https_proxy:
 no_proxy:
+use_keepalive: true
 skip_k8s_jobs:
 
 # Override default (INFO) log level if less verbosity needed

@@ -111,6 +111,8 @@ spec:
             value: {{ .Values.https_proxy }}
           - name: NO_PROXY
             value: {{ .Values.no_proxy }}
+          - name: USE_KEEPALIVE
+            value: {{ quote .Values.use_keepalive }}
           - name: LOG_LEVEL
             value: {{ .Values.log_level }}
           - name: SKIP_K8S_JOBS
