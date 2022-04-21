@@ -39,12 +39,12 @@ export async function trackNamespaces(): Promise<void> {
   const loggedListMethod = async () => {
     try {
       return await retryKubernetesApiRequest(() => paginatedNamespaceList());
-    } catch (err) {
+    } catch (error) {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'error while listing namespaces in cluster',
       );
-      throw err;
+      throw error;
     }
   };
 
@@ -57,9 +57,9 @@ export async function trackNamespaces(): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on(ERROR, (err) => {
+  informer.on(ERROR, (error) => {
     // Types from client library insists that callback is of type KubernetesObject
-    const code = (err as any).code || '';
+    const code = (error as any).code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -70,7 +70,7 @@ export async function trackNamespaces(): Promise<void> {
       }, 1000);
     } else {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'unexpected informer error event occurred',
       );
     }
@@ -107,9 +107,9 @@ export async function trackNamespace(namespace: string): Promise<void> {
           body: list,
         };
       });
-    } catch (err) {
-      logger.error({ ...logContext, err }, 'error while listing namespace');
-      throw err;
+    } catch (error) {
+      logger.error({ ...logContext, error }, 'error while listing namespace');
+      throw error;
     }
   };
 
@@ -122,9 +122,9 @@ export async function trackNamespace(namespace: string): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on(ERROR, (err) => {
+  informer.on(ERROR, (error) => {
     // Types from client library insists that callback is of type KubernetesObject
-    const code = (err as any).code || '';
+    const code = (error as any).code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -135,7 +135,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
       }, 1000);
     } else {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'unexpected informer error event occurred',
       );
     }

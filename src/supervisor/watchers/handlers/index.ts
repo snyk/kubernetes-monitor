@@ -87,12 +87,12 @@ export async function setupNamespacedInformer(
       return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
         listMethod(),
       );
-    } catch (err) {
+    } catch (error) {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'error while listing workloads in namespace',
       );
-      throw err;
+      throw error;
     }
   };
 
@@ -102,9 +102,9 @@ export async function setupNamespacedInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, (err) => {
+  informer.on(ERROR, (error) => {
     // Types from client library insists that callback is of type KubernetesObject
-    const code = (err as any).code || '';
+    const code = (error as any).code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -115,7 +115,7 @@ export async function setupNamespacedInformer(
       }, 1000);
     } else {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'unexpected informer error event occurred',
       );
     }
@@ -130,7 +130,7 @@ export async function setupNamespacedInformer(
           (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
           FALSY_WORKLOAD_NAME_MARKER;
         logger.warn(
-          { ...logContext, error, name },
+          { ...logContext, error, workloadName: name },
           'could not execute the namespaced informer handler for a workload',
         );
       }
@@ -162,12 +162,12 @@ export async function setupClusterInformer(
       return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
         listMethod(),
       );
-    } catch (err) {
+    } catch (error) {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'error while listing workloads in cluster',
       );
-      throw err;
+      throw error;
     }
   };
 
@@ -177,9 +177,9 @@ export async function setupClusterInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, (err) => {
+  informer.on(ERROR, (error) => {
     // Types from client library insists that callback is of type KubernetesObject
-    const code = (err as any).code || '';
+    const code = (error as any).code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -190,7 +190,7 @@ export async function setupClusterInformer(
       }, 1000);
     } else {
       logger.error(
-        { ...logContext, err },
+        { ...logContext, error },
         'unexpected informer error event occurred',
       );
     }
@@ -209,7 +209,7 @@ export async function setupClusterInformer(
           (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
           FALSY_WORKLOAD_NAME_MARKER;
         logger.warn(
-          { ...logContext, error, name },
+          { ...logContext, error, workloadName: name },
           'could not execute the cluster informer handler for a workload',
         );
       }

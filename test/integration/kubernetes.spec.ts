@@ -633,6 +633,24 @@ test('snyk-monitor has log level', async () => {
   expect(logLevel.value).toBeTruthy();
 });
 
+test('snyk-monitor has keep-alive', async () => {
+  if (!['Helm'].includes(process.env.DEPLOYMENT_TYPE || '')) {
+    console.log(
+      "Not testing USE_KEEPALIVE existence because we're not installing with Helm",
+    );
+    return;
+  }
+
+  const snykMonitorDeployment = await kubectl.getDeploymentJson(
+    'snyk-monitor',
+    namespace,
+  );
+  const env = snykMonitorDeployment.spec.template.spec.containers[0].env;
+  const useKeepAlive = env.find(({ name }) => name === 'USE_KEEPALIVE');
+  expect(useKeepAlive.name).toBeTruthy();
+  expect(useKeepAlive.value).toBe('true');
+});
+
 test('service account has annotations that were set on deployment', async () => {
   if (process.env.DEPLOYMENT_TYPE !== 'Helm') {
     console.log(

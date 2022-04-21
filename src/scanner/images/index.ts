@@ -138,9 +138,9 @@ export async function scanImages(
           telemetry.imageSizeBytes = 0;
         }
         telemetry.imageSizeBytes += fileStats.size;
-      } catch (err) {
+      } catch (error) {
         logger.warn(
-          { error: err, imageName, imageWithDigest, fileSystemPath },
+          { error, imageName, imageWithDigest, fileSystemPath },
           'could not determine archive size',
         );
       }

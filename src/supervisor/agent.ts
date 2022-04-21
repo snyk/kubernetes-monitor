@@ -27,7 +27,7 @@ async function getSnykMonitorDeploymentUid(
     return attemptedApiCall.body.metadata?.uid;
   } catch (error) {
     logger.error(
-      { error, namespace, name },
+      { error, namespace, deploymentName: name },
       'could not read the snyk-monitor deployment unique id',
     );
     return undefined;

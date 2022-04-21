@@ -27,9 +27,9 @@ export async function deleteWorkloadFromScanQueue(workload: {
   );
 }
 
-workloadsToScanQueue.error(function (err, task) {
+workloadsToScanQueue.error(function (error, task) {
   logger.error(
-    { err, task },
+    { error, task },
     'error processing a workload in the pod handler 1',
   );
 });
@@ -47,9 +47,9 @@ async function queueWorkerWorkloadScan(
   };
   try {
     await processWorkload(workloadMetadata, telemetry);
-  } catch (err) {
+  } catch (error) {
     logger.error(
-      { err, task },
+      { error, task },
       'error processing a workload in the pod handler 2',
     );
     const imageIds = workloadMetadata.map((workload) => workload.imageId);
@@ -67,8 +67,8 @@ function reportQueueSize(): void {
     const queueDataToReport: { [key: string]: any } = {};
     queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
     logger.debug(queueDataToReport, 'queue sizes report');
-  } catch (err) {
-    logger.debug({ err }, 'failed logging queue sizes');
+  } catch (error) {
+    logger.debug({ error }, 'failed logging queue sizes');
   }
 }
 

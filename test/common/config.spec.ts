@@ -74,6 +74,7 @@ describe('extractNamespaceName()', () => {
     expect(config.HTTPS_PROXY).toBeUndefined();
     expect(config.HTTP_PROXY).toBeUndefined();
     expect(config.NO_PROXY).toBeUndefined();
+    expect(config.USE_KEEPALIVE).toEqual(true);
     expect(config.SKIP_K8S_JOBS).toEqual(false);
     expect(config.WORKERS_COUNT).toEqual(10);
     expect(config.SKOPEO_COMPRESSION_LEVEL).toEqual(6);
