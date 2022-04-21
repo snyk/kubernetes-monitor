@@ -53,7 +53,13 @@ function cleanUpTempStorage() {
 
 async function monitor(): Promise<void> {
   try {
-    logger.info({ cluster: currentClusterName }, 'starting to monitor');
+    logger.info(
+      {
+        cluster: currentClusterName,
+        useKeepalive: config.USE_KEEPALIVE,
+      },
+      'starting to monitor',
+    );
     await beginWatchingWorkloads();
   } catch (error) {
     logger.error({ error }, 'an error occurred while monitoring the cluster');
