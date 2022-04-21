@@ -36,11 +36,11 @@ const upstreamUrl =
   config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
 
 let httpAgent = new HttpAgent({
-  keepAlive: true,
+  keepAlive: config.USE_KEEPALIVE,
 });
 
 let httpsAgent = new HttpsAgent({
-  keepAlive: true,
+  keepAlive: config.USE_KEEPALIVE,
 });
 
 function getAgent(u: string): HttpAgent {
@@ -209,9 +209,10 @@ export async function deleteWorkload(
     const { response, attempt } = await reqQueue.pushAsync(request);
     if (response.statusCode === 404) {
       // TODO: maybe we're still building it?
-      const msg =
-        'attempted to delete a workload the Upstream service could not find';
-      logger.info({ payload }, msg);
+      logger.info(
+        { payload },
+        'attempted to delete a workload the Upstream service could not find',
+      );
       return;
     }
     if (!isSuccessStatusCode(response.statusCode)) {

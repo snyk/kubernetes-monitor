@@ -13,15 +13,15 @@ import { setSnykMonitorAgentId } from './supervisor/agent';
 import { scrapeData } from './data-scraper';
 import { setupHealthCheck } from './healthcheck';
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', (error) => {
   if (state.shutdownInProgress) {
     return;
   }
 
   try {
-    logger.error({ err }, 'UNCAUGHT EXCEPTION!');
+    logger.error({ error }, 'UNCAUGHT EXCEPTION!');
   } catch (ignore) {
-    console.log('UNCAUGHT EXCEPTION!', err);
+    console.log('UNCAUGHT EXCEPTION!', error);
   } finally {
     process.exit(1);
   }
@@ -53,7 +53,13 @@ function cleanUpTempStorage() {
 
 async function monitor(): Promise<void> {
   try {
-    logger.info({ cluster: currentClusterName }, 'starting to monitor');
+    logger.info(
+      {
+        cluster: currentClusterName,
+        useKeepalive: config.USE_KEEPALIVE,
+      },
+      'starting to monitor',
+    );
     await beginWatchingWorkloads();
   } catch (error) {
     logger.error({ error }, 'an error occurred while monitoring the cluster');

@@ -77,11 +77,11 @@ export function ecrRegionFromFullImageName(imageFullName: string): string {
       throw new Error('ECR image full name in unexpected format');
     }
     return parts[3];
-  } catch (err) {
+  } catch (error) {
     logger.error(
-      { err, imageFullName },
+      { error, imageFullName },
       'failed extracting ECR region from image full name',
     );
-    throw err;
+    throw error;
   }
 }

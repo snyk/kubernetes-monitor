@@ -59,6 +59,7 @@ if (config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN) {
 config.HTTPS_PROXY = process.env['HTTPS_PROXY'];
 config.HTTP_PROXY = process.env['HTTP_PROXY'];
 config.NO_PROXY = process.env['NO_PROXY'];
+config.USE_KEEPALIVE = process.env.USE_KEEPALIVE === 'true';
 delete process.env['HTTPS_PROXY'];
 delete process.env['HTTP_PROXY'];
 delete process.env['NO_PROXY'];
