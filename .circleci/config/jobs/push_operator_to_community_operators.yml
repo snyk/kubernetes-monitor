@@ -48,7 +48,8 @@ steps:
   - run:
       name: Package Operator Bundle
       command: |
-        OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+        SNYK_MONITOR_TAG="${NEW_OPERATOR_VERSION}-ubi8"
+        OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${SNYK_MONITOR_TAG}" "${LAST_OPERATOR_VERSION}")
         echo "export OPERATOR_PATH=${OPERATOR_PATH}" >> $BASH_ENV
 
   - run:
