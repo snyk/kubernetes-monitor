@@ -513,7 +513,7 @@ jobs:
 
                     # Package Operator Bundle to be uploaded to Docker Hub
                     SNYK_OPERATOR_IMAGE_TAG=${OPERATOR_VERSION}
-                    SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}
+                    SNYK_MONITOR_IMAGE_TAG=${OPERATOR_VERSION}-ubi8
                     OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py $OPERATOR_VERSION $SNYK_OPERATOR_IMAGE_TAG $SNYK_MONITOR_IMAGE_TAG)
 
                     python scripts/operator/create_operator_bundle_and_index_and_push.py $OPERATOR_DIR $OPERATOR_VERSION $DOCKERHUB_USER $DOCKERHUB_PASSWORD
@@ -582,8 +582,8 @@ jobs:
                     set -eo pipefail
 
                     REPLACES_VERSION=${OPERATOR_VERSION}
-
-                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py "${LATEST_TAG}" "${LATEST_TAG}" "${LATEST_TAG}" "${REPLACES_VERSION}")
+                    SNYK_MONITOR_TAG=${LATEST_TAG}-ubi8
+                    OPERATOR_DIR=$(python scripts/operator/package_operator_bundle.py "${LATEST_TAG}" "${LATEST_TAG}" "${SNYK_MONITOR_TAG}" "${REPLACES_VERSION}")
                     python scripts/operator/create_operator_bundle_and_index_and_push.py $OPERATOR_DIR $LATEST_TAG $DOCKERHUB_USER $DOCKERHUB_PASSWORD $REPLACES_VERSION
                 description: Now we are testing that any upgrades to the Operator are detected and applied in the cluster.
                 name: Package Operator Bundle upgrade and push to Docker Hub
@@ -600,18 +600,21 @@ jobs:
                     SLEEP_SECONDS_BETWEEN_ATTEMPTS=5
                     # total = 10 minutes wait time
 
+                    EXPECTED_TAG="${LATEST_TAG}-ubi8"
                     # Periodically poll if the snyk-monitor has upgraded
                     for (( attempt=1; attempt<ATTEMPTS; attempt++))
                     do
-                      # Grab the tag of the snyk-monitor container image. If snyk-monitor is not deployed for some reason, we exit immediately.
-                      VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
-                        grep "snyk-monitor" | \
-                        awk 'END { if (NR==0) exit 1; else print $1 }' | \
-                        xargs -I{} kubectl get pod {} -n snyk-monitor -o jsonpath={..containers[*].image} | \
-                        awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
+                      # Grab the tag of the snyk-monitor container image.
+                      SNYK_MONITOR_POD=$(kubectl get pods -n snyk-monitor --no-headers | grep "snyk-monitor")
+                      if [[ ! -z "${SNYK_MONITOR_POD}" ]]; then
+                        VERSION=$(echo "${SNYK_MONITOR_POD}" | \
+                        awk 'END { print $1 }' | \
+                        xargs '-I{}' kubectl get pod '{}' -n snyk-monitor -o 'jsonpath={..containers[*].image}' | \
+                        grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
+                      fi
 
                       # Break out of the polling if the tag matches the one we want to upgrade to.
-                      if [[ "${VERSION}" == "${LATEST_TAG}" ]]; then
+                      if [[ "${VERSION}" == "${EXPECTED_TAG}" ]]; then
                         break
                       fi
 
@@ -621,17 +624,17 @@ jobs:
 
                     SNYK_MONITOR_POD=$(kubectl get pods -n snyk-monitor --no-headers | \
                       grep "snyk-monitor" | \
-                      awk 'END { if (NR==0) exit 1; else print $1 }')
+                      awk 'END { if (NR==0) exit 101; else print $1 }')
 
                     # If we polled for 5 minutes and the snyk-monitor still hasn't upgraded, fail the current job.
-                    if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
-                      &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
+                    if [[ "${VERSION}" != "${EXPECTED_TAG}" ]]; then
+                      &>2 echo "versions (${VERSION}) does not match expected (${EXPECTED_TAG})!"
 
                       kubectl describe pod ${SNYK_MONITOR_POD} -n snyk-monitor
                       kubectl describe catalogsource snyk-operator -n openshift-marketplace
                       kubectl get snykmonitors.charts.helm.k8s.io -n snyk-monitor -o yaml
 
-                      exit 1
+                      exit 102
                     fi
 
                     # We need to wait for the Pod to become Ready
@@ -787,7 +790,8 @@ jobs:
                 name: End tests early if no new Operator is to be released
             - run:
                 command: |
-                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+                    SNYK_MONITOR_TAG="${NEW_OPERATOR_VERSION}-ubi8"
+                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${SNYK_MONITOR_TAG}" "${LAST_OPERATOR_VERSION}")
                     echo "export OPERATOR_PATH=${OPERATOR_PATH}" >> $BASH_ENV
                 name: Package Operator Bundle
             - run:
@@ -853,7 +857,8 @@ jobs:
                 name: End tests early if no new Operator is to be released
             - run:
                 command: |
-                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${LAST_OPERATOR_VERSION}")
+                    SNYK_MONITOR_TAG="${NEW_OPERATOR_VERSION}-ubi8"
+                    OPERATOR_PATH=$(python scripts/operator/package_operator_bundle.py "${NEW_OPERATOR_VERSION}" "${NEW_OPERATOR_VERSION}" "${SNYK_MONITOR_TAG}" "${LAST_OPERATOR_VERSION}")
                     echo "export OPERATOR_PATH=${OPERATOR_PATH}" >> $BASH_ENV
                 name: Package Operator Bundle
             - run:
