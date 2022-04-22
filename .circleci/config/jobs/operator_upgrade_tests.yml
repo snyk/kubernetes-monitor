@@ -185,6 +185,10 @@ steps:
             xargs '-I{}' kubectl get pod '{}' -n snyk-monitor -o 'jsonpath={..containers[*].image}' | \
             awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
 
+          if [[ -z "${VERSION}" ]]; then
+            VERSION="0.0.0"
+          fi
+
           # Break out of the polling if the tag matches the one we want to upgrade to.
           if [[ "${VERSION}" == "${LATEST_TAG}" ]]; then
             break
