@@ -603,19 +603,18 @@ jobs:
                     # Periodically poll if the snyk-monitor has upgraded
                     for (( attempt=1; attempt<ATTEMPTS; attempt++))
                     do
-                      # Grab the tag of the snyk-monitor container image. If snyk-monitor is not deployed for some reason, we exit immediately.
+                      # Grab the tag of the snyk-monitor container image
+
                       VERSION=$(kubectl get pods -n snyk-monitor --no-headers | \
                         grep "snyk-monitor" | \
-                        awk 'END { if (NR==0) exit 1; else print $1 }' | \
+                        awk 'END { if (NR==0) print ""; else print $1 }' | \
                         xargs '-I{}' kubectl get pod '{}' -n snyk-monitor -o 'jsonpath={..containers[*].image}' | \
-                        awk '{print $1}' | grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}$")
-
-                      if [[ -z "${VERSION}" ]]; then
-                        VERSION="0.0.0"
-                      fi
+                        awk '{print $1}' | \
+                        grep -oE "[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,3}-ubi8$" \
+                        || echo "0.0.0")
 
                       # Break out of the polling if the tag matches the one we want to upgrade to.
-                      if [[ "${VERSION}" == "${LATEST_TAG}" ]]; then
+                      if [[ "${VERSION}" == "${LATEST_TAG}-ubi8" ]]; then
                         break
                       fi
 
@@ -628,7 +627,7 @@ jobs:
                       awk 'END { if (NR==0) exit 101; else print $1 }')
 
                     # If we polled for 5 minutes and the snyk-monitor still hasn't upgraded, fail the current job.
-                    if [[ "${VERSION}" != "${LATEST_TAG}" ]]; then
+                    if [[ "${VERSION}" != "${LATEST_TAG}-ubi8" ]]; then
                       &>2 echo "versions (${VERSION}) does not match expected (${LATEST_TAG})!"
 
                       kubectl describe pod ${SNYK_MONITOR_POD} -n snyk-monitor
