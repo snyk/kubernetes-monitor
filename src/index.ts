@@ -73,6 +73,18 @@ async function setupSysdigIntegration(): Promise<void> {
     return;
   }
 
+  const initialInterval: number = 20 * 60 * 1000; // 20 mins in milliseconds
+  setTimeout(async () => {
+    try {
+      await scrapeData();
+    } catch (error) {
+      logger.error(
+        { error },
+        'an error occurred while scraping initial runtime data',
+      );
+    }
+  }, initialInterval).unref();
+
   const interval: number = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
   setInterval(async () => {
     try {
