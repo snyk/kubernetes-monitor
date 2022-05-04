@@ -15,7 +15,7 @@ metadata:
             "image": {
               "pullPolicy": "Always",
               "repository": "docker.io/snyk/kubernetes-monitor",
-              "tag": "1.68.2"
+              "tag": "1.90.2"
             },
             "integrationApi": "",
             "monitorSecrets": "snyk-monitor",
@@ -41,18 +41,17 @@ metadata:
           }
         }
       ]
-    "olm.skipRange": "<1.68.2"
     capabilities: Basic Install
     categories: Developer Tools, Security
     certified: "true"
-    containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.68.2
+    containerImage: registry.connect.redhat.com/snyk/kubernetes-operator:1.90.2
     createdAt: "2020-08-28T15:20:21Z"
     description: A Kubernetes Operator for creating and managing Snyk controller instances.
     operators.operatorframework.io/builder: operator-sdk-v1.3.0
     operators.operatorframework.io/project_layout: helm.sdk.operatorframework.io/v1
     repository: https://github.com/snyk/kubernetes-monitor
     support: Snyk Ltd.
-  name: snyk-operator.v1.68.2
+  name: snyk-operator.v1.90.2
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -181,4 +180,4 @@ spec:
   provider:
     name: Snyk Ltd.
     url: https://snyk.io
-  version: 1.68.2
+  version: 1.90.2

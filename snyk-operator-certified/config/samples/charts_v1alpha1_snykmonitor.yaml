@@ -7,7 +7,7 @@ spec:
   image:
     pullPolicy: Always
     repository: docker.io/snyk/kubernetes-monitor
-    tag: 1.68.2
+    tag: 1.90.2
   integrationApi: ''
   monitorSecrets: snyk-monitor
   scope: Cluster

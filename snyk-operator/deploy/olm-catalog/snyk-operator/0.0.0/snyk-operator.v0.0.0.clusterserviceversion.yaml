@@ -43,7 +43,6 @@ metadata:
           }
         }
       ]
-    "olm.skipRange": "<1.68.2"
     capabilities: Basic Install
     categories: Developer Tools, Security
     containerImage: docker.io/snyk/kubernetes-operator:SNYK_OPERATOR_IMAGE_TAG_OVERRIDE

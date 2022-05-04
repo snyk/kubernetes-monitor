@@ -23,7 +23,7 @@ integrationApi: ""
 
 # The registry from which to pull the snyk-monitor image.
 image:
-  image: registry.connect.redhat.com/snyk/kubernetes-monitor:1.68.2
+  image: registry.connect.redhat.com/snyk/kubernetes-monitor:1.90.2
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
