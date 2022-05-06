@@ -74,7 +74,8 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     throw new Error('Please install skopeo on your machine');
   }
 
-  const kubernetesVersion = 'latest';
+  // pinning to this version due to https://github.com/aws/aws-cli/issues/6920
+  const kubernetesVersion = 'v1.23.5';
   // kubectl
   await kubectl.downloadKubectl(kubernetesVersion);
 
