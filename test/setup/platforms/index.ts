@@ -88,7 +88,7 @@ export function getKubernetesVersionForPlatform(testPlatform: string): string {
     case 'openshift3':
       return 'v1.11.10';
     default:
-      return 'latest';
+      return 'v1.23.5';
   }
 }
 
