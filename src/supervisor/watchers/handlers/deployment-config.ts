@@ -16,6 +16,7 @@ import {
 import { retryKubernetesApiRequest } from '../../kuberenetes-api-wrappers';
 import { logger } from '../../../common/logger';
 import { deleteWorkloadFromScanQueue } from './queue';
+import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedDeploymentConfigList(
   namespace: string,
@@ -212,9 +213,4 @@ export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
     );
     return false;
   }
-}
-function trimWorkload(
-  deploymentConfig: V1DeploymentConfig,
-): V1DeploymentConfig {
-  throw new Error('Function not implemented.');
 }
