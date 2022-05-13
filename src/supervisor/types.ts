@@ -25,6 +25,7 @@ export enum WorkloadKind {
   ReplicationController = 'ReplicationController',
   Pod = 'Pod',
   DeploymentConfig = 'DeploymentConfig',
+  ArgoRollout = 'Rollout',
 }
 
 export interface IRequestError {
