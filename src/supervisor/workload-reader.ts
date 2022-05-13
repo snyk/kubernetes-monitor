@@ -4,7 +4,7 @@ import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
-import { V1DeploymentConfig } from './watchers/handlers/types';
+import { Rollout, V1DeploymentConfig } from './watchers/handlers/types';
 import { trimWorkload } from './workload-sanitization';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
@@ -280,6 +280,44 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
   return metadata;
 };
 
+const argoRolloutReader: IWorkloadReaderFunc = async (
+  workloadName,
+  namespace,
+) => {
+  const rolloutResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () =>
+      k8sApi.customObjectsClient.getNamespacedCustomObject(
+        'argoproj.io',
+        'v1alpha1',
+        namespace,
+        'rollouts',
+        workloadName,
+      ),
+  );
+  const rollout: Rollout = trimWorkload(rolloutResult.body);
+
+  if (
+    !rollout.metadata ||
+    !rollout.spec ||
+    !rollout.spec.template.metadata ||
+    !rollout.spec.template.spec ||
+    !rollout.status
+  ) {
+    logIncompleteWorkload(workloadName, namespace);
+
+    return undefined;
+  }
+
+  const metadata: IKubeObjectMetadataWithoutPodSpec = {
+    kind: WorkloadKind.ArgoRollout,
+    objectMeta: rollout.metadata,
+    specMeta: rollout.spec.template.metadata,
+    ownerRefs: rollout.metadata.ownerReferences,
+    revision: rollout.status.observedGeneration,
+  };
+  return metadata;
+};
+
 function logIncompleteWorkload(workloadName: string, namespace: string): void {
   logger.info(
     { workloadName, namespace },
@@ -292,6 +330,7 @@ function logIncompleteWorkload(workloadName: string, namespace: string): void {
 // and just grab a generic handler/reader that does that for us (based on the "kind").
 const workloadReader: Record<string, IWorkloadReaderFunc> = {
   [WorkloadKind.Deployment]: deploymentReader,
+  [WorkloadKind.ArgoRollout]: argoRolloutReader,
   [WorkloadKind.ReplicaSet]: replicaSetReader,
   [WorkloadKind.StatefulSet]: statefulSetReader,
   [WorkloadKind.DaemonSet]: daemonSetReader,

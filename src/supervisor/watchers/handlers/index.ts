@@ -4,6 +4,7 @@ import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
 import * as cronJob from './cron-job';
 import * as deploymentConfig from './deployment-config';
+import * as rollout from './argo-rollout';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -16,6 +17,8 @@ async function isSupportedNamespacedWorkload(
   workloadKind: WorkloadKind,
 ): Promise<boolean> {
   switch (workloadKind) {
+    case WorkloadKind.ArgoRollout:
+      return await rollout.isNamespacedArgoRolloutSupported(namespace);
     case WorkloadKind.DeploymentConfig:
       return await deploymentConfig.isNamespacedDeploymentConfigSupported(
         namespace,
@@ -43,6 +46,8 @@ async function isSupportedClusterWorkload(
   switch (workloadKind) {
     case WorkloadKind.DeploymentConfig:
       return await deploymentConfig.isClusterDeploymentConfigSupported();
+    case WorkloadKind.ArgoRollout:
+      return await rollout.isClusterArgoRolloutSupported();
     case WorkloadKind.CronJobV1Beta1:
       return await cronJob.isClusterCronJobSupported(
         workloadKind,
