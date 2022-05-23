@@ -59,7 +59,7 @@ unit_tests:
 
 system_tests:
   machine:
-    image: ubuntu-2004:202111-01
+    image: ubuntu-2204:2022.04.1
     docker_layer_caching: true
   working_directory: ~/kubernetes-monitor
   steps:
@@ -70,11 +70,6 @@ system_tests:
         name: Install Skopeo
         command: |
           export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          . /etc/os-release
-          sudo sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/x${NAME}_${VERSION_ID}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list"
-          wget -nv https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/x${NAME}_${VERSION_ID}/Release.key -O- | sudo apt-key add -
           sudo apt-get update -qq
           sudo apt-get install skopeo
     - run:
