@@ -952,7 +952,7 @@ jobs:
     system_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2204:current
+            image: ubuntu-2204:2022.04.1
         steps:
             - checkout
             - setup_node16
