@@ -2,7 +2,7 @@ import { V1Namespace } from '@kubernetes/client-node';
 
 import { logger } from '../../common/logger';
 import { config } from '../../common/config';
-import { WorkloadKind } from '../types';
+import { NamespaceResponse, WorkloadKind } from '../types';
 import { setupNamespacedInformer, setupClusterInformer } from './handlers';
 import { k8sApi } from '../cluster';
 import { extractNamespaceName } from './internal-namespaces';
@@ -60,9 +60,18 @@ export async function beginWatchingWorkloads(): Promise<void> {
       { namespace: config.WATCH_NAMESPACE },
       'kubernetes-monitor restricted to specific namespace',
     );
-    const namespaceResponse = await k8sApi.coreClient.readNamespace(
-      config.WATCH_NAMESPACE,
-    );
+    let namespaceResponse: NamespaceResponse | undefined;
+    try {
+      namespaceResponse = await k8sApi.coreClient.readNamespace(
+        config.WATCH_NAMESPACE,
+      );
+    } catch (err) {
+      logger.error(
+        { watchedNamespace: config.WATCH_NAMESPACE, err },
+        'failed to read the namespace',
+      );
+      return;
+    }
     const namespace = namespaceResponse.body;
     await setupWatchesForNamespace(namespace);
     return;
