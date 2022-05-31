@@ -7,6 +7,7 @@ import {
   UPDATE,
   V1Namespace,
   V1NamespaceList,
+  V1ListMeta,
 } from '@kubernetes/client-node';
 import { IncomingMessage } from 'http';
 import sleep from 'sleep-promise';
@@ -102,6 +103,8 @@ export async function trackNamespace(namespace: string): Promise<void> {
         list.apiVersion = 'v1';
         list.kind = 'NamespaceList';
         list.items = new Array<V1Namespace>(reply.body);
+        list.metadata = new V1ListMeta();
+        list.metadata.resourceVersion = reply.body.metadata?.resourceVersion;
         return {
           response: reply.response,
           body: list,
