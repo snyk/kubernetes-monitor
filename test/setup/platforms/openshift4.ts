@@ -142,6 +142,7 @@ export async function clean(): Promise<void> {
       .deleteResource('clusterrole', 'snyk-monitor', 'default')
       .catch(() => undefined),
     kubectl.deleteNamespace('services').catch(() => undefined),
+    kubectl.deleteNamespace('argo-rollouts').catch(() => undefined),
     kubectl.deleteNamespace('snyk-monitor').catch(() => undefined),
   ]);
 }

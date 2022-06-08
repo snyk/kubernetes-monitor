@@ -72,6 +72,7 @@ export async function loadImageInCluster(
 export async function clean(): Promise<void> {
   await Promise.all([
     kubectl.deleteNamespace('services'),
+    kubectl.deleteNamespace('argo-rollouts'),
     kubectl.deleteNamespace('snyk-monitor'),
   ]);
 }
