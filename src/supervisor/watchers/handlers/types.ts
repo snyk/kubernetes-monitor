@@ -60,26 +60,28 @@ export interface V1DeploymentConfigStatus {
   observedGeneration?: number;
 }
 
-export class RolloutList implements KubernetesListObject<Rollout> {
+export class V1alpha1RolloutList
+  implements KubernetesListObject<V1alpha1Rollout>
+{
   'apiVersion'?: string;
-  'items': Array<Rollout>;
+  'items': Array<V1alpha1Rollout>;
   'kind'?: string;
   'metadata'?: V1ListMeta;
 }
 
-export interface Rollout extends KubernetesObject {
+export interface V1alpha1Rollout extends KubernetesObject {
   apiVersion?: string;
   kind?: string;
   metadata?: V1ObjectMeta;
-  spec?: RolloutSpec;
-  status?: RolloutStatus;
+  spec?: V1alpha1RolloutSpec;
+  status?: V1alpha1RolloutStatus;
 }
 
-export interface RolloutSpec {
+export interface V1alpha1RolloutSpec {
   template: V1PodTemplateSpec;
 }
 
-export interface RolloutStatus {
+export interface V1alpha1RolloutStatus {
   observedGeneration?: number;
 }
 

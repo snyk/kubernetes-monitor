@@ -167,6 +167,12 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
       code: 'ECONNRESET',
     });
 
+  nock(/https\:\/\/127\.0\.0\.1\:\d+/)
+    .get('/apis/argoproj.io/v1alpha1/rollouts')
+    .query(true)
+    .times(1)
+    .reply(200);
+
   nock('https://kubernetes-upstream.snyk.io')
     .post('/api/v1/workload')
     .times(1)

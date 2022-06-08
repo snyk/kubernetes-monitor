@@ -4,7 +4,7 @@ import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
 import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
-import { Rollout, V1DeploymentConfig } from './watchers/handlers/types';
+import { V1alpha1Rollout, V1DeploymentConfig } from './watchers/handlers/types';
 import { trimWorkload } from './workload-sanitization';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
@@ -294,7 +294,7 @@ const argoRolloutReader: IWorkloadReaderFunc = async (
         workloadName,
       ),
   );
-  const rollout: Rollout = trimWorkload(rolloutResult.body);
+  const rollout: V1alpha1Rollout = trimWorkload(rolloutResult.body);
 
   if (
     !rollout.metadata ||

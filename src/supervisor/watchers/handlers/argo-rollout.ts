@@ -1,7 +1,11 @@
 import { IncomingMessage } from 'http';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
-import { FALSY_WORKLOAD_NAME_MARKER, Rollout, RolloutList } from './types';
+import {
+  FALSY_WORKLOAD_NAME_MARKER,
+  V1alpha1Rollout,
+  V1alpha1RolloutList,
+} from './types';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import { k8sApi } from '../../cluster';
 import {
@@ -18,12 +22,12 @@ export async function paginatedNamespacedArgoRolloutList(
   namespace: string,
 ): Promise<{
   response: IncomingMessage;
-  body: RolloutList;
+  body: V1alpha1RolloutList;
 }> {
-  const rolloutList = new RolloutList();
+  const rolloutList = new V1alpha1RolloutList();
   rolloutList.apiVersion = 'argoproj.io/v1alpha1';
   rolloutList.kind = 'RolloutList';
-  rolloutList.items = new Array<Rollout>();
+  rolloutList.items = new Array<V1alpha1Rollout>();
 
   return await paginatedNamespacedList(
     namespace,
@@ -54,12 +58,12 @@ export async function paginatedNamespacedArgoRolloutList(
 
 export async function paginatedClusterArgoRolloutList(): Promise<{
   response: IncomingMessage;
-  body: RolloutList;
+  body: V1alpha1RolloutList;
 }> {
-  const rolloutList = new RolloutList();
+  const rolloutList = new V1alpha1RolloutList();
   rolloutList.apiVersion = 'argoproj.io/v1';
   rolloutList.kind = 'RolloutList';
-  rolloutList.items = new Array<Rollout>();
+  rolloutList.items = new Array<V1alpha1Rollout>();
 
   return await paginatedClusterList(
     rolloutList,
@@ -84,7 +88,9 @@ export async function paginatedClusterArgoRolloutList(): Promise<{
   );
 }
 
-export async function ArgoRolloutWatchHandler(rollout: Rollout): Promise<void> {
+export async function argoRolloutWatchHandler(
+  rollout: V1alpha1Rollout,
+): Promise<void> {
   rollout = trimWorkload(rollout);
 
   if (

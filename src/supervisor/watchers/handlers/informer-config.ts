@@ -152,7 +152,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/argoproj.io/v1alpha1/watch/namespaces/{namespace}/rollouts',
     handlers: {
-      [DELETE]: rollout.ArgoRolloutWatchHandler,
+      [DELETE]: rollout.argoRolloutWatchHandler,
     },
     clusterListFactory: () => () => rollout.paginatedClusterArgoRolloutList(),
     namespacedListFactory: (namespace) => () =>
