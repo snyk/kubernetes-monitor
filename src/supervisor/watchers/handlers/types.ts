@@ -60,6 +60,31 @@ export interface V1DeploymentConfigStatus {
   observedGeneration?: number;
 }
 
+export class V1alpha1RolloutList
+  implements KubernetesListObject<V1alpha1Rollout>
+{
+  'apiVersion'?: string;
+  'items': Array<V1alpha1Rollout>;
+  'kind'?: string;
+  'metadata'?: V1ListMeta;
+}
+
+export interface V1alpha1Rollout extends KubernetesObject {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: V1ObjectMeta;
+  spec?: V1alpha1RolloutSpec;
+  status?: V1alpha1RolloutStatus;
+}
+
+export interface V1alpha1RolloutSpec {
+  template: V1PodTemplateSpec;
+}
+
+export interface V1alpha1RolloutStatus {
+  observedGeneration?: number;
+}
+
 export type V1ClusterList<T> = (
   allowWatchBookmarks?: boolean,
   _continue?: string,

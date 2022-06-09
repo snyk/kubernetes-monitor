@@ -150,6 +150,7 @@ const workloadKindMap = {
   replicationcontroller: 'ReplicationController',
   deploymentconfig: 'DeploymentConfig',
   pod: 'Pod',
+  rollout: 'Rollout',
 };
 export function constructRuntimeData(
   runtimeResults: IRuntimeImage[],

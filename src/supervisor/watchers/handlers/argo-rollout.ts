@@ -3,8 +3,8 @@ import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
   FALSY_WORKLOAD_NAME_MARKER,
-  V1DeploymentConfig,
-  V1DeploymentConfigList,
+  V1alpha1Rollout,
+  V1alpha1RolloutList,
 } from './types';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import { k8sApi } from '../../cluster';
@@ -18,20 +18,20 @@ import { logger } from '../../../common/logger';
 import { deleteWorkloadFromScanQueue } from './queue';
 import { trimWorkload } from '../../workload-sanitization';
 
-export async function paginatedNamespacedDeploymentConfigList(
+export async function paginatedNamespacedArgoRolloutList(
   namespace: string,
 ): Promise<{
   response: IncomingMessage;
-  body: V1DeploymentConfigList;
+  body: V1alpha1RolloutList;
 }> {
-  const v1DeploymentConfigList = new V1DeploymentConfigList();
-  v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
-  v1DeploymentConfigList.kind = 'DeploymentConfigList';
-  v1DeploymentConfigList.items = new Array<V1DeploymentConfig>();
+  const rolloutList = new V1alpha1RolloutList();
+  rolloutList.apiVersion = 'argoproj.io/v1alpha1';
+  rolloutList.kind = 'RolloutList';
+  rolloutList.items = new Array<V1alpha1Rollout>();
 
   return await paginatedNamespacedList(
     namespace,
-    v1DeploymentConfigList,
+    rolloutList,
     async (
       namespace: string,
       pretty?: string,
@@ -42,10 +42,10 @@ export async function paginatedNamespacedDeploymentConfigList(
       limit?: number,
     ) =>
       k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
+        'argoproj.io',
+        'v1alpha1',
         namespace,
-        'deploymentconfigs',
+        'rollouts',
         pretty,
         _continue,
         fieldSelector,
@@ -64,17 +64,17 @@ export async function paginatedNamespacedDeploymentConfigList(
   );
 }
 
-export async function paginatedClusterDeploymentConfigList(): Promise<{
+export async function paginatedClusterArgoRolloutList(): Promise<{
   response: IncomingMessage;
-  body: V1DeploymentConfigList;
+  body: V1alpha1RolloutList;
 }> {
-  const v1DeploymentConfigList = new V1DeploymentConfigList();
-  v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
-  v1DeploymentConfigList.kind = 'DeploymentConfigList';
-  v1DeploymentConfigList.items = new Array<V1DeploymentConfig>();
+  const rolloutList = new V1alpha1RolloutList();
+  rolloutList.apiVersion = 'argoproj.io/v1';
+  rolloutList.kind = 'RolloutList';
+  rolloutList.items = new Array<V1alpha1Rollout>();
 
   return await paginatedClusterList(
-    v1DeploymentConfigList,
+    rolloutList,
     async (
       _allowWatchBookmarks?: boolean,
       _continue?: string,
@@ -84,9 +84,9 @@ export async function paginatedClusterDeploymentConfigList(): Promise<{
       pretty?: string,
     ) =>
       k8sApi.customObjectsClient.listClusterCustomObject(
-        'apps.openshift.io',
-        'v1',
-        'deploymentconfigs',
+        'argoproj.io',
+        'v1alpha1',
+        'rollouts',
         pretty,
         _continue,
         fieldSelector,
@@ -96,29 +96,29 @@ export async function paginatedClusterDeploymentConfigList(): Promise<{
   );
 }
 
-export async function deploymentConfigWatchHandler(
-  deploymentConfig: V1DeploymentConfig,
+export async function argoRolloutWatchHandler(
+  rollout: V1alpha1Rollout,
 ): Promise<void> {
-  deploymentConfig = trimWorkload(deploymentConfig);
+  rollout = trimWorkload(rollout);
 
   if (
-    !deploymentConfig.metadata ||
-    !deploymentConfig.spec ||
-    !deploymentConfig.spec.template.metadata ||
-    !deploymentConfig.spec.template.spec ||
-    !deploymentConfig.status
+    !rollout.metadata ||
+    !rollout.spec ||
+    !rollout.spec.template.metadata ||
+    !rollout.spec.template.spec ||
+    !rollout.status
   ) {
     return;
   }
 
   const workloadAlreadyScanned =
-    kubernetesObjectToWorkloadAlreadyScanned(deploymentConfig);
+    kubernetesObjectToWorkloadAlreadyScanned(rollout);
   if (workloadAlreadyScanned !== undefined) {
     await Promise.all([
       deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
       deleteWorkloadImagesAlreadyScanned({
         ...workloadAlreadyScanned,
-        imageIds: deploymentConfig.spec.template.spec.containers
+        imageIds: rollout.spec.template.spec.containers
           .filter((container) => container.image !== undefined)
           .map((container) => container.image!),
       }),
@@ -126,23 +126,22 @@ export async function deploymentConfigWatchHandler(
     ]);
   }
 
-  const workloadName =
-    deploymentConfig.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
+  const workloadName = rollout.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
 
   await deleteWorkload(
     {
-      kind: WorkloadKind.DeploymentConfig,
-      objectMeta: deploymentConfig.metadata,
-      specMeta: deploymentConfig.spec.template.metadata,
-      ownerRefs: deploymentConfig.metadata.ownerReferences,
-      revision: deploymentConfig.status.observedGeneration,
-      podSpec: deploymentConfig.spec.template.spec,
+      kind: WorkloadKind.ArgoRollout,
+      objectMeta: rollout.metadata,
+      specMeta: rollout.spec.template.metadata,
+      ownerRefs: rollout.metadata.ownerReferences,
+      revision: rollout.status.observedGeneration,
+      podSpec: rollout.spec.template.spec,
     },
     workloadName,
   );
 }
 
-export async function isNamespacedDeploymentConfigSupported(
+export async function isNamespacedArgoRolloutSupported(
   namespace: string,
 ): Promise<boolean> {
   try {
@@ -155,10 +154,10 @@ export async function isNamespacedDeploymentConfigSupported(
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
       k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
+        'argoproj.io',
+        'v1alpha1',
         namespace,
-        'deploymentconfigs',
+        'rollouts',
         pretty,
         continueToken,
         fieldSelector,
@@ -177,14 +176,14 @@ export async function isNamespacedDeploymentConfigSupported(
     );
   } catch (error) {
     logger.debug(
-      { error, workloadKind: WorkloadKind.DeploymentConfig },
-      'Failed on Kubernetes API call to list namespaced DeploymentConfig',
+      { error, workloadKind: WorkloadKind.ArgoRollout },
+      'Failed on Kubernetes API call to list namespaced argoproj.io/Rollout',
     );
     return false;
   }
 }
 
-export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
+export async function isClusterArgoRolloutSupported(): Promise<boolean> {
   try {
     const pretty = undefined;
     const continueToken = undefined;
@@ -195,9 +194,9 @@ export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
       k8sApi.customObjectsClient.listClusterCustomObject(
-        'apps.openshift.io',
-        'v1',
-        'deploymentconfigs',
+        'argoproj.io',
+        'v1alpha1',
+        'rollouts',
         pretty,
         continueToken,
         fieldSelector,
@@ -216,8 +215,8 @@ export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
     );
   } catch (error) {
     logger.debug(
-      { error, workloadKind: WorkloadKind.DeploymentConfig },
-      'Failed on Kubernetes API call to list cluster DeploymentConfig',
+      { error, workloadKind: WorkloadKind.ArgoRollout },
+      'Failed on Kubernetes API call to list cluster argoproj.io/Rollout',
     );
     return false;
   }

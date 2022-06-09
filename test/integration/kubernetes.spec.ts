@@ -55,6 +55,7 @@ let cronJobV1Supported = true;
 let cronJobV1Beta1Supported = true;
 // Next we apply some sample workloads
 test('deploy sample workloads', async () => {
+  const argoNamespace = 'argo-rollouts';
   const servicesNamespace = 'services';
   const someImageWithSha =
     'docker.io/library/alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
@@ -81,6 +82,15 @@ test('deploy sample workloads', async () => {
       someImageWithSha,
       servicesNamespace,
     ),
+    kubectl
+      .createNamespace(argoNamespace)
+      .then(() =>
+        kubectl.applyK8sYaml(
+          'https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml',
+          argoNamespace,
+        ),
+      )
+      .then(() => kubectl.applyK8sYaml('./test/fixtures/argo-rollout.yaml')),
   ]);
 });
 
@@ -175,6 +185,11 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
         (workload) =>
           workload.name === 'consul' &&
           workload.type === WorkloadKind.Deployment,
+      ) !== undefined &&
+      workloads.find(
+        (workload) =>
+          workload.name === 'argo-rollout' &&
+          workload.type === WorkloadKind.ArgoRollout,
       ) !== undefined &&
       // only one of the cronjob versions needs to be valid
       (cronJobValidator(workloads) || cronJobV1Beta1Validator(workloads))
