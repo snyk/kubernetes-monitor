@@ -14,8 +14,6 @@ export async function validateRequiredEnvironment(): Promise<void> {
 }
 
 export async function setupTester(): Promise<void> {
-  // TODO: assert all the vars are present before starting the setup?
-  // TODO: wipe out the data during teardown?
   await exec(
     `aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`,
   );

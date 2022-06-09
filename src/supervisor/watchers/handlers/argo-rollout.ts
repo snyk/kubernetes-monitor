@@ -51,7 +51,15 @@ export async function paginatedNamespacedArgoRolloutList(
         fieldSelector,
         labelSelector,
         limit,
-        // TODO: Why any?
+        /**
+         * The K8s client's listNamespacedCustomObject() doesn't allow to specify
+         * the type of the response body and returns the generic "object" type,
+         * but with how we declared our types we expect it to return a "KubernetesListObject" type.
+         *
+         * Not using "any" results in a similar error (highlighting the "body" property):
+         * Type 'Promise<{ response: IncomingMessage; ***body: object;*** }>' is not assignable to type
+         * 'Promise<{ response: IncomingMessage; ***body: KubernetesListObject<...>;*** }>'
+         */
       ) as any,
   );
 }

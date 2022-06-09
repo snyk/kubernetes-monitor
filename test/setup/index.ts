@@ -70,7 +70,6 @@ export async function removeUnusedKindNetwork(): Promise<void> {
 }
 
 async function createEnvironment(): Promise<void> {
-  // TODO: we probably want to use k8s-api for that, not kubectl
   await kubectl.createNamespace('services');
   // Small hack to prevent timing problems in CircleCI...
   // TODO: should be replaced by actively waiting for the namespace to be created
