@@ -208,7 +208,6 @@ export async function deleteWorkload(
 
     const { response, attempt } = await reqQueue.pushAsync(request);
     if (response.statusCode === 404) {
-      // TODO: maybe we're still building it?
       logger.info(
         { payload },
         'attempted to delete a workload the Upstream service could not find',

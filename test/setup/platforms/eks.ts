@@ -14,8 +14,6 @@ export async function validateRequiredEnvironment(): Promise<void> {
 }
 
 export async function setupTester(): Promise<void> {
-  // TODO: assert all the vars are present before starting the setup?
-  // TODO: wipe out the data during teardown?
   await exec(
     `aws configure set aws_access_key_id ${process.env['AWS_ACCESS_KEY_ID']}`,
   );
@@ -72,6 +70,7 @@ export async function loadImageInCluster(
 export async function clean(): Promise<void> {
   await Promise.all([
     kubectl.deleteNamespace('services'),
+    kubectl.deleteNamespace('argo-rollouts'),
     kubectl.deleteNamespace('snyk-monitor'),
   ]);
 }

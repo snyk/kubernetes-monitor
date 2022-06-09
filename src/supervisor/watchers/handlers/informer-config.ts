@@ -10,6 +10,7 @@ import * as replicaSet from './replica-set';
 import * as replicationController from './replication-controller';
 import * as statefulSet from './stateful-set';
 import * as deploymentConfig from './deployment-config';
+import * as rollout from './argo-rollout';
 import { IWorkloadWatchMetadata } from './types';
 
 /**
@@ -145,5 +146,16 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       deploymentConfig.paginatedClusterDeploymentConfigList(),
     namespacedListFactory: (namespace) => () =>
       deploymentConfig.paginatedNamespacedDeploymentConfigList(namespace),
+  },
+  [WorkloadKind.ArgoRollout]: {
+    clusterEndpoint: '/apis/argoproj.io/v1alpha1/rollouts',
+    namespacedEndpoint:
+      '/apis/argoproj.io/v1alpha1/watch/namespaces/{namespace}/rollouts',
+    handlers: {
+      [DELETE]: rollout.argoRolloutWatchHandler,
+    },
+    clusterListFactory: () => () => rollout.paginatedClusterArgoRolloutList(),
+    namespacedListFactory: (namespace) => () =>
+      rollout.paginatedNamespacedArgoRolloutList(namespace),
   },
 };
