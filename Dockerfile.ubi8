@@ -16,7 +16,7 @@ RUN go install github.com/chrismellard/docker-credential-acr-env@d4055f832e8b16e
 #---------------------------------------------------------------------
 # STAGE 3: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi8/ubi:8.5
+FROM registry.access.redhat.com/ubi8/ubi:8.6
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
