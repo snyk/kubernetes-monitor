@@ -51,15 +51,26 @@ const cronJobV1Beta1Validator = (workloads: IWorkloadLocator[]) =>
       workload.type === WorkloadKind.CronJob,
   ) !== undefined;
 
-let cronJobV1Supported = true;
-let cronJobV1Beta1Supported = true;
+const argoRolloutValidator = (workloads: IWorkloadLocator[]) =>
+  workloads.find(
+    (workload) =>
+      workload.name === 'argo-rollout' &&
+      workload.type === WorkloadKind.ArgoRollout,
+  ) !== undefined;
+
+const supported = {
+  cronJobV1: true,
+  cronJobV1Beta1: true,
+  argoRollout: true,
+};
+
 // Next we apply some sample workloads
 test('deploy sample workloads', async () => {
   const argoNamespace = 'argo-rollouts';
   const servicesNamespace = 'services';
   const someImageWithSha =
     'docker.io/library/alpine@sha256:7746df395af22f04212cd25a92c1d6dbc5a06a0ca9579a229ef43008d4d1302a';
-  await Promise.all([
+  await Promise.allSettled([
     kubectl.applyK8sYaml('./test/fixtures/alpine-pod.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/oci-dummy-pod.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/nginx-replicationcontroller.yaml'),
@@ -69,13 +80,13 @@ test('deploy sample workloads', async () => {
     kubectl.applyK8sYaml('./test/fixtures/consul-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/cronjob.yaml').catch((error) => {
       console.log('CronJob is possibly unsupported', error);
-      cronJobV1Supported = false;
+      supported.cronJobV1 = false;
     }),
     kubectl
       .applyK8sYaml('./test/fixtures/cronjob-v1beta1.yaml')
       .catch((error) => {
         console.log('CronJobV1Beta1 is possibly unsupported', error);
-        cronJobV1Beta1Supported = false;
+        supported.cronJobV1Beta1 = false;
       }),
     kubectl.createPodFromImage(
       'alpine-from-sha',
@@ -90,7 +101,11 @@ test('deploy sample workloads', async () => {
           argoNamespace,
         ),
       )
-      .then(() => kubectl.applyK8sYaml('./test/fixtures/argo-rollout.yaml')),
+      .then(() => kubectl.applyK8sYaml('./test/fixtures/argo-rollout.yaml'))
+      .catch((error) => {
+        console.log('ArgoRollout is possibly unsupported', error);
+        supported.argoRollout = false;
+      }),
   ]);
 });
 
@@ -186,11 +201,8 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
           workload.name === 'consul' &&
           workload.type === WorkloadKind.Deployment,
       ) !== undefined &&
-      workloads.find(
-        (workload) =>
-          workload.name === 'argo-rollout' &&
-          workload.type === WorkloadKind.ArgoRollout,
-      ) !== undefined &&
+      // It's either there or unsupported
+      (argoRolloutValidator(workloads) || !supported.argoRollout) &&
       // only one of the cronjob versions needs to be valid
       (cronJobValidator(workloads) || cronJobV1Beta1Validator(workloads))
     );
@@ -269,7 +281,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
     },
   ]);
 
-  if (cronJobV1Beta1Supported) {
+  if (supported.cronJobV1Beta1) {
     const scanResultsCronJobBeta = await getUpstreamResponseBody(
       `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job-v1beta1`,
     );
@@ -284,7 +296,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
     ]);
   }
 
-  if (cronJobV1Supported) {
+  if (supported.cronJobV1) {
     const scanResultsCronJob = await getUpstreamResponseBody(
       `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job`,
     );
@@ -295,6 +307,21 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
         identity: { type: 'linux', args: { platform: 'linux/amd64' } },
         facts: expect.any(Array),
         target: { image: 'docker-image|busybox' },
+      },
+    ]);
+  }
+
+  if (supported.argoRollout) {
+    const scanResultsArgoRollout = await getUpstreamResponseBody(
+      `api/v1/scan-results/${integrationId}/Default%20cluster/services/Rollout/argo-rollout`,
+    );
+    expect(
+      scanResultsArgoRollout.workloadScanResults['argoproj/rollouts-demo'],
+    ).toEqual<ScanResult[]>([
+      {
+        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|argoproj/rollouts-demo' },
       },
     ]);
   }
