@@ -122,7 +122,7 @@ You can apply the latest version of the YAML installation files to upgrade.
 
 If you would like to reuse the last release's values and merge in any overrides from the command line via --set and -f, you can use the option `--reuse-values`. For example:
 ```bash
-helm upgrade snyk-monitor snyk-charts/snyk-monitor --reuse-values
+helm upgrade snyk-monitor snyk-charts/snyk-monitor -n snyk-monitor --reuse-values
 ```
 If '--reset-values' is specified, this is ignored.
 
