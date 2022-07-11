@@ -121,6 +121,8 @@ spec:
             value: {{ .Values.image.tag }}
           - name: HOME
             value: /srv/app
+          - name: CLOUDSDK_CONFIG
+            value: /var/tmp/gcloud
           - name: HTTP_PROXY
             value: {{ .Values.http_proxy }}
           - name: HTTPS_PROXY
