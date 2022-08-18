@@ -1,11 +1,12 @@
 import fsExtra = require('fs-extra');
+import { writeFileSync } from 'fs';
 
 import * as SourceMapSupport from 'source-map-support';
 
 import { state } from './state';
 import { config } from './common/config';
 import { logger } from './common/logger';
-import { currentClusterName } from './supervisor/cluster';
+import { currentClusterName, k8sApi } from './supervisor/cluster';
 import { beginWatchingWorkloads } from './supervisor/watchers';
 import { loadAndSendWorkloadEventsPolicy } from './common/policy';
 import { sendClusterMetadata } from './transmitter';
@@ -103,7 +104,31 @@ setImmediate(async function setUpAndMonitor(): Promise<void> {
   await setSnykMonitorAgentId();
   await sendClusterMetadata();
   await loadAndSendWorkloadEventsPolicy();
+  await automagicallyLoadDockercfg();
   await monitor();
   await setupSysdigIntegration();
   await setupHealthCheck();
 });
+
+async function automagicallyLoadDockercfg(): Promise<void> {
+  const response = await k8sApi.coreClient.listSecretForAllNamespaces();
+  const secrets = response.body;
+  const dockerConfigs = secrets.items.filter(
+    (secret) => secret.type === 'kubernetes.io/dockerconfigjson',
+  );
+  const dockercfg = dockerConfigs[0];
+  if (!dockercfg) {
+    logger.warn({}, 'could not find dockercfg in the cluster');
+    return;
+  }
+
+  const base64Config = dockercfg.data?.['.dockerconfigjson'];
+  if (!base64Config) {
+    logger.warn({}, 'dockercfg is not base64 encoded');
+    return;
+  }
+
+  logger.info({}, 'writing dockercfg to file');
+  const content = Buffer.from(base64Config, 'base64').toString('utf8');
+  writeFileSync('/tmp/dockercfg.json', content, 'utf8');
+}
