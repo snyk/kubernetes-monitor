@@ -24,7 +24,7 @@ commands:
                     export NVM_DIR="/opt/circleci/.nvm"
                     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
                     nvm install v16
-                    npm install
+                    npm ci
                     echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
                     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
                     echo 'nvm alias default v16' >> $BASH_ENV
@@ -43,7 +43,7 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
-                    npm install &&
+                    npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
                 name: Integration tests AKS
@@ -175,14 +175,7 @@ jobs:
             - checkout
             - install_python_requests
             - run:
-                command: |
-                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-                    LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved &&
-                    ./scripts/slack/notify_deploy.py $LATEST_TAG dev &&
-                    curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
-                        -X POST -d "{\"docker_sha\":\"${LATEST_TAG}\", \
-                                      \"commit_hash\":\"${CIRCLE_SHA1}\"}" \
-                        https://my.dev.snyk.io/${DEV_DEPLOY_TOKEN}
+                command: ./scripts/circlci-jobs/deploy_to_dev.sh
                 name: Deploy to dev
             - run:
                 command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
@@ -268,7 +261,7 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
-                    npm install &&
+                    npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
                 name: Integration tests EKS
@@ -986,7 +979,7 @@ jobs:
             - install_python_requests
             - run:
                 command: |
-                    npm install &&
+                    npm ci &&
                     docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
                     unset CIRCLE_PULL_REQUEST &&
                     unset CI_PULL_REQUEST &&
