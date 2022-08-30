@@ -5,7 +5,7 @@ steps:
         export NVM_DIR="/opt/circleci/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         nvm install v16
-        npm install
+        npm ci
         echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
         echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
         echo 'nvm alias default v16' >> $BASH_ENV
