@@ -6,7 +6,7 @@ LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
 LATEST_TAG=${LATEST_TAG_WITH_V:1}-approved
 
 # Send Slack notification
-../slack/notify_deploy.py $LATEST_TAG dev
+./scripts/slack/notify_deploy.py $LATEST_TAG dev
 
 # Deploy to pre-prod
 git clone https://$GH_TOKEN@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
