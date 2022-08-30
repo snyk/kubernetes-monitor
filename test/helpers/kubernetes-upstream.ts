@@ -19,7 +19,7 @@ const UPSTREAM_POLLING_CONFIGURATION = {
 export async function getUpstreamResponseBody(
   relativeUrl: string,
 ): Promise<any> {
-  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@kubernetes-upstream-int.dev.snyk.io/${relativeUrl}`;
+  const url = `https://${config.INTERNAL_PROXY_CREDENTIALS}@kubernetes-upstream-int.${config.INTERNAL_PROXY_HOST}/${relativeUrl}`;
   const upstreamResponse = await needle('get', url, null);
   const responseBody = upstreamResponse.body;
   return responseBody;
