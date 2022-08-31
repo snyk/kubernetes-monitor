@@ -15,6 +15,8 @@ git config --global user.name "K-M Deploy Boy"
 
 git clone https://$GH_TOKEN@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
 
+cp -r snyk-monitor/ $KUBERNETES_MONITOR_DEPLOYER_REPO/
+
 # Create helm values for different envs
 cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/pre-prod-mt.yaml <<EOF
 clusterName: "Development cluster"
