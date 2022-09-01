@@ -192,13 +192,7 @@ jobs:
             - checkout
             - install_python_requests
             - run:
-                command: |
-                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}` &&
-                    LATEST_TAG=${LATEST_TAG_WITH_V:1} &&
-                    ./scripts/slack/notify_deploy.py $LATEST_TAG prod &&
-                    curl -s --fail --show-error -i -H "Accept: application/json" -H "Content-Type: application/json" \
-                        -X POST -d "{}" \
-                        https://my.prod.snyk.io/${PROD_DEPLOY_TOKEN}
+                command: ./scripts/circleci-jobs/deploy_to_prod.sh
                 name: Deploy to prod
             - run:
                 command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
