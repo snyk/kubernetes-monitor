@@ -51,7 +51,7 @@ afterAll(async () => {
   // TODO cleanup the images we saved to /var/tmp?
 });
 
-test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
+test('Kubernetes-Monitor with KinD', async () => {
   const emptyDirSyncStub = jest
     .spyOn(fsExtra, 'emptyDirSync')
     .mockReturnValue({});
@@ -118,18 +118,14 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .reply(
       200,
       (uri, requestBody: transmitterTypes.IWorkloadEventsPolicyPayload) => {
-        try {
-          expect(
-            requestBody,
-          ).toEqual<transmitterTypes.IWorkloadEventsPolicyPayload>({
-            agentId,
-            cluster: expect.any(String),
-            userLocator: expect.any(String),
-            policy: regoPolicyContents,
-          });
-        } catch (error) {
-          jestDoneCallback(error);
-        }
+        expect(
+          requestBody,
+        ).toEqual<transmitterTypes.IWorkloadEventsPolicyPayload>({
+          agentId,
+          cluster: expect.any(String),
+          userLocator: expect.any(String),
+          policy: regoPolicyContents,
+        });
       },
     );
 
@@ -139,19 +135,15 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .reply(
       200,
       (uri, requestBody: transmitterTypes.IClusterMetadataPayload) => {
-        try {
-          expect(requestBody).toEqual<
-            Partial<transmitterTypes.IClusterMetadataPayload>
-          >({
-            agentId,
-            cluster: expect.any(String),
-            userLocator: expect.any(String),
-            // also should have version here but due to test limitation it is undefined
-            // as it is injected as an environment variable via the Helm chart
-          });
-        } catch (error) {
-          jestDoneCallback(error);
-        }
+        expect(requestBody).toEqual<
+          Partial<transmitterTypes.IClusterMetadataPayload>
+        >({
+          agentId,
+          cluster: expect.any(String),
+          userLocator: expect.any(String),
+          // also should have version here but due to test limitation it is undefined
+          // as it is injected as an environment variable via the Helm chart
+        });
       },
     );
 
@@ -179,44 +171,38 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .reply(
       200,
       (uri, requestBody: transmitterTypes.IWorkloadMetadataPayload) => {
-        try {
-          expect(
-            requestBody,
-          ).toEqual<transmitterTypes.IWorkloadMetadataPayload>({
-            workloadLocator: {
-              cluster: expect.any(String),
-              name: expect.any(String),
-              namespace: expect.any(String),
-              type: expect.any(String),
-              userLocator: expect.any(String),
-            },
-            workloadMetadata: expect.objectContaining({
-              annotations: expect.any(Object),
-              labels: expect.any(Object),
-              revision: expect.any(Number),
-              specAnnotations: expect.any(Object),
-              specLabels: expect.any(Object),
-              podSpec: expect.objectContaining({
-                containers: expect.arrayContaining([
-                  expect.objectContaining({
-                    resources: expect.objectContaining({
-                      limits: { cpu: '1', memory: '1Gi' },
-                    }),
-                    securityContext: expect.objectContaining({
-                      privileged: false,
-                      capabilities: expect.objectContaining({
-                        drop: ['ALL'],
-                      }),
+        expect(requestBody).toEqual<transmitterTypes.IWorkloadMetadataPayload>({
+          workloadLocator: {
+            cluster: expect.any(String),
+            name: expect.any(String),
+            namespace: expect.any(String),
+            type: expect.any(String),
+            userLocator: expect.any(String),
+          },
+          workloadMetadata: expect.objectContaining({
+            annotations: expect.any(Object),
+            labels: expect.any(Object),
+            revision: expect.any(Number),
+            specAnnotations: expect.any(Object),
+            specLabels: expect.any(Object),
+            podSpec: expect.objectContaining({
+              containers: expect.arrayContaining([
+                expect.objectContaining({
+                  resources: expect.objectContaining({
+                    limits: { cpu: '1', memory: '1Gi' },
+                  }),
+                  securityContext: expect.objectContaining({
+                    privileged: false,
+                    capabilities: expect.objectContaining({
+                      drop: ['ALL'],
                     }),
                   }),
-                ]),
-              }),
+                }),
+              ]),
             }),
-            agentId,
-          });
-        } catch (error) {
-          jestDoneCallback(error);
-        }
+          }),
+          agentId,
+        });
       },
     );
 
@@ -241,56 +227,55 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .times(1)
     // Reply with an error (500) so that we can see that snyk-monitor falls back to sending to the /dependency-graph API.
     .reply(500, (uri, requestBody: transmitterTypes.ScanResultsPayload) => {
-      try {
-        expect(requestBody).toEqual<transmitterTypes.ScanResultsPayload>({
-          agentId,
-          telemetry: {
-            enqueueDurationMs: expect.any(Number),
-            imagePullDurationMs: expect.any(Number),
-            imageScanDurationMs: expect.any(Number),
-            imageSizeBytes: expect.any(Number),
-            queueSize: expect.any(Number),
+      expect(requestBody).toEqual<transmitterTypes.ScanResultsPayload>({
+        agentId,
+        telemetry: {
+          enqueueDurationMs: expect.any(Number),
+          imagePullDurationMs: expect.any(Number),
+          imageScanDurationMs: expect.any(Number),
+          imageSizeBytes: expect.any(Number),
+          queueSize: expect.any(Number),
+        },
+        imageLocator: expect.objectContaining({
+          imageId: expect.any(String),
+        }),
+        scanResults: [
+          {
+            facts: expect.arrayContaining([
+              { type: 'depGraph', data: expect.any(Object) },
+              { type: 'keyBinariesHashes', data: expect.any(Array) },
+              { type: 'imageId', data: expect.any(String) },
+              { type: 'imageLayers', data: expect.any(Array) },
+              { type: 'rootFs', data: expect.any(Array) },
+              { type: 'imageOsReleasePrettyName', data: expect.any(String) },
+            ]),
+            target: { image: 'docker-image|docker.io/library/openjdk' },
+            identity: { type: 'rpm', args: { platform: 'linux/amd64' } },
           },
-          imageLocator: expect.objectContaining({
-            imageId: expect.any(String),
-          }),
-          scanResults: [
-            {
-              facts: expect.arrayContaining([
-                { type: 'depGraph', data: expect.any(Object) },
-                { type: 'keyBinariesHashes', data: expect.any(Array) },
-                { type: 'imageId', data: expect.any(String) },
-                { type: 'imageLayers', data: expect.any(Array) },
-                { type: 'rootFs', data: expect.any(Array) },
-                { type: 'imageOsReleasePrettyName', data: expect.any(String) },
-              ]),
-              target: { image: 'docker-image|docker.io/library/java' },
-              identity: { type: 'deb', args: { platform: 'linux/amd64' } },
+          {
+            facts: [
+              { type: 'jarFingerprints', data: expect.any(Object) },
+              { type: 'imageId', data: expect.any(String) },
+            ],
+            identity: {
+              type: 'maven',
+              targetFile: '/usr/share/ca-certificates-java',
             },
-            {
-              facts: [
-                { type: 'jarFingerprints', data: expect.any(Object) },
-                { type: 'imageId', data: expect.any(String) },
-              ],
-              identity: {
-                type: 'maven',
-                targetFile: '/usr/share/ca-certificates-java',
-              },
-              target: { image: 'docker-image|docker.io/library/java' },
+            target: { image: 'docker-image|docker.io/library/openjdk' },
+          },
+          {
+            facts: [
+              { type: 'jarFingerprints', data: expect.any(Object) },
+              { type: 'imageId', data: expect.any(String) },
+            ],
+            identity: {
+              type: 'maven',
+              targetFile: '/usr/java/openjdk-18/lib',
             },
-            {
-              facts: [
-                { type: 'jarFingerprints', data: expect.any(Object) },
-                { type: 'imageId', data: expect.any(String) },
-              ],
-              identity: { type: 'maven', targetFile: '/usr/share/java' },
-              target: { image: 'docker-image|docker.io/library/java' },
-            },
-          ],
-        });
-      } catch (error) {
-        jestDoneCallback(error);
-      }
+            target: { image: 'docker-image|docker.io/library/openjdk' },
+          },
+        ],
+      });
     });
 
   nock('https://kubernetes-upstream.snyk.io')
@@ -299,30 +284,23 @@ test('Kubernetes-Monitor with KinD', async (jestDoneCallback) => {
     .reply(
       200,
       (uri, requestBody: transmitterTypes.IDependencyGraphPayload) => {
-        try {
-          expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>(
-            {
-              agentId,
-              dependencyGraph: expect.stringContaining(
-                'docker-image|docker.io/library/java',
-              ),
-              imageLocator: {
-                userLocator: expect.any(String),
-                cluster: expect.any(String),
-                imageId: expect.any(String),
-                name: expect.any(String),
-                namespace: expect.any(String),
-                type: expect.any(String),
-                imageWithDigest: expect.any(String),
-              },
-            },
-          );
+        expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>({
+          agentId,
+          dependencyGraph: expect.stringContaining(
+            'docker-image|docker.io/library/openjdk',
+          ),
+          imageLocator: {
+            userLocator: expect.any(String),
+            cluster: expect.any(String),
+            imageId: expect.any(String),
+            name: expect.any(String),
+            namespace: expect.any(String),
+            type: expect.any(String),
+            imageWithDigest: expect.any(String),
+          },
+        });
 
-          expect(retryKubernetesApiRequestMock).toHaveBeenCalled();
-          jestDoneCallback();
-        } catch (error) {
-          jestDoneCallback(error);
-        }
+        expect(retryKubernetesApiRequestMock).toHaveBeenCalled();
       },
     );
 
