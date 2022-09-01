@@ -32,7 +32,7 @@ export async function setupTester(): Promise<void> {
     OPENSHIFT_CLI_VERSION,
   );
   console.log('Downloading OpenShift CLI...');
-  const response = await needle('get', downloadUrl);
+  const response = await needle('get', downloadUrl, { follow_max: 5 });
   await extractOpenShiftCli(response.body);
   console.log('Downloaded OpenShift CLI!');
 }
