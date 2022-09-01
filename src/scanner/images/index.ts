@@ -115,13 +115,11 @@ export async function scanImages(
 
   for (const { imageName, fileSystemPath, imageWithDigest } of images) {
     try {
-      const shouldIncludeAppVulns = true;
       const archivePath = `docker-archive:${fileSystemPath}`;
 
       const pluginResponse = await scan({
         path: archivePath,
         imageNameAndTag: imageName,
-        'app-vulns': shouldIncludeAppVulns,
       });
 
       if (
