@@ -144,6 +144,30 @@ export async function patchResourceFinalizers(
   console.log(`Patched resources finalizers for ${kind} ${name}`);
 }
 
+/**
+ * https://github.com/kubernetes/kubernetes/issues/90438
+ * Namespaces cannot be modified with `kubectl patch` mechanism, using proxy and API
+ * @param name namespace to patch finalizers
+ */
+export async function patchNamespaceFinalizers(name: string) {
+  console.log(`Patching resource finalizers for namespace ${name}`);
+
+  // Run proxy in background
+  await exec('nohup ./oc proxy > /dev/null 2>&1 &');
+  await exec(
+    `./kubectl get ns ${name} -o json | jq '.spec = {"finalizers":[]}' > ${name}.json`,
+  );
+  await exec(
+    `curl -k -H "Content-Type: application/json" -X PUT --data-binary @${name}.json http://127.0.0.1:8001/api/v1/namespaces/${name}/finalize`,
+  );
+
+  // Clean up
+  await exec("kill -9 $(ps aux | grep proxy | head -n 1 | awk '{ print $2 }')");
+  await exec('rm -rf ${name}.json');
+
+  console.log(`Patched namespace finalizers for ${name}`);
+}
+
 export async function deleteResource(
   kind: string,
   name: string,

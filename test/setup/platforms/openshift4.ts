@@ -130,6 +130,7 @@ export async function clean(): Promise<void> {
       .catch(() => undefined),
   ]);
 
+  // Remove resources
   await Promise.all([
     kubectl
       .deleteResource(
@@ -147,6 +148,16 @@ export async function clean(): Promise<void> {
     kubectl
       .deleteResource('clusterrole', 'snyk-monitor', 'default')
       .catch(() => undefined),
+  ]);
+
+  // Kubernetes will be stuck trying to delete these namespaces if we don't clear the finalizers.
+  await Promise.all([
+    kubectl.patchNamespaceFinalizers('services').catch(() => undefined),
+    kubectl.patchNamespaceFinalizers('argo-rollouts').catch(() => undefined),
+    kubectl.patchNamespaceFinalizers('snyk-monitor').catch(() => undefined),
+  ]);
+  // Remove namespaces
+  await Promise.all([
     kubectl.deleteNamespace('services').catch(() => undefined),
     kubectl.deleteNamespace('argo-rollouts').catch(() => undefined),
     kubectl.deleteNamespace('snyk-monitor').catch(() => undefined),
