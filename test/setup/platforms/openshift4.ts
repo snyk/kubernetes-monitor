@@ -62,8 +62,11 @@ export async function exportKubeConfig(): Promise<void> {
     clusterURL === 'https://api.crc.testing:6443'
       ? // TODO(ivanstanev): pin to a specific CA certificate
         `./oc login -u "${user}" -p "${userPassword}" "${clusterURL}" --insecure-skip-tls-verify=true --kubeconfig ${kubeconfigPath}`
-      : `./oc login --token="${userPassword}" --server="${clusterURL}" --kubeconfig ${kubeconfigPath}`;
-  await exec(cmd);
+      : `./oc login --token="${userPassword}" "${clusterURL}" --kubeconfig ${kubeconfigPath}`;
+  const result = await exec(cmd);
+
+  console.log('oc login result:', result.stderr || result.stdout);
+
   process.env.KUBECONFIG = kubeconfigPath;
 }
 
