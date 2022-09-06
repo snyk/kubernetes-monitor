@@ -148,6 +148,15 @@ export async function clean(): Promise<void> {
     kubectl
       .deleteResource('clusterrole', 'snyk-monitor', 'default')
       .catch(() => undefined),
+    kubectl
+      .deleteResource('--all', 'all,sa,cm,secret,pvc', 'services')
+      .catch(() => undefined),
+    kubectl
+      .deleteResource('--all', 'all,sa,cm,secret,pvc', 'argo-rollout')
+      .catch(() => undefined),
+    kubectl
+      .deleteResource('--all', 'all,sa,cm,secret,pvc', 'snyk-monitor')
+      .catch(() => undefined),
   ]);
 
   // Kubernetes will be stuck trying to delete these namespaces if we don't clear the finalizers.
