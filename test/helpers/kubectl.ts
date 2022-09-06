@@ -265,9 +265,29 @@ export async function waitForDeployment(
   console.log(`Found deployment ${name} in namespace ${namespace}`);
 
   console.log(`Begin waiting for deployment ${name} in namespace ${namespace}`);
-  await exec(
-    `./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=240s`,
-  );
+
+  try {
+    await exec(
+      `./kubectl wait --for=condition=available deployment.apps/${name} -n ${namespace} --timeout=240s`,
+    );
+  } catch (error) {
+    console.log('Failed waiting deployment to become available', { error });
+
+    const { stdout: deployments } = await exec(
+      `./kubectl get deployment -n ${namespace} -o wide`,
+    );
+
+    console.log(`Deployments info:`, { deployments });
+
+    const { stdout: describe } = await exec(
+      `./kubectl describe deployment.apps/${name} -n ${namespace}`,
+    );
+
+    console.log(`deployment.apps/${name} description:`, { describe });
+
+    throw error;
+  }
+
   console.log(`Deployment ${name} in namespace ${namespace} is available`);
 }
 
