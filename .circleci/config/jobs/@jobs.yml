@@ -84,6 +84,7 @@ system_tests:
         when: on_fail
 
 integration_tests:
+  resource_class: large
   machine:
     image: ubuntu-2004:202111-01
     docker_layer_caching: true
@@ -109,6 +110,7 @@ integration_tests:
         path: /tmp/logs/test/integration/kind
 
 integration_tests_helm:
+  resource_class: large
   machine:
     image: ubuntu-2004:202111-01
     docker_layer_caching: true
@@ -134,6 +136,7 @@ integration_tests_helm:
         path: /tmp/logs/test/integration/kind-helm
 
 integration_tests_proxy:
+  resource_class: large
   machine:
     image: ubuntu-2004:202111-01
     docker_layer_caching: true
@@ -159,6 +162,7 @@ integration_tests_proxy:
         path: /tmp/logs/test/integration/proxy
 
 eks_integration_tests:
+  resource_class: large
   machine:
     image: ubuntu-2004:202111-01
     docker_layer_caching: true
@@ -187,6 +191,7 @@ eks_integration_tests:
         path: /tmp/logs/test/integration/eks
 
 aks_integration_tests:
+  resource_class: large
   machine:
     image: ubuntu-2004:202111-01
     docker_layer_caching: true

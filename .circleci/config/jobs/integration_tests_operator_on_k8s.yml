@@ -1,4 +1,5 @@
 machine:
+  resource_class: large
   image: ubuntu-2004:202111-01
   docker_layer_caching: true
 steps:
