@@ -323,6 +323,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
         facts: expect.any(Array),
         target: { image: 'docker-image|argoproj/rollouts-demo' },
       },
+      expect.any(Object),
     ]);
   }
 });
