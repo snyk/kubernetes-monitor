@@ -98,6 +98,8 @@ steps:
         kubectl delete catalogsource snyk-operator -n openshift-marketplace
         kubectl delete clusterrolebinding snyk-monitor
         kubectl delete clusterrole snyk-monitor
+        kubectl delete --all all,sa,cm,secret,pvc -n services
+        kubectl delete --all all,sa,cm,secret,pvc -n snyk-monitor
         kubectl delete namespace services
         kubectl delete namespace snyk-monitor
         # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
@@ -237,8 +239,10 @@ steps:
         kubectl delete -f ./test/fixtures/operator/custom-resource.yaml
         kubectl delete clusterrolebinding snyk-monitor
         kubectl delete clusterrole snyk-monitor
-
-        kubectl delete ns snyk-monitor
+        kubectl delete --all all,sa,cm,secret,pvc -n services
+        kubectl delete --all all,sa,cm,secret,pvc -n snyk-monitor
+        kubectl delete namespace snyk-monitor
+        kubectl delete namespace services
         # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
         true
 
