@@ -15,7 +15,7 @@ describe('dataScraper()', () => {
     delete config.SYSDIG_TOKEN;
   });
 
-  it('correctly sends data to kubernetes-upstream', async (jestDoneCallback) => {
+  it('correctly sends data to kubernetes-upstream', async () => {
     const bodyWithToken = {
       data: [
         {
@@ -63,51 +63,42 @@ describe('dataScraper()', () => {
       .post('/api/v1/runtime-results')
       .times(1)
       .reply(200, (uri, requestBody: transmitterTypes.IRuntimeDataPayload) => {
-        try {
-          expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
-            identity: {
-              type: 'sysdig',
+        expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
+          identity: {
+            type: 'sysdig',
+          },
+          target: {
+            userLocator: expect.any(String),
+            cluster: 'Default cluster',
+            agentId: expect.any(String),
+          },
+          facts: [
+            {
+              type: 'loadedPackages',
+              data: bodyWithToken.data,
             },
-            target: {
-              userLocator: expect.any(String),
-              cluster: 'Default cluster',
-              agentId: expect.any(String),
-            },
-            facts: [
-              {
-                type: 'loadedPackages',
-                data: bodyWithToken.data,
-              },
-            ],
-          });
-        } catch (error) {
-          jestDoneCallback(error);
-        }
+          ],
+        });
       })
       .post('/api/v1/runtime-results')
       .times(1)
       .reply(200, (uri, requestBody: transmitterTypes.IRuntimeDataPayload) => {
-        try {
-          expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
-            identity: {
-              type: 'sysdig',
+        expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
+          identity: {
+            type: 'sysdig',
+          },
+          target: {
+            userLocator: expect.any(String),
+            cluster: 'Default cluster',
+            agentId: expect.any(String),
+          },
+          facts: [
+            {
+              type: 'loadedPackages',
+              data: bodyNoToken.data,
             },
-            target: {
-              userLocator: expect.any(String),
-              cluster: 'Default cluster',
-              agentId: expect.any(String),
-            },
-            facts: [
-              {
-                type: 'loadedPackages',
-                data: bodyNoToken.data,
-              },
-            ],
-          });
-          jestDoneCallback();
-        } catch (error) {
-          jestDoneCallback(error);
-        }
+          ],
+        });
       });
 
     await scrapeData();

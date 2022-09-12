@@ -10,7 +10,6 @@ import {
   IImageLocator,
   ILocalWorkloadLocator,
   IRuntimeDataPayload,
-  IRuntimeImage,
   IWorkload,
   IWorkloadLocator,
   IWorkloadMetadata,
