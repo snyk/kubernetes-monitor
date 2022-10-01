@@ -191,6 +191,7 @@ spec:
         - name: docker-config
           secret:
             secretName: {{ .Values.monitorSecrets }}
+            optional: true
             items:
               - key: dockercfg.json
                 path: config.json
@@ -219,7 +220,7 @@ spec:
           projected:
             sources:
             - serviceAccountToken:
-                path: token  
+                path: token
         {{- end }}
         - name: registries-conf
           configMap:
