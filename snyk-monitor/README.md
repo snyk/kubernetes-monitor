@@ -277,6 +277,54 @@ You can provide custom CA certificates to use for validating TLS connections by 
 
 If running Snyk on-prem, you can also use a custom CA certificate to validate the connection to kubernetes-upstream for sending scan results by providing the certificate under the following path in the ConfigMap: /srv/app/certs/ca.pem
 
+## Helm chart extensibility ##
+
+### Additional Kubernetes volumes and volume mounts ###
+
+The helm chart supports mounting custom volumes in addition to the built-in ones through the use of `extraVolumes` and `extraVolumeMounts`.
+
+**Note** that `extraVolumes` are available to all containers in the snyk-monitor deployment (including any init containers), whilst `extraVolumeMounts` applies only to the main snyk-monitor container.
+
+#### Example ####
+
+Let's say you need to mount in an additional kubernetes secret that is created outside of the snyk-monitor chart. You would define the following in your `values.yaml`:
+
+```yaml
+extraVolumes:
+  # this volume will be available to all containers in the deployment
+  - name: "my-k8s-secret"
+    secret:
+      secretName: "name-of-my-k8s-secret-resource" # kubernetes secret created elsewhere
+
+extraVolumeMounts:
+  # this mounts the kubernetes secret into the main snyk-monitor container
+  - mountPath: "/mnt/additional-secrets"
+    name: "my-k8s-secret"
+    readOnly: true
+```
+
+### Additional init containers ###
+
+The helm chart supports specifying additional init containers that will run before the main snyk-monitor container through the use of `extraInitContainers`. This field is templated ie. Helm will parse any helm template directives within the specification.
+
+#### Example ####
+
+Continuing on with the example above for additional volumes, let's say you need to have a secret copied into a specific path in the main snyk-monitor container before it is started. You would define the following in your `values.yaml`:
+
+```yaml
+extraInitContainers:
+  - name: install-my-secret
+    # notice how the image specification is templated. This would result in running the same
+    # image as the built-in 'volume-permissions' init container.
+    image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
+    command: ['sh', '-c', 'cp -f /mnt/my-secrets/my-secret /srv/app/my-secret || :']
+    volumeMounts:
+      # this brings the kubernetes secret from the previous example into this init container
+      - mountPath: "/mnt/my-secrets"
+        name: "my-k8s-secret"
+        readOnly: true
+```
+
 ## Terms and conditions ##
 
 *The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*
