@@ -297,4 +297,54 @@ describe('transmitter payload tests', () => {
       });
     },
   );
+
+  test.concurrent(
+    'constructRuntimeData with included namespace happy flow',
+    async () => {
+      config.INCLUDED_NAMESPACES = ['test'];
+      const runtimeDataPayload = payload.constructRuntimeData([
+        {
+          imageID: 'something',
+          namespace: 'sysdig',
+          workloadName: 'workload',
+          workloadKind: 'deployment',
+          container: 'box',
+          packages: [],
+        },
+        {
+          imageID: 'something',
+          namespace: 'test',
+          workloadName: 'workload',
+          workloadKind: 'deployment',
+          container: 'box',
+          packages: [],
+        },
+      ]);
+      expect(runtimeDataPayload).toEqual<IRuntimeDataPayload>({
+        identity: {
+          type: 'sysdig',
+        },
+        target: {
+          userLocator: expect.any(String),
+          cluster: 'Default cluster',
+          agentId: expect.any(String),
+        },
+        facts: [
+          {
+            type: 'loadedPackages',
+            data: [
+              {
+                imageID: 'something',
+                namespace: 'test',
+                workloadName: 'workload',
+                workloadKind: 'Deployment',
+                container: 'box',
+                packages: [],
+              },
+            ],
+          },
+        ],
+      });
+    },
+  );
 });

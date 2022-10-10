@@ -117,6 +117,9 @@ psp:
   enabled: false
   name: ""
 
+# Override the included namespaces
+includedNamespaces:
+
 # Override the excluded namespaces
 excludedNamespaces:
 

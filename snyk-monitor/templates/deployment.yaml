@@ -96,9 +96,13 @@ spec:
             readOnly: true
           - name: registries-conf
             mountPath: "/srv/app/.config/containers"
+          {{- if .Values.includedNamespaces }}
+          - name: included-namespaces
+            mountPath: "/etc/config/included-namespaces"
+          {{- end }}
           {{- if .Values.excludedNamespaces }}
           - name: excluded-namespaces
-            mountPath: "/etc/config"
+            mountPath: "/etc/config/excluded-namespaces"
           {{- end }}
           {{- if .Values.extraVolumeMounts }}
           {{- toYaml .Values.extraVolumeMounts | nindent 10 }}
@@ -226,6 +230,11 @@ spec:
           configMap:
             name: {{ .Values.registriesConfConfigMap }}
             optional: true
+        {{- if .Values.includedNamespaces }}
+        - name: included-namespaces
+          configMap:
+            name: {{ .Release.Name }}-included-namespaces
+        {{- end }}
         {{- if .Values.excludedNamespaces }}
         - name: excluded-namespaces
           configMap:

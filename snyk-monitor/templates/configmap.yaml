@@ -1,3 +1,19 @@
+{{ if .Values.includedNamespaces }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-included-namespaces
+  labels:
+    app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
+    helm.sh/chart: {{ include "snyk-monitor.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  includedNamespaces: |-
+    {{- range .Values.includedNamespaces }}
+    {{ . }}
+    {{- end }}
+{{ end }}
 {{ if .Values.excludedNamespaces }}
 apiVersion: v1
 kind: ConfigMap

@@ -7,11 +7,20 @@ const config = loadConfig(__dirname + '/../..', {
   secretConfig: process.env.CONFIG_SECRET_FILE,
 }) as unknown as Config;
 
-const namespacesFilePath = '/etc/config/excludedNamespaces';
 
 function loadExcludedNamespaces(): string[] | null {
+  const namespacesFilePath = '/etc/config/excluded-namespaces/excludedNamespaces';
+  return loadNamespaces(namespacesFilePath);
+}
+
+function loadIncludedNamespaces(): string[] | null {
+  const namespacesFilePath = '/etc/config/included-namespaces/includedNamespaces';
+  return loadNamespaces(namespacesFilePath);
+}
+
+function loadNamespaces(filePath: string): string[] | null {
   try {
-    const data = readFileSync(namespacesFilePath, 'utf-8');
+    const data = readFileSync(filePath, 'utf-8');
     const namespaces: string[] = data.split(/\r?\n/);
     return namespaces;
   } catch (err) {
@@ -42,6 +51,7 @@ config.INTEGRATION_ID = config.INTEGRATION_ID.trim();
 config.CLUSTER_NAME = getClusterName();
 config.IMAGE_STORAGE_ROOT = '/var/tmp';
 config.POLICIES_STORAGE_ROOT = '/tmp/policies';
+config.INCLUDED_NAMESPACES = loadIncludedNamespaces();
 config.EXCLUDED_NAMESPACES = loadExcludedNamespaces();
 config.WORKERS_COUNT = Number(config.WORKERS_COUNT) || 10;
 config.SKOPEO_COMPRESSION_LEVEL = Number(config.SKOPEO_COMPRESSION_LEVEL) || 6;

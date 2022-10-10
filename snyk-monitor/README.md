@@ -235,7 +235,7 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
   --set psp.enabled=true
 ```
 
-## Configuring excluded namespaces ##
+## Configuring excluded namespaces
 
 By default, `snyk-monitor` does not scan containers that are internal to Kubernetes, in the following namespaces:
 * `kube-node-lease`
@@ -247,6 +247,17 @@ If you prefer to override this, you can add your own list of namespaces to exclu
 ```yaml
 --set excludedNamespaces="{kube-node-lease,kube-public,local-path-storage,some_namespace}"
 ```
+
+## Configuring included namespaces
+
+Sometimes targeting specific namespaces may make more sense than trying to exclude all the ones you do not want.
+
+You can add your own list of namespaces to include by setting the `includedNamespaces` option. For example:
+```yaml
+--set includedNamespaces="{some_namespace}"
+```
+
+This option takes precidence over the `excludedNamespaces` option, so if a namespace is both marked for inclusion and exclusion, it will be included.
 
 ## Using EKS without assigning an IAM role to a Node Group
 

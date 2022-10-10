@@ -103,3 +103,33 @@ describe('isExcludedNamespace() excluded namespaces from config', () => {
     },
   );
 });
+
+describe('isExcludedNamespace() included namespaces from config', () => {
+  const includedNamespacesFromConfig = ['one', 'two', 'three'];
+  beforeAll(() => {
+    config.INCLUDED_NAMESPACES = includedNamespacesFromConfig;
+  });
+
+  afterAll(() => {
+    config.INCLUDED_NAMESPACES = null;
+  });
+
+  includedNamespacesFromConfig.forEach((namespace) => {
+    test(`[excluded namespaces from config] isExcludedNamespace(${namespace}) -> false`, () => {
+      expect(isExcludedNamespace(namespace)).toEqual(false);
+    });
+  });
+
+  for (const internalNamespace of openshiftInternalNamespaces) {
+    test(`[openshift internal namespaces] isExcludedNamespace(${internalNamespace}) -> true`, () => {
+      expect(isExcludedNamespace(internalNamespace)).toEqual(true);
+    });
+  }
+
+  test.each([['kube-system']['egg'], [''], [undefined as unknown as string]])(
+    'isExcludedNamespace(%s) -> true',
+    (input) => {
+      expect(isExcludedNamespace(input)).toEqual(true);
+    },
+  );
+});

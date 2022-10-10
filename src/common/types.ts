@@ -24,6 +24,7 @@ export interface Config {
   AGENT_ID: string;
   IMAGE_STORAGE_ROOT: '/var/tmp';
   POLICIES_STORAGE_ROOT: '/tmp/policies';
+  INCLUDED_NAMESPACES: string[] | null;
   EXCLUDED_NAMESPACES: string[] | null;
   SKOPEO_COMPRESSION_LEVEL: number;
   SYSDIG_ENDPOINT: string;

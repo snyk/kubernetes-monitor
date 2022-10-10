@@ -103,11 +103,18 @@ export function extractNamespaceName(namespace: V1Namespace): string {
 }
 
 export function isExcludedNamespace(namespace: string): boolean {
-  return (
-    (config.EXCLUDED_NAMESPACES
-      ? config.EXCLUDED_NAMESPACES.includes(namespace)
-      : kubernetesInternalNamespaces.has(namespace)) ||
-    // always check openshift excluded namespaces
-    openshiftInternalNamespaces.has(namespace)
-  );
+  if (openshiftInternalNamespaces.has(namespace)) {
+    return true; // always exclude openshift
+  }
+
+  // if explicitly specified to be included, do not exclude it
+  if (config.INCLUDED_NAMESPACES) {
+    return !config.INCLUDED_NAMESPACES.includes(namespace);
+  }
+
+  if (config.EXCLUDED_NAMESPACES) {
+    return config.EXCLUDED_NAMESPACES.includes(namespace);
+  }
+
+  return kubernetesInternalNamespaces.has(namespace);
 }

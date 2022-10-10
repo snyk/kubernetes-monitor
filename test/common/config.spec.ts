@@ -70,6 +70,7 @@ describe('extractNamespaceName()', () => {
     expect(config.INTEGRATION_ID).toEqual(expect.any(String));
     expect(config.CLUSTER_NAME).toEqual('Default cluster');
     expect(config.IMAGE_STORAGE_ROOT).toEqual('/var/tmp');
+    expect(config.INCLUDED_NAMESPACES).toBeNull();
     expect(config.EXCLUDED_NAMESPACES).toBeNull();
     expect(config.HTTPS_PROXY).toBeUndefined();
     expect(config.HTTP_PROXY).toBeUndefined();
