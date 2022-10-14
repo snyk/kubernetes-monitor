@@ -1,0 +1,322 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    json_logs: "true"
+    prometheus.io/scrape: "false"
+    sidecar.istio.io/status: '{"version":"8e87d1a416a399be3d9fcf1451585bc0f8cc55e28ea8dc3367a0a104473561ef","initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"],"imagePullSecrets":null}'
+  creationTimestamp: "2019-11-25T13:23:51Z"
+  finalizers:
+  - finalizers.gatekeeper.sh/sync
+  generateName: hello-world-69df7cfb84-
+  labels:
+    app: hello-world
+    pod-template-hash: 69df7cfb84
+  name: hello-world-69df7cfb84-whpp5
+  namespace: security-tools
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Node
+    name: hello-world-69df7cfb84
+    uid: d2022c91-0f86-11ea-86a6-4201c0a8801a
+  resourceVersion: "55787962"
+  selfLink: /api/v1/namespaces/security-tools/pods/hello-world-69df7cfb84-whpp5
+  uid: d208d970-0f86-11ea-86a6-4201c0a8801a
+spec:
+  containers:
+  - image: eu.gcr.io/cookie/hello-world:1.20191125.132107-4664980
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /hello
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    name: hello-world
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /hello
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    resources:
+      limits:
+        cpu: "2"
+        memory: 512Mi
+      requests:
+        cpu: "1"
+        memory: 128Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: hello-world-token-dltwl
+      readOnly: true
+  - args:
+    - proxy
+    - sidecar
+    - --domain
+    - $(POD_NAMESPACE).svc.cluster.local
+    - --configPath
+    - /etc/istio/proxy
+    - --binaryPath
+    - /usr/local/bin/envoy
+    - --serviceCluster
+    - hello-world.$(POD_NAMESPACE)
+    - --drainDuration
+    - 45s
+    - --parentShutdownDuration
+    - 1m0s
+    - --discoveryAddress
+    - istio-pilot.istio-system:15010
+    - --zipkinAddress
+    - zipkin.istio-system:9411
+    - --dnsRefreshRate
+    - 300s
+    - --connectTimeout
+    - 10s
+    - --proxyAdminPort
+    - "15000"
+    - --concurrency
+    - "2"
+    - --controlPlaneAuthPolicy
+    - NONE
+    - --statusPort
+    - "15020"
+    - --applicationPorts
+    - "8080"
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: ISTIO_META_POD_PORTS
+      value: |-
+        [
+            {"name":"http","containerPort":8080,"protocol":"TCP"}
+        ]
+    - name: ISTIO_META_CLUSTER_ID
+      value: Kubernetes
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: INSTANCE_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: SERVICE_ACCOUNT
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.serviceAccountName
+    - name: ISTIO_META_POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: ISTIO_META_CONFIG_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: SDS_ENABLED
+      value: "false"
+    - name: ISTIO_META_INTERCEPTION_MODE
+      value: REDIRECT
+    - name: ISTIO_META_INCLUDE_INBOUND_PORTS
+      value: "8080"
+    - name: ISTIO_METAJSON_ANNOTATIONS
+      value: |
+        {"json_logs":"true","prometheus.io/scrape":"false"}
+    - name: ISTIO_METAJSON_LABELS
+      value: |
+        {"app":"hello-world","pod-template-hash":"69df7cfb84"}
+    - name: ISTIO_META_WORKLOAD_NAME
+      value: hello-world
+    - name: ISTIO_META_OWNER
+      value: kubernetes://api/apps/v1/namespaces/security-tools/deployments/hello-world
+    image: docker.io/istio/proxyv2:1.3.4
+    imagePullPolicy: IfNotPresent
+    name: istio-proxy
+    ports:
+    - containerPort: 15090
+      name: http-envoy-prom
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 30
+      httpGet:
+        path: /healthz/ready
+        port: 15020
+        scheme: HTTP
+      initialDelaySeconds: 1
+      periodSeconds: 2
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    securityContext:
+      readOnlyRootFilesystem: true
+      runAsUser: 1337
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /etc/istio/proxy
+      name: istio-envoy
+    - mountPath: /etc/certs/
+      name: istio-certs
+      readOnly: true
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: hello-world-token-dltwl
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  initContainers:
+  - args:
+    - -p
+    - "15001"
+    - -z
+    - "15006"
+    - -u
+    - "1337"
+    - -m
+    - REDIRECT
+    - -i
+    - '*'
+    - -x
+    - ""
+    - -b
+    - '*'
+    - -d
+    - "15020"
+    image: docker.io/istio/proxy_init:1.3.4
+    imagePullPolicy: IfNotPresent
+    name: istio-init
+    resources:
+      limits:
+        cpu: 100m
+        memory: 50Mi
+      requests:
+        cpu: 10m
+        memory: 10Mi
+    securityContext:
+      capabilities:
+        add:
+        - NET_ADMIN
+      runAsNonRoot: false
+      runAsUser: 0
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+  nodeName: gke-staging-1-n1-standard-32-93d1d8b9-6t57
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 40500
+    runAsUser: 40500
+  serviceAccount: hello-world
+  serviceAccountName: hello-world
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: hello-world-token-dltwl
+    secret:
+      defaultMode: 420
+      secretName: hello-world-token-dltwl
+  - emptyDir:
+      medium: Memory
+    name: istio-envoy
+  - name: istio-certs
+    secret:
+      defaultMode: 420
+      optional: true
+      secretName: istio.hello-world
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-25T13:23:54Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-25T13:24:10Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-25T13:24:10Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-25T13:23:51Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://475bb2de6388165714fcfe0ee0c3c6270a9aafef39c035db56d9a854e7747671
+    image: eu.gcr.io/cookie/hello-world:1.20191125.132107-4664980
+    imageID: docker-pullable://eu.gcr.io/cookie/hello-world@sha256:1ac413b2756364b7b856c64d557fdedb97a4ba44ca16fc656e08881650848fe2
+    lastState: {}
+    name: hello-world
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2019-11-25T13:24:02Z"
+  - containerID: docker://818d8c0c4a4d88c1ce7865f5cbb1dddb237d1bf2392058f402956db33d1187f7
+    image: istio/proxyv2:1.3.4
+    imageID: docker-pullable://istio/proxyv2@sha256:54a563895566adc0ad5ac5be90f666cae204e3bb09a97d14616eedaf3154d9b6
+    lastState: {}
+    name: istio-proxy
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2019-11-25T13:24:02Z"
+  hostIP: 10.64.128.234
+  initContainerStatuses:
+  - containerID: docker://28e26004a22f227b5c66123da3ff76160f886dd4114f8d05f912970883ce094c
+    image: istio/proxy_init:1.3.4
+    imageID: docker-pullable://istio/proxy_init@sha256:181215c809b0d294e456cf390990045efbda05fcfdc910bacdc3847f96a7e3b6
+    lastState: {}
+    name: istio-init
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: docker://28e26004a22f227b5c66123da3ff76160f886dd4114f8d05f912970883ce094c
+        exitCode: 0
+        finishedAt: "2019-11-25T13:23:53Z"
+        reason: Completed
+        startedAt: "2019-11-25T13:23:52Z"
+  phase: Running
+  podIP: 10.64.2.7
+  qosClass: Burstable
+  startTime: "2019-11-25T13:23:51Z"
