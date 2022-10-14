@@ -36,6 +36,7 @@ export async function pull(
   image: string,
   destination: string,
   skopeoRepoType: SkopeoRepositoryType,
+  workloadName: string,
 ): Promise<void> {
   const creds = await credentials.getSourceCredentials(image);
   const credentialsParameters = getCredentialParameters(creds);
@@ -56,12 +57,13 @@ export async function pull(
     sanitise: false,
   });
 
-  await pullWithRetry(args, destination);
+  await pullWithRetry(args, destination, workloadName);
 }
 
 async function pullWithRetry(
   args: Array<processWrapper.IProcessArgument>,
   destination: string,
+  workloadName: string,
 ): Promise<void> {
   const MAX_ATTEMPTS = 10;
   const RETRY_INTERVAL_SEC = 0.2;
@@ -77,7 +79,7 @@ async function pullWithRetry(
         }
       } catch (deleteErr) {
         logger.warn(
-          { error: deleteErr, destination },
+          { workloadName, error: deleteErr, destination },
           'could not clean up the Skopeo-copy archive',
         );
       }
