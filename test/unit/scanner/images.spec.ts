@@ -58,7 +58,11 @@ describe('getImagesWithFileSystemPath()', () => {
 describe('pullImages()', () => {
   it('skips on missing file system path', async () => {
     const badImage = [{ imageName: 'nginx:latest' }];
-    const result = await scannerImages.pullImages(badImage as IPullableImage[]);
+    const workloadName = 'workload';
+    const result = await scannerImages.pullImages(
+      badImage as IPullableImage[],
+      workloadName,
+    );
     expect(result).toEqual([]);
   });
 });

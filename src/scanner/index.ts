@@ -41,7 +41,7 @@ export async function processWorkload(
   );
   const imagesWithFileSystemPath = getImagesWithFileSystemPath(uniqueImages);
   const imagePullStartTimestampMs = Date.now();
-  const pulledImages = await pullImages(imagesWithFileSystemPath);
+  const pulledImages = await pullImages(imagesWithFileSystemPath, workloadName);
   const imagePullDurationMs = Date.now() - imagePullStartTimestampMs;
   if (pulledImages.length === 0) {
     logger.info(
