@@ -1060,34 +1060,6 @@ workflows:
                             - master
                 requires:
                     - hold
-            - sync_embedded_community_operators_with_snyk_fork:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - operator_upgrade_tests
-            - push_operator_to_embedded_community_operators:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - sync_embedded_community_operators_with_snyk_fork
-            - sync_community_operators_with_snyk_fork:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - push_operator_to_embedded_community_operators
-            - push_operator_to_community_operators:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - sync_community_operators_with_snyk_fork
     MERGE_TO_MASTER:
         jobs:
             - publish:
@@ -1212,12 +1184,6 @@ workflows:
     MONTHLY:
         jobs:
             - operator_upgrade_tests
-            - push_operator_to_embedded_community_operators:
-                requires:
-                    - operator_upgrade_tests
-            - push_operator_to_community_operators:
-                requires:
-                    - operator_upgrade_tests
         triggers:
             - schedule:
                 cron: 0 5 3 * *
