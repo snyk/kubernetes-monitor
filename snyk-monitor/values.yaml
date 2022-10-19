@@ -31,7 +31,7 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 1.95.3
+  tag: 1.97.2
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
@@ -128,7 +128,7 @@ excludedNamespaces:
 #         fsGroup: <-- here
 securityContext:
   fsGroup:
-  
+
 # Set node tolerations for snyk-monitor
 tolerations: []
 
@@ -151,3 +151,20 @@ sysdig:
 
 strategy:
   type: RollingUpdate
+
+# Additional volumes for the deployment, available to all containers
+extraVolumes: []
+#  - name: my-empty-dir
+#    emptyDir: {}
+
+# Additional volume mounts for the snyk-monitor container
+extraVolumeMounts: []
+#  - name: extras
+#    mountPath: /mnt/my-empty-dir
+#    readOnly: true
+
+# Additional init containers, templated
+extraInitContainers: []
+#  - name: wait-for-condition
+#    image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
+#    command: ['sh', '-c', 'sleep 10 || :']

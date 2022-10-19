@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: snyk-monitor
     spec:
       containers:
-      - image: snyk/kubernetes-monitor:1.95.3
+      - image: snyk/kubernetes-monitor:1.97.2
         imagePullPolicy: Always
         name: snyk-monitor
         terminationMessagePath: /dev/termination-log
@@ -68,7 +68,7 @@ spec:
                 key: clusterName
                 optional: true
           - name: SNYK_MONITOR_VERSION
-            value: 1.95.3
+            value: 1.97.2
           - name: HOME
             value: /srv/app
           - name: HTTP_PROXY

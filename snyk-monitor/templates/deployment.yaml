@@ -74,6 +74,9 @@ spec:
             capabilities:
               drop:
                 - ALL
+        {{- if .Values.extraInitContainers -}}
+        {{ tpl (toYaml .Values.extraInitContainers) . | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ include "snyk-monitor.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -96,6 +99,9 @@ spec:
           {{- if .Values.excludedNamespaces }}
           - name: excluded-namespaces
             mountPath: "/etc/config"
+          {{- end }}
+          {{- if .Values.extraVolumeMounts }}
+          {{- toYaml .Values.extraVolumeMounts | nindent 10 }}
           {{- end }}
           env:
           - name: NODE_EXTRA_CA_CERTS
@@ -185,6 +191,7 @@ spec:
         - name: docker-config
           secret:
             secretName: {{ .Values.monitorSecrets }}
+            optional: true
             items:
               - key: dockercfg.json
                 path: config.json
@@ -213,7 +220,7 @@ spec:
           projected:
             sources:
             - serviceAccountToken:
-                path: token  
+                path: token
         {{- end }}
         - name: registries-conf
           configMap:
@@ -223,6 +230,9 @@ spec:
         - name: excluded-namespaces
           configMap:
             name: {{ .Release.Name }}-excluded-namespaces
+        {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
