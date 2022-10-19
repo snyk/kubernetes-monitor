@@ -37,7 +37,7 @@
     "format:check": "prettier --check '{src,test}/**/*.{js,ts,json,yml}'"
   },
   "dependencies": {
-    "@kubernetes/client-node": "^0.15.1",
+    "@kubernetes/client-node": "^0.17.0",
     "@snyk/dep-graph": "^1.30.0",
     "async": "^3.2.4",
     "aws-sdk": "^2.1196.0",
@@ -49,7 +49,7 @@
     "needle": "^3.0.0",
     "sleep-promise": "^9.1.0",
     "snyk-config": "5.1.0",
-    "snyk-docker-plugin": "^5.4.3",
+    "snyk-docker-plugin": "^5.5.0",
     "source-map-support": "^0.5.21",
     "tunnel": "0.0.6",
     "typescript": "^4.7.4",

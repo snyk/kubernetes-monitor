@@ -4,11 +4,16 @@ import {
   V1ListMeta,
   V1ObjectMeta,
   V1PodTemplateSpec,
+  ADD,
+  CHANGE,
+  DELETE,
+  UPDATE,
 } from '@kubernetes/client-node';
 import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
+export type KubernetesInformerVerb = ADD | CHANGE | DELETE | UPDATE;
 type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
 type ListNamespacedWorkloadFunctionFactory = (
@@ -28,7 +33,7 @@ export interface IWorkloadWatchMetadata {
     clusterEndpoint: string;
     namespacedEndpoint: string;
     handlers: {
-      [kubernetesInformerVerb: string]: WorkloadHandlerFunc;
+      [kubernetesInformerVerb in KubernetesInformerVerb]: WorkloadHandlerFunc;
     };
     clusterListFactory: ListClusterWorkloadFunctionFactory;
     namespacedListFactory: ListNamespacedWorkloadFunctionFactory;

@@ -18,7 +18,7 @@ git clone https://$GH_TOKEN@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.gi
 cp -r snyk-monitor/* $KUBERNETES_MONITOR_DEPLOYER_REPO/helm
 
 # Create helm values for different envs
-cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/pre-prod-mt.yaml <<EOF
+cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-pre-production.yaml <<EOF
 clusterName: "Development cluster"
 integrationApi: https://kubernetes-upstream.dev.snyk.io
 log_level: "DEBUG"
@@ -39,7 +39,7 @@ workers:
 
 EOF
 
-cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/prod-mt.yaml <<EOF
+cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-production.yaml <<EOF
 clusterName: "Production cluster"
 log_level: "DEBUG"
 skip_k8s_jobs: true

@@ -59,8 +59,7 @@ export async function trackNamespaces(): Promise<void> {
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
   informer.on(ERROR, (error) => {
-    // Types from client library insists that callback is of type KubernetesObject
-    const code = (error as any).code || '';
+    const code = error.code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -126,8 +125,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
   informer.on(ERROR, (error) => {
-    // Types from client library insists that callback is of type KubernetesObject
-    const code = (error as any).code || '';
+    const code = error.code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');

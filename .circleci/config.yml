@@ -523,6 +523,8 @@ jobs:
                     kubectl delete catalogsource snyk-operator -n openshift-marketplace
                     kubectl delete clusterrolebinding snyk-monitor
                     kubectl delete clusterrole snyk-monitor
+                    kubectl delete --all all,sa,cm,secret,pvc -n services
+                    kubectl delete --all all,sa,cm,secret,pvc -n snyk-monitor
                     kubectl delete namespace services
                     kubectl delete namespace snyk-monitor
                     # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
@@ -654,8 +656,10 @@ jobs:
                     kubectl delete -f ./test/fixtures/operator/custom-resource.yaml
                     kubectl delete clusterrolebinding snyk-monitor
                     kubectl delete clusterrole snyk-monitor
-
-                    kubectl delete ns snyk-monitor
+                    kubectl delete --all all,sa,cm,secret,pvc -n services
+                    kubectl delete --all all,sa,cm,secret,pvc -n snyk-monitor
+                    kubectl delete namespace snyk-monitor
+                    kubectl delete namespace services
                     # Force a success status code, otherwise Bash will implicitly return the last command's code, which can be 1.
                     true
                 name: Cleanup
@@ -1056,34 +1060,6 @@ workflows:
                             - master
                 requires:
                     - hold
-            - sync_embedded_community_operators_with_snyk_fork:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - operator_upgrade_tests
-            - push_operator_to_embedded_community_operators:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - sync_embedded_community_operators_with_snyk_fork
-            - sync_community_operators_with_snyk_fork:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - push_operator_to_embedded_community_operators
-            - push_operator_to_community_operators:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - sync_community_operators_with_snyk_fork
     MERGE_TO_MASTER:
         jobs:
             - publish:
@@ -1208,12 +1184,6 @@ workflows:
     MONTHLY:
         jobs:
             - operator_upgrade_tests
-            - push_operator_to_embedded_community_operators:
-                requires:
-                    - operator_upgrade_tests
-            - push_operator_to_community_operators:
-                requires:
-                    - operator_upgrade_tests
         triggers:
             - schedule:
                 cron: 0 5 3 * *

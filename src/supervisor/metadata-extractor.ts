@@ -26,12 +26,14 @@ export function buildImageMetadata(
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
   const containerNameToSpec: { [key: string]: V1Container } = {};
-  for (const container of podSpec.containers) {
-    delete container.args;
-    delete container.env;
-    delete container.command;
-    //! would container.envFrom also include sensitive data?
-    containerNameToSpec[container.name] = container;
+  if (podSpec.containers) {
+    for (const container of podSpec.containers) {
+      delete container.args;
+      delete container.env;
+      delete container.command;
+      //! would container.envFrom also include sensitive data?
+      containerNameToSpec[container.name] = container;
+    }
   }
 
   const containerNameToStatus: { [key: string]: V1ContainerStatus } = {};
@@ -211,6 +213,29 @@ export async function buildMetadataForWorkload(
     pod.metadata.ownerReferences,
     pod.metadata.namespace,
   );
+
+  const hasNodeOwnerRef = pod.metadata?.ownerReferences?.find(
+    (owner) => owner.kind === 'Node',
+  );
+
+  if (hasNodeOwnerRef && podOwner === undefined) {
+    logger.info(
+      { podMetadata: pod.metadata },
+      'pod associated with owner, but owner not found. returning pod metadata.',
+    );
+    return buildImageMetadata(
+      {
+        kind: 'Pod', // Reading pod.kind may be undefined, so use this
+        objectMeta: pod.metadata,
+        // Notice the pod.metadata repeats; this is because pods
+        // do not have the "template" property.
+        specMeta: pod.metadata,
+        ownerRefs: [],
+        podSpec: pod.spec,
+      },
+      pod.status.containerStatuses,
+    );
+  }
 
   if (podOwner === undefined) {
     logger.info(

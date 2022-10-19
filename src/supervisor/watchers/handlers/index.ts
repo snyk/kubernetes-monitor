@@ -7,7 +7,7 @@ import * as deploymentConfig from './deployment-config';
 import * as rollout from './argo-rollout';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
-import { FALSY_WORKLOAD_NAME_MARKER } from './types';
+import { FALSY_WORKLOAD_NAME_MARKER, KubernetesInformerVerb } from './types';
 import { RETRYABLE_NETWORK_ERRORS } from '../types';
 import { workloadWatchMetadata } from './informer-config';
 import { isExcludedNamespace } from '../internal-namespaces';
@@ -108,8 +108,7 @@ export async function setupNamespacedInformer(
   );
 
   informer.on(ERROR, (error) => {
-    // Types from client library insists that callback is of type KubernetesObject
-    const code = (error as any).code || '';
+    const code = error.code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -127,19 +126,22 @@ export async function setupNamespacedInformer(
   });
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
-    informer.on(informerVerb, async (watchedWorkload) => {
-      try {
-        await workloadMetadata.handlers[informerVerb](watchedWorkload);
-      } catch (error) {
-        const name =
-          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
-          FALSY_WORKLOAD_NAME_MARKER;
-        logger.warn(
-          { ...logContext, error, workloadName: name },
-          'could not execute the namespaced informer handler for a workload',
-        );
-      }
-    });
+    informer.on(
+      informerVerb as KubernetesInformerVerb,
+      async (watchedWorkload) => {
+        try {
+          await workloadMetadata.handlers[informerVerb](watchedWorkload);
+        } catch (error) {
+          const name =
+            (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+            FALSY_WORKLOAD_NAME_MARKER;
+          logger.warn(
+            { ...logContext, error, workloadName: name },
+            'could not execute the namespaced informer handler for a workload',
+          );
+        }
+      },
+    );
   }
 
   await informer.start();
@@ -183,8 +185,7 @@ export async function setupClusterInformer(
   );
 
   informer.on(ERROR, (error) => {
-    // Types from client library insists that callback is of type KubernetesObject
-    const code = (error as any).code || '';
+    const code = error.code || '';
     logContext.code = code;
     if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
       logger.debug(logContext, 'informer error occurred, restarting informer');
@@ -202,23 +203,26 @@ export async function setupClusterInformer(
   });
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
-    informer.on(informerVerb, async (watchedWorkload) => {
-      try {
-        if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
-          return;
-        }
+    informer.on(
+      informerVerb as KubernetesInformerVerb,
+      async (watchedWorkload) => {
+        try {
+          if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
+            return;
+          }
 
-        await workloadMetadata.handlers[informerVerb](watchedWorkload);
-      } catch (error) {
-        const name =
-          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
-          FALSY_WORKLOAD_NAME_MARKER;
-        logger.warn(
-          { ...logContext, error, workloadName: name },
-          'could not execute the cluster informer handler for a workload',
-        );
-      }
-    });
+          await workloadMetadata.handlers[informerVerb](watchedWorkload);
+        } catch (error) {
+          const name =
+            (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+            FALSY_WORKLOAD_NAME_MARKER;
+          logger.warn(
+            { ...logContext, error, workloadName: name },
+            'could not execute the cluster informer handler for a workload',
+          );
+        }
+      },
+    );
   }
 
   await informer.start();

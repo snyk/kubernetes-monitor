@@ -1,7 +1,14 @@
 import * as fs from 'fs';
 import * as YAML from 'yaml';
 
-import { V1OwnerReference, V1Pod, V1Deployment } from '@kubernetes/client-node';
+import {
+  V1OwnerReference,
+  V1Pod,
+  V1Deployment,
+  V1Node,
+  V1ObjectMeta,
+  V1PodSpec,
+} from '@kubernetes/client-node';
 import * as supervisorTypes from '../../../src/supervisor/types';
 
 import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
@@ -130,4 +137,35 @@ describe('metadata extractor tests', () => {
     expect(container.command).toBeUndefined();
     expect(container.env).toBeUndefined();
   });
+
+  test.concurrent(
+    'buildImageMetadata from pod spec for unsupported workload',
+    async () => {
+      const podFixture = fs.readFileSync(
+        './test/fixtures/sidecar-containers/node-pod.yaml',
+        'utf8',
+      );
+      const podObject: V1Pod = YAML.parse(podFixture);
+
+      const workloadResult = await metadataExtractor.buildMetadataForWorkload(
+        podObject,
+      );
+
+      expect(Array.isArray(workloadResult)).toEqual(true);
+      expect(workloadResult).toHaveLength(2);
+      expect(workloadResult![0]).toEqual(
+        expect.objectContaining<Partial<transmitterTypes.IWorkload>>({
+          type: 'Pod',
+          imageId:
+            'docker-pullable://eu.gcr.io/cookie/hello-world@sha256:1ac413b2756364b7b856c64d557fdedb97a4ba44ca16fc656e08881650848fe2',
+          imageName: 'eu.gcr.io/cookie/hello-world:1.20191125.132107-4664980',
+        }),
+      );
+      const container = workloadResult[0].podSpec.containers[0];
+
+      expect(container.args).toBeUndefined();
+      expect(container.command).toBeUndefined();
+      expect(container.env).toBeUndefined();
+    },
+  );
 });
