@@ -26,7 +26,7 @@ from create_operator_bundle_and_index_and_push import createOperatorBundleAndInd
 
 if __name__ == '__main__':
     random_digest = sha1(str(datetime.now()).encode("utf-8")).hexdigest()
-    operator_version = "0.0.1-ubi8-" + random_digest[0:8]
+    operator_version = "0.0.1-ubi9-" + random_digest[0:8]
 
     with open(getcwd() + "/" + ".operator_version", "w") as f:
         f.write(operator_version)
