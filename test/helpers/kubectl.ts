@@ -108,22 +108,12 @@ export async function createPodFromImage(
   name: string,
   image: string,
   namespace: string,
-) {
+): Promise<void> {
   console.log(
     `Letting Kubernetes decide how to manage image ${image} with name ${name}`,
   );
-  /**
-   * HACK! The newest version of kubectl does not support generators. However, "OpenShift 3" tests run on K8s 1.11 which supports generators.
-   * The default behaviour there is to create a Deployment, whereas new versions of kubectl create Pods.
-   * We can't use the default behaviour for both OpenShift 3 and other tests, because we would get different results.
-   * Hence we need to specifically select the Pod generator on OS3 but it would default to Pod on anything else.
-   */
-  const generator =
-    process.env['TEST_PLATFORM'] === 'openshift3'
-      ? '--generator=run-pod/v1'
-      : '';
   await exec(
-    `./kubectl run ${name} ${generator} --image=${image} -n ${namespace} -- sleep 999999999`,
+    `./kubectl run ${name} --image=${image} -n ${namespace} -- sleep 999999999`,
   );
   console.log(
     `Done Letting Kubernetes decide how to manage image ${image} with name ${name}`,

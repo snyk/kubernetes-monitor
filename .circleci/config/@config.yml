@@ -73,10 +73,6 @@ workflows:
           requires:
             - build_image
           <<: *staging_branch_only_filter
-      - openshift3_integration_tests:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
       - integration_tests_operator_on_k8s:
           requires:
             - build_image
