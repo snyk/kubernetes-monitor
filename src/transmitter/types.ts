@@ -51,10 +51,7 @@ export interface IWorkloadMetadataPayload {
   workloadMetadata: IWorkloadMetadata;
 }
 
-export interface IDeleteWorkloadPayload {
-  workloadLocator: IWorkloadLocator;
-  agentId: string;
-}
+export interface IDeleteWorkloadPayload {}
 
 export interface IWorkloadEventsPolicyPayload {
   userLocator: string;

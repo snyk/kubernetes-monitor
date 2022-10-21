@@ -8,7 +8,7 @@ import {
 } from './images';
 import { deleteWorkload, sendDepGraph, sendScanResults } from '../transmitter';
 import {
-  constructDeleteWorkload,
+  constructDeleteUrlParams,
   constructDepGraph,
   constructScanResults,
 } from '../transmitter/payload';
@@ -69,12 +69,12 @@ export async function sendDeleteWorkloadRequest(
   workloadName: string,
   localWorkloadLocator: ILocalWorkloadLocator,
 ): Promise<void> {
-  const deletePayload = constructDeleteWorkload(localWorkloadLocator);
+  const deleteUrlParams = constructDeleteUrlParams(localWorkloadLocator);
   logger.info(
     { workloadName, workload: localWorkloadLocator },
     'removing workloads from upstream',
   );
-  await deleteWorkload(deletePayload);
+  await deleteWorkload(deleteUrlParams);
 }
 
 export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {

@@ -189,25 +189,24 @@ describe('transmitter payload tests', () => {
   });
 
   test.concurrent('constructDeleteWorkload happy flow', async () => {
+    const expectedName = 'wl-name';
+    const expectedNamespace = 'wl-namespace';
+    const expectedType = 'wl-type';
     const localWorkloadLocator: ILocalWorkloadLocator = {
-      name: 'wl-name',
-      namespace: 'wl-namespace',
-      type: 'wl-type',
+      name: expectedName,
+      namespace: expectedNamespace,
+      type: expectedType,
     };
-    const deleteWorkloadPayload =
-      payload.constructDeleteWorkload(localWorkloadLocator);
-    expect(deleteWorkloadPayload).toEqual<IDeleteWorkloadPayload>({
-      workloadLocator: expect.any(Object),
-      agentId: expect.any(String),
-    });
-
-    expect(deleteWorkloadPayload.workloadLocator).toEqual<IWorkloadLocator>({
-      userLocator: expect.any(String),
-      cluster: expect.any(String),
-      name: 'wl-name',
-      namespace: 'wl-namespace',
-      type: 'wl-type',
-    });
+    const deleteWorkloadUrlParams =
+      payload.constructDeleteUrlParams(localWorkloadLocator);
+    const [integrationId, clusterName, namespace, type, name, agentId] =
+      deleteWorkloadUrlParams.split('/');
+    expect(integrationId).toEqual(expect.any(String));
+    expect(clusterName).toEqual(expect.any(String));
+    expect(namespace).toEqual(expectedNamespace);
+    expect(type).toEqual(expectedType);
+    expect(name).toEqual(expectedName);
+    expect(agentId).toEqual(expect.any(String));
   });
 
   test.concurrent('constructRuntimeData happy flow', async () => {

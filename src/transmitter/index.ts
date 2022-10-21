@@ -196,20 +196,18 @@ export async function sendWorkloadEventsPolicy(
   }
 }
 
-export async function deleteWorkload(
-  payload: IDeleteWorkloadPayload,
-): Promise<void> {
+export async function deleteWorkload(params: string): Promise<void> {
   try {
     const request: KubernetesUpstreamRequest = {
       method: 'delete',
-      url: `${upstreamUrl}/api/v1/workload`,
-      payload,
+      url: `${upstreamUrl}/api/v1/workload/${params}`,
+      payload: {} as IDeleteWorkloadPayload,
     };
 
     const { response, attempt } = await reqQueue.pushAsync(request);
     if (response.statusCode === 404) {
       logger.info(
-        { payload },
+        { params },
         'attempted to delete a workload the Upstream service could not find',
       );
       return;
@@ -217,14 +215,11 @@ export async function deleteWorkload(
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
     } else {
-      logger.info(
-        { workloadLocator: payload.workloadLocator, attempt },
-        'workload deleted successfully',
-      );
+      logger.info({ params, attempt }, 'workload deleted successfully');
     }
   } catch (error) {
     logger.error(
-      { error, payload },
+      { error, params },
       'could not send delete a workload from the upstream',
     );
   }

@@ -2,7 +2,6 @@ import { config } from '../common/config';
 import { currentClusterName } from '../supervisor/cluster';
 import { IScanResult } from '../scanner/types';
 import {
-  IDeleteWorkloadPayload,
   IWorkload,
   ILocalWorkloadLocator,
   IImageLocator,
@@ -116,17 +115,10 @@ export function constructWorkloadMetadata(
   return { workloadLocator, agentId: config.AGENT_ID, workloadMetadata };
 }
 
-export function constructDeleteWorkload(
+export function constructDeleteUrlParams(
   localWorkloadLocator: ILocalWorkloadLocator,
-): IDeleteWorkloadPayload {
-  return {
-    workloadLocator: {
-      ...localWorkloadLocator,
-      userLocator: config.INTEGRATION_ID,
-      cluster: currentClusterName,
-    },
-    agentId: config.AGENT_ID,
-  };
+): string {
+  return `${config.INTEGRATION_ID}/${currentClusterName}/${localWorkloadLocator.namespace}/${localWorkloadLocator.type}/${localWorkloadLocator.name}/${config.AGENT_ID}`;
 }
 
 export function constructWorkloadEventsPolicy(
