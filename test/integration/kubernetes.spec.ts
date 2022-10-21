@@ -29,8 +29,9 @@ async function teardown(): Promise<void> {
   console.log('Removed "kind" network');
 }
 
-beforeAll(teardown);
 afterAll(teardown);
+
+test('clean up environment on start', teardown);
 
 // Make sure this runs first -- deploying the monitor for the next tests
 test('deploy snyk-monitor', async () => {
