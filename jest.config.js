@@ -7,6 +7,9 @@ module.exports = {
   clearMocks: true,
   errorOnDeprecated: true,
 
+  /** https://github.com/facebook/jest/issues/2867#issuecomment-546592968 */
+  setupFilesAfterEnv: ["./jest.setup-after-env.js"],
+
   // TODO: This is here until a bug in Jest (which in turn affects ts-jest) is resolved.
   // It affects our CI/CD runs and makes the machine run out of memory.
   // https://github.com/facebook/jest/issues/10550
