@@ -149,7 +149,7 @@ export async function clean(): Promise<void> {
       .deleteResource('clusterrole', 'snyk-monitor', 'default')
       .catch(() => undefined),
     kubectl
-      .deleteResource('--all', 'all,sa,cm,secret,pvc', 'services')
+      .deleteResource('--all', 'all,sa,cm,secret,pvc,rollouts', 'services')
       .catch(() => undefined),
     kubectl
       .deleteResource('--all', 'all,sa,cm,secret,pvc', 'argo-rollout')
