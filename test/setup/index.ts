@@ -188,9 +188,7 @@ export async function deployMonitor(): Promise<string> {
 
     // TODO: hack, rewrite this
     const imagePullPolicy =
-      testPlatform === 'kind' ||
-      testPlatform === 'kindolm' ||
-      testPlatform === 'openshift3'
+      testPlatform === 'kind' || testPlatform === 'kindolm'
         ? 'Never'
         : 'Always';
     const deploymentImageOptions: IImageOptions = {
