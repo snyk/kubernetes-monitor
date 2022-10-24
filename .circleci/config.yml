@@ -392,7 +392,7 @@ jobs:
     openshift4_integration_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2004:202111-02
+            image: ubuntu-2204:current
             resource_class: large
         steps:
             - checkout
