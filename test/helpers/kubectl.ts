@@ -13,11 +13,6 @@ import { execWrapper as exec } from './exec';
 export async function downloadKubectl(version: string): Promise<void> {
   const kubectlPath = resolve(process.cwd(), 'kubectl');
   if (existsSync(kubectlPath)) {
-    if (version === 'latest') {
-      return;
-    }
-
-    // Always start clean when requesting a specific version.
     unlinkSync(kubectlPath);
   }
 
