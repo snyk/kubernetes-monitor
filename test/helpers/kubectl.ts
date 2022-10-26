@@ -343,16 +343,3 @@ async function getLatestStableK8sRelease(): Promise<string> {
   console.log(`The latest stable K8s release is ${k8sRelease}`);
   return k8sRelease;
 }
-
-export async function verifyPodSecurityPolicy(name: string): Promise<boolean> {
-  console.log(`Trying to find Pod Security Policy ${name}`);
-  for (let attempt = 0; attempt < 60; attempt++) {
-    try {
-      await exec(`./kubectl get podsecuritypolicy ${name}`);
-      return true;
-    } catch (err) {
-      await sleep(500);
-    }
-  }
-  return false;
-}

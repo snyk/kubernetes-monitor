@@ -220,21 +220,6 @@ For example, run the following for first-time setup:
 And run the following for subsequent upgrades:
 `--set pvc.enabled=true`
 
-## PodSecurityPolicies
-**This should not be used when installing on OpenShift.**
-
-Using PodSecurityPolicies can be achieved by setting the following values in the Helm chart:
-* psp.enabled - default is `false`. Set to `true` if PodSecurityPolicy is needed
-* psp.name - default is empty. Leave it empty if you want us to install the necessary PodSecurityPolicy. Modify it to specify an existing PodSecurityPolicy rather than creating a new one.
-
-For example:
-```shell
-helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
-  --namespace snyk-monitor \
-  --set clusterName="Production cluster" \
-  --set psp.enabled=true
-```
-
 ## Configuring excluded namespaces ##
 
 By default, `snyk-monitor` does not scan containers that are internal to Kubernetes, in the following namespaces:
