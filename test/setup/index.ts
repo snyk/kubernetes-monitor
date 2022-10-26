@@ -196,7 +196,16 @@ export async function deployMonitor(): Promise<string> {
       pullPolicy: imagePullPolicy,
     };
     await deployers[deploymentType].deploy(deploymentImageOptions);
-    await kubectl.waitForDeployment('snyk-monitor', namespace);
+    for (let attempt = 0; attempt < 180; attempt++) {
+      try {
+        await exec(
+          `./kubectl get deployment.apps/snyk-monitor -n ${namespace}`,
+        );
+        break;
+      } catch {
+        await sleep(1000);
+      }
+    }
 
     console.log(
       `Deployed the snyk-monitor with integration ID ${integrationId}`,
