@@ -36,16 +36,19 @@ The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter
 Create a file named `dockercfg.json`. Store your credentials in there; it should look like this:
 
 ```hjson
+// If your cluster does not run on GKE or it runs on GKE and pulls images from other private registries, add the following:
 {
-  // If your cluster does not run on GKE or it runs on GKE and pulls images from other private registries, add the following:
   "auths": {
     "gcr.io": {
       "auth": "BASE64-ENCODED-AUTH-DETAILS"
     }
     // Add other registries as necessary
-  },
-  
-  // If your cluster runs on GKE and you are using GCR, add the following:
+  }
+}
+```
+```hjson
+// If your cluster runs on GKE and you are using GCR, add the following:
+{
   "credHelpers": {
     "us.gcr.io": "gcloud",
     "asia.gcr.io": "gcloud",
@@ -54,22 +57,23 @@ Create a file named `dockercfg.json`. Store your credentials in there; it should
     "eu.gcr.io": "gcloud",
     "staging-k8s.gcr.io": "gcloud"
   }
-  
-  // If your cluster runs on EKS and you are using ECR, add the following:
-  {
-	"credsStore": "ecr-login"
-  }
-  
-  With Docker 1.13.0 or greater, you can configure Docker to use different credential helpers for different registries.
-  To use this credential helper for a specific ECR registry, create a credHelpers section with the URI of your ECR registry:
-  
-  {
-	"credHelpers": {
-		"public.ecr.aws": "ecr-login",
-		"<aws_account_id>.dkr.ecr.<region>.amazonaws.com": "ecr-login"
-	}
-  }
+}
+```
+```hjson
+// If your cluster runs on EKS and you are using ECR, add the following:
+{
+  "credsStore": "ecr-login"
+}
+```
 
+```hjson
+// You can configure different credential helpers for different registries. 
+// To use this credential helper for a specific ECR registry, create a credHelpers section with the URI of your ECR registry:
+{
+  "credHelpers": {
+    "public.ecr.aws": "ecr-login",
+    "<aws_account_id>.dkr.ecr.<region>.amazonaws.com": "ecr-login"
+  }
 }
 ```
 Finally, create the secret in Kubernetes by running the following command:
@@ -86,7 +90,7 @@ kubectl create configmap snyk-monitor-certs -n snyk-monitor --from-file=<path_to
 
 Create a file named `registries.conf`, see example adding an insecure registry: 
 
-```
+```conf
 [[registry]]
 location = "internal-registry-for-example.net/bar"
 insecure = true
@@ -105,10 +109,16 @@ Add the latest version of Snyk's Helm repo:
 helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor/ --force-update
 ```
 
+Note that the Snyk monitor has **read-only** access to workloads in the cluster and will never interfere with other applications. The exact permissions requested by the monitor can be seen in the [ClusterRole](./templates/clusterrole.yaml) or [Role](./templates/role.yaml).
+
+### Installation and monitoring of the whole cluster
+
 Run the following command to launch the Snyk monitor in your cluster:
 
 ```shell
-helm upgrade --install snyk-monitor snyk-charts/snyk-monitor --namespace snyk-monitor --set clusterName="Production cluster"
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set clusterName="Production cluster"
 ```
 
 To better organise the data scanned inside your cluster, the monitor requires a cluster name to be set.
@@ -116,9 +126,20 @@ Replace the value of `clusterName` with the name of your cluster.
 
 **Please note that `/` in cluster name is disallowed. Any `/` in cluster names will be removed.**
 
+### Installation and monitoring of a single namespace
+
+The Snyk monitor can be configured to monitor only the namespace in which it is installed instead of the whole cluster:
+
+```shell
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace some-ns-to-be-monitored \ # Note: ensure your snyk-monitor secret exists here
+  --set scope=Namespaced \ # Monitor only the current namespace
+  --set clusterName="Production cluster"
+```
+
 ## Upgrades ##
 
-You can apply the latest version of the YAML installation files to upgrade.
+You can apply the latest version of the Helm chart to upgrade.
 
 If you would like to reuse the last release's values and merge in any overrides from the command line via --set and -f, you can use the option `--reuse-values`. For example:
 ```bash
@@ -311,6 +332,8 @@ extraInitContainers:
 ```
 
 ## Terms and conditions ##
+
+Note that these terms and conditions apply when installing the Snyk Certified Red Hat Marketplace Operator, which uses Red Hat UBI.
 
 *The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*
 
