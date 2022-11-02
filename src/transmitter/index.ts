@@ -248,6 +248,9 @@ export async function retryRequest(
     json: true,
     compressed: true,
     agent: getAgent(url),
+    open_timeout: 10_000,
+    response_timeout: 10_000,
+    read_timeout: 10_000,
     ...reqOptions,
   };
 

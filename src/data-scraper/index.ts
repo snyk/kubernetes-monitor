@@ -34,7 +34,9 @@ export async function validateConnectivity(): Promise<void> {
     headers: {
       authorization: header,
     },
-    timeout: 10_000,
+    open_timeout: 10_000,
+    response_timeout: 10_000,
+    read_timeout: 10_000,
   };
 
   const limit: number = 1;
@@ -61,6 +63,9 @@ export async function scrapeData(): Promise<void> {
     headers: {
       authorization: header,
     },
+    open_timeout: 10_000,
+    response_timeout: 10_000,
+    read_timeout: 10_000,
   };
 
   let cursor: string = '';
