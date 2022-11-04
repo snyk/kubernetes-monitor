@@ -200,13 +200,17 @@ export async function deleteWorkload(
   payload: IDeleteWorkloadPayload,
 ): Promise<void> {
   try {
+    const { workloadLocator, agentId } = payload;
+    const { userLocator, cluster, namespace, type, name } = workloadLocator;
+    const query = `userLocator=${userLocator}&cluster=${cluster}&namespace=${namespace}&type=${type}&name=${name}&agentId=${agentId}`;
     const request: KubernetesUpstreamRequest = {
       method: 'delete',
-      url: `${upstreamUrl}/api/v1/workload`,
+      url: `${upstreamUrl}/api/v1/workload?${query}`,
       payload,
     };
 
     const { response, attempt } = await reqQueue.pushAsync(request);
+    // TODO: Remove this check, the upstream no longer returns 404 in such cases
     if (response.statusCode === 404) {
       logger.info(
         { payload },
