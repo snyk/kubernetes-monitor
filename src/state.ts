@@ -35,23 +35,17 @@ interface WorkloadImagesAlreadyScanned {
   imageIds: string[];
 }
 
-function getWorkloadAlreadyScannedKey(
-  workload: WorkloadAlreadyScanned,
-): string {
-  return `${workload.namespace}/${workload.type}/${workload.uid}`;
-}
-
 function getWorkloadImageAlreadyScannedKey(
   workload: WorkloadAlreadyScanned,
   imageName: string,
 ): string {
-  return `${workload.namespace}/${workload.type}/${workload.uid}/${imageName}`;
+  return `${workload.uid}/${imageName}`;
 }
 
 export async function getWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
 ): Promise<string | undefined> {
-  const key = getWorkloadAlreadyScannedKey(workload);
+  const key = workload.uid;
   return state.workloadsAlreadyScanned.get(key);
 }
 
@@ -59,14 +53,14 @@ export async function setWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
   revision: string,
 ): Promise<boolean> {
-  const key = getWorkloadAlreadyScannedKey(workload);
+  const key = workload.uid;
   return state.workloadsAlreadyScanned.set(key, revision);
 }
 
 export async function deleteWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
 ): Promise<void> {
-  const key = getWorkloadAlreadyScannedKey(workload);
+  const key = workload.uid;
   state.workloadsAlreadyScanned.del(key);
 }
 
