@@ -14,6 +14,11 @@ import { IncomingMessage } from 'http';
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
 export type KubernetesInformerVerb = ADD | CHANGE | DELETE | UPDATE;
+
+type WorkloadHandlers = Partial<
+  Record<KubernetesInformerVerb, WorkloadHandlerFunc>
+>;
+
 type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
 type ListNamespacedWorkloadFunctionFactory = (
@@ -32,9 +37,7 @@ export interface IWorkloadWatchMetadata {
   [workloadKind: string]: {
     clusterEndpoint: string;
     namespacedEndpoint: string;
-    handlers: {
-      [kubernetesInformerVerb in KubernetesInformerVerb]: WorkloadHandlerFunc;
-    };
+    handlers: WorkloadHandlers;
     clusterListFactory: ListClusterWorkloadFunctionFactory;
     namespacedListFactory: ListNamespacedWorkloadFunctionFactory;
   };
