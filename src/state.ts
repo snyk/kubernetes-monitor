@@ -4,7 +4,7 @@ import LruCache from 'lru-cache';
 import { config } from './common/config';
 import { extractNamespaceName } from './supervisor/watchers/internal-namespaces';
 
-const imagesLruCacheOptions: LruCache.Options<string, string> = {
+const imagesLruCacheOptions: LruCache.Options<string, Set<string>> = {
   // limit cache size so we don't exceed memory limit
   max: config.IMAGES_SCANNED_CACHE.MAX_SIZE,
   // limit cache life so if our backend loses track of an image's data,
@@ -35,56 +35,61 @@ interface WorkloadImagesAlreadyScanned {
   imageIds: string[];
 }
 
-function getWorkloadAlreadyScannedKey(
-  workload: WorkloadAlreadyScanned,
-): string {
-  return `${workload.namespace}/${workload.type}/${workload.uid}`;
-}
-
 function getWorkloadImageAlreadyScannedKey(
   workload: WorkloadAlreadyScanned,
-  imageId: string,
+  imageName: string,
 ): string {
-  return `${workload.namespace}/${workload.type}/${workload.uid}/${imageId}`;
+  return `${workload.uid}/${imageName}`;
 }
 
 export async function getWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
 ): Promise<string | undefined> {
-  const key = getWorkloadAlreadyScannedKey(workload);
+  const key = workload.uid;
   return state.workloadsAlreadyScanned.get(key);
 }
 
 export async function setWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
-  value: string,
+  revision: string,
 ): Promise<boolean> {
-  const key = getWorkloadAlreadyScannedKey(workload);
-  return state.workloadsAlreadyScanned.set(key, value);
+  const key = workload.uid;
+  return state.workloadsAlreadyScanned.set(key, revision);
 }
 
 export async function deleteWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
 ): Promise<void> {
-  const key = getWorkloadAlreadyScannedKey(workload);
+  const key = workload.uid;
   state.workloadsAlreadyScanned.del(key);
 }
 
 export async function getWorkloadImageAlreadyScanned(
   workload: WorkloadAlreadyScanned,
+  imageName: string,
   imageId: string,
 ): Promise<string | undefined> {
-  const key = getWorkloadImageAlreadyScannedKey(workload, imageId);
-  return state.imagesAlreadyScanned.get(key);
+  const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
+  const hasImageId = state.imagesAlreadyScanned.get(key)?.has(imageId);
+  return hasImageId ? imageId : undefined;
 }
 
 export async function setWorkloadImageAlreadyScanned(
   workload: WorkloadAlreadyScanned,
+  imageName: string,
   imageId: string,
-  value: string,
 ): Promise<boolean> {
-  const key = getWorkloadImageAlreadyScannedKey(workload, imageId);
-  return state.imagesAlreadyScanned.set(key, value);
+  const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
+  const images = state.imagesAlreadyScanned.get(key);
+  if (images !== undefined) {
+    images.add(imageId);
+  } else {
+    const set = new Set<string>();
+    set.add(imageId);
+    state.imagesAlreadyScanned.set(key, set);
+  }
+
+  return true;
 }
 
 export async function deleteWorkloadImagesAlreadyScanned(
@@ -126,7 +131,9 @@ export function deleteNamespace(namespace: V1Namespace): void {
 
 export const state = {
   shutdownInProgress: false,
-  imagesAlreadyScanned: new LruCache<string, string>(imagesLruCacheOptions),
+  imagesAlreadyScanned: new LruCache<string, Set<string>>(
+    imagesLruCacheOptions,
+  ),
   workloadsAlreadyScanned: new LruCache<string, string>(
     workloadsLruCacheOptions,
   ),

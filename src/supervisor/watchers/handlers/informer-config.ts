@@ -1,4 +1,4 @@
-import { ADD, CHANGE, DELETE, UPDATE } from '@kubernetes/client-node';
+import { ADD, DELETE, UPDATE } from '@kubernetes/client-node';
 
 import { WorkloadKind } from '../../types';
 import * as pod from './pod';
@@ -37,7 +37,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint: '/api/v1/namespaces/{namespace}/pods',
     handlers: {
       [ADD]: pod.podWatchHandler,
-      [CHANGE]: async () => {},
       [DELETE]: pod.podDeletedHandler,
       [UPDATE]: pod.podWatchHandler,
     },
@@ -50,10 +49,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/api/v1/watch/namespaces/{namespace}/replicationcontrollers',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: replicationController.replicationControllerWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () =>
       replicationController.paginatedClusterReplicationControllerList(),
@@ -66,10 +62,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     clusterEndpoint: '/apis/batch/v1/cronjobs',
     namespacedEndpoint: '/apis/batch/v1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: cronJob.cronJobWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () => cronJob.paginatedClusterCronJobList(),
     namespacedListFactory: (namespace) => () =>
@@ -80,10 +73,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: cronJob.cronJobWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () =>
       cronJob.paginatedClusterCronJobV1Beta1List(),
@@ -94,10 +84,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     clusterEndpoint: '/apis/batch/v1/jobs',
     namespacedEndpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: job.jobWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () => job.paginatedClusterJobList(),
     namespacedListFactory: (namespace) => () =>
@@ -107,10 +94,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     clusterEndpoint: '/apis/apps/v1/daemonsets',
     namespacedEndpoint: '/apis/apps/v1/watch/namespaces/{namespace}/daemonsets',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: daemonSet.daemonSetWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () => daemonSet.paginatedClusterDaemonSetList(),
     namespacedListFactory: (namespace) => () =>
@@ -121,10 +105,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/apps/v1/watch/namespaces/{namespace}/deployments',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: deployment.deploymentWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () => deployment.paginatedClusterDeploymentList(),
     namespacedListFactory: (namespace) => () =>
@@ -135,10 +116,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/apps/v1/watch/namespaces/{namespace}/replicasets',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: replicaSet.replicaSetWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () => replicaSet.paginatedClusterReplicaSetList(),
     namespacedListFactory: (namespace) => () =>
@@ -149,10 +127,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/apps/v1/watch/namespaces/{namespace}/statefulsets',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: statefulSet.statefulSetWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () =>
       statefulSet.paginatedClusterStatefulSetList(),
@@ -165,10 +140,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/apps.openshift.io/v1/watch/namespaces/{namespace}/deploymentconfigs',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: deploymentConfig.deploymentConfigWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () =>
       deploymentConfig.paginatedClusterDeploymentConfigList(),
@@ -180,10 +152,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedEndpoint:
       '/apis/argoproj.io/v1alpha1/watch/namespaces/{namespace}/rollouts',
     handlers: {
-      [ADD]: async () => {},
-      [CHANGE]: async () => {},
       [DELETE]: rollout.argoRolloutWatchHandler,
-      [UPDATE]: async () => {},
     },
     clusterListFactory: () => () => rollout.paginatedClusterArgoRolloutList(),
     namespacedListFactory: (namespace) => () =>
