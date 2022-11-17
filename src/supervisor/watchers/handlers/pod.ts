@@ -33,6 +33,7 @@ export async function handleReadyPod(
     const scanned = await getWorkloadImageAlreadyScanned(
       workload,
       workload.imageName,
+      workload.imageId,
     );
     // ImageID contains the resolved image digest.
     // ImageName may contain a tag. The image behind this tag can be mutated and can change over time.

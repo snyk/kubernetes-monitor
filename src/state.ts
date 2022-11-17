@@ -4,7 +4,7 @@ import LruCache from 'lru-cache';
 import { config } from './common/config';
 import { extractNamespaceName } from './supervisor/watchers/internal-namespaces';
 
-const imagesLruCacheOptions: LruCache.Options<string, string> = {
+const imagesLruCacheOptions: LruCache.Options<string, Set<string>> = {
   // limit cache size so we don't exceed memory limit
   max: config.IMAGES_SCANNED_CACHE.MAX_SIZE,
   // limit cache life so if our backend loses track of an image's data,
@@ -72,10 +72,12 @@ export async function deleteWorkloadAlreadyScanned(
 
 export async function getWorkloadImageAlreadyScanned(
   workload: WorkloadAlreadyScanned,
+  imageName: string,
   imageId: string,
 ): Promise<string | undefined> {
-  const key = getWorkloadImageAlreadyScannedKey(workload, imageId);
-  return state.imagesAlreadyScanned.get(key);
+  const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
+  const hasImageId = state.imagesAlreadyScanned.get(key)?.has(imageId);
+  return hasImageId ? imageId : undefined;
 }
 
 export async function setWorkloadImageAlreadyScanned(
@@ -84,7 +86,16 @@ export async function setWorkloadImageAlreadyScanned(
   value: string,
 ): Promise<boolean> {
   const key = getWorkloadImageAlreadyScannedKey(workload, imageId);
-  return state.imagesAlreadyScanned.set(key, value);
+  const images = state.imagesAlreadyScanned.get(key);
+  if (images !== undefined) {
+    images.add(value);
+  } else {
+    const set = new Set<string>();
+    set.add(value);
+    state.imagesAlreadyScanned.set(key, set);
+  }
+
+  return true;
 }
 
 export async function deleteWorkloadImagesAlreadyScanned(
@@ -126,7 +137,9 @@ export function deleteNamespace(namespace: V1Namespace): void {
 
 export const state = {
   shutdownInProgress: false,
-  imagesAlreadyScanned: new LruCache<string, string>(imagesLruCacheOptions),
+  imagesAlreadyScanned: new LruCache<string, Set<string>>(
+    imagesLruCacheOptions,
+  ),
   workloadsAlreadyScanned: new LruCache<string, string>(
     workloadsLruCacheOptions,
   ),

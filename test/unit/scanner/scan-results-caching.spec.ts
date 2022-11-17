@@ -206,12 +206,8 @@ describe('scan results caching', () => {
       const sendScanResultsMock = jest.spyOn(transmitter, 'sendScanResults');
 
       // Act
-      await state.setWorkloadAlreadyScanned(workload, undefined as any);
-      await state.setWorkloadImageAlreadyScanned(
-        workload,
-        workload.imageName,
-        undefined as any,
-      );
+      state.state.workloadsAlreadyScanned.reset();
+      state.state.imagesAlreadyScanned.reset();
 
       const workloadName = 'mock';
       const pulledImages = [];
