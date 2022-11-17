@@ -138,6 +138,7 @@ export async function scanImagesAndSendResults(
   const imageState = await getWorkloadImageAlreadyScanned(
     workload,
     workload.imageName,
+    workload.imageId,
   );
   if (workloadState === undefined && imageState === undefined) {
     logger.info(
