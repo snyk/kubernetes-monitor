@@ -43,9 +43,9 @@ function getWorkloadAlreadyScannedKey(
 
 function getWorkloadImageAlreadyScannedKey(
   workload: WorkloadAlreadyScanned,
-  imageId: string,
+  imageName: string,
 ): string {
-  return `${workload.namespace}/${workload.type}/${workload.uid}/${imageId}`;
+  return `${workload.namespace}/${workload.type}/${workload.uid}/${imageName}`;
 }
 
 export async function getWorkloadAlreadyScanned(
@@ -57,10 +57,10 @@ export async function getWorkloadAlreadyScanned(
 
 export async function setWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
-  value: string,
+  revision: string,
 ): Promise<boolean> {
   const key = getWorkloadAlreadyScannedKey(workload);
-  return state.workloadsAlreadyScanned.set(key, value);
+  return state.workloadsAlreadyScanned.set(key, revision);
 }
 
 export async function deleteWorkloadAlreadyScanned(
@@ -82,16 +82,16 @@ export async function getWorkloadImageAlreadyScanned(
 
 export async function setWorkloadImageAlreadyScanned(
   workload: WorkloadAlreadyScanned,
+  imageName: string,
   imageId: string,
-  value: string,
 ): Promise<boolean> {
-  const key = getWorkloadImageAlreadyScannedKey(workload, imageId);
+  const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
   const images = state.imagesAlreadyScanned.get(key);
   if (images !== undefined) {
-    images.add(value);
+    images.add(imageId);
   } else {
     const set = new Set<string>();
-    set.add(value);
+    set.add(imageId);
     state.imagesAlreadyScanned.set(key, set);
   }
 
