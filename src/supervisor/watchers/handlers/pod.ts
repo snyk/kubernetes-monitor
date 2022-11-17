@@ -155,9 +155,11 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadRevision = workloadMember.revision
       ? workloadMember.revision.toString()
       : '';
-    const scanned = await getWorkloadAlreadyScanned(workloadMember);
-    if (scanned !== workloadRevision) {
-      // either not exists or different
+    const scannedRevision = await getWorkloadAlreadyScanned(workloadMember);
+    const isRevisionDifferent =
+      scannedRevision === undefined ||
+      Number(workloadRevision) > Number(scannedRevision);
+    if (isRevisionDifferent) {
       await setWorkloadAlreadyScanned(workloadMember, workloadRevision);
       await sendWorkloadMetadata(workloadMetadataPayload);
     }
