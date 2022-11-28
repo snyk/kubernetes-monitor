@@ -148,6 +148,9 @@ sysdig:
 strategy:
   type: RollingUpdate
 
+initContainers:
+  enabled: true
+
 # Additional volumes for the deployment, available to all containers
 extraVolumes: []
 #  - name: my-empty-dir
