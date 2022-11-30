@@ -59,7 +59,7 @@ export async function handleReadyPod(
 
   const workload = workloadToScan[0];
   if (workloadToScan.length > 0) {
-    workloadsToScanQueue.push({
+    await workloadsToScanQueue.pushAsync({
       key: workload.uid,
       workloadMetadata: workloadToScan,
       enqueueTimestampMs: Date.now(),
