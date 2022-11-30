@@ -40,7 +40,7 @@ describe('scan results caching', () => {
         .mockReturnValue();
       const setWorkloadImageAlreadyScannedMock = jest
         .spyOn(state, 'setWorkloadImageAlreadyScanned')
-        .mockResolvedValue(true);
+        .mockReturnValue(true);
 
       // Act
       const workloadMetadata: IWorkload[] = [workload];
@@ -69,7 +69,7 @@ describe('scan results caching', () => {
         .mockReturnValue();
       const setWorkloadImageAlreadyScannedMock = jest
         .spyOn(state, 'setWorkloadImageAlreadyScanned')
-        .mockResolvedValue(true);
+        .mockReturnValue(true);
       const workloadWithNewImageId: IWorkload = {
         ...workload,
         imageId: 'newImageId',
@@ -97,7 +97,7 @@ describe('scan results caching', () => {
 
     it('skips storing images to cache and skips pushing to queue when imageId is already seen', async () => {
       // Arrange
-      await state.setWorkloadImageAlreadyScanned(
+      state.setWorkloadImageAlreadyScanned(
         workload,
         workload.imageName,
         workload.imageId,
@@ -107,7 +107,7 @@ describe('scan results caching', () => {
         .mockReturnValue();
       const setWorkloadImageAlreadyScannedMock = jest
         .spyOn(state, 'setWorkloadImageAlreadyScanned')
-        .mockResolvedValue(true);
+        .mockReturnValue(true);
 
       // Act
       const workloadMetadata: IWorkload[] = [workload];
@@ -163,8 +163,8 @@ describe('scan results caching', () => {
       const sendScanResultsMock = jest.spyOn(transmitter, 'sendScanResults');
 
       // Act
-      await state.setWorkloadAlreadyScanned(workload, workloadState as any);
-      await state.setWorkloadImageAlreadyScanned(
+      state.setWorkloadAlreadyScanned(workload, workloadState as any);
+      state.setWorkloadImageAlreadyScanned(
         workload,
         workload.imageName,
         imageState as any,

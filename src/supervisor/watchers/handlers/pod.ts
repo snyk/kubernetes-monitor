@@ -30,7 +30,7 @@ export async function handleReadyPod(
 ): Promise<void> {
   const workloadToScan: IWorkload[] = [];
   for (const workload of workloadMetadata) {
-    const scanned = await getWorkloadImageAlreadyScanned(
+    const scanned = getWorkloadImageAlreadyScanned(
       workload,
       workload.imageName,
       workload.imageId,
@@ -49,7 +49,7 @@ export async function handleReadyPod(
       { workloadToScan, imageId: workload.imageId },
       'image has not been scanned',
     );
-    await setWorkloadImageAlreadyScanned(
+    setWorkloadImageAlreadyScanned(
       workload,
       workload.imageName,
       workload.imageId,
@@ -147,12 +147,12 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadRevision = workloadMember.revision
       ? workloadMember.revision.toString()
       : '';
-    const scannedRevision = await getWorkloadAlreadyScanned(workloadMember);
+    const scannedRevision = getWorkloadAlreadyScanned(workloadMember);
     const isRevisionDifferent =
       scannedRevision === undefined ||
       Number(workloadRevision) > Number(scannedRevision);
     if (isRevisionDifferent) {
-      await setWorkloadAlreadyScanned(workloadMember, workloadRevision);
+      setWorkloadAlreadyScanned(workloadMember, workloadRevision);
       await sendWorkloadMetadata(workloadMetadataPayload);
     }
 
@@ -169,16 +169,14 @@ export async function podDeletedHandler(pod: V1Pod): Promise<void> {
 
   const workloadAlreadyScanned = kubernetesObjectToWorkloadAlreadyScanned(pod);
   if (workloadAlreadyScanned !== undefined) {
-    await Promise.all([
-      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
-      deleteWorkloadImagesAlreadyScanned({
-        ...workloadAlreadyScanned,
-        imageIds: pod.spec.containers
-          .filter((container) => container.image !== undefined)
-          .map((container) => container.image!),
-      }),
-      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
-    ]);
+    deleteWorkloadAlreadyScanned(workloadAlreadyScanned);
+    deleteWorkloadImagesAlreadyScanned({
+      ...workloadAlreadyScanned,
+      imageIds: pod.spec.containers
+        .filter((container) => container.image !== undefined)
+        .map((container) => container.image!),
+    });
+    deleteWorkloadFromScanQueue(workloadAlreadyScanned);
   }
 
   const workloadName = pod.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
