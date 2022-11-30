@@ -139,7 +139,7 @@ skopeo:
     level: 6
 
 workers:
-  count: 10
+  count: 5
 sysdig:
   enabled: false
   namespace: sysdig-agent
@@ -147,6 +147,9 @@ sysdig:
 
 strategy:
   type: RollingUpdate
+
+initContainers:
+  enabled: true
 
 # Additional volumes for the deployment, available to all containers
 extraVolumes: []

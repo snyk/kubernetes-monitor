@@ -2,6 +2,7 @@ import { KubernetesObject, V1Namespace } from '@kubernetes/client-node';
 import LruCache from 'lru-cache';
 
 import { config } from './common/config';
+import { logger } from './common/logger';
 import { extractNamespaceName } from './supervisor/watchers/internal-namespaces';
 
 const imagesLruCacheOptions: LruCache.Options<string, Set<string>> = {
@@ -42,43 +43,62 @@ function getWorkloadImageAlreadyScannedKey(
   return `${workload.uid}/${imageName}`;
 }
 
-export async function getWorkloadAlreadyScanned(
+export function getWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
-): Promise<string | undefined> {
+): string | undefined {
   const key = workload.uid;
   return state.workloadsAlreadyScanned.get(key);
 }
 
-export async function setWorkloadAlreadyScanned(
+export function setWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
   revision: string,
-): Promise<boolean> {
+): boolean {
   const key = workload.uid;
   return state.workloadsAlreadyScanned.set(key, revision);
 }
 
-export async function deleteWorkloadAlreadyScanned(
+export function deleteWorkloadAlreadyScanned(
   workload: WorkloadAlreadyScanned,
-): Promise<void> {
+): void {
   const key = workload.uid;
   state.workloadsAlreadyScanned.del(key);
 }
 
-export async function getWorkloadImageAlreadyScanned(
+export function getWorkloadImageAlreadyScanned(
   workload: WorkloadAlreadyScanned,
   imageName: string,
   imageId: string,
-): Promise<string | undefined> {
+): string | undefined {
+  const cachedImages = state.imagesAlreadyScanned.dump().map((entry) => {
+    const values = new Array<string>();
+    for (const v in entry.v.values()) {
+      values.push(v);
+    }
+    return `entry: ${entry.e}, key: ${entry.k}; values: ${values.join(',')}`;
+  });
+  logger.debug(
+    { 'kubernetes-monitor': { cachedImages } },
+    'images in the cache',
+  );
+
   const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
   const hasImageId = state.imagesAlreadyScanned.get(key)?.has(imageId);
-  return hasImageId ? imageId : undefined;
+  const response = hasImageId ? imageId : undefined;
+  if (response !== undefined) {
+    logger.debug(
+      { 'kubernetes-monitor': { imageId } },
+      'image already exists in cache',
+    );
+  }
+  return response;
 }
 
-export async function setWorkloadImageAlreadyScanned(
+export function setWorkloadImageAlreadyScanned(
   workload: WorkloadAlreadyScanned,
   imageName: string,
   imageId: string,
-): Promise<boolean> {
+): boolean {
   const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
   const images = state.imagesAlreadyScanned.get(key);
   if (images !== undefined) {
@@ -92,9 +112,9 @@ export async function setWorkloadImageAlreadyScanned(
   return true;
 }
 
-export async function deleteWorkloadImagesAlreadyScanned(
+export function deleteWorkloadImagesAlreadyScanned(
   workload: WorkloadImagesAlreadyScanned,
-): Promise<void> {
+): void {
   for (const imageId of workload.imageIds) {
     const key = getWorkloadImageAlreadyScannedKey(workload, imageId);
     state.imagesAlreadyScanned.del(key);

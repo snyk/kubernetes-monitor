@@ -116,16 +116,14 @@ export async function deploymentConfigWatchHandler(
   const workloadAlreadyScanned =
     kubernetesObjectToWorkloadAlreadyScanned(deploymentConfig);
   if (workloadAlreadyScanned !== undefined) {
-    await Promise.all([
-      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
-      deleteWorkloadImagesAlreadyScanned({
-        ...workloadAlreadyScanned,
-        imageIds: deploymentConfig.spec.template.spec.containers
-          .filter((container) => container.image !== undefined)
-          .map((container) => container.image!),
-      }),
-      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
-    ]);
+    deleteWorkloadAlreadyScanned(workloadAlreadyScanned);
+    deleteWorkloadImagesAlreadyScanned({
+      ...workloadAlreadyScanned,
+      imageIds: deploymentConfig.spec.template.spec.containers
+        .filter((container) => container.image !== undefined)
+        .map((container) => container.image!),
+    });
+    deleteWorkloadFromScanQueue(workloadAlreadyScanned);
   }
 
   const workloadName =

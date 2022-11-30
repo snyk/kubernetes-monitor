@@ -58,7 +58,7 @@ async function queueWorkerWorkloadScan(
       ...workloadMetadata[0],
       imageIds,
     };
-    await deleteWorkloadImagesAlreadyScanned(workload);
+    deleteWorkloadImagesAlreadyScanned(workload);
   }
 }
 
