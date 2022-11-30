@@ -68,29 +68,21 @@ export async function handleReadyPod(
 }
 
 export function isPodReady(pod: V1Pod): boolean {
-  const podStatus = pod.status !== undefined;
+  const isTerminating = pod.metadata?.deletionTimestamp !== undefined;
   const podStatusPhase = pod.status?.phase === PodPhase.Running;
-  const podContainerStatuses = pod.status?.containerStatuses !== undefined;
-  const containerReadyStatuses = pod.status?.containerStatuses?.some(
-    (container) =>
-      container.state !== undefined &&
-      (container.state.running !== undefined ||
-        container.state.waiting !== undefined),
-  ) as boolean;
+  const containerReadyStatuses = Boolean(
+    pod.status?.containerStatuses?.every(
+      (container) => container.state?.running !== undefined,
+    ),
+  );
 
   const logContext = {
-    podStatus,
+    isTerminating,
     podStatusPhase,
-    podContainerStatuses,
     containerReadyStatuses,
   };
   logger.debug(logContext, 'checking to see if pod is ready to process');
-  return (
-    podStatus &&
-    podStatusPhase &&
-    podContainerStatuses &&
-    containerReadyStatuses
-  );
+  return !isTerminating && podStatusPhase && containerReadyStatuses;
 }
 
 export async function paginatedNamespacedPodList(namespace: string): Promise<{
