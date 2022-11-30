@@ -19,4 +19,4 @@ spec:
         image: gcr.io/snyk-k8s-fixtures/debian:10
         imagePullPolicy: Always
         securityContext: {}
-        command: ["true"]
+        command: ['sh', '-c', 'echo Hello from GCR pod! && sleep 360000']
