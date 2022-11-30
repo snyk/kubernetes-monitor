@@ -116,16 +116,14 @@ export async function argoRolloutWatchHandler(
   const workloadAlreadyScanned =
     kubernetesObjectToWorkloadAlreadyScanned(rollout);
   if (workloadAlreadyScanned !== undefined) {
-    await Promise.all([
-      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
-      deleteWorkloadImagesAlreadyScanned({
-        ...workloadAlreadyScanned,
-        imageIds: rollout.spec.template.spec.containers
-          .filter((container) => container.image !== undefined)
-          .map((container) => container.image!),
-      }),
-      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
-    ]);
+    deleteWorkloadAlreadyScanned(workloadAlreadyScanned);
+    deleteWorkloadImagesAlreadyScanned({
+      ...workloadAlreadyScanned,
+      imageIds: rollout.spec.template.spec.containers
+        .filter((container) => container.image !== undefined)
+        .map((container) => container.image!),
+    });
+    deleteWorkloadFromScanQueue(workloadAlreadyScanned);
   }
 
   const workloadName = rollout.metadata.name || FALSY_WORKLOAD_NAME_MARKER;

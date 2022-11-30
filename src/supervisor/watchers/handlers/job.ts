@@ -58,16 +58,14 @@ export async function jobWatchHandler(job: V1Job): Promise<void> {
 
   const workloadAlreadyScanned = kubernetesObjectToWorkloadAlreadyScanned(job);
   if (workloadAlreadyScanned !== undefined) {
-    await Promise.all([
-      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
-      deleteWorkloadImagesAlreadyScanned({
-        ...workloadAlreadyScanned,
-        imageIds: job.spec.template.spec.containers
-          .filter((container) => container.image !== undefined)
-          .map((container) => container.image!),
-      }),
-      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
-    ]);
+    deleteWorkloadAlreadyScanned(workloadAlreadyScanned);
+    deleteWorkloadImagesAlreadyScanned({
+      ...workloadAlreadyScanned,
+      imageIds: job.spec.template.spec.containers
+        .filter((container) => container.image !== undefined)
+        .map((container) => container.image!),
+    });
+    deleteWorkloadFromScanQueue(workloadAlreadyScanned);
   }
 
   const workloadName = job.metadata.name || FALSY_WORKLOAD_NAME_MARKER;

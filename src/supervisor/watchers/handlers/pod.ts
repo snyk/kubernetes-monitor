@@ -30,7 +30,7 @@ export async function handleReadyPod(
 ): Promise<void> {
   const workloadToScan: IWorkload[] = [];
   for (const workload of workloadMetadata) {
-    const scanned = await getWorkloadImageAlreadyScanned(
+    const scanned = getWorkloadImageAlreadyScanned(
       workload,
       workload.imageName,
       workload.imageId,
@@ -49,7 +49,7 @@ export async function handleReadyPod(
       { workloadToScan, imageId: workload.imageId },
       'image has not been scanned',
     );
-    await setWorkloadImageAlreadyScanned(
+    setWorkloadImageAlreadyScanned(
       workload,
       workload.imageName,
       workload.imageId,
@@ -59,7 +59,7 @@ export async function handleReadyPod(
 
   const workload = workloadToScan[0];
   if (workloadToScan.length > 0) {
-    workloadsToScanQueue.push({
+    await workloadsToScanQueue.pushAsync({
       key: workload.uid,
       workloadMetadata: workloadToScan,
       enqueueTimestampMs: Date.now(),
@@ -68,29 +68,21 @@ export async function handleReadyPod(
 }
 
 export function isPodReady(pod: V1Pod): boolean {
-  const podStatus = pod.status !== undefined;
+  const isTerminating = pod.metadata?.deletionTimestamp !== undefined;
   const podStatusPhase = pod.status?.phase === PodPhase.Running;
-  const podContainerStatuses = pod.status?.containerStatuses !== undefined;
-  const containerReadyStatuses = pod.status?.containerStatuses?.some(
-    (container) =>
-      container.state !== undefined &&
-      (container.state.running !== undefined ||
-        container.state.waiting !== undefined),
-  ) as boolean;
+  const containerReadyStatuses = Boolean(
+    pod.status?.containerStatuses?.every(
+      (container) => container.state?.running !== undefined,
+    ),
+  );
 
   const logContext = {
-    podStatus,
+    isTerminating,
     podStatusPhase,
-    podContainerStatuses,
     containerReadyStatuses,
   };
   logger.debug(logContext, 'checking to see if pod is ready to process');
-  return (
-    podStatus &&
-    podStatusPhase &&
-    podContainerStatuses &&
-    containerReadyStatuses
-  );
+  return !isTerminating && podStatusPhase && containerReadyStatuses;
 }
 
 export async function paginatedNamespacedPodList(namespace: string): Promise<{
@@ -155,12 +147,12 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     const workloadRevision = workloadMember.revision
       ? workloadMember.revision.toString()
       : '';
-    const scannedRevision = await getWorkloadAlreadyScanned(workloadMember);
+    const scannedRevision = getWorkloadAlreadyScanned(workloadMember);
     const isRevisionDifferent =
       scannedRevision === undefined ||
       Number(workloadRevision) > Number(scannedRevision);
     if (isRevisionDifferent) {
-      await setWorkloadAlreadyScanned(workloadMember, workloadRevision);
+      setWorkloadAlreadyScanned(workloadMember, workloadRevision);
       await sendWorkloadMetadata(workloadMetadataPayload);
     }
 
@@ -177,16 +169,14 @@ export async function podDeletedHandler(pod: V1Pod): Promise<void> {
 
   const workloadAlreadyScanned = kubernetesObjectToWorkloadAlreadyScanned(pod);
   if (workloadAlreadyScanned !== undefined) {
-    await Promise.all([
-      deleteWorkloadAlreadyScanned(workloadAlreadyScanned),
-      deleteWorkloadImagesAlreadyScanned({
-        ...workloadAlreadyScanned,
-        imageIds: pod.spec.containers
-          .filter((container) => container.image !== undefined)
-          .map((container) => container.image!),
-      }),
-      deleteWorkloadFromScanQueue(workloadAlreadyScanned),
-    ]);
+    deleteWorkloadAlreadyScanned(workloadAlreadyScanned);
+    deleteWorkloadImagesAlreadyScanned({
+      ...workloadAlreadyScanned,
+      imageIds: pod.spec.containers
+        .filter((container) => container.image !== undefined)
+        .map((container) => container.image!),
+    });
+    deleteWorkloadFromScanQueue(workloadAlreadyScanned);
   }
 
   const workloadName = pod.metadata.name || FALSY_WORKLOAD_NAME_MARKER;
