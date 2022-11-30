@@ -52,6 +52,7 @@ spec:
                 {{- end }}
       serviceAccountName: {{ include "snyk-monitor.name" . }}
       restartPolicy: Always
+      {{- if .Values.initContainers.enabled }}
       initContainers:
         - name: volume-permissions
           image: "{{ .Values.initContainerImage.repository }}:{{ .Values.initContainerImage.tag }}"
@@ -77,6 +78,7 @@ spec:
         {{- if .Values.extraInitContainers -}}
         {{ tpl (toYaml .Values.extraInitContainers) . | nindent 8 }}
         {{- end }}
+      {{- end }}
       containers:
         - name: {{ include "snyk-monitor.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
