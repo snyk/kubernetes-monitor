@@ -139,7 +139,7 @@ skopeo:
     level: 6
 
 workers:
-  count: 10
+  count: 5
 sysdig:
   enabled: false
   namespace: sysdig-agent
