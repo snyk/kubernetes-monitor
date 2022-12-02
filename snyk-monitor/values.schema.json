@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "required": [],
+  "properties": {
+    "clusterName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_:() \\.\\-]{0,62}$"
+    }
+  }
+}

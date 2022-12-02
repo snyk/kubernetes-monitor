@@ -124,7 +124,12 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
 To better organise the data scanned inside your cluster, the monitor requires a cluster name to be set.
 Replace the value of `clusterName` with the name of your cluster.
 
-**Please note that `/` in cluster name is disallowed. Any `/` in cluster names will be removed.**
+Please note that if provided, the supplied cluster name:
+- must be up to 62 characters long
+- must contain only alpha numeric characters, dashes, underscores, spaces and `.:()`
+- must have at least one non space character
+
+i.e. must match the regex `^[a-zA-Z0-9_:() \.\-]{0,62}$`
 
 ### Installation and monitoring of a single namespace
 

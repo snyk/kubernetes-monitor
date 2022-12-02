@@ -70,18 +70,6 @@ export function getWorkloadImageAlreadyScanned(
   imageName: string,
   imageId: string,
 ): string | undefined {
-  const cachedImages = state.imagesAlreadyScanned.dump().map((entry) => {
-    const values = new Array<string>();
-    for (const v in entry.v.values()) {
-      values.push(v);
-    }
-    return `entry: ${entry.e}, key: ${entry.k}; values: ${values.join(',')}`;
-  });
-  logger.debug(
-    { 'kubernetes-monitor': { cachedImages } },
-    'images in the cache',
-  );
-
   const key = getWorkloadImageAlreadyScannedKey(workload, imageName);
   const hasImageId = state.imagesAlreadyScanned.get(key)?.has(imageId);
   const response = hasImageId ? imageId : undefined;
