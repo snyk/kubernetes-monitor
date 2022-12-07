@@ -247,6 +247,13 @@ test('Kubernetes-Monitor with KinD', async () => {
               { type: 'imageLayers', data: expect.any(Array) },
               { type: 'rootFs', data: expect.any(Array) },
               { type: 'imageOsReleasePrettyName', data: expect.any(String) },
+              {
+                type: 'imageNames',
+                data: [
+                  'docker.io/library/openjdk:latest',
+                  expect.stringContaining('docker.io/library/openjdk@sha256:'),
+                ],
+              },
             ]),
             target: { image: 'docker-image|docker.io/library/openjdk' },
             identity: { type: 'rpm', args: { platform: 'linux/amd64' } },

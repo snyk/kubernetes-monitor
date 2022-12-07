@@ -133,7 +133,7 @@ describe('getImageParts()', () => {
           .imageName,
       ).toEqual('kind-registry:5000/python-27');
     });
-    it('removed repository/image:tag contining dashes', () => {
+    it('removed repository/image:tag continuing dashes', () => {
       expect(
         scannerImages.getImageParts(
           'kind-registry:5000/test/python-27:rc-buster',
