@@ -39,7 +39,7 @@
     "@kubernetes/client-node": "^0.17.0",
     "@snyk/dep-graph": "^1.30.0",
     "async": "^3.2.4",
-    "aws-sdk": "^2.1200.0",
+    "aws-sdk": "^2.1261.0",
     "bunyan": "^1.8.15",
     "child-process-promise": "^2.2.1",
     "fs-extra": "^10.1.0",
