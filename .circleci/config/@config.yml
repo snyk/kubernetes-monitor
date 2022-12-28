@@ -84,6 +84,7 @@ workflows:
             - build_and_upload_operator
           <<: *staging_branch_only_filter
       - tag_and_push:
+          context: nodejs-app-release-public
           requires:
             - build_image
             - build_and_upload_operator

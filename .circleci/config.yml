@@ -1123,6 +1123,7 @@ workflows:
                     - build_image
                     - build_and_upload_operator
             - tag_and_push:
+                context: nodejs-app-release-public
                 filters:
                     branches:
                         only:
