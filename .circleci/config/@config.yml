@@ -84,6 +84,7 @@ workflows:
             - build_and_upload_operator
           <<: *staging_branch_only_filter
       - tag_and_push:
+          context: nodejs-app-release-public
           requires:
             - build_image
             - build_and_upload_operator
@@ -94,6 +95,7 @@ workflows:
             - integration_tests_proxy
           <<: *staging_branch_only_filter
       - deploy_to_dev:
+          context: nodejs-app-release-public
           requires:
             - tag_and_push
           <<: *staging_branch_only_filter
@@ -105,6 +107,7 @@ workflows:
   MERGE_TO_MASTER:
     jobs:
       - publish:
+          context: nodejs-app-release-public
           <<: *master_branch_only_filter
       - deploy_to_prod:
           requires:
