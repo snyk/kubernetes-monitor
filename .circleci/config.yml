@@ -1020,21 +1020,6 @@ staging_branch_only_filter:
                 - staging
 version: 2.1
 workflows:
-    MANUAL_OPENSHIFT_RELEASE:
-        jobs:
-            - hold:
-                filters:
-                    branches:
-                        only:
-                            - master
-                type: approval
-            - operator_upgrade_tests:
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - hold
     MERGE_TO_MASTER:
         jobs:
             - publish:
@@ -1115,14 +1100,6 @@ workflows:
                 requires:
                     - build_image
                     - build_and_upload_operator
-            - openshift4_integration_tests:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-                    - build_and_upload_operator
             - tag_and_push:
                 context: nodejs-app-release-public
                 filters:
@@ -1152,26 +1129,6 @@ workflows:
                             - staging
                 requires:
                     - tag_and_push
-    MONTHLY:
-        jobs:
-            - operator_upgrade_tests
-        triggers:
-            - schedule:
-                cron: 0 5 3 * *
-                filters:
-                    branches:
-                        only:
-                            - master
-    NIGHTLY:
-        jobs:
-            - operator_upgrade_tests
-        triggers:
-            - schedule:
-                cron: 0 1 * * *
-                filters:
-                    branches:
-                        only:
-                            - master
     PR_TO_STAGING:
         jobs:
             - build_image:
