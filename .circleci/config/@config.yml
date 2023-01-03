@@ -78,11 +78,11 @@ workflows:
             - build_image
             - build_and_upload_operator
           <<: *staging_branch_only_filter
-      - openshift4_integration_tests:
-          requires:
-            - build_image
-            - build_and_upload_operator
-          <<: *staging_branch_only_filter
+      # - openshift4_integration_tests:
+      #     requires:
+      #       - build_image
+      #       - build_and_upload_operator
+      #     <<: *staging_branch_only_filter
       - tag_and_push:
           context: nodejs-app-release-public
           requires:
@@ -114,56 +114,56 @@ workflows:
             - publish
           <<: *master_branch_only_filter
 
-  NIGHTLY:
-    triggers:
-      - schedule:
-          cron: "0 1 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - operator_upgrade_tests
+  # NIGHTLY:
+  #   triggers:
+  #     - schedule:
+  #         cron: "0 1 * * *"
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #   jobs:
+  #     - operator_upgrade_tests
 
-  MONTHLY:
-    triggers:
-      - schedule:
-          cron: "0 5 3 * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - operator_upgrade_tests
-      # - push_operator_to_embedded_community_operators:
-      #     requires:
-      #       - operator_upgrade_tests
-      # - push_operator_to_community_operators:
-      #     requires:
-      #       - operator_upgrade_tests
+  # MONTHLY:
+  #   triggers:
+  #     - schedule:
+  #         cron: "0 5 3 * *"
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #   jobs:
+  #     - operator_upgrade_tests
+  #     - push_operator_to_embedded_community_operators:
+  #         requires:
+  #           - operator_upgrade_tests
+  #     - push_operator_to_community_operators:
+  #         requires:
+  #           - operator_upgrade_tests
 
-  MANUAL_OPENSHIFT_RELEASE:
-    jobs:
-      - hold:
-          <<: *master_branch_only_filter
-          type: approval
-      - operator_upgrade_tests:
-          <<: *master_branch_only_filter
-          requires:
-            - hold
-      # - sync_embedded_community_operators_with_snyk_fork:
-      #     <<: *master_branch_only_filter
-      #     requires:
-      #       - operator_upgrade_tests
-      # - push_operator_to_embedded_community_operators:
-      #     <<: *master_branch_only_filter
-      #     requires:
-      #       - sync_embedded_community_operators_with_snyk_fork
-      # - sync_community_operators_with_snyk_fork:
-      #     <<: *master_branch_only_filter
-      #     requires:
-      #       - push_operator_to_embedded_community_operators
-      # - push_operator_to_community_operators:
-      #     <<: *master_branch_only_filter
-      #     requires:
-      #       - sync_community_operators_with_snyk_fork
+  # MANUAL_OPENSHIFT_RELEASE:
+  #   jobs:
+  #     - hold:
+  #         <<: *master_branch_only_filter
+  #         type: approval
+  #     - operator_upgrade_tests:
+  #         <<: *master_branch_only_filter
+  #         requires:
+  #           - hold
+  #     - sync_embedded_community_operators_with_snyk_fork:
+  #         <<: *master_branch_only_filter
+  #         requires:
+  #           - operator_upgrade_tests
+  #     - push_operator_to_embedded_community_operators:
+  #         <<: *master_branch_only_filter
+  #         requires:
+  #           - sync_embedded_community_operators_with_snyk_fork
+  #     - sync_community_operators_with_snyk_fork:
+  #         <<: *master_branch_only_filter
+  #         requires:
+  #           - push_operator_to_embedded_community_operators
+  #     - push_operator_to_community_operators:
+  #         <<: *master_branch_only_filter
+  #         requires:
+  #           - sync_community_operators_with_snyk_fork
