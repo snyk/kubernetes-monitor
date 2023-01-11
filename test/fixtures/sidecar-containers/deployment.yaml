@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
@@ -11,7 +11,7 @@ metadata:
   name: hello-world
   namespace: security-tools
   resourceVersion: "55787967"
-  selfLink: /apis/extensions/v1beta1/namespaces/security-tools/deployments/hello-world
+  selfLink: /apis/apps/v1/namespaces/security-tools/deployments/hello-world
   uid: d2006330-0f86-11ea-ae05-4201c0a88014
 spec:
   progressDeadlineSeconds: 2147483647
