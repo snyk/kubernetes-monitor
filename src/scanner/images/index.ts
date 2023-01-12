@@ -123,6 +123,7 @@ export async function scanImages(
       const pluginResponse = await scan({
         path: archivePath,
         imageNameAndTag: imageName,
+        imageNameAndDigest: imageWithDigest,
       });
 
       if (
