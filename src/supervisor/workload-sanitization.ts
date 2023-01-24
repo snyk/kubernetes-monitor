@@ -15,7 +15,10 @@ export function trimWorkloads<
 export function trimWorkload<
   T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
 >(workload: T): T & { metadata: V1ObjectMeta } {
-  logger.debug(workload.metadata, 'workload metadata state before trimming');
+  logger.debug(
+    { workloadMetadata: workload.metadata },
+    'workload metadata state before trimming',
+  );
   return {
     apiVersion: workload.apiVersion,
     kind: workload.kind,
