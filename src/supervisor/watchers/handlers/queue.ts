@@ -64,9 +64,10 @@ async function queueWorkerWorkloadScan(
 
 function reportQueueSize(): void {
   try {
-    const queueDataToReport: { [key: string]: any } = {};
-    queueDataToReport.workloadsToScanLength = workloadsToScanQueue.length();
-    logger.debug(queueDataToReport, 'queue sizes report');
+    logger.debug(
+      { workloadsToScanLength: workloadsToScanQueue.length() },
+      'queue sizes report',
+    );
   } catch (error) {
     logger.debug({ error }, 'failed logging queue sizes');
   }
