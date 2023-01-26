@@ -41,7 +41,7 @@ metadata:
   name: snyk-monitor
   namespace: snyk-monitor
 spec:
-  integrationApi: https://kubernetes-upstream.dev.snyk.io
+  integrationApi: https://api.dev.snyk.io/v2/kubernetes-upstream
   temporaryStorageSize: 20Gi
   pvc:
     enabled: true

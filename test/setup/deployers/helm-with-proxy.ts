@@ -37,7 +37,7 @@ async function deployKubernetesMonitor(
       `--set image.repository=${imageName} ` +
       `--set image.tag=${imageTag} ` +
       `--set image.pullPolicy=${imagePullPolicy} ` +
-      '--set integrationApi=https://kubernetes-upstream.dev.snyk.io ' +
+      '--set integrationApi=https://api.dev.snyk.io/v2/kubernetes-upstream ' +
       `--set clusterName=${deployOptions.clusterName} ` +
       '--set https_proxy=http://forwarding-proxy:8080',
   );

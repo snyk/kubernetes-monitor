@@ -21,6 +21,7 @@ import {
 import { getProxyAgent } from './proxy';
 
 import type { queueAsPromised } from 'fastq';
+import path from 'path';
 
 interface KubernetesUpstreamRequest {
   method: NeedleHttpVerbs;
@@ -32,10 +33,13 @@ interface KubernetesUpstreamRequest {
     | IDeleteWorkloadPayload
     | IClusterMetadataPayload
     | IRuntimeDataPayload;
+  options: NeedleOptions;
 }
 
 const upstreamUrl =
   config.INTEGRATION_API || config.DEFAULT_KUBERNETES_UPSTREAM_URL;
+
+const upstreamRequestVersion = '2023-02-10';
 
 let httpAgent = new HttpAgent({
   keepAlive: config.USE_KEEPALIVE,
@@ -55,9 +59,28 @@ function getAgent(u: string): HttpAgent {
 const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
   req: KubernetesUpstreamRequest,
 ) {
-  return await retryRequest(req.method, req.url, req.payload);
+  return await retryRequest(req.method, req.url, req.payload, req.options);
 },
 config.REQUEST_QUEUE_LENGTH);
+
+const upstreamRequestOptions = {
+  headers: {
+    Authorization: `token ${config.SERVICE_ACCOUNT_API_TOKEN}`,
+  },
+};
+
+function constructUpstreamRequestUrl(
+  requestPath: string,
+  queryParams?: Record<string, string>,
+): string {
+  const requestUrl = new URL(upstreamUrl);
+  requestUrl.pathname = path.join(requestUrl.pathname, requestPath);
+  requestUrl.searchParams.set('version', upstreamRequestVersion);
+  for (const key in queryParams) {
+    requestUrl.searchParams.set(key, queryParams[key]);
+  }
+  return requestUrl.toString();
+}
 
 export async function sendDepGraph(
   ...payloads: IDependencyGraphPayload[]
@@ -69,8 +92,9 @@ export async function sendDepGraph(
     try {
       const request: KubernetesUpstreamRequest = {
         method: 'post',
-        url: `${upstreamUrl}/api/v1/dependency-graph`,
+        url: constructUpstreamRequestUrl('/api/v1/dependency-graph'),
         payload,
+        options: upstreamRequestOptions,
       };
 
       const { response, attempt } = await reqQueue.push(request);
@@ -100,8 +124,9 @@ export async function sendScanResults(
     try {
       const request: KubernetesUpstreamRequest = {
         method: 'post',
-        url: `${upstreamUrl}/api/v1/scan-results`,
+        url: constructUpstreamRequestUrl('/api/v1/scan-results'),
         payload,
+        options: upstreamRequestOptions,
       };
 
       const { response, attempt } = await reqQueue.push(request);
@@ -136,8 +161,9 @@ export async function sendWorkloadMetadata(
 
     const request: KubernetesUpstreamRequest = {
       method: 'post',
-      url: `${upstreamUrl}/api/v1/workload`,
+      url: constructUpstreamRequestUrl('/api/v1/workload'),
       payload,
+      options: upstreamRequestOptions,
     };
 
     const { response, attempt } = await reqQueue.push(request);
@@ -172,8 +198,9 @@ export async function sendWorkloadEventsPolicy(
 
     const { response, attempt } = await retryRequest(
       'post',
-      `${upstreamUrl}/api/v1/policy`,
+      constructUpstreamRequestUrl('/api/v1/policy'),
       payload,
+      upstreamRequestOptions,
     );
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
@@ -207,11 +234,19 @@ export async function deleteWorkload(
   try {
     const { workloadLocator, agentId } = payload;
     const { userLocator, cluster, namespace, type, name } = workloadLocator;
-    const query = `userLocator=${userLocator}&cluster=${cluster}&namespace=${namespace}&type=${type}&name=${name}&agentId=${agentId}`;
+    const queryParams: Record<string, string> = {
+      userLocator,
+      cluster,
+      namespace,
+      type,
+      name,
+      agentId,
+    };
     const request: KubernetesUpstreamRequest = {
       method: 'delete',
-      url: `${upstreamUrl}/api/v1/workload?${query}`,
+      url: constructUpstreamRequestUrl('api/v1/workload', queryParams),
       payload,
+      options: upstreamRequestOptions,
     };
 
     const { response, attempt } = await reqQueue.push(request);
@@ -348,8 +383,9 @@ export async function sendClusterMetadata(): Promise<void> {
 
     const request: KubernetesUpstreamRequest = {
       method: 'post',
-      url: `${upstreamUrl}/api/v1/cluster`,
+      url: constructUpstreamRequestUrl('/api/v1/cluster'),
       payload,
+      options: upstreamRequestOptions,
     };
 
     const { response, attempt } = await reqQueue.push(request);
@@ -394,8 +430,9 @@ export async function sendRuntimeData(
 
     const request: KubernetesUpstreamRequest = {
       method: 'post',
-      url: `${upstreamUrl}/api/v1/runtime-results`,
+      url: constructUpstreamRequestUrl('/api/v1/runtime-results'),
       payload,
+      options: upstreamRequestOptions,
     };
 
     const { response, attempt } = await reqQueue.push(request);

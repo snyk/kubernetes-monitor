@@ -47,7 +47,7 @@ function createTestYamlDeployment(
   const envVar = container.env.find(
     (env) => env.name === 'SNYK_INTEGRATION_API',
   );
-  envVar.value = 'https://kubernetes-upstream.dev.snyk.io';
+  envVar.value = 'https://api.dev.snyk.io/v2/kubernetes-upstream';
   delete envVar.valueFrom;
 
   if (clusterName) {

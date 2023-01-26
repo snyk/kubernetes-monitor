@@ -20,7 +20,7 @@ cp -r snyk-monitor/* $KUBERNETES_MONITOR_DEPLOYER_REPO/helm
 # Create helm values for different envs
 cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-pre-production.yaml <<EOF
 clusterName: "Development cluster"
-integrationApi: https://kubernetes-upstream.dev.snyk.io
+integrationApi: "https://api.dev.snyk.io/v2/kubernetes-upstream"
 log_level: "DEBUG"
 skip_k8s_jobs: true
 

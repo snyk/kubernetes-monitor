@@ -24,6 +24,14 @@ function getClusterName(): string {
   return clusterName;
 }
 
+function getServiceAccountApiToken(): string {
+  const serviceAccountApiToken = randomUUID();
+  console.log(
+    `Generated new service account API token ${serviceAccountApiToken}`,
+  );
+  return serviceAccountApiToken;
+}
+
 function getEnvVariableOrDefault(
   envVarName: string,
   defaultValue: string,
@@ -84,6 +92,7 @@ async function createEnvironment(): Promise<void> {
 
 async function predeploy(
   integrationId: string,
+  serviceAccountApiToken: string,
   namespace: string,
 ): Promise<void> {
   try {
@@ -99,6 +108,7 @@ async function predeploy(
     await kubectl.createSecret(secretName, namespace, {
       'dockercfg.json': gcrDockercfg,
       integrationId,
+      serviceAccountApiToken,
     });
     await createRegistriesConfigMap(namespace);
     console.log(`Namespace ${namespace} and secret ${secretName} created`);
@@ -193,7 +203,8 @@ export async function deployMonitor(): Promise<{
     await createSecretForDockerHubAccess();
 
     const integrationId = getIntegrationId();
-    await predeploy(integrationId, namespace);
+    const serviceAccountApiToken = getServiceAccountApiToken();
+    await predeploy(integrationId, serviceAccountApiToken, namespace);
 
     // TODO: hack, rewrite this
     const imagePullPolicy =
