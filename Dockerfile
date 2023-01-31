@@ -3,8 +3,18 @@
 #---------------------------------------------------------------------
 FROM golang:alpine AS cred-helpers-build
 
+RUN apk update
+RUN apk upgrade
+RUN apk --no-cache add git
+
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@69c85dc22db6511932bbf119e1a0cc5c90c69a7f
-RUN go install github.com/chrismellard/docker-credential-acr-env@d4055f832e8b16ea2ee93189c5e14faafd36baf6
+
+WORKDIR /
+RUN git clone https://github.com/chrismellard/docker-credential-acr-env.git
+WORKDIR /docker-credential-acr-env
+RUN go get github.com/spf13/cobra@v1.2.0
+RUN go mod tidy
+RUN go build -o /go/bin/docker-credential-acr-env
 
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
