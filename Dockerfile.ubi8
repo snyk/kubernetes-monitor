@@ -39,10 +39,13 @@ COPY LICENSE /licenses/LICENSE
 
 ENV NODE_ENV production
 
-RUN yum upgrade -y
+RUN yum upgrade -y && yum install -y python3
 
-RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum install -y nodejs
+ARG NODE_16_LATEST_VERSION
+RUN curl --fail -o "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "https://nodejs.org/dist/latest-v16.x/${NODE_16_LATEST_VERSION}.tar.gz" && \
+    tar -xf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" -C "/tmp/" && \
+    cp "/tmp/${NODE_16_LATEST_VERSION}/bin/node" /usr/local/bin/ && \
+    rm -rf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "/tmp/${NODE_16_LATEST_VERSION}/"
 
 RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
 RUN chmod 755 /usr/bin/dumb-init
