@@ -61,7 +61,9 @@ ENV NODE_ENV production
 RUN yum upgrade -y
 
 ARG NODE_16_LATEST_VERSION
+ARG NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
 RUN curl --fail -o "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "https://nodejs.org/dist/latest-v16.x/${NODE_16_LATEST_VERSION}.tar.gz" && \
+    echo "${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/${NODE_16_LATEST_VERSION}.tar.gz" | sha256sum --check --status && \
     tar -xf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" -C "/tmp/" && \
     cp "/tmp/${NODE_16_LATEST_VERSION}/bin/node" /usr/local/bin/ && \
     rm -rf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "/tmp/${NODE_16_LATEST_VERSION}/"
