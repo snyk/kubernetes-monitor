@@ -18,6 +18,7 @@ import { IWorkloadLocator } from '../../src/transmitter/types';
 
 let integrationId: string;
 let namespace: string;
+let clusterName: string;
 
 async function teardown(): Promise<void> {
   console.log('Begin removing the snyk-monitor...');
@@ -36,7 +37,7 @@ test('clean up environment on start', teardown);
 // Make sure this runs first -- deploying the monitor for the next tests
 test('deploy snyk-monitor', async () => {
   namespace = setup.snykMonitorNamespace();
-  integrationId = await setup.deployMonitor();
+  ({ integrationId, clusterName } = await setup.deployMonitor());
 });
 
 const cronJobValidator = (workloads: IWorkloadLocator[]) =>
@@ -224,16 +225,16 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   // We don't want to spam kubernetes-upstream with requests; do it infrequently
   const workloadTestResult = await validateUpstreamStoredData(
     validatorFn,
-    `api/v2/workloads/${integrationId}/Default cluster/services`,
+    `api/v2/workloads/${integrationId}/${clusterName}/services`,
   );
   expect(workloadTestResult).toBeTruthy();
   const workloadMetadataResult = await validateUpstreamStoredMetadata(
     metaValidator,
-    `api/v1/workload/${integrationId}/Default cluster/services/Deployment/redis`,
+    `api/v1/workload/${integrationId}/${clusterName}/services/Deployment/redis`,
   );
   expect(workloadMetadataResult).toBeTruthy();
 
-  const busyboxScanResultsPath = `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/busybox`;
+  const busyboxScanResultsPath = `api/v1/scan-results/${integrationId}/${clusterName}/services/Deployment/busybox`;
   const scanResultsScratchImage = await getUpstreamResponseBody(
     busyboxScanResultsPath,
   );
@@ -261,7 +262,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
   expect(osScanResult.identity.type).toEqual('linux');
 
   const scanResultsConsulDeployment = await getUpstreamResponseBody(
-    `api/v1/scan-results/${integrationId}/Default%20cluster/services/Deployment/consul`,
+    `api/v1/scan-results/${integrationId}/${clusterName}/services/Deployment/consul`,
   );
   expect(
     scanResultsConsulDeployment.workloadScanResults[
@@ -284,7 +285,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
 
   if (supported.cronJobV1Beta1) {
     const scanResultsCronJobBeta = await getUpstreamResponseBody(
-      `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job-v1beta1`,
+      `api/v1/scan-results/${integrationId}/${clusterName}/services/CronJob/cron-job-v1beta1`,
     );
     expect(scanResultsCronJobBeta.workloadScanResults['busybox']).toEqual<
       ScanResult[]
@@ -299,7 +300,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
 
   if (supported.cronJobV1) {
     const scanResultsCronJob = await getUpstreamResponseBody(
-      `api/v1/scan-results/${integrationId}/Default%20cluster/services/CronJob/cron-job`,
+      `api/v1/scan-results/${integrationId}/${clusterName}/services/CronJob/cron-job`,
     );
     expect(scanResultsCronJob.workloadScanResults['busybox']).toEqual<
       ScanResult[]
@@ -314,7 +315,7 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
 
   if (supported.argoRollout) {
     const scanResultsArgoRollout = await getUpstreamResponseBody(
-      `api/v1/scan-results/${integrationId}/Default%20cluster/services/Rollout/argo-rollout`,
+      `api/v1/scan-results/${integrationId}/${clusterName}/services/Rollout/argo-rollout`,
     );
     expect(
       scanResultsArgoRollout.workloadScanResults['argoproj/rollouts-demo'],
@@ -332,7 +333,6 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
 test('snyk-monitor sends binary hashes to kubernetes-upstream after adding another deployment', async () => {
   const deploymentName = 'binaries-deployment';
   const namespace = 'services';
-  const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.Deployment;
 
   await kubectl.applyK8sYaml('./test/fixtures/binaries-deployment.yaml');
@@ -409,7 +409,6 @@ test('snyk-monitor sends binary hashes to kubernetes-upstream after adding anoth
 test('snyk-monitor pulls images from a private gcr.io registry and sends data to kubernetes-upstream', async () => {
   const deploymentName = 'debian-gcr-io';
   const namespace = 'services';
-  const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.Deployment;
   const imageName = 'gcr.io/snyk-k8s-fixtures/debian';
 
@@ -463,7 +462,6 @@ test('snyk-monitor pulls images from a private ECR and sends data to kubernetes-
 
   const deploymentName = 'debian-ecr';
   const namespace = 'services';
-  const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.Deployment;
   const imageName = '291964488713.dkr.ecr.us-east-2.amazonaws.com/snyk/debian';
 
@@ -508,7 +506,6 @@ test('snyk-monitor scans DeploymentConfigs', async () => {
   }
   const deploymentConfigName = 'deployment-config';
   const namespace = 'services';
-  const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.DeploymentConfig;
   const imageName = 'docker.io/library/hello-world';
   await kubectl.applyK8sYaml('test/fixtures/hello-world-deploymentconfig.yaml');
@@ -553,7 +550,6 @@ test('snyk-monitor pulls images from a local registry and sends data to kubernet
 
   const deploymentName = 'python-local';
   const namespace = 'services';
-  const clusterName = 'Default cluster';
   const deploymentType = WorkloadKind.Deployment;
   const imageName = 'kind-registry:5000/python';
 
@@ -614,7 +610,7 @@ test('snyk-monitor sends deleted workload to kubernetes-upstream', async () => {
 
   const testResult = await validateUpstreamStoredData(
     deploymentValidatorFn,
-    `api/v2/workloads/${integrationId}/Default cluster/services`,
+    `api/v2/workloads/${integrationId}/${clusterName}/services`,
   );
   expect(testResult).toBeTruthy();
 
@@ -630,7 +626,6 @@ test('snyk-monitor sends deleted workload to kubernetes-upstream', async () => {
     );
   };
 
-  const clusterName = 'Default cluster';
   const deleteTestResult = await validateUpstreamStoredData(
     deleteValidatorFn,
     `api/v2/workloads/${integrationId}/${clusterName}/${namespace}`,
@@ -783,8 +778,6 @@ test('snyk-monitor secure configuration is as expected', async () => {
  * itself is the workload (because it was created on its own).
  */
 test('notify upstream of deleted pods that have no OwnerReference', async () => {
-  const clusterName = 'Default cluster';
-
   const podName = 'alpine';
   const namespace = 'services';
 

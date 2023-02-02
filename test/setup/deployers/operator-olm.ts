@@ -2,7 +2,7 @@ import sleep from 'sleep-promise';
 import { parse, stringify } from 'yaml';
 import { readFileSync, writeFileSync } from 'fs';
 
-import { IDeployer, IImageOptions } from './types';
+import { IDeployer, IDeployOptions, IImageOptions } from './types';
 import * as kubectl from '../../helpers/kubectl';
 
 // The event we want to find is:
@@ -39,6 +39,7 @@ async function waitToDeployKubernetesOperator(
 
 async function deployKubernetesMonitor(
   _imageOptions: IImageOptions,
+  deployOptions: IDeployOptions,
 ): Promise<void> {
   const overriddenOperatorSource = 'snyk-monitor-catalog-source.yaml';
   createTestOperatorSource(overriddenOperatorSource);
@@ -49,9 +50,11 @@ async function deployKubernetesMonitor(
   // the Operator can start processing the custom resource.
   await kubectl.waitForDeployment('snyk-operator', 'marketplace');
   await kubectl.waitForCRD('snykmonitors.charts.helm.k8s.io');
-  await kubectl.applyK8sYaml(
-    './test/fixtures/operator/custom-resource-k8s.yaml',
-  );
+
+  const overriddenCustomResource = 'snyk-monitor-custom-resource-k8s.yaml';
+  createTestCustomResource(overriddenCustomResource, deployOptions.clusterName);
+  await kubectl.applyK8sYaml(overriddenCustomResource);
+
   await waitToDeployKubernetesOperator('marketplace');
   await kubectl.waitForDeployment('snyk-operator', 'marketplace');
 }
@@ -75,4 +78,23 @@ function createTestOperatorSource(newYamlPath: string): void {
 
   writeFileSync(newYamlPath, stringify(catalogSource));
   console.log('Created YAML CatalogSource');
+}
+
+function createTestCustomResource(
+  newYamlPath: string,
+  clusterName: string,
+): void {
+  console.log('Creating YAML CustomResourceK8s...');
+  const originalCustomResourceYaml = readFileSync(
+    './test/fixtures/operator/custom-resource-k8s.yaml',
+    'utf8',
+  );
+  const customResource: { spec: { clusterName: string } } = parse(
+    originalCustomResourceYaml,
+  );
+
+  customResource.spec.clusterName = clusterName;
+
+  writeFileSync(newYamlPath, stringify(customResource));
+  console.log('Created YAML CustomResourceK8s');
 }
