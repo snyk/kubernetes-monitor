@@ -103,7 +103,7 @@ export function getUniqueImages(workloadMetadata: IWorkload[]): IScanImage[] {
 
     accum[meta.imageName] = {
       imageWithDigest: digest && `${imageName}@${digest}`,
-      imageName: meta.imageName, // Image name with tag
+      imageName: meta.imageName, // Image name with tag or digest, according to metadata image field declaration
       skopeoRepoType: SkopeoRepositoryType.DockerArchive,
     };
 

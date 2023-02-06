@@ -8,13 +8,43 @@ RUN dnf install -y skopeo
 #---------------------------------------------------------------------
 # STAGE 2: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM golang:1.18 AS cred-helpers-build
+FROM golang:alpine AS cred-helpers-build
+
+RUN apk update
+RUN apk upgrade
+RUN apk --no-cache add git
 
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@69c85dc22db6511932bbf119e1a0cc5c90c69a7f
-RUN go install github.com/chrismellard/docker-credential-acr-env@d4055f832e8b16ea2ee93189c5e14faafd36baf6
+
+WORKDIR /
+RUN git clone https://github.com/chrismellard/docker-credential-acr-env.git
+WORKDIR /docker-credential-acr-env
+RUN go get github.com/spf13/cobra@v1.2.0
+RUN go mod tidy
+RUN go build -o /go/bin/docker-credential-acr-env
 
 #---------------------------------------------------------------------
-# STAGE 3: Build the kubernetes-monitor
+# STAGE 3: Build kubernetes-monitor application
+#---------------------------------------------------------------------
+FROM node:gallium-alpine AS build
+
+ENV NODE_ENV production
+
+WORKDIR /srv/app
+
+# Add manifest files and install before adding anything else to take advantage of layer caching
+ADD package.json package-lock.json ./
+
+RUN npm ci
+
+# add the rest of the app files
+ADD . .
+
+# Build typescript
+RUN npm run build
+
+#---------------------------------------------------------------------
+# STAGE 4: Build the kubernetes-monitor final image
 #---------------------------------------------------------------------
 FROM registry.access.redhat.com/ubi8/ubi:8.6
 
@@ -30,8 +60,13 @@ ENV NODE_ENV production
 
 RUN yum upgrade -y
 
-RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum install -y nodejs
+ARG NODE_16_LATEST_VERSION
+ARG NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
+RUN curl --fail -o "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "https://nodejs.org/dist/latest-v16.x/${NODE_16_LATEST_VERSION}.tar.gz" && \
+    echo "${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/${NODE_16_LATEST_VERSION}.tar.gz" | sha256sum --check --status && \
+    tar -xf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" -C "/tmp/" && \
+    cp "/tmp/${NODE_16_LATEST_VERSION}/bin/node" /usr/local/bin/ && \
+    rm -rf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "/tmp/${NODE_16_LATEST_VERSION}/"
 
 RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
 RUN chmod 755 /usr/bin/dumb-init
@@ -39,9 +74,10 @@ RUN chmod 755 /usr/bin/dumb-init
 RUN groupadd -g 10001 snyk
 RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
-# Install gcloud 
+# Install gcloud
+RUN yum install -y python3
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/bin/anthoscli
+RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/bin/anthoscli && rm -rf /google-cloud-sdk/platform
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 
@@ -55,18 +91,13 @@ COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
 COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
 
-# Add manifest files and install before adding anything else to take advantage of layer caching
-ADD --chown=snyk:snyk package.json package-lock.json ./
-
 # The `.config` directory is used by `snyk protect` and we also mount a K8s volume there at runtime.
 # This clashes with OpenShift 3 which mounts things differently and prevents access to the directory.
 # TODO: Remove this line once OpenShift 3 comes out of support.
 RUN mkdir -p .config
 
-RUN npm ci
-
-# add the rest of the app files
-ADD --chown=snyk:snyk . .
+# Copy app
+COPY --chown=snyk:snyk --from=build /srv/app /srv/app
 
 # OpenShift 4 doesn't allow dumb-init access the app folder without this permission.
 RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
@@ -74,8 +105,5 @@ RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
 # This must be in the end for Red Hat Build Service
 RUN chown -R snyk:snyk .
 USER 10001:10001
-
-# Build typescript
-RUN npm run build
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "bin/start"]
