@@ -1122,13 +1122,6 @@ workflows:
                             - staging
                 requires:
                     - tag_and_push
-            - deploy_to_sysdig_integration_cluster:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - tag_and_push
     PR_TO_STAGING:
         jobs:
             - build_image:
