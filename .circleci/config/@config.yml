@@ -99,10 +99,11 @@ workflows:
           requires:
             - tag_and_push
           <<: *staging_branch_only_filter
-      - deploy_to_sysdig_integration_cluster:
-          requires:
-            - tag_and_push
-          <<: *staging_branch_only_filter
+      # TODO: Uncomment the step once we resolve the kubeconfig problem
+      # - deploy_to_sysdig_integration_cluster:
+      #     requires:
+      #       - tag_and_push
+      #     <<: *staging_branch_only_filter
 
   MERGE_TO_MASTER:
     jobs:
