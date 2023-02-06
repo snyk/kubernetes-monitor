@@ -8,8 +8,6 @@ Does the following steps:
 
 PREREQUISITES:
 The following environment variables:
-- QUAY_USERNAME
-- QUAY_PASSWORD
 - DOCKERHUB_USER (to push the Operator image)
 - DOCKERHUB_PASSWORD
 """

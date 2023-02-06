@@ -11,7 +11,7 @@ steps:
 
   - add_ssh_keys:
       fingerprints:
-        - 06:c3:d4:10:0d:ef:37:6c:ec:b9:fb:6e:ed:09:e7:40
+        - 5a:63:89:5d:a1:71:fb:a4:ed:c5:ec:4c:1e:0b:c7:3a
 
   - run:
       name: Sync k8s-operatorhub/community-operators with snyk/community-operators
