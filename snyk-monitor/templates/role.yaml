@@ -13,6 +13,7 @@ rules:
   - ""
   resources:
   - pods
+  - services
   verbs:
   - get
   - list
@@ -49,6 +50,14 @@ rules:
   - daemonsets
   - deployments
   - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
   verbs:
   - get
   - list

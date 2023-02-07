@@ -2,6 +2,8 @@ import { ADD, DELETE, UPDATE } from '@kubernetes/client-node';
 
 import { WorkloadKind } from '../../types';
 import * as pod from './pod';
+import * as service from './service';
+import * as ingress from './ingress';
 import * as cronJob from './cron-job';
 import * as daemonSet from './daemon-set';
 import * as deployment from './deployment';
@@ -57,6 +59,18 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       replicationController.paginatedNamespacedReplicationControllerList(
         namespace,
       ),
+  },
+  [WorkloadKind.Service]: {
+    clusterEndpoint: '/api/v1/services',
+    namespacedEndpoint: '/api/v1/namespaces/{namespace}/services',
+    handlers: {
+      [ADD]: service.serviceWatchHandler,
+      [DELETE]: service.serviceDeletedHandler,
+      [UPDATE]: service.serviceWatchHandler,
+    },
+    clusterListFactory: () => () => service.paginatedClusterServiceList(),
+    namespacedListFactory: (namespace) => () =>
+      service.paginatedNamespacedServiceList(namespace),
   },
   [WorkloadKind.CronJob]: {
     clusterEndpoint: '/apis/batch/v1/cronjobs',
@@ -133,6 +147,19 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       statefulSet.paginatedClusterStatefulSetList(),
     namespacedListFactory: (namespace) => () =>
       statefulSet.paginatedNamespacedStatefulSetList(namespace),
+  },
+  [WorkloadKind.Ingress]: {
+    clusterEndpoint: '/apis/networking.k8s.io/v1/ingresses',
+    namespacedEndpoint:
+      '/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses',
+    handlers: {
+      [ADD]: ingress.ingressWatchHandler,
+      [DELETE]: ingress.ingressDeletedHandler,
+      [UPDATE]: ingress.ingressWatchHandler,
+    },
+    clusterListFactory: () => () => ingress.paginatedClusterIngressList(),
+    namespacedListFactory: (namespace) => () =>
+      ingress.paginatedNamespacedIngressList(namespace),
   },
   [WorkloadKind.DeploymentConfig]: {
     clusterEndpoint: '/apis/apps.openshift.io/v1/deploymentconfigs',

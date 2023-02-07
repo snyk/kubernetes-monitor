@@ -1,6 +1,11 @@
-import { V1PodSpec } from '@kubernetes/client-node';
+import {
+  V1IngressSpec,
+  V1PodSpec,
+  V1ServiceSpec,
+} from '@kubernetes/client-node';
 import { NeedleResponse } from 'needle';
 import { ScanResult } from 'snyk-docker-plugin';
+import { V1Container } from '@kubernetes/client-node/dist/gen/model/v1Container';
 
 interface StringMap {
   [key: string]: string;
@@ -24,7 +29,7 @@ export interface IWorkloadMetadata {
   specAnnotations: StringMap | undefined;
   namespaceAnnotations: StringMap | undefined;
   revision: number | undefined;
-  podSpec: V1PodSpec;
+  podSpec: V1PodSpec | V1IngressSpec | V1ServiceSpec;
 }
 
 export interface IImageLocator extends IWorkloadLocator {
@@ -155,7 +160,12 @@ export interface IWorkload {
   imageName: string;
   imageId: string;
   cluster: string;
-  podSpec: V1PodSpec;
+  podSpec: (V1PodSpec | V1ServiceSpec | V1IngressSpec) & IUpstreamProcessable;
+}
+
+// Upstream service expects podSpec.containers field to exist
+export interface IUpstreamProcessable {
+  containers: Array<V1Container>;
 }
 
 export interface IResponseWithAttempts {
