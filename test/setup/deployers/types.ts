@@ -3,6 +3,13 @@ export interface IImageOptions {
   pullPolicy: 'Never' | 'Always' | 'IfPresent';
 }
 
+export interface IDeployOptions {
+  clusterName: string;
+}
+
 export interface IDeployer {
-  deploy: (imageOptions: IImageOptions) => Promise<void>;
+  deploy: (
+    imageOptions: IImageOptions,
+    deployOptions: IDeployOptions,
+  ) => Promise<void>;
 }

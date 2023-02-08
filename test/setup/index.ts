@@ -4,7 +4,7 @@ import sleep from 'sleep-promise';
 
 import platforms, { getKubernetesVersionForPlatform } from './platforms';
 import deployers from './deployers';
-import { IImageOptions } from './deployers/types';
+import { IDeployOptions, IImageOptions } from './deployers/types';
 import * as kubectl from '../helpers/kubectl';
 import { execWrapper as exec } from '../helpers/exec';
 
@@ -16,6 +16,12 @@ function getIntegrationId(): string {
   const integrationId = randomUUID();
   console.log(`Generated new integration ID ${integrationId}`);
   return integrationId;
+}
+
+function getClusterName(): string {
+  const clusterName = `cluster_${randomUUID()}`;
+  console.log(`Generated new Cluster Name ${clusterName}`);
+  return clusterName;
 }
 
 function getEnvVariableOrDefault(
@@ -149,7 +155,10 @@ async function createRegistriesConfigMap(namespace): Promise<void> {
   );
 }
 
-export async function deployMonitor(): Promise<string> {
+export async function deployMonitor(): Promise<{
+  integrationId: string;
+  clusterName: string;
+}> {
   console.log('Begin deploying the snyk-monitor...');
   const namespace = snykMonitorNamespace();
   try {
@@ -195,7 +204,15 @@ export async function deployMonitor(): Promise<string> {
       nameAndTag: remoteImageName,
       pullPolicy: imagePullPolicy,
     };
-    await deployers[deploymentType].deploy(deploymentImageOptions);
+    const clusterName = getClusterName();
+    const deploymentOptions: IDeployOptions = {
+      clusterName: clusterName,
+    };
+
+    await deployers[deploymentType].deploy(
+      deploymentImageOptions,
+      deploymentOptions,
+    );
     for (let attempt = 0; attempt < 180; attempt++) {
       try {
         await exec(
@@ -208,9 +225,9 @@ export async function deployMonitor(): Promise<string> {
     }
 
     console.log(
-      `Deployed the snyk-monitor with integration ID ${integrationId}`,
+      `Deployed the snyk-monitor with integration ID: ${integrationId}, in cluster name: ${clusterName}`,
     );
-    return integrationId;
+    return { integrationId, clusterName };
   } catch (err) {
     console.error(err);
     try {

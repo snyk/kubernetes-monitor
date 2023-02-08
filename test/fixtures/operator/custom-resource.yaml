@@ -6,6 +6,7 @@ metadata:
 spec:
   integrationApi: https://kubernetes-upstream.dev.snyk.io
   temporaryStorageSize: 20Gi
+  clusterName: ""
   pvc:
     enabled: true
     create: true

@@ -1,7 +1,7 @@
 import sleep from 'sleep-promise';
 import { readFileSync, writeFileSync } from 'fs';
 import { parse, stringify } from 'yaml';
-import { IDeployer, IImageOptions } from './types';
+import { IDeployer, IDeployOptions, IImageOptions } from './types';
 import * as kubectl from '../../helpers/kubectl';
 import { execWrapper as exec } from '../../helpers/exec';
 
@@ -11,6 +11,7 @@ export const operatorDeployer: IDeployer = {
 
 async function deployKubernetesMonitor(
   _imageOptions: IImageOptions,
+  deployOptions: IDeployOptions,
 ): Promise<void> {
   const overriddenOperatorSource = 'snyk-monitor-catalog-source.yaml';
   createTestOperatorSource(overriddenOperatorSource);
@@ -20,7 +21,10 @@ async function deployKubernetesMonitor(
   // Await for the Operator to become available, only then
   // the Operator can start processing the custom resource.
   await deploymentIsReady('snyk-operator', 'snyk-monitor');
-  await kubectl.applyK8sYaml('./test/fixtures/operator/custom-resource.yaml');
+
+  const overriddenCustomResource = 'snyk-monitor-custom-resource.yaml';
+  createTestCustomResource(overriddenCustomResource, deployOptions.clusterName);
+  await kubectl.applyK8sYaml(overriddenCustomResource);
 }
 
 async function deploymentIsReady(
@@ -59,4 +63,23 @@ function createTestOperatorSource(newYamlPath: string): void {
 
   writeFileSync(newYamlPath, stringify(catalogSource));
   console.log('Created YAML CatalogSource');
+}
+
+function createTestCustomResource(
+  newYamlPath: string,
+  clusterName: string,
+): void {
+  console.log('Creating YAML CustomResource...');
+  const originalCustomResourceYaml = readFileSync(
+    './test/fixtures/operator/custom-resource.yaml',
+    'utf8',
+  );
+  const customResource: { spec: { clusterName: string } } = parse(
+    originalCustomResourceYaml,
+  );
+
+  customResource.spec.clusterName = clusterName;
+
+  writeFileSync(newYamlPath, stringify(customResource));
+  console.log('Created YAML CustomResource');
 }
