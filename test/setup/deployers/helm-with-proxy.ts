@@ -1,7 +1,7 @@
 import { platform } from 'os';
 import { existsSync, chmodSync } from 'fs';
 
-import { IDeployer, IImageOptions } from './types';
+import { IDeployer, IDeployOptions, IImageOptions } from './types';
 import * as kubectl from '../../helpers/kubectl';
 import { execWrapper as exec } from '../../helpers/exec';
 
@@ -15,6 +15,7 @@ export const helmWithProxyDeployer: IDeployer = {
 
 async function deployKubernetesMonitor(
   imageOptions: IImageOptions,
+  deployOptions: IDeployOptions,
 ): Promise<void> {
   if (!existsSync(helmPath)) {
     await downloadHelm();
@@ -37,6 +38,7 @@ async function deployKubernetesMonitor(
       `--set image.tag=${imageTag} ` +
       `--set image.pullPolicy=${imagePullPolicy} ` +
       '--set integrationApi=https://kubernetes-upstream.dev.snyk.io ' +
+      `--set clusterName=${deployOptions.clusterName} ` +
       '--set https_proxy=http://forwarding-proxy:8080',
   );
   console.log(
