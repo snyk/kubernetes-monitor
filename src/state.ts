@@ -1,4 +1,9 @@
-import { KubernetesObject, V1Namespace } from '@kubernetes/client-node';
+import {
+  KubernetesObject,
+  V1Namespace,
+  V1ObjectMeta,
+  V1OwnerReference,
+} from '@kubernetes/client-node';
 import LruCache from 'lru-cache';
 
 import { config } from './common/config';
@@ -20,6 +25,28 @@ const workloadsLruCacheOptions: LruCache.Options<string, string> = {
   // limit cache life so if our backend loses track of an image's data,
   // eventually we will report again for that image, if it's still relevant
   maxAge: config.WORKLOADS_SCANNED_CACHE.MAX_AGE_MS,
+  updateAgeOnGet: false,
+};
+
+/**
+ * Type is identical to the one in src/supervisor. However, it is declared here
+ * to prevent a dependency of this module to outside users and avoid circular refs.
+ * Additionally, we may want to know how our cache state is affected whenever the type changes.
+ */
+type IKubeObjectMetadataWithoutPodSpec = {
+  kind: string;
+  objectMeta: V1ObjectMeta;
+  specMeta: V1ObjectMeta;
+  ownerRefs: V1OwnerReference[] | undefined;
+  revision?: number;
+};
+
+const workloadMetadataLruCacheOptions: LruCache.Options<
+  string,
+  IKubeObjectMetadataWithoutPodSpec
+> = {
+  max: config.WORKLOAD_METADATA_CACHE.MAX_SIZE,
+  maxAge: config.WORKLOAD_METADATA_CACHE.MAX_AGE_MS,
   updateAgeOnGet: false,
 };
 
@@ -137,6 +164,31 @@ export function deleteNamespace(namespace: V1Namespace): void {
   delete state.watchedNamespaces[namespaceName];
 }
 
+function getWorkloadMetadataCacheKey(
+  workloadName: string,
+  namespace: string,
+): string {
+  return `${namespace}/${workloadName}`;
+}
+
+export function getWorkloadMetadata(
+  workloadName: string,
+  namespace: string,
+): IKubeObjectMetadataWithoutPodSpec | undefined {
+  const key = getWorkloadMetadataCacheKey(workloadName, namespace);
+  const cachedMetadata = state.workloadMetadata.get(key);
+  return cachedMetadata;
+}
+
+export function setWorkloadMetadata(
+  workloadName: string,
+  namespace: string,
+  metadata: IKubeObjectMetadataWithoutPodSpec,
+): void {
+  const key = getWorkloadMetadataCacheKey(workloadName, namespace);
+  state.workloadMetadata.set(key, metadata);
+}
+
 export const state = {
   shutdownInProgress: false,
   imagesAlreadyScanned: new LruCache<string, Set<string>>(
@@ -146,4 +198,7 @@ export const state = {
     workloadsLruCacheOptions,
   ),
   watchedNamespaces: {} as Record<string, V1Namespace>,
+  workloadMetadata: new LruCache<string, IKubeObjectMetadataWithoutPodSpec>(
+    workloadMetadataLruCacheOptions,
+  ),
 };

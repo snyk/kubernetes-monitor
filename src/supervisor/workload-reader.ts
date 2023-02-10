@@ -6,6 +6,10 @@ import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
 import { V1alpha1Rollout, V1DeploymentConfig } from './watchers/handlers/types';
 import { trimWorkload } from './workload-sanitization';
+import {
+  getWorkloadMetadata as getCachedWorkloadMetadata,
+  setWorkloadMetadata as cacheWorkloadMetadata,
+} from '../state';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
@@ -17,6 +21,11 @@ const deploymentReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const deploymentResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
@@ -42,6 +51,7 @@ const deploymentReader: IWorkloadReaderFunc = async (
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -50,6 +60,11 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const deploymentResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.customObjectsClient.getNamespacedCustomObject(
@@ -81,6 +96,7 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -88,6 +104,11 @@ const replicaSetReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const replicaSetResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
@@ -114,6 +135,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (
     ownerRefs: replicaSet.metadata.ownerReferences,
     revision: replicaSet.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -121,6 +143,11 @@ const statefulSetReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const statefulSetResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.appsClient.readNamespacedStatefulSet(workloadName, namespace),
@@ -146,6 +173,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (
     ownerRefs: statefulSet.metadata.ownerReferences,
     revision: statefulSet.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -153,6 +181,11 @@ const daemonSetReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const daemonSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
     () => k8sApi.appsClient.readNamespacedDaemonSet(workloadName, namespace),
   );
@@ -177,10 +210,16 @@ const daemonSetReader: IWorkloadReaderFunc = async (
     ownerRefs: daemonSet.metadata.ownerReferences,
     revision: daemonSet.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
 const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const jobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
     k8sApi.batchClient.readNamespacedJob(workloadName, namespace),
   );
@@ -203,11 +242,17 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     specMeta: job.spec.template.metadata,
     ownerRefs: job.metadata.ownerReferences,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
 // cronJobReader can read v1 and v1beta1 CronJobs
 const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const cronJobResult = await kubernetesApiWrappers
     .retryKubernetesApiRequest(() =>
       k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
@@ -241,6 +286,7 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     specMeta: cronJob.spec.jobTemplate.metadata,
     ownerRefs: cronJob.metadata.ownerReferences,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -248,6 +294,11 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const replicationControllerResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
       k8sApi.coreClient.readNamespacedReplicationController(
@@ -277,6 +328,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
     ownerRefs: replicationController.metadata.ownerReferences,
     revision: replicationController.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -284,6 +336,11 @@ const argoRolloutReader: IWorkloadReaderFunc = async (
   workloadName,
   namespace,
 ) => {
+  const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
+  if (cachedMetadata !== undefined) {
+    return cachedMetadata;
+  }
+
   const rolloutResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
     () =>
       k8sApi.customObjectsClient.getNamespacedCustomObject(
@@ -315,6 +372,7 @@ const argoRolloutReader: IWorkloadReaderFunc = async (
     ownerRefs: rollout.metadata.ownerReferences,
     revision: rollout.status.observedGeneration,
   };
+  cacheWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
