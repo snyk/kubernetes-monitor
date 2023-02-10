@@ -1,4 +1,4 @@
-import { queue } from 'async';
+import * as fastq from 'fastq';
 import needle from 'needle';
 import sleep from 'sleep-promise';
 import { Agent as HttpAgent } from 'http';
@@ -19,6 +19,8 @@ import {
   IRuntimeDataPayload,
 } from './types';
 import { getProxyAgent } from './proxy';
+
+import type { queueAsPromised } from 'fastq';
 
 interface KubernetesUpstreamRequest {
   method: NeedleHttpVerbs;
@@ -50,9 +52,12 @@ function getAgent(u: string): HttpAgent {
 
 // Async queue wraps around the call to retryRequest in order to limit
 // the number of requests in flight to kubernetes upstream at any one time.
-const reqQueue = queue(async function (req: KubernetesUpstreamRequest) {
+const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
+  req: KubernetesUpstreamRequest,
+) {
   return await retryRequest(req.method, req.url, req.payload);
-}, config.REQUEST_QUEUE_LENGTH);
+},
+config.REQUEST_QUEUE_LENGTH);
 
 export async function sendDepGraph(
   ...payloads: IDependencyGraphPayload[]
@@ -68,7 +73,7 @@ export async function sendDepGraph(
         payload,
       };
 
-      const { response, attempt } = await reqQueue.pushAsync(request);
+      const { response, attempt } = await reqQueue.push(request);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -99,7 +104,7 @@ export async function sendScanResults(
         payload,
       };
 
-      const { response, attempt } = await reqQueue.pushAsync(request);
+      const { response, attempt } = await reqQueue.push(request);
       if (!isSuccessStatusCode(response.statusCode)) {
         throw new Error(`${response.statusCode} ${response.statusMessage}`);
       } else {
@@ -135,7 +140,7 @@ export async function sendWorkloadMetadata(
       payload,
     };
 
-    const { response, attempt } = await reqQueue.pushAsync(request);
+    const { response, attempt } = await reqQueue.push(request);
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
     } else {
@@ -209,7 +214,7 @@ export async function deleteWorkload(
       payload,
     };
 
-    const { response, attempt } = await reqQueue.pushAsync(request);
+    const { response, attempt } = await reqQueue.push(request);
     // TODO: Remove this check, the upstream no longer returns 404 in such cases
     if (response.statusCode === 404) {
       logger.info(
@@ -334,7 +339,7 @@ export async function sendClusterMetadata(): Promise<void> {
       payload,
     };
 
-    const { response, attempt } = await reqQueue.pushAsync(request);
+    const { response, attempt } = await reqQueue.push(request);
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
     }
@@ -380,7 +385,7 @@ export async function sendRuntimeData(
       payload,
     };
 
-    const { response, attempt } = await reqQueue.pushAsync(request);
+    const { response, attempt } = await reqQueue.push(request);
 
     if (!isSuccessStatusCode(response.statusCode)) {
       throw new Error(`${response.statusCode} ${response.statusMessage}`);

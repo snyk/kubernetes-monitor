@@ -1,4 +1,4 @@
-import { queue } from 'async';
+import * as fastq from 'fastq';
 import * as http from 'http';
 import sleep from 'sleep-promise';
 import { config } from '../common/config';
@@ -7,33 +7,26 @@ import { logger } from '../common/logger';
 import { IRequestError } from './types';
 import { RETRYABLE_NETWORK_ERRORS } from './watchers/types';
 
+import type { queueAsPromised } from 'fastq';
+
 export const ATTEMPTS_MAX = 3;
 export const DEFAULT_SLEEP_SEC = 1;
 export const MAX_SLEEP_SEC = 5;
 type IKubernetesApiFunction<ResponseType> = () => Promise<ResponseType>;
 
-const reqQueue = queue(async function (
+const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
   promise: IKubernetesApiFunction<unknown>,
 ) {
   return await promise();
 },
 config.REQUEST_QUEUE_LENGTH);
 
-/**
- * Add a promise to a queue - this is useful for preventing too many API calls to the Kubernetes API.
- */
-async function enqueueRequest<ResponseType>(
-  promise: IKubernetesApiFunction<ResponseType>,
-): Promise<ResponseType> {
-  return await reqQueue.pushAsync(promise);
-}
-
 export async function retryKubernetesApiRequest<ResponseType>(
   func: IKubernetesApiFunction<ResponseType>,
 ): Promise<ResponseType> {
   for (let attempt = 1; attempt <= ATTEMPTS_MAX; attempt++) {
     try {
-      return await enqueueRequest(func);
+      return await reqQueue.push(func);
     } catch (err: any) {
       if (!shouldRetryRequest(err, attempt)) {
         throw err;
@@ -64,7 +57,7 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
 
   while (true) {
     try {
-      return await enqueueRequest(func);
+      return await reqQueue.push(func);
     } catch (err: any) {
       if (!shouldRetryRequest(err, 1)) {
         throw err;
