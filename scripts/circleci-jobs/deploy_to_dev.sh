@@ -37,6 +37,13 @@ skopeo:
 workers:
   count: 5
 
+metadata:
+  labels:
+    $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
+    $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
+  annotations:
+    github.com/project-slug: snyk/kubernetes-monitor
+
 EOF
 
 cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-production.yaml <<EOF
@@ -59,6 +66,13 @@ skopeo:
 
 workers:
   count: 5
+
+metadata:
+  labels:
+    $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
+    $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
+  annotations:
+    github.com/project-slug: snyk/kubernetes-monitor
 
 EOF
 
