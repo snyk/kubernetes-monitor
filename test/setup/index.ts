@@ -13,8 +13,8 @@ const createCluster = process.env['CREATE_CLUSTER'] === 'true';
 const deploymentType = process.env['DEPLOYMENT_TYPE'] || 'YAML';
 
 function getIntegrationId(): string {
-  const integrationId = randomUUID();
-  console.log(`Generated new integration ID ${integrationId}`);
+  const integrationId = process.env.INTEGRATION_TESTS_INTEGRATION_ID!;
+  console.log(`using integration ID ${integrationId} for integration tests`);
   return integrationId;
 }
 
@@ -25,10 +25,8 @@ function getClusterName(): string {
 }
 
 function getServiceAccountApiToken(): string {
-  const serviceAccountApiToken = randomUUID();
-  console.log(
-    `Generated new service account API token ${serviceAccountApiToken}`,
-  );
+  const serviceAccountApiToken =
+    process.env.INTEGRATION_TESTS_SERVICE_ACCOUNT_API_TOKEN!;
   return serviceAccountApiToken;
 }
 
