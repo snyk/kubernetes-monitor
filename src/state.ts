@@ -171,7 +171,7 @@ function getWorkloadMetadataCacheKey(
   return `${namespace}/${workloadName}`;
 }
 
-export function getWorkloadMetadata(
+export function getCachedWorkloadMetadata(
   workloadName: string,
   namespace: string,
 ): IKubeObjectMetadataWithoutPodSpec | undefined {
@@ -180,7 +180,7 @@ export function getWorkloadMetadata(
   return cachedMetadata;
 }
 
-export function setWorkloadMetadata(
+export function setCachedWorkloadMetadata(
   workloadName: string,
   namespace: string,
   metadata: IKubeObjectMetadataWithoutPodSpec,

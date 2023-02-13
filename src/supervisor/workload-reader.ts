@@ -6,10 +6,7 @@ import { IKubeObjectMetadata, WorkloadKind } from './types';
 import { logger } from '../common/logger';
 import { V1alpha1Rollout, V1DeploymentConfig } from './watchers/handlers/types';
 import { trimWorkload } from './workload-sanitization';
-import {
-  getWorkloadMetadata as getCachedWorkloadMetadata,
-  setWorkloadMetadata as cacheWorkloadMetadata,
-} from '../state';
+import { getCachedWorkloadMetadata, setCachedWorkloadMetadata } from '../state';
 
 type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
@@ -51,7 +48,7 @@ const deploymentReader: IWorkloadReaderFunc = async (
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -96,7 +93,7 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
     ownerRefs: deployment.metadata.ownerReferences,
     revision: deployment.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -135,7 +132,7 @@ const replicaSetReader: IWorkloadReaderFunc = async (
     ownerRefs: replicaSet.metadata.ownerReferences,
     revision: replicaSet.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -173,7 +170,7 @@ const statefulSetReader: IWorkloadReaderFunc = async (
     ownerRefs: statefulSet.metadata.ownerReferences,
     revision: statefulSet.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -210,7 +207,7 @@ const daemonSetReader: IWorkloadReaderFunc = async (
     ownerRefs: daemonSet.metadata.ownerReferences,
     revision: daemonSet.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -242,7 +239,7 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     specMeta: job.spec.template.metadata,
     ownerRefs: job.metadata.ownerReferences,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -286,7 +283,7 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     specMeta: cronJob.spec.jobTemplate.metadata,
     ownerRefs: cronJob.metadata.ownerReferences,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -328,7 +325,7 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
     ownerRefs: replicationController.metadata.ownerReferences,
     revision: replicationController.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
@@ -372,7 +369,7 @@ const argoRolloutReader: IWorkloadReaderFunc = async (
     ownerRefs: rollout.metadata.ownerReferences,
     revision: rollout.status.observedGeneration,
   };
-  cacheWorkloadMetadata(workloadName, namespace, metadata);
+  setCachedWorkloadMetadata(workloadName, namespace, metadata);
   return metadata;
 };
 
