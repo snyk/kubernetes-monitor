@@ -45,6 +45,11 @@ export interface IKubeObjectMetadata {
   revision?: number;
 }
 
+export type IKubeObjectMetadataWithoutPodSpec = Omit<
+  IKubeObjectMetadata,
+  'podSpec'
+>;
+
 export interface IK8sClients {
   readonly appsClient: AppsV1Api;
   readonly coreClient: CoreV1Api;
