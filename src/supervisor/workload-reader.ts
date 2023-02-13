@@ -2,13 +2,12 @@ import { V1OwnerReference } from '@kubernetes/client-node';
 
 import * as kubernetesApiWrappers from './kuberenetes-api-wrappers';
 import { k8sApi } from './cluster';
-import { IKubeObjectMetadata, WorkloadKind } from './types';
+import { IKubeObjectMetadataWithoutPodSpec, WorkloadKind } from './types';
 import { logger } from '../common/logger';
 import { V1alpha1Rollout, V1DeploymentConfig } from './watchers/handlers/types';
 import { trimWorkload } from './workload-sanitization';
 import { getCachedWorkloadMetadata, setCachedWorkloadMetadata } from '../state';
 
-type IKubeObjectMetadataWithoutPodSpec = Omit<IKubeObjectMetadata, 'podSpec'>;
 type IWorkloadReaderFunc = (
   workloadName: string,
   namespace: string,

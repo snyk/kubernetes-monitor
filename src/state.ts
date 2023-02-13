@@ -1,13 +1,9 @@
-import {
-  KubernetesObject,
-  V1Namespace,
-  V1ObjectMeta,
-  V1OwnerReference,
-} from '@kubernetes/client-node';
+import { KubernetesObject, V1Namespace } from '@kubernetes/client-node';
 import LruCache from 'lru-cache';
 
 import { config } from './common/config';
 import { logger } from './common/logger';
+import { IKubeObjectMetadataWithoutPodSpec } from './supervisor/types';
 import { extractNamespaceName } from './supervisor/watchers/internal-namespaces';
 
 const imagesLruCacheOptions: LruCache.Options<string, Set<string>> = {
@@ -26,19 +22,6 @@ const workloadsLruCacheOptions: LruCache.Options<string, string> = {
   // eventually we will report again for that image, if it's still relevant
   maxAge: config.WORKLOADS_SCANNED_CACHE.MAX_AGE_MS,
   updateAgeOnGet: false,
-};
-
-/**
- * Type is identical to the one in src/supervisor. However, it is declared here
- * to prevent a dependency of this module to outside users and avoid circular refs.
- * Additionally, we may want to know how our cache state is affected whenever the type changes.
- */
-type IKubeObjectMetadataWithoutPodSpec = {
-  kind: string;
-  objectMeta: V1ObjectMeta;
-  specMeta: V1ObjectMeta;
-  ownerRefs: V1OwnerReference[] | undefined;
-  revision?: number;
 };
 
 const workloadMetadataLruCacheOptions: LruCache.Options<
