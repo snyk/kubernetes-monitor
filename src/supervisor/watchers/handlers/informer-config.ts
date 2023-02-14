@@ -2,6 +2,8 @@ import { ADD, DELETE, UPDATE } from '@kubernetes/client-node';
 
 import { WorkloadKind } from '../../types';
 import * as pod from './pod';
+import * as service from './service';
+import * as ingress from './ingress';
 import * as cronJob from './cron-job';
 import * as daemonSet from './daemon-set';
 import * as deployment from './deployment';
@@ -46,8 +48,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.ReplicationController]: {
     clusterEndpoint: '/api/v1/replicationcontrollers',
-    namespacedEndpoint:
-      '/api/v1/watch/namespaces/{namespace}/replicationcontrollers',
+    namespacedEndpoint: '/api/v1/namespaces/{namespace}/replicationcontrollers',
     handlers: {
       [DELETE]: replicationController.replicationControllerWatchHandler,
     },
@@ -58,9 +59,21 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
         namespace,
       ),
   },
+  [WorkloadKind.Service]: {
+    clusterEndpoint: '/api/v1/services',
+    namespacedEndpoint: '/api/v1/namespaces/{namespace}/services',
+    handlers: {
+      [ADD]: service.serviceWatchHandler,
+      [DELETE]: service.serviceDeletedHandler,
+      [UPDATE]: service.serviceWatchHandler,
+    },
+    clusterListFactory: () => () => service.paginatedClusterServiceList(),
+    namespacedListFactory: (namespace) => () =>
+      service.paginatedNamespacedServiceList(namespace),
+  },
   [WorkloadKind.CronJob]: {
     clusterEndpoint: '/apis/batch/v1/cronjobs',
-    namespacedEndpoint: '/apis/batch/v1/watch/namespaces/{namespace}/cronjobs',
+    namespacedEndpoint: '/apis/batch/v1/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJob.cronJobWatchHandler,
     },
@@ -70,8 +83,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.CronJobV1Beta1]: {
     clusterEndpoint: '/apis/batch/v1beta1/cronjobs',
-    namespacedEndpoint:
-      '/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs',
+    namespacedEndpoint: '/apis/batch/v1beta1/namespaces/{namespace}/cronjobs',
     handlers: {
       [DELETE]: cronJob.cronJobWatchHandler,
     },
@@ -82,7 +94,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.Job]: {
     clusterEndpoint: '/apis/batch/v1/jobs',
-    namespacedEndpoint: '/apis/batch/v1/watch/namespaces/{namespace}/jobs',
+    namespacedEndpoint: '/apis/batch/v1/namespaces/{namespace}/jobs',
     handlers: {
       [DELETE]: job.jobWatchHandler,
     },
@@ -92,7 +104,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.DaemonSet]: {
     clusterEndpoint: '/apis/apps/v1/daemonsets',
-    namespacedEndpoint: '/apis/apps/v1/watch/namespaces/{namespace}/daemonsets',
+    namespacedEndpoint: '/apis/apps/v1/namespaces/{namespace}/daemonsets',
     handlers: {
       [DELETE]: daemonSet.daemonSetWatchHandler,
     },
@@ -102,8 +114,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.Deployment]: {
     clusterEndpoint: '/apis/apps/v1/deployments',
-    namespacedEndpoint:
-      '/apis/apps/v1/watch/namespaces/{namespace}/deployments',
+    namespacedEndpoint: '/apis/apps/v1/namespaces/{namespace}/deployments',
     handlers: {
       [DELETE]: deployment.deploymentWatchHandler,
     },
@@ -113,8 +124,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.ReplicaSet]: {
     clusterEndpoint: '/apis/apps/v1/replicasets',
-    namespacedEndpoint:
-      '/apis/apps/v1/watch/namespaces/{namespace}/replicasets',
+    namespacedEndpoint: '/apis/apps/v1/namespaces/{namespace}/replicasets',
     handlers: {
       [DELETE]: replicaSet.replicaSetWatchHandler,
     },
@@ -124,8 +134,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   },
   [WorkloadKind.StatefulSet]: {
     clusterEndpoint: '/apis/apps/v1/statefulsets',
-    namespacedEndpoint:
-      '/apis/apps/v1/watch/namespaces/{namespace}/statefulsets',
+    namespacedEndpoint: '/apis/apps/v1/namespaces/{namespace}/statefulsets',
     handlers: {
       [DELETE]: statefulSet.statefulSetWatchHandler,
     },
@@ -134,11 +143,24 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       statefulSet.paginatedNamespacedStatefulSetList(namespace),
   },
+  [WorkloadKind.Ingress]: {
+    clusterEndpoint: '/apis/networking.k8s.io/v1/ingresses',
+    namespacedEndpoint:
+      '/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses',
+    handlers: {
+      [ADD]: ingress.ingressWatchHandler,
+      [DELETE]: ingress.ingressDeletedHandler,
+      [UPDATE]: ingress.ingressWatchHandler,
+    },
+    clusterListFactory: () => () => ingress.paginatedClusterIngressList(),
+    namespacedListFactory: (namespace) => () =>
+      ingress.paginatedNamespacedIngressList(namespace),
+  },
   [WorkloadKind.DeploymentConfig]: {
     clusterEndpoint: '/apis/apps.openshift.io/v1/deploymentconfigs',
     /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
     namespacedEndpoint:
-      '/apis/apps.openshift.io/v1/watch/namespaces/{namespace}/deploymentconfigs',
+      '/apis/apps.openshift.io/v1/namespaces/{namespace}/deploymentconfigs',
     handlers: {
       [DELETE]: deploymentConfig.deploymentConfigWatchHandler,
     },
@@ -150,7 +172,7 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
   [WorkloadKind.ArgoRollout]: {
     clusterEndpoint: '/apis/argoproj.io/v1alpha1/rollouts',
     namespacedEndpoint:
-      '/apis/argoproj.io/v1alpha1/watch/namespaces/{namespace}/rollouts',
+      '/apis/argoproj.io/v1alpha1/namespaces/{namespace}/rollouts',
     handlers: {
       [DELETE]: rollout.argoRolloutWatchHandler,
     },

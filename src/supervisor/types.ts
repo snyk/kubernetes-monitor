@@ -6,6 +6,7 @@ import {
   CoreV1Api,
   CustomObjectsApi,
   KubeConfig,
+  NetworkingV1Api,
   V1Namespace,
   V1ObjectMeta,
   V1OwnerReference,
@@ -24,6 +25,8 @@ export enum WorkloadKind {
   CronJobV1Beta1 = 'CronJobV1Beta1',
   ReplicationController = 'ReplicationController',
   Pod = 'Pod',
+  Service = 'Service',
+  Ingress = 'Ingress',
   DeploymentConfig = 'DeploymentConfig',
   ArgoRollout = 'Rollout',
 }
@@ -37,16 +40,22 @@ export interface IKubeObjectMetadata {
   kind: string;
   objectMeta: V1ObjectMeta;
   specMeta: V1ObjectMeta;
-  podSpec: V1PodSpec;
+  podSpec?: V1PodSpec;
   ownerRefs: V1OwnerReference[] | undefined;
   revision?: number;
 }
+
+export type IKubeObjectMetadataWithoutPodSpec = Omit<
+  IKubeObjectMetadata,
+  'podSpec'
+>;
 
 export interface IK8sClients {
   readonly appsClient: AppsV1Api;
   readonly coreClient: CoreV1Api;
   readonly batchClient: BatchV1Api;
   readonly batchUnstableClient: BatchV1beta1Api;
+  readonly networkClient: NetworkingV1Api;
   readonly customObjectsClient: CustomObjectsApi;
 }
 
@@ -55,6 +64,7 @@ export class K8sClients implements IK8sClients {
   public readonly coreClient: CoreV1Api;
   public readonly batchClient: BatchV1Api;
   public readonly batchUnstableClient: BatchV1beta1Api;
+  public readonly networkClient: NetworkingV1Api;
   /** This client is used to access Custom Resources in the cluster, e.g. DeploymentConfig on OpenShift. */
   public readonly customObjectsClient: CustomObjectsApi;
 
@@ -63,6 +73,7 @@ export class K8sClients implements IK8sClients {
     this.coreClient = config.makeApiClient(CoreV1Api);
     this.batchClient = config.makeApiClient(BatchV1Api);
     this.batchUnstableClient = config.makeApiClient(BatchV1beta1Api);
+    this.networkClient = config.makeApiClient(NetworkingV1Api);
     this.customObjectsClient = config.makeApiClient(CustomObjectsApi);
   }
 }

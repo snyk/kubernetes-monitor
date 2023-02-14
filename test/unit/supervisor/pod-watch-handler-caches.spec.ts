@@ -1,13 +1,19 @@
-import * as async from 'async';
 import * as fs from 'fs';
 import sleep from 'sleep-promise';
 import * as YAML from 'yaml';
 // NOTE: Very important that the mock is set up before application code is imported!
 let pushCallCount = 0;
-const asyncQueueSpy = jest.spyOn(async, 'queue').mockReturnValue({
-  error: () => {},
-  pushAsync: async () => pushCallCount++,
-} as any);
+jest.mock('async', () => ({
+  queue: () => ({
+    error: () => {},
+    pushAsync: async () => pushCallCount++,
+  }),
+}));
+jest.mock('fastq', () => ({
+  promise: () => ({
+    push: async () => pushCallCount++,
+  }),
+}));
 
 import { V1PodSpec, V1Pod } from '@kubernetes/client-node';
 import { IWorkload } from '../../../src/transmitter/types';
@@ -46,6 +52,7 @@ describe('image and workload image cache', () => {
   afterAll(() => {
     asyncQueueSpy.mockRestore();
     buildMetadataSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
   const podFixture = fs.readFileSync(

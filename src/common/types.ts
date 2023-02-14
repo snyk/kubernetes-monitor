@@ -11,6 +11,10 @@ export interface Config {
     MAX_SIZE: number;
     MAX_AGE_MS: number;
   };
+  WORKLOAD_METADATA_CACHE: {
+    MAX_SIZE: number;
+    MAX_AGE_MS: number;
+  };
   WORKERS_COUNT: number;
   REQUEST_QUEUE_LENGTH: number;
   QUEUE_LENGTH_LOG_FREQUENCY_MINUTES: number;

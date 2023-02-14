@@ -3,6 +3,7 @@ import LruCache from 'lru-cache';
 
 import { config } from './common/config';
 import { logger } from './common/logger';
+import { IKubeObjectMetadataWithoutPodSpec } from './supervisor/types';
 import { extractNamespaceName } from './supervisor/watchers/internal-namespaces';
 
 const imagesLruCacheOptions: LruCache.Options<string, Set<string>> = {
@@ -20,6 +21,15 @@ const workloadsLruCacheOptions: LruCache.Options<string, string> = {
   // limit cache life so if our backend loses track of an image's data,
   // eventually we will report again for that image, if it's still relevant
   maxAge: config.WORKLOADS_SCANNED_CACHE.MAX_AGE_MS,
+  updateAgeOnGet: false,
+};
+
+const workloadMetadataLruCacheOptions: LruCache.Options<
+  string,
+  IKubeObjectMetadataWithoutPodSpec
+> = {
+  max: config.WORKLOAD_METADATA_CACHE.MAX_SIZE,
+  maxAge: config.WORKLOAD_METADATA_CACHE.MAX_AGE_MS,
   updateAgeOnGet: false,
 };
 
@@ -137,6 +147,31 @@ export function deleteNamespace(namespace: V1Namespace): void {
   delete state.watchedNamespaces[namespaceName];
 }
 
+function getWorkloadMetadataCacheKey(
+  workloadName: string,
+  namespace: string,
+): string {
+  return `${namespace}/${workloadName}`;
+}
+
+export function getCachedWorkloadMetadata(
+  workloadName: string,
+  namespace: string,
+): IKubeObjectMetadataWithoutPodSpec | undefined {
+  const key = getWorkloadMetadataCacheKey(workloadName, namespace);
+  const cachedMetadata = state.workloadMetadata.get(key);
+  return cachedMetadata;
+}
+
+export function setCachedWorkloadMetadata(
+  workloadName: string,
+  namespace: string,
+  metadata: IKubeObjectMetadataWithoutPodSpec,
+): void {
+  const key = getWorkloadMetadataCacheKey(workloadName, namespace);
+  state.workloadMetadata.set(key, metadata);
+}
+
 export const state = {
   shutdownInProgress: false,
   imagesAlreadyScanned: new LruCache<string, Set<string>>(
@@ -146,4 +181,7 @@ export const state = {
     workloadsLruCacheOptions,
   ),
   watchedNamespaces: {} as Record<string, V1Namespace>,
+  workloadMetadata: new LruCache<string, IKubeObjectMetadataWithoutPodSpec>(
+    workloadMetadataLruCacheOptions,
+  ),
 };
