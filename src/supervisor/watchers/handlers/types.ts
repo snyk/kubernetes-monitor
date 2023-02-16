@@ -92,6 +92,47 @@ export interface V1alpha1RolloutStatus {
   observedGeneration?: number;
 }
 
+export interface CrdDefinition {
+  group: string;
+  version: string;
+  resourceKind: string;
+  resourceKindPlural: string;
+}
+
+export class CrdApiDefinition implements CrdDefinition {
+  group: string;
+  version: string;
+  resourceKind: string;
+  resourceKindPlural: string;
+
+  constructor(
+    group: string,
+    version: string,
+    resourceKind: string,
+    resourceKindPlural: string,
+  ) {
+    this.group = group;
+    this.version = version;
+    this.resourceKind = resourceKind;
+    this.resourceKindPlural = resourceKindPlural;
+  }
+
+  getClusterEndpoint() {
+    return `/apis/${this.group}/${this.version}/${this.resourceKindPlural}`;
+  }
+
+  getNamespacedEndpoint() {
+    return `/apis/${this.group}/${this.version}/watch/namespaces/{namespace}/${this.resourceKindPlural}`;
+  }
+}
+
+export class CrdList implements KubernetesListObject<KubernetesObject> {
+  'apiVersion'?: string;
+  'items': Array<KubernetesObject>;
+  'kind'?: string;
+  'metadata'?: V1ListMeta;
+}
+
 export type V1ClusterList<T> = (
   allowWatchBookmarks?: boolean,
   _continue?: string,

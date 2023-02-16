@@ -78,4 +78,196 @@ rules:
   - get
   - list
   - watch
+{{- if .Values.scan_networking_crds }}
+- apiGroups:
+  - enterprise.gloo.solo.io/v1
+  resources:
+  - authconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - fed.enterprise.gloo.solo.io/v1
+  resources:
+  - federatedauthconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - fed.gateway.solo.io/v1
+  resources:
+  - federatedgateways
+  - federatedroutetables
+  - federatedvirtualservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - fed.gloo.solo.io/v1
+  resources:
+  - federatedsettings
+  - federatedupstreamgroups
+  - federatedupstreams
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - fed.ratelimit.solo.io/v1alpha1
+  resources:
+  - federatedratelimitconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - fed.solo.io/v1
+  resources:
+  - failoverschemes
+  - glooinstances
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - gateway.solo.io/v1
+  resources:
+  - gateways
+  - httpgateways
+  - routeoptions
+  - routetables
+  - virtualhostoptions
+  - virtualservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - getambassador.io/v3alpha1
+  resources:
+  - authservices
+  - consulresolvers
+  - devportals
+  - hosts
+  - kubernetesendpointresolvers
+  - kubernetesserviceresolvers
+  - listeners
+  - logservices
+  - mappings
+  - modules
+  - ratelimitservices
+  - tcpmappings
+  - tlscontexts
+  - tracingservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - gloo.solo.io/v1
+  resources:
+  - proxies
+  - settings
+  - upstreamgroups
+  - upstreams
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - graphql.gloo.solo.io/v1alpha1
+  resources:
+  - graphqlschemas
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - install.istio.io/v1alpha1
+  resources:
+  - istiooperators
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - multicluster.solo.io/v1alpha1
+  resources:
+  - kubernetesclusters
+  - multiclusterrolebindings
+  - multiclusterroles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.gke.io/v1
+  resources:
+  - managedcertificates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.gke.io/v1beta1
+  resources:
+  - frontendconfigs
+  - serviceattachments
+  - servicenetworkendpointgroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.istio.io/v1alpha3
+  resources:
+  - envoyfilters
+  - workloadgroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.istio.io/v1beta1
+  resources:
+  - destinationrules
+  - gateways
+  - serviceentries
+  - sidecars
+  - virtualservices
+  - workloadentries
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ratelimit.solo.io/v1alpha1
+  resources:
+  - ratelimitconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - security.istio.io/v1beta1
+  resources:
+  - authorizationpolicies
+  - peerauthentications
+  - requestauthentications
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - telemetry.istio.io/v1alpha1
+  resources:
+  - telemetries
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
 {{- end }}
