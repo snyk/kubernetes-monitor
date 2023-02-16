@@ -26,12 +26,12 @@ interface KubernetesUpstreamRequest {
   method: NeedleHttpVerbs;
   url: string;
   payload:
-    | IDependencyGraphPayload
-    | ScanResultsPayload
-    | IWorkloadMetadataPayload
-    | IDeleteWorkloadPayload
-    | IClusterMetadataPayload
-    | IRuntimeDataPayload;
+  | IDependencyGraphPayload
+  | ScanResultsPayload
+  | IWorkloadMetadataPayload
+  | IDeleteWorkloadPayload
+  | IClusterMetadataPayload
+  | IRuntimeDataPayload;
 }
 
 const upstreamUrl =
@@ -57,7 +57,7 @@ const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
 ) {
   return await retryRequest(req.method, req.url, req.payload);
 },
-config.REQUEST_QUEUE_LENGTH);
+  config.REQUEST_QUEUE_LENGTH);
 
 export async function sendDepGraph(
   ...payloads: IDependencyGraphPayload[]
@@ -265,13 +265,19 @@ export async function retryRequest(
   }
 
   let response: NeedleResponse | undefined;
-  let attempt: number;
 
-  for (attempt = 1; attempt <= retry.attempts; attempt++) {
+  let attempt = 0;
+  while (true) {
+    attempt++;
     const stillHaveRetries = attempt + 1 <= retry.attempts;
     try {
       response = await needle(verb, url, payload, options);
-      if (!(response.statusCode === 502 && stillHaveRetries)) {
+      if ([429, 502, 503, 504].includes(response?.statusCode || 0)) {
+        await sleep(retry.intervalSeconds * 1000);
+        continue;
+      }
+
+      if (!stillHaveRetries) {
         break;
       }
     } catch (err: any) {
