@@ -14,26 +14,9 @@ import * as statefulSet from './stateful-set';
 import * as deploymentConfig from './deployment-config';
 import * as rollout from './argo-rollout';
 import { IWorkloadWatchMetadata } from './types';
+import { config } from '../../../common/config';
 
-/**
- * This map is used in combination with the kubernetes-client Informer API
- * to abstract which resources to watch, what their endpoint is, how to grab
- * a list of the resources, and which watch actions to handle (e.g. a newly added resource).
- *
- * The Informer API is just a wrapper around Kubernetes watches that makes sure the watch
- * gets restarted if it dies and it also efficiently tracks changes to the watched workloads
- * by comparing their resourceVersion.
- *
- * The map is keyed by the "WorkloadKind" -- the type of resource we want to watch.
- * Legal verbs for the "handlers" are pulled from '@kubernetes/client-node'. You can
- * set a different handler for every verb.
- * (e.g. ADD-ed workloads are processed differently than DELETE-d ones)
- *
- * The "listFunc" is a callback used by the kubernetes-client to grab the watched resource
- * whenever Kubernetes fires a "workload changed" event and it uses the result to figure out
- * if the workload actually changed (by inspecting the resourceVersion).
- */
-export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
+const workloadResources: Readonly<IWorkloadWatchMetadata> = {
   [WorkloadKind.Pod]: {
     clusterEndpoint: '/api/v1/pods',
     namespacedEndpoint: '/api/v1/namespaces/{namespace}/pods',
@@ -58,18 +41,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       replicationController.paginatedNamespacedReplicationControllerList(
         namespace,
       ),
-  },
-  [WorkloadKind.Service]: {
-    clusterEndpoint: '/api/v1/services',
-    namespacedEndpoint: '/api/v1/namespaces/{namespace}/services',
-    handlers: {
-      [ADD]: service.serviceWatchHandler,
-      [DELETE]: service.serviceDeletedHandler,
-      [UPDATE]: service.serviceWatchHandler,
-    },
-    clusterListFactory: () => () => service.paginatedClusterServiceList(),
-    namespacedListFactory: (namespace) => () =>
-      service.paginatedNamespacedServiceList(namespace),
   },
   [WorkloadKind.CronJob]: {
     clusterEndpoint: '/apis/batch/v1/cronjobs',
@@ -143,19 +114,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       statefulSet.paginatedNamespacedStatefulSetList(namespace),
   },
-  [WorkloadKind.Ingress]: {
-    clusterEndpoint: '/apis/networking.k8s.io/v1/ingresses',
-    namespacedEndpoint:
-      '/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses',
-    handlers: {
-      [ADD]: ingress.ingressWatchHandler,
-      [DELETE]: ingress.ingressDeletedHandler,
-      [UPDATE]: ingress.ingressWatchHandler,
-    },
-    clusterListFactory: () => () => ingress.paginatedClusterIngressList(),
-    namespacedListFactory: (namespace) => () =>
-      ingress.paginatedNamespacedIngressList(namespace),
-  },
   [WorkloadKind.DeploymentConfig]: {
     clusterEndpoint: '/apis/apps.openshift.io/v1/deploymentconfigs',
     /** https://docs.openshift.com/container-platform/4.7/rest_api/workloads_apis/deploymentconfig-apps-openshift-io-v1.html */
@@ -181,3 +139,57 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
       rollout.paginatedNamespacedArgoRolloutList(namespace),
   },
 };
+
+const networkResources: Readonly<IWorkloadWatchMetadata> = {
+  [WorkloadKind.Service]: {
+    clusterEndpoint: '/api/v1/services',
+    namespacedEndpoint: '/api/v1/namespaces/{namespace}/services',
+    handlers: {
+      [ADD]: service.serviceWatchHandler,
+      [DELETE]: service.serviceDeletedHandler,
+      [UPDATE]: service.serviceWatchHandler,
+    },
+    clusterListFactory: () => () => service.paginatedClusterServiceList(),
+    namespacedListFactory: (namespace) => () =>
+      service.paginatedNamespacedServiceList(namespace),
+  },
+  [WorkloadKind.Ingress]: {
+    clusterEndpoint: '/apis/networking.k8s.io/v1/ingresses',
+    namespacedEndpoint:
+      '/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses',
+    handlers: {
+      [ADD]: ingress.ingressWatchHandler,
+      [DELETE]: ingress.ingressDeletedHandler,
+      [UPDATE]: ingress.ingressWatchHandler,
+    },
+    clusterListFactory: () => () => ingress.paginatedClusterIngressList(),
+    namespacedListFactory: (namespace) => () =>
+      ingress.paginatedNamespacedIngressList(namespace),
+  },
+};
+
+/**
+ * This map is used in combination with the kubernetes-client Informer API
+ * to abstract which resources to watch, what their endpoint is, how to grab
+ * a list of the resources, and which watch actions to handle (e.g. a newly added resource).
+ *
+ * The Informer API is just a wrapper around Kubernetes watches that makes sure the watch
+ * gets restarted if it dies and it also efficiently tracks changes to the watched workloads
+ * by comparing their resourceVersion.
+ *
+ * The map is keyed by the "WorkloadKind" -- the type of resource we want to watch.
+ * Legal verbs for the "handlers" are pulled from '@kubernetes/client-node'. You can
+ * set a different handler for every verb.
+ * (e.g. ADD-ed workloads are processed differently than DELETE-d ones)
+ *
+ * The "listFunc" is a callback used by the kubernetes-client to grab the watched resource
+ * whenever Kubernetes fires a "workload changed" event and it uses the result to figure out
+ * if the workload actually changed (by inspecting the resourceVersion).
+ */
+export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> =
+  config.SCAN_NETWORKING_RESOURCES
+    ? {
+        ...workloadResources,
+        ...networkResources,
+      }
+    : workloadResources;

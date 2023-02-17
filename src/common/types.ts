@@ -37,6 +37,7 @@ export interface Config {
   NO_PROXY: string | undefined;
   USE_KEEPALIVE: boolean;
   SKIP_K8S_JOBS: boolean;
+  SCAN_NETWORKING_RESOURCES: boolean;
   DEPLOYMENT_NAME: string;
   DEPLOYMENT_NAMESPACE: string;
   WATCH_NAMESPACE: string;

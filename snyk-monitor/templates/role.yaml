@@ -13,7 +13,9 @@ rules:
   - ""
   resources:
   - pods
+{{- if .Values.scan_networking_resources }}
   - services
+{{- end }}
   verbs:
   - get
   - list
@@ -54,6 +56,7 @@ rules:
   - get
   - list
   - watch
+{{- if .Values.scan_networking_resources }}
 - apiGroups:
   - networking.k8s.io
   resources:
@@ -62,6 +65,7 @@ rules:
   - get
   - list
   - watch
+{{- end }}
 - apiGroups:
   - apps.openshift.io
   resources:

@@ -81,6 +81,10 @@ export async function setupNamespacedInformer(
   }
 
   const workloadMetadata = workloadWatchMetadata[workloadKind];
+  if (!workloadMetadata) {
+    logger.debug(logContext, 'Workload kind is not monitored');
+    return;
+  }
   const endpoint = workloadMetadata.namespacedEndpoint.replace(
     '{namespace}',
     namespace,
@@ -161,6 +165,10 @@ export async function setupClusterInformer(
   }
 
   const workloadMetadata = workloadWatchMetadata[workloadKind];
+  if (!workloadMetadata) {
+    logger.debug(logContext, 'Workload kind is not monitored');
+    return;
+  }
   const endpoint = workloadMetadata.clusterEndpoint;
 
   const listMethod = workloadMetadata.clusterListFactory();
