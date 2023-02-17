@@ -78,66 +78,7 @@ rules:
   - get
   - list
   - watch
-- apiGroups:
-  - gloo.solo.io/v1
-  resources:
-  - upstreams
-  - routetables
-  - virtualservices
 {{- if .Values.scan_networking_crds }}
-- apiGroups:
-  - enterprise.gloo.solo.io/v1
-  resources:
-  - authconfigs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - fed.enterprise.gloo.solo.io/v1
-  resources:
-  - federatedauthconfigs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - fed.gateway.solo.io/v1
-  resources:
-  - federatedgateways
-  - federatedroutetables
-  - federatedvirtualservices
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - fed.gloo.solo.io/v1
-  resources:
-  - federatedsettings
-  - federatedupstreamgroups
-  - federatedupstreams
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - fed.ratelimit.solo.io/v1alpha1
-  resources:
-  - federatedratelimitconfigs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - fed.solo.io/v1
-  resources:
-  - failoverschemes
-  - glooinstances
-  verbs:
-  - get
-  - list
-  - watch
 - apiGroups:
   - gateway.solo.io/v1
   resources:
@@ -154,7 +95,6 @@ rules:
 - apiGroups:
   - getambassador.io/v3alpha1
   resources:
-  - authservices
   - consulresolvers
   - devportals
   - hosts
@@ -166,7 +106,6 @@ rules:
   - modules
   - ratelimitservices
   - tcpmappings
-  - tlscontexts
   - tracingservices
   verbs:
   - get
@@ -176,7 +115,6 @@ rules:
   - gloo.solo.io/v1
   resources:
   - proxies
-  - settings
   - upstreamgroups
   - upstreams
   verbs:
@@ -195,16 +133,6 @@ rules:
   - install.istio.io/v1alpha1
   resources:
   - istiooperators
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - multicluster.solo.io/v1alpha1
-  resources:
-  - kubernetesclusters
-  - multiclusterrolebindings
-  - multiclusterroles
   verbs:
   - get
   - list
@@ -263,14 +191,6 @@ rules:
   - authorizationpolicies
   - peerauthentications
   - requestauthentications
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - telemetry.istio.io/v1alpha1
-  resources:
-  - telemetries
   verbs:
   - get
   - list

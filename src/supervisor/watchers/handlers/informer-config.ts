@@ -16,24 +16,12 @@ import * as rollout from './argo-rollout';
 import * as genericCrd from './generic-crd';
 import { IWorkloadWatchMetadata } from './types';
 import {
-  EnterpriseGlooSoloAuthConfigV1ApiDefinition,
-  FedEnterpriseGlooSoloFederatedAuthConfigV1ApiDefinition,
-  FedGatewaySoloFederatedGatewayV1ApiDefinition,
-  FedGatewaySoloFederatedRouteTableV1ApiDefinition,
-  FedGatewaySoloFederatedVirtualServiceV1ApiDefinition,
-  FedGlooSoloFederatedSettingsV1ApiDefinition,
-  FedGlooSoloFederatedUpstreamGroupV1ApiDefinition,
-  FedGlooSoloFederatedUpstreamV1ApiDefinition,
-  FedRatelimitSoloFederatedRateLimitConfigV1alpha1ApiDefinition,
-  FedSoloFailoverSchemeV1ApiDefinition,
-  FedSoloGlooInstanceV1ApiDefinition,
   GatewaySoloGatewayV1ApiDefinition,
   GatewaySoloMatchableHttpGatewayV1ApiDefinition,
   GatewaySoloRouteOptionV1ApiDefinition,
   GatewaySoloRouteTableV1ApiDefinition,
   GatewaySoloVirtualHostOptionV1ApiDefinition,
   GatewaySoloVirtualServiceV1ApiDefinition,
-  GetambassadorAuthServiceV3alpha1ApiDefinition,
   GetambassadorConsulResolverV3alpha1ApiDefinition,
   GetambassadorDevPortalV3alpha1ApiDefinition,
   GetambassadorHostV3alpha1ApiDefinition,
@@ -45,17 +33,12 @@ import {
   GetambassadorModuleV3alpha1ApiDefinition,
   GetambassadorRateLimitServiceV3alpha1ApiDefinition,
   GetambassadorTCPMappingV3alpha1ApiDefinition,
-  GetambassadorTLSContextV3alpha1ApiDefinition,
   GetambassadorTracingServiceV3alpha1ApiDefinition,
   GlooSoloProxyV1ApiDefinition,
-  GlooSoloSettingsV1ApiDefinition,
   GlooSoloUpstreamGroupV1ApiDefinition,
   GlooSoloUpstreamV1ApiDefinition,
   GraphqlGlooSoloGraphQLSchemaV1alpha1ApiDefinition,
   InstallIstioIstioOperatorV1alpha1ApiDefinition,
-  MulticlusterSoloKubernetesClusterV1alpha1ApiDefinition,
-  MulticlusterSoloMultiClusterRoleBindingV1alpha1ApiDefinition,
-  MulticlusterSoloMultiClusterRoleV1alpha1ApiDefinition,
   NetworkingGkeManagedCertificateV1ApiDefinition,
   NetworkingGkeFrontendConfigV1beta1ApiDefinition,
   NetworkingGkeServiceAttachmentV1beta1ApiDefinition,
@@ -72,7 +55,6 @@ import {
   SecurityIstioAuthorizationPolicyV1beta1ApiDefinition,
   SecurityIstioPeerAuthenticationV1beta1ApiDefinition,
   SecurityIstioRequestAuthenticationV1beta1ApiDefinition,
-  TelemetryIstioTelemetryV1alpha1ApiDefinition,
 } from './crd-api-definitions';
 
 /**
@@ -240,220 +222,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       rollout.paginatedNamespacedArgoRolloutList(namespace),
   },
-  [WorkloadKind.EnterpriseGlooSoloAuthConfigV1]: {
-    clusterEndpoint:
-      EnterpriseGlooSoloAuthConfigV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      EnterpriseGlooSoloAuthConfigV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        EnterpriseGlooSoloAuthConfigV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        EnterpriseGlooSoloAuthConfigV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedEnterpriseGlooSoloFederatedAuthConfigV1]: {
-    clusterEndpoint:
-      FedEnterpriseGlooSoloFederatedAuthConfigV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedEnterpriseGlooSoloFederatedAuthConfigV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedEnterpriseGlooSoloFederatedAuthConfigV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedEnterpriseGlooSoloFederatedAuthConfigV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedGatewaySoloFederatedGatewayV1]: {
-    clusterEndpoint:
-      FedGatewaySoloFederatedGatewayV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedGatewaySoloFederatedGatewayV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedGatewaySoloFederatedGatewayV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedGatewaySoloFederatedGatewayV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedGatewaySoloFederatedRouteTableV1]: {
-    clusterEndpoint:
-      FedGatewaySoloFederatedRouteTableV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedGatewaySoloFederatedRouteTableV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedGatewaySoloFederatedRouteTableV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedGatewaySoloFederatedRouteTableV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedGatewaySoloFederatedVirtualServiceV1]: {
-    clusterEndpoint:
-      FedGatewaySoloFederatedVirtualServiceV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedGatewaySoloFederatedVirtualServiceV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedGatewaySoloFederatedVirtualServiceV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedGatewaySoloFederatedVirtualServiceV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedGlooSoloFederatedSettingsV1]: {
-    clusterEndpoint:
-      FedGlooSoloFederatedSettingsV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedGlooSoloFederatedSettingsV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedGlooSoloFederatedSettingsV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedGlooSoloFederatedSettingsV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedGlooSoloFederatedUpstreamGroupV1]: {
-    clusterEndpoint:
-      FedGlooSoloFederatedUpstreamGroupV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedGlooSoloFederatedUpstreamGroupV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedGlooSoloFederatedUpstreamGroupV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedGlooSoloFederatedUpstreamGroupV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedGlooSoloFederatedUpstreamV1]: {
-    clusterEndpoint:
-      FedGlooSoloFederatedUpstreamV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedGlooSoloFederatedUpstreamV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedGlooSoloFederatedUpstreamV1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedGlooSoloFederatedUpstreamV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedRatelimitSoloFederatedRateLimitConfigV1alpha1]: {
-    clusterEndpoint:
-      FedRatelimitSoloFederatedRateLimitConfigV1alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedRatelimitSoloFederatedRateLimitConfigV1alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        FedRatelimitSoloFederatedRateLimitConfigV1alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedRatelimitSoloFederatedRateLimitConfigV1alpha1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedSoloFailoverSchemeV1]: {
-    clusterEndpoint: FedSoloFailoverSchemeV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedSoloFailoverSchemeV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(FedSoloFailoverSchemeV1ApiDefinition),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedSoloFailoverSchemeV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.FedSoloGlooInstanceV1]: {
-    clusterEndpoint: FedSoloGlooInstanceV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      FedSoloGlooInstanceV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(FedSoloGlooInstanceV1ApiDefinition),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        FedSoloGlooInstanceV1ApiDefinition,
-        namespace,
-      ),
-  },
   [WorkloadKind.GatewaySoloGatewayV1]: {
     clusterEndpoint: GatewaySoloGatewayV1ApiDefinition.getClusterEndpoint(),
     namespacedEndpoint:
@@ -562,26 +330,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       genericCrd.paginatedNamespacedCrdList(
         GatewaySoloVirtualServiceV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.GetambassadorAuthServiceV3alpha1]: {
-    clusterEndpoint:
-      GetambassadorAuthServiceV3alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      GetambassadorAuthServiceV3alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        GetambassadorAuthServiceV3alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        GetambassadorAuthServiceV3alpha1ApiDefinition,
         namespace,
       ),
   },
@@ -805,26 +553,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
         namespace,
       ),
   },
-  [WorkloadKind.GetambassadorTLSContextV3alpha1]: {
-    clusterEndpoint:
-      GetambassadorTLSContextV3alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      GetambassadorTLSContextV3alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        GetambassadorTLSContextV3alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        GetambassadorTLSContextV3alpha1ApiDefinition,
-        namespace,
-      ),
-  },
   [WorkloadKind.GetambassadorTracingServiceV3alpha1]: {
     clusterEndpoint:
       GetambassadorTracingServiceV3alpha1ApiDefinition.getClusterEndpoint(),
@@ -858,22 +586,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       genericCrd.paginatedNamespacedCrdList(
         GlooSoloProxyV1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.GlooSoloSettingsV1]: {
-    clusterEndpoint: GlooSoloSettingsV1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint: GlooSoloSettingsV1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(GlooSoloSettingsV1ApiDefinition),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        GlooSoloSettingsV1ApiDefinition,
         namespace,
       ),
   },
@@ -947,66 +659,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       genericCrd.paginatedNamespacedCrdList(
         InstallIstioIstioOperatorV1alpha1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.MulticlusterSoloKubernetesClusterV1alpha1]: {
-    clusterEndpoint:
-      MulticlusterSoloKubernetesClusterV1alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      MulticlusterSoloKubernetesClusterV1alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        MulticlusterSoloKubernetesClusterV1alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        MulticlusterSoloKubernetesClusterV1alpha1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.MulticlusterSoloMultiClusterRoleBindingV1alpha1]: {
-    clusterEndpoint:
-      MulticlusterSoloMultiClusterRoleBindingV1alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      MulticlusterSoloMultiClusterRoleBindingV1alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        MulticlusterSoloMultiClusterRoleBindingV1alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        MulticlusterSoloMultiClusterRoleBindingV1alpha1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.MulticlusterSoloMultiClusterRoleV1alpha1]: {
-    clusterEndpoint:
-      MulticlusterSoloMultiClusterRoleV1alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      MulticlusterSoloMultiClusterRoleV1alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        MulticlusterSoloMultiClusterRoleV1alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        MulticlusterSoloMultiClusterRoleV1alpha1ApiDefinition,
         namespace,
       ),
   },
@@ -1327,26 +979,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       genericCrd.paginatedNamespacedCrdList(
         SecurityIstioRequestAuthenticationV1beta1ApiDefinition,
-        namespace,
-      ),
-  },
-  [WorkloadKind.TelemetryIstioTelemetryV1alpha1]: {
-    clusterEndpoint:
-      TelemetryIstioTelemetryV1alpha1ApiDefinition.getClusterEndpoint(),
-    namespacedEndpoint:
-      TelemetryIstioTelemetryV1alpha1ApiDefinition.getNamespacedEndpoint(),
-    handlers: {
-      [ADD]: genericCrd.crdWatchHandler,
-      [UPDATE]: genericCrd.crdWatchHandler,
-      [DELETE]: genericCrd.crdDeleteHandler,
-    },
-    clusterListFactory: () => () =>
-      genericCrd.paginatedClusterCrdList(
-        TelemetryIstioTelemetryV1alpha1ApiDefinition,
-      ),
-    namespacedListFactory: (namespace) => () =>
-      genericCrd.paginatedNamespacedCrdList(
-        TelemetryIstioTelemetryV1alpha1ApiDefinition,
         namespace,
       ),
   },

@@ -1,77 +1,5 @@
 import { CrdApiDefinition } from './types';
 
-export const EnterpriseGlooSoloAuthConfigV1ApiDefinition = new CrdApiDefinition(
-  'enterprise.gloo.solo.io',
-  'v1',
-  'AuthConfig',
-  'authconfigs',
-);
-export const FedEnterpriseGlooSoloFederatedAuthConfigV1ApiDefinition =
-  new CrdApiDefinition(
-    'fed.enterprise.gloo.solo.io',
-    'v1',
-    'FederatedAuthConfig',
-    'federatedauthconfigs',
-  );
-export const FedGatewaySoloFederatedGatewayV1ApiDefinition =
-  new CrdApiDefinition(
-    'fed.gateway.solo.io',
-    'v1',
-    'FederatedGateway',
-    'federatedgateways',
-  );
-export const FedGatewaySoloFederatedRouteTableV1ApiDefinition =
-  new CrdApiDefinition(
-    'fed.gateway.solo.io',
-    'v1',
-    'FederatedRouteTable',
-    'federatedroutetables',
-  );
-export const FedGatewaySoloFederatedVirtualServiceV1ApiDefinition =
-  new CrdApiDefinition(
-    'fed.gateway.solo.io',
-    'v1',
-    'FederatedVirtualService',
-    'federatedvirtualservices',
-  );
-export const FedGlooSoloFederatedSettingsV1ApiDefinition = new CrdApiDefinition(
-  'fed.gloo.solo.io',
-  'v1',
-  'FederatedSettings',
-  'federatedsettings',
-);
-export const FedGlooSoloFederatedUpstreamGroupV1ApiDefinition =
-  new CrdApiDefinition(
-    'fed.gloo.solo.io',
-    'v1',
-    'FederatedUpstreamGroup',
-    'federatedupstreamgroups',
-  );
-export const FedGlooSoloFederatedUpstreamV1ApiDefinition = new CrdApiDefinition(
-  'fed.gloo.solo.io',
-  'v1',
-  'FederatedUpstream',
-  'federatedupstreams',
-);
-export const FedRatelimitSoloFederatedRateLimitConfigV1alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'fed.ratelimit.solo.io',
-    'v1alpha1',
-    'FederatedRateLimitConfig',
-    'federatedratelimitconfigs',
-  );
-export const FedSoloFailoverSchemeV1ApiDefinition = new CrdApiDefinition(
-  'fed.solo.io',
-  'v1',
-  'FailoverScheme',
-  'failoverschemes',
-);
-export const FedSoloGlooInstanceV1ApiDefinition = new CrdApiDefinition(
-  'fed.solo.io',
-  'v1',
-  'GlooInstance',
-  'glooinstances',
-);
 export const GatewaySoloGatewayV1ApiDefinition = new CrdApiDefinition(
   'gateway.solo.io',
   'v1',
@@ -109,13 +37,7 @@ export const GatewaySoloVirtualServiceV1ApiDefinition = new CrdApiDefinition(
   'VirtualService',
   'virtualservices',
 );
-export const GetambassadorAuthServiceV3alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'getambassador.io',
-    'v3alpha1',
-    'AuthService',
-    'authservices',
-  );
+
 export const GetambassadorConsulResolverV3alpha1ApiDefinition =
   new CrdApiDefinition(
     'getambassador.io',
@@ -188,13 +110,7 @@ export const GetambassadorTCPMappingV3alpha1ApiDefinition =
     'TCPMapping',
     'tcpmappings',
   );
-export const GetambassadorTLSContextV3alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'getambassador.io',
-    'v3alpha1',
-    'TLSContext',
-    'tlscontexts',
-  );
+
 export const GetambassadorTracingServiceV3alpha1ApiDefinition =
   new CrdApiDefinition(
     'getambassador.io',
@@ -208,12 +124,7 @@ export const GlooSoloProxyV1ApiDefinition = new CrdApiDefinition(
   'Proxy',
   'proxies',
 );
-export const GlooSoloSettingsV1ApiDefinition = new CrdApiDefinition(
-  'gloo.solo.io',
-  'v1',
-  'Settings',
-  'settings',
-);
+
 export const GlooSoloUpstreamGroupV1ApiDefinition = new CrdApiDefinition(
   'gloo.solo.io',
   'v1',
@@ -239,27 +150,6 @@ export const InstallIstioIstioOperatorV1alpha1ApiDefinition =
     'v1alpha1',
     'IstioOperator',
     'istiooperators',
-  );
-export const MulticlusterSoloKubernetesClusterV1alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'multicluster.solo.io',
-    'v1alpha1',
-    'KubernetesCluster',
-    'kubernetesclusters',
-  );
-export const MulticlusterSoloMultiClusterRoleBindingV1alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'multicluster.solo.io',
-    'v1alpha1',
-    'MultiClusterRoleBinding',
-    'multiclusterrolebindings',
-  );
-export const MulticlusterSoloMultiClusterRoleV1alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'multicluster.solo.io',
-    'v1alpha1',
-    'MultiClusterRole',
-    'multiclusterroles',
   );
 export const NetworkingGkeManagedCertificateV1ApiDefinition =
   new CrdApiDefinition(
@@ -370,11 +260,4 @@ export const SecurityIstioRequestAuthenticationV1beta1ApiDefinition =
     'v1beta1',
     'RequestAuthentication',
     'requestauthentications',
-  );
-export const TelemetryIstioTelemetryV1alpha1ApiDefinition =
-  new CrdApiDefinition(
-    'telemetry.istio.io',
-    'v1alpha1',
-    'Telemetry',
-    'telemetries',
   );
