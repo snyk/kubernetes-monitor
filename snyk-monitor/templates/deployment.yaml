@@ -113,6 +113,12 @@ spec:
               secretKeyRef:
                 name: {{ .Values.monitorSecrets }}
                 key: integrationId
+          - name: SNYK_SERVICE_ACCOUNT_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.monitorSecrets }}
+                key: serviceAccountApiToken
+                optional: true
           - name: SNYK_WATCH_NAMESPACE
             value: {{ include "snyk-monitor.scope" . }}
           - name: SNYK_DEPLOYMENT_NAMESPACE
