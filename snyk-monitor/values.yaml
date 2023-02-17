@@ -94,8 +94,8 @@ no_proxy:
 use_keepalive: true
 skip_k8s_jobs:
 
-# Scan networking CRDs
-scan_networking_crds: false
+# Scan networking resources (Service, Ingress, Networking CRDs)
+scan_networking_resources: false
 
 # Override default (INFO) log level if less verbosity needed
 log_level:

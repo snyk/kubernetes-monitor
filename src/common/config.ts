@@ -65,6 +65,7 @@ delete process.env['HTTP_PROXY'];
 delete process.env['NO_PROXY'];
 
 config.SKIP_K8S_JOBS = process.env.SKIP_K8S_JOBS === 'true';
-config.SCAN_NETWORKING_CRDS = process.env.SCAN_NETWORKING_CRDS === 'true';
+config.SCAN_NETWORKING_RESOURCES =
+  process.env.SCAN_NETWORKING_RESOURCES === 'true';
 
 export { config };

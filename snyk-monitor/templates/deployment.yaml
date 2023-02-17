@@ -143,8 +143,8 @@ spec:
             value: {{ .Values.log_level }}
           - name: SKIP_K8S_JOBS
             value: {{ quote .Values.skip_k8s_jobs }}
-          - name: SCAN_NETWORKING_CRDS
-            value: {{ quote .Values.scan_networking_crds }}
+          - name: SCAN_NETWORKING_RESOURCES
+            value: {{ quote .Values.scan_networking_resources }}
           - name: SNYK_SKOPEO_COMPRESSION_LEVEL
             value: {{ quote .Values.skopeo.compression.level }}
           - name: SNYK_WORKERS_COUNT

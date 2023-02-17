@@ -11,21 +11,14 @@ import { buildNonWorkloadMetadata } from '../../metadata-extractor';
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { CrdApiDefinition, CrdList, FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { deleteWorkload } from './workload';
-import { config } from '../../../common/config';
 
 export async function paginatedNamespacedCrdList(
   crdApiDefinition: CrdApiDefinition,
   namespace: string,
 ): Promise<{
-  response: IncomingMessage | undefined;
-  body: KubernetesListObject<KubernetesObject> | undefined;
+  response: IncomingMessage;
+  body: KubernetesListObject<KubernetesObject>;
 }> {
-  if (!config.SCAN_NETWORKING_CRDS) {
-    return {
-      response: undefined,
-      body: undefined,
-    };
-  }
   const crdList = new CrdList();
   crdList.apiVersion = crdApiDefinition.version;
   crdList.kind = crdApiDefinition.resourceKind;
@@ -61,15 +54,9 @@ export async function paginatedNamespacedCrdList(
 export async function paginatedClusterCrdList(
   crdApiDefinition: CrdApiDefinition,
 ): Promise<{
-  response: IncomingMessage | undefined;
-  body: KubernetesListObject<KubernetesObject> | undefined;
+  response: IncomingMessage;
+  body: KubernetesListObject<KubernetesObject>;
 }> {
-  if (!config.SCAN_NETWORKING_CRDS) {
-    return {
-      response: undefined,
-      body: undefined,
-    };
-  }
   const crdList = new CrdList();
   crdList.apiVersion = crdApiDefinition.version;
   crdList.kind = crdApiDefinition.resourceKind;
