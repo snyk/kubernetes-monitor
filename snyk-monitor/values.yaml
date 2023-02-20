@@ -101,6 +101,8 @@ nodeSelector: {}
 
 nodeAffinity:
   disableBetaArchNodeSelector: false
+  kubernetesIoArch:
+  - amd64
 
 # Additional labels and annotations for the snyk-monitor Deployment's Pod
 metadata:

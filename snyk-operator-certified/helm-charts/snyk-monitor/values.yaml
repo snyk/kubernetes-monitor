@@ -91,5 +91,9 @@ log_level:
 
 nodeSelector: {}
 
+nodeAffinity:
+  kubernetesIoArch:
+  - amd64
+
 # Override the excluded namespaces
 excludedNamespaces:
