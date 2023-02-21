@@ -14,7 +14,7 @@
     "pretest": "./scripts/docker/build-image.sh",
     "test": "npm run lint && npm run build && npm run test:unit && npm run test:integration:kind:helm",
     "test:unit": "jest --logHeapUsage --ci --bail --forceExit test/unit",
-    "test:system": "jest --logHeapUsage --ci --maxWorkers=1 test/system",
+    "test:system": "jest --logHeapUsage --ci --maxWorkers=1 --forceExit test/system",
     "test:integration:kind:yaml": "DEPLOYMENT_TYPE=YAML TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:kind:helm": "DEPLOYMENT_TYPE=Helm TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
     "test:integration:kind:proxy": "DEPLOYMENT_TYPE=Proxy TEST_PLATFORM=kind CREATE_CLUSTER=true jest --logHeapUsage --ci --maxWorkers=1 test/integration/kubernetes.spec.ts",
