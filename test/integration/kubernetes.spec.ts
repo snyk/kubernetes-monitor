@@ -99,7 +99,9 @@ test('deploy sample workloads', async () => {
       .createNamespace(argoNamespace)
       .then(() =>
         kubectl.applyK8sYaml(
-          'https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml',
+          //TODO: We pin to a earlier version due to a bug in Argo Rollout, we will revert to latest once the bug fix is deployed
+          // to a new version of argo-rollouts https://github.com/argoproj/argo-rollouts/issues/2568
+          'https://github.com/argoproj/argo-rollouts/releases/download/v1.3.2/install.yaml',
           argoNamespace,
         ),
       )
