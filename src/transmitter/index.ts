@@ -251,7 +251,8 @@ export async function retryRequest(
 ): Promise<IResponseWithAttempts> {
   const retry = {
     attempts: 3,
-    intervalSeconds: 2,
+    rateLimitIntervalSeconds: 60,
+    transientIntervalSeconds: 2,
   };
   const options: NeedleOptions = {
     json: true,
@@ -269,9 +270,16 @@ export async function retryRequest(
 
   for (attempt = 1; attempt <= retry.attempts; attempt++) {
     const stillHaveRetries = attempt + 1 <= retry.attempts;
+    let statusCode: number | undefined = undefined;
+
     try {
       response = await needle(verb, url, payload, options);
-      if (!(response.statusCode === 502 && stillHaveRetries)) {
+      statusCode = response.statusCode;
+
+      if (
+        ![429, 502, 503, 504].includes(response.statusCode || 0) ||
+        !stillHaveRetries
+      ) {
         break;
       }
     } catch (err: any) {
@@ -279,7 +287,12 @@ export async function retryRequest(
         throw err;
       }
     }
-    await sleep(retry.intervalSeconds * 1000);
+
+    if (statusCode === 429) {
+      await sleep(retry.rateLimitIntervalSeconds * 1000);
+    } else {
+      await sleep(retry.transientIntervalSeconds * 1000);
+    }
   }
 
   if (response === undefined) {
