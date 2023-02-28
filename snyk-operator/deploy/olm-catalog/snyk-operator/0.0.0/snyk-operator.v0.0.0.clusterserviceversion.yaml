@@ -187,11 +187,11 @@ spec:
 
     ## Prerequisites
 
-    To start using the Operator and the Snyk controller that it manages, you will need to create a secret containing your Snyk integrationId and Docker config file:
+    To start using the Operator and the Snyk controller that it manages, you will need to create a secret containing your Snyk integrationId, serviceAccountApiToken and Docker config file:
 
     ```
     kubectl create namespace snyk-monitor
-    kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=${SNYK_INTEGRATION_ID}
+    kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=${SNYK_INTEGRATION_ID} --from-literal=serviceAccountApiToken=${SNYK_SERVICE_ACCOUNT_API_TOKEN}
     ```
 
     Refer to the [Snyk documentation](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview) for more details.

@@ -4,7 +4,7 @@ metadata:
   name: snyk-monitor
   namespace: marketplace
 spec:
-  integrationApi: https://kubernetes-upstream.dev.snyk.io
+  integrationApi: https://api.dev.snyk.io/v2/kubernetes-upstream
   temporaryStorageSize: 20Gi
   clusterName: ""
   pvc:

@@ -111,8 +111,8 @@ test('Kubernetes-Monitor with KinD', async () => {
   );
 
   const regoPolicyContents = await readFileAsync(regoPolicyFixturePath, 'utf8');
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/policy')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/policy?version=2023-02-10')
     .times(1)
     .reply(
       200,
@@ -128,8 +128,8 @@ test('Kubernetes-Monitor with KinD', async () => {
       },
     );
 
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/cluster')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/cluster?version=2023-02-10')
     .times(1)
     .reply(
       200,
@@ -164,8 +164,8 @@ test('Kubernetes-Monitor with KinD', async () => {
     .times(1)
     .reply(200);
 
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/workload')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/workload?version=2023-02-10')
     .times(1)
     .reply(
       200,
@@ -205,24 +205,24 @@ test('Kubernetes-Monitor with KinD', async () => {
       },
     );
 
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/scan-results')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/scan-results?version=2023-02-10')
     .times(1)
     .replyWithError({
       code: 'ECONNRESET',
       message: 'socket hang up',
     });
 
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/scan-results')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/scan-results?version=2023-02-10')
     .times(1)
     .replyWithError({
       code: 'EAI_AGAIN',
       message: 'getaddrinfo EAI_AGAIN kubernetes-upstream.snyk.io',
     });
 
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/scan-results')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/scan-results?version=2023-02-10')
     .times(1)
     // Reply with an error (500) so that we can see that snyk-monitor falls back to sending to the /dependency-graph API.
     .reply(500, (uri, requestBody: transmitterTypes.ScanResultsPayload) => {
@@ -284,8 +284,8 @@ test('Kubernetes-Monitor with KinD', async () => {
       });
     });
 
-  nock('https://kubernetes-upstream.snyk.io')
-    .post('/api/v1/dependency-graph')
+  nock('https://api.snyk.io')
+    .post('/v2/kubernetes-upstream/api/v1/dependency-graph?version=2023-02-10')
     .times(1)
     .reply(
       200,

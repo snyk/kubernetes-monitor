@@ -19,7 +19,8 @@
   "REQUEST_QUEUE_LENGTH": 2,
   "QUEUE_LENGTH_LOG_FREQUENCY_MINUTES": 1,
   "INTEGRATION_ID": "",
-  "DEFAULT_KUBERNETES_UPSTREAM_URL": "https://kubernetes-upstream.snyk.io",
+  "SERVICE_ACCOUNT_API_TOKEN": "",
+  "DEFAULT_KUBERNETES_UPSTREAM_URL": "https://api.snyk.io/v2/kubernetes-upstream",
   "MAX_RETRY_BACKOFF_DURATION_SECONDS": 300,
   "USE_KEEPALIVE": true
 }

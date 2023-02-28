@@ -13,8 +13,8 @@ const createCluster = process.env['CREATE_CLUSTER'] === 'true';
 const deploymentType = process.env['DEPLOYMENT_TYPE'] || 'YAML';
 
 function getIntegrationId(): string {
-  const integrationId = randomUUID();
-  console.log(`Generated new integration ID ${integrationId}`);
+  const integrationId = process.env.INTEGRATION_TESTS_INTEGRATION_ID!;
+  console.log(`using integration ID ${integrationId} for integration tests`);
   return integrationId;
 }
 
@@ -22,6 +22,12 @@ function getClusterName(): string {
   const clusterName = `cluster_${randomUUID()}`;
   console.log(`Generated new Cluster Name ${clusterName}`);
   return clusterName;
+}
+
+function getServiceAccountApiToken(): string {
+  const serviceAccountApiToken =
+    process.env.INTEGRATION_TESTS_SERVICE_ACCOUNT_API_TOKEN!;
+  return serviceAccountApiToken;
 }
 
 function getEnvVariableOrDefault(
@@ -84,6 +90,7 @@ async function createEnvironment(): Promise<void> {
 
 async function predeploy(
   integrationId: string,
+  serviceAccountApiToken: string,
   namespace: string,
 ): Promise<void> {
   try {
@@ -99,6 +106,7 @@ async function predeploy(
     await kubectl.createSecret(secretName, namespace, {
       'dockercfg.json': gcrDockercfg,
       integrationId,
+      serviceAccountApiToken,
     });
     await createRegistriesConfigMap(namespace);
     console.log(`Namespace ${namespace} and secret ${secretName} created`);
@@ -193,7 +201,8 @@ export async function deployMonitor(): Promise<{
     await createSecretForDockerHubAccess();
 
     const integrationId = getIntegrationId();
-    await predeploy(integrationId, namespace);
+    const serviceAccountApiToken = getServiceAccountApiToken();
+    await predeploy(integrationId, serviceAccountApiToken, namespace);
 
     // TODO: hack, rewrite this
     const imagePullPolicy =

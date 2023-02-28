@@ -39,6 +39,7 @@ function getClusterName(): string {
 config.AGENT_ID = randomUUID();
 
 config.INTEGRATION_ID = config.INTEGRATION_ID.trim();
+config.SERVICE_ACCOUNT_API_TOKEN = config.SERVICE_ACCOUNT_API_TOKEN.trim();
 config.CLUSTER_NAME = getClusterName();
 config.IMAGE_STORAGE_ROOT = '/var/tmp';
 config.POLICIES_STORAGE_ROOT = '/tmp/policies';

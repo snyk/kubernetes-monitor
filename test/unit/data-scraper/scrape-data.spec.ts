@@ -59,8 +59,8 @@ describe('dataScraper()', () => {
       .times(1)
       .reply(200, bodyNoToken);
 
-    nock('https://kubernetes-upstream.snyk.io')
-      .post('/api/v1/runtime-results')
+    nock('https://api.snyk.io')
+      .post('/v2/kubernetes-upstream/api/v1/runtime-results?version=2023-02-10')
       .times(1)
       .reply(200, (uri, requestBody: transmitterTypes.IRuntimeDataPayload) => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
@@ -80,7 +80,7 @@ describe('dataScraper()', () => {
           ],
         });
       })
-      .post('/api/v1/runtime-results')
+      .post('/v2/kubernetes-upstream/api/v1/runtime-results?version=2023-02-10')
       .times(1)
       .reply(200, (uri, requestBody: transmitterTypes.IRuntimeDataPayload) => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
@@ -102,5 +102,12 @@ describe('dataScraper()', () => {
       });
 
     await scrapeData();
+
+    try {
+      expect(nock.isDone()).toBeTruthy();
+    } catch (err) {
+      console.error(`nock pending mocks: ${nock.pendingMocks()}`);
+      throw err;
+    }
   });
 });
