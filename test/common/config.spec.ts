@@ -1,8 +1,10 @@
 describe('extractNamespaceName()', () => {
+  const apiToken = '46766a0a-ed0b-4e91-84c8-ea1c827f2a73';
   beforeEach(() => {
     jest.resetModules();
     process.env.SNYK_SYSDIG_ENDPOINT = 'https://api/v1/images/';
     process.env.SNYK_SYSDIG_TOKEN = '1432gtrhtrw32raf';
+    process.env.SNYK_SERVICE_ACCOUNT_API_TOKEN = apiToken;
   });
 
   afterEach(() => {
@@ -68,6 +70,7 @@ describe('extractNamespaceName()', () => {
     const { config } = require('../../src/common/config');
     expect(config.AGENT_ID).toEqual(expect.any(String));
     expect(config.INTEGRATION_ID).toEqual(expect.any(String));
+    expect(config.SERVICE_ACCOUNT_API_TOKEN).toEqual(apiToken);
     expect(config.CLUSTER_NAME).toEqual('Default cluster');
     expect(config.IMAGE_STORAGE_ROOT).toEqual('/var/tmp');
     expect(config.EXCLUDED_NAMESPACES).toBeNull();
@@ -76,7 +79,7 @@ describe('extractNamespaceName()', () => {
     expect(config.NO_PROXY).toBeUndefined();
     expect(config.USE_KEEPALIVE).toEqual(true);
     expect(config.SKIP_K8S_JOBS).toEqual(false);
-    expect(config.WORKERS_COUNT).toEqual(10);
+    expect(config.WORKERS_COUNT).toEqual(5);
     expect(config.SKOPEO_COMPRESSION_LEVEL).toEqual(6);
     expect(config.SYSDIG_ENDPOINT).toEqual('https://api/v1/images/');
     expect(config.SYSDIG_TOKEN).toEqual('1432gtrhtrw32raf');

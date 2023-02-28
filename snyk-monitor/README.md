@@ -4,6 +4,17 @@
 
 A Helm chart for the Snyk monitor
 
+## Updating from V1 to V2 (existing installations only) ##
+
+If you are an existing customer and are updating your Snyk monitor to V2:
+- you must delete your existing snyk-monitor secret
+```shell
+kubectl delete secret snyk-monitor -n snyk-monitor
+```
+- Follow the instructions in the [Installing](#installing) section. This section now includes the creation of a service account token, which is stored in the `snyk-monitor` secret.
+- Follow the instructions in the [Installation from Helm repo](#installation-from-helm-repo) section. You must run the `helm repo add ...` command in order to get the latest helm chart version.
+- Follow the instructions in the [Installation and monitoring of the whole cluster](#installation-and-monitoring-of-the-whole-cluster) or [Installation and monitoring of a single namespace](#installation-and-monitoring-of-a-single-namespace) section.
+
 ## Installing ##
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
@@ -16,22 +27,34 @@ kubectl create namespace snyk-monitor
 Notice our namespace is called _snyk-monitor_ and it is used for the following commands in scoping the resources.
 
 
-The Snyk monitor relies on using your Snyk Integration ID, which must be provided from a Kubernetes secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
+The Snyk monitor relies on using your Snyk Integration ID and Snyk Service Account Token which must be provided from a Kubernetes secret. The secret must be called _snyk-monitor_. The steps to create the secret are as such:
 
 1. Locate your Snyk Integration ID from the Snyk Integrations page (navigate to https://app.snyk.io/org/YOUR-ORGANIZATION-NAME/manage/integrations/kubernetes) and copy it.
 The Snyk Integration ID is a UUID and looks similar to the following:
 ```
 abcd1234-abcd-1234-abcd-1234abcd1234
 ```
-The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in the next step.
+The Snyk Integration ID is used in the `--from-literal=integrationId=` parameter in step 3.
 
-2. (Optional) If you are not using any private registries, create a Kubernetes secret called `snyk-monitor` containing the Snyk Integration ID from the previous step running the following command:
+2. Create a Group or Org Service Account Token as described in [Snyk Service Account public documentation](https://docs.snyk.io/user-and-group-management/structure-account-for-high-application-performance/service-accounts). There are 3 different roles which will allow the integration to publish data:
+-- Group Admin
+-- Org Admin
+-- Org custom role with the permission: “Publish Kubernetes Resources”
+
+The Snyk Service Account Token is a UUID and looks similar to the following:
+```
+aabb1212-abab-1212-dcba-4321abcd4321
+```
+
+The Snyk Service Account Token is used in the `--from-literal=serviceAccountApiToken=` parameter in step 3.
+
+3. (Optional) If you are only using **public container registries**, create a Kubernetes secret called `snyk-monitor` containing the Snyk Integration ID from step 1 and the service account token from step 2:
  ```shell
- kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
+ kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=dockercfg.json={} --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234 --from-literal=serviceAccountApiToken=aabb1212-abab-1212-dcba-4321abcd4321
  ```
- Continue to Helm installation instructions below.
+ Continue to [Helm installation instructions](#installation-from-helm-repo) below.
 
-3. (Optional) If you're using a private registry, you should create a `dockercfg.json` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually your credentials can be found in `$HOME/.docker/config.json`. These must also be added to the `dockercfg.json` file.
+4. (Optional) If you're using any **private container registries**, you should create a `dockercfg.json` file. The `dockercfg` file is necessary to allow the monitor to look up images in private registries. Usually your credentials can be found in `$HOME/.docker/config.json`. These must also be added to the `dockercfg.json` file.
 
 Create a file named `dockercfg.json`. Store your credentials in there; it should look like this:
 
@@ -78,15 +101,15 @@ Create a file named `dockercfg.json`. Store your credentials in there; it should
 ```
 Finally, create the secret in Kubernetes by running the following command:
 ```shell
-kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234
+kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234 --from-literal=serviceAccountApiToken=aabb1212-abab-1212-dcba-4321abcd4321
 ```
 
-4. (Optional) If your private registry requires installing certificates (*.crt, *.cert, *.key only) please put them in a folder and create the following ConfigMap:
+5. (Optional) If your private registry requires installing certificates (*.crt, *.cert, *.key only) please put them in a folder and create the following ConfigMap:
 ```shell
 kubectl create configmap snyk-monitor-certs -n snyk-monitor --from-file=<path_to_certs_folder>
 ```
 
-5. (Optional) If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
+6. (Optional) If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
 
 Create a file named `registries.conf`, see example adding an insecure registry: 
 

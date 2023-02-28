@@ -519,7 +519,8 @@ jobs:
 
                     set -e
                     INTEGRATION_ID=$(uuidgen)
-                    kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=integrationId=${INTEGRATION_ID} --from-literal=dockercfg.json={}
+                    SERVICE_ACCOUNT_API_TOKEN=$(uuidgen)
+                    kubectl create secret generic snyk-monitor -n snyk-monitor --from-literal=integrationId=${INTEGRATION_ID} --from-literal=serviceAccountApiToken=${SERVICE_ACCOUNT_API_TOKEN} --from-literal=dockercfg.json={}
                 name: Configure snyk-monitor namespace
             - run:
                 command: |
