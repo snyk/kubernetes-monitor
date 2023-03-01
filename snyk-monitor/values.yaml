@@ -67,6 +67,7 @@ pvc:
 rbac:
   serviceAccount:
     annotations: {}
+    labels: {}
 
 # Node.js in-container process memory enhancements
 envs:

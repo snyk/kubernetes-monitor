@@ -90,6 +90,18 @@ Create a file named `dockercfg.json`. Store your credentials in there; it should
 ```
 
 ```hjson
+// If your cluster runs on AKS and you're using ACR, add the following:
+{
+  "credHelpers": { 
+    "myregistry.azurecr.io": "acr-env"
+  }
+}
+
+// Additionally, see https://azure.github.io/azure-workload-identity/docs/topics/service-account-labels-and-annotations.html#service-account
+// You may need to configure labels and annotations on the snyk-monitor ServiceAccount
+```
+
+```hjson
 // You can configure different credential helpers for different registries. 
 // To use this credential helper for a specific ECR registry, create a credHelpers section with the URI of your ECR registry:
 {

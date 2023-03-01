@@ -9,6 +9,7 @@ export interface IProcessArgument {
 
 export function exec(
   bin: string,
+  env: Record<string, string | undefined>,
   ...processArgs: IProcessArgument[]
 ): Promise<SpawnPromiseResult> {
   if (process.env.DEBUG === 'true') {
@@ -17,7 +18,8 @@ export function exec(
 
   // Ensure we're not passing the whole environment to the shelled out process...
   // For example, that process doesn't need to know secrets like our integrationId!
-  const env = {
+  const combinedEnv = {
+    ...env,
     PATH: process.env.PATH,
     HOME: process.env.HOME,
     HTTPS_PROXY: config.HTTPS_PROXY,
@@ -26,15 +28,16 @@ export function exec(
   };
 
   const allArguments = processArgs.map((arg) => arg.body);
-  return spawn(bin, allArguments, { env, capture: ['stdout', 'stderr'] }).catch(
-    (error) => {
-      const message =
-        error?.stderr || error?.stdout || error?.message || 'Unknown reason';
-      const loggableArguments = processArgs
-        .filter((arg) => !arg.sanitise)
-        .map((arg) => arg.body);
-      logger.warn({ message, bin, loggableArguments }, 'child process failure');
-      throw error;
-    },
-  );
+  return spawn(bin, allArguments, {
+    env: combinedEnv,
+    capture: ['stdout', 'stderr'],
+  }).catch((error) => {
+    const message =
+      error?.stderr || error?.stdout || error?.message || 'Unknown reason';
+    const loggableArguments = processArgs
+      .filter((arg) => !arg.sanitise)
+      .map((arg) => arg.body);
+    logger.warn({ message, bin, loggableArguments }, 'child process failure');
+    throw error;
+  });
 }
