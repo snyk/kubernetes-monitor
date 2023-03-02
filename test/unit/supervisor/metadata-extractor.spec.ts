@@ -1,17 +1,11 @@
 import * as fs from 'fs';
 import * as YAML from 'yaml';
 
-import {
-  V1OwnerReference,
-  V1Pod,
-  V1Deployment,
-  V1Service,
-} from '@kubernetes/client-node';
+import { V1OwnerReference, V1Pod, V1Deployment } from '@kubernetes/client-node';
 import * as supervisorTypes from '../../../src/supervisor/types';
 
 import * as metadataExtractor from '../../../src/supervisor/metadata-extractor';
 import * as transmitterTypes from '../../../src/transmitter/types';
-import { WorkloadKind } from '../../../src/supervisor/types';
 
 describe('metadata extractor tests', () => {
   test.concurrent('isPodAssociatedWithParent', async () => {
@@ -165,45 +159,6 @@ describe('metadata extractor tests', () => {
       expect(container.args).toBeUndefined();
       expect(container.command).toBeUndefined();
       expect(container.env).toBeUndefined();
-    },
-  );
-
-  test.concurrent(
-    'buildNonWorkloadMetadata for non workload objects',
-    async () => {
-      const fixture = fs.readFileSync(
-        './test/fixtures/service/foo-service.yaml',
-        'utf8',
-      );
-      const kubeObject: V1Service = YAML.parse(fixture);
-
-      const workload = metadataExtractor.buildNonWorkloadMetadata(
-        WorkloadKind.Service,
-        kubeObject.metadata,
-        kubeObject.spec,
-      );
-
-      expect(workload).toBeDefined();
-
-      expect(Array.isArray(workload.podSpec.containers)).toEqual(true);
-      expect(workload.podSpec.containers).toHaveLength(0);
-
-      expect(workload).toEqual(
-        expect.objectContaining<Partial<transmitterTypes.IWorkload>>({
-          type: 'Service',
-          podSpec: {
-            selector: {
-              app: 'foo',
-            },
-            containers: [],
-            ports: [
-              {
-                port: 8080,
-              },
-            ],
-          },
-        }),
-      );
     },
   );
 });

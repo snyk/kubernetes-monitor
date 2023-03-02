@@ -4,9 +4,6 @@ import {
   V1Container,
   V1ContainerStatus,
   V1PodSpec,
-  V1ObjectMeta,
-  V1IngressSpec,
-  V1ServiceSpec,
 } from '@kubernetes/client-node';
 import { currentClusterName } from './cluster';
 import { WorkloadKind } from './types';
@@ -29,7 +26,7 @@ export function buildImageMetadata(
   const { name, namespace, labels, annotations, uid } = objectMeta;
 
   const containerNameToSpec: { [key: string]: V1Container } = {};
-  if (podSpec?.containers) {
+  if (podSpec.containers) {
     for (const container of podSpec.containers) {
       delete container.args;
       delete container.env;
@@ -152,33 +149,6 @@ export function isPodAssociatedWithParent(pod: V1Pod): boolean {
     pod.metadata.ownerReferences !== undefined
     ? pod.metadata.ownerReferences.some((owner) => !!owner.kind)
     : false;
-}
-
-export function buildNonWorkloadMetadata(
-  kind: string,
-  metadata?: V1ObjectMeta,
-  spec?: V1IngressSpec | V1ServiceSpec,
-): IWorkload {
-  const wl = {
-    type: kind,
-    name: metadata?.name || 'unknown',
-    namespace: metadata?.namespace || 'default',
-    labels: metadata?.labels,
-    annotations: metadata?.annotations,
-    specLabels: metadata?.labels,
-    specAnnotations: metadata?.annotations,
-    containerName: '',
-    imageName: '',
-    imageId: '',
-    cluster: currentClusterName,
-    revision: metadata?.resourceVersion,
-    uid: metadata?.uid,
-    podSpec: spec,
-  } as IWorkload;
-  if (!wl.podSpec['containers']) {
-    wl.podSpec['containers'] = [];
-  }
-  return wl;
 }
 
 export async function buildMetadataForWorkload(
