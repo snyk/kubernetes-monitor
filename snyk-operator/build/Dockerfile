@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/helm-operator:v1.18
+FROM quay.io/operator-framework/helm-operator:v1.27
 
 LABEL name="Snyk Operator" \
       maintainer="support@snyk.io" \
