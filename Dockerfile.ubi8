@@ -46,7 +46,7 @@ RUN npm run build
 #---------------------------------------------------------------------
 # STAGE 4: Build the kubernetes-monitor final image
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi8/ubi:8.6
+FROM registry.access.redhat.com/ubi8/ubi:8.7
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
