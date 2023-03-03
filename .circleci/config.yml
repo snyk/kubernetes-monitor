@@ -148,6 +148,49 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
+    build_image_snyk_main:
+        machine:
+            image: ubuntu-2004:202111-02
+        steps:
+            - checkout
+            - install_python_requests
+            - run:
+                command: |
+                    IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                    IMAGE_NAME_CANDIDATE=gcr.io/snyk-main/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+                    IMAGE_NAME_CANDIDATE_UBI8=gcr.io/snyk-main/kubernetes-monitor:${IMAGE_TAG}-ubi8-${CIRCLE_SHA1:0:8}
+                    echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+                    echo "export IMAGE_NAME_CANDIDATE_UBI8=$IMAGE_NAME_CANDIDATE_UBI8" >> $BASH_ENV
+                name: Export environment variables
+            - run:
+                command: |
+                    echo $GCLOUD_GCR_BUILDER | docker login -u _json_key --password-stdin https://gcr.io/snyk-main
+                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
+                    ./scripts/docker/build-image-ubi8.sh ${IMAGE_NAME_CANDIDATE_UBI8}
+                name: Build image
+            - snyk/scan:
+                additional-arguments: --project-name=alpine
+                docker-image-name: ${IMAGE_NAME_CANDIDATE}
+                monitor-on-build: false
+                severity-threshold: high
+                target-file: Dockerfile
+            - snyk/scan:
+                additional-arguments: --project-name=ubi8
+                docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI8}
+                monitor-on-build: false
+                severity-threshold: critical
+                target-file: Dockerfile.ubi8
+            - run:
+                command: |
+                    docker push ${IMAGE_NAME_CANDIDATE}
+                    docker push ${IMAGE_NAME_CANDIDATE_UBI8}
+                name: Push image
+            - run:
+                command: |
+                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
+                name: Notify Slack on failure
+                when: on_fail
+        working_directory: ~/kubernetes-monitor
     code_formatter:
         machine:
             docker_layer_caching: true
@@ -1020,6 +1063,16 @@ staging_branch_only_filter:
                 - staging
 version: 2.1
 workflows:
+    # TODO(cmars): uncomment if this looks good to container team!
+    #FEAT_MONITOR_GLOO_CRD:
+    #    jobs:
+    #        - build_image_snyk_main:
+    #            context: <TODO: context for publishing to internal registry>
+    #            filters:
+    #              branches:
+    #                only:
+    #                  - feat/monitor-gloo-crd
+
     MERGE_TO_MASTER:
         jobs:
             - publish:
