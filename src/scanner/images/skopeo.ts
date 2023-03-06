@@ -70,7 +70,15 @@ async function pullWithRetry(
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      await processWrapper.exec('skopeo', ...args);
+      const env: Record<string, string | undefined> = {
+        // The Azure CR credentials helper requires these env vars:
+        AZURE_CLIENT_ID: process.env.AZURE_CLIENT_ID,
+        AZURE_TENANT_ID: process.env.AZURE_TENANT_ID,
+        AZURE_FEDERATED_TOKEN_FILE: process.env.AZURE_FEDERATED_TOKEN_FILE,
+        AZURE_FEDERATED_TOKEN: process.env.AZURE_FEDERATED_TOKEN,
+        AZURE_AUTHORITY_HOST: process.env.AZURE_AUTHORITY_HOST,
+      };
+      await processWrapper.exec('skopeo', env, ...args);
       return;
     } catch (err) {
       try {
