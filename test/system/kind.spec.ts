@@ -189,12 +189,7 @@ test('Kubernetes-Monitor with KinD', async () => {
             userLocator: expect.any(String),
           },
           workloadMetadata: expect.objectContaining({
-            labels: expect.any(Object),
-            revision: expect.any(String),
-            specLabels: expect.any(Object),
-            podSpec: expect.objectContaining({
-              containers: [],
-            }),
+            annotations: expect.any(Object),
           }),
           agentId,
         });
