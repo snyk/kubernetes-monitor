@@ -8,13 +8,7 @@ RUN apk upgrade
 RUN apk --no-cache add git
 
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@69c85dc22db6511932bbf119e1a0cc5c90c69a7f
-
-WORKDIR /
-RUN git clone https://github.com/chrismellard/docker-credential-acr-env.git
-WORKDIR /docker-credential-acr-env
-RUN go get github.com/spf13/cobra@v1.2.0
-RUN go mod tidy
-RUN go build -o /go/bin/docker-credential-acr-env
+RUN go install github.com/chrismellard/docker-credential-acr-env@fb789970a885098fb386e1d938499d9eb9449821
 
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
