@@ -32,6 +32,8 @@ process.on('unhandledRejection', (reason, promise) => {
     return;
   }
 
+  deletePropertyPath(reason, 'response.request.headers.Authorization');
+
   try {
     logger.error({ reason, promise }, 'UNHANDLED REJECTION!');
   } catch (ignore) {
@@ -40,6 +42,26 @@ process.on('unhandledRejection', (reason, promise) => {
     process.exit(1);
   }
 });
+
+function deletePropertyPath(obj, path) {
+  if (!obj || !path) {
+    return;
+  }
+
+  if (typeof path === 'string') {
+    path = path.split('.');
+  }
+
+  for (var i = 0; i < path.length - 1; i++) {
+    obj = obj[path[i]];
+
+    if (typeof obj === 'undefined') {
+      return;
+    }
+  }
+
+  delete obj[path.pop()];
+}
 
 function cleanUpTempStorage() {
   const { IMAGE_STORAGE_ROOT } = config;
