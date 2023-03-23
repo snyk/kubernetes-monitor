@@ -371,15 +371,15 @@ export async function sendClusterMetadata(): Promise<void> {
     namespace: config.NAMESPACE,
   };
 
+  const logContext = {
+    userLocator: payload.userLocator,
+    cluster: payload.cluster,
+    agentId: payload.agentId,
+    version: payload.version,
+  };
+
   try {
-    logger.info(
-      {
-        userLocator: payload.userLocator,
-        cluster: payload.cluster,
-        agentId: payload.agentId,
-      },
-      'attempting to send cluster metadata',
-    );
+    logger.info(logContext, 'attempting to send cluster metadata');
 
     const request: KubernetesUpstreamRequest = {
       method: 'post',
@@ -395,9 +395,7 @@ export async function sendClusterMetadata(): Promise<void> {
 
     logger.info(
       {
-        userLocator: payload.userLocator,
-        cluster: payload.cluster,
-        agentId: payload.agentId,
+        ...logContext,
         attempt,
       },
       'cluster metadata sent upstream successfully',
@@ -405,10 +403,8 @@ export async function sendClusterMetadata(): Promise<void> {
   } catch (error) {
     logger.error(
       {
+        ...logContext,
         error,
-        userLocator: payload.userLocator,
-        cluster: payload.cluster,
-        agentId: payload.agentId,
       },
       'could not send cluster metadata',
     );
