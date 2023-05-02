@@ -21,7 +21,6 @@ cp -r snyk-monitor/* $KUBERNETES_MONITOR_DEPLOYER_REPO/helm
 cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-pre-production.yaml <<EOF
 clusterName: "Development cluster"
 integrationApi: "https://api.dev.snyk.io/v2/kubernetes-upstream"
-log_level: "DEBUG"
 skip_k8s_jobs: true
 
 policyOrgs:
@@ -48,7 +47,6 @@ EOF
 
 cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-production.yaml <<EOF
 clusterName: "Production cluster"
-log_level: "DEBUG"
 skip_k8s_jobs: true
 
 limit:
