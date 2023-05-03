@@ -45,15 +45,23 @@ spec:
                 - key: "kubernetes.io/arch"
                   operator: In
                   values:
-                    {{- with .Values.nodeAffinity.kubernetesIoArch }}
-                      {{- toYaml . | nindent 20 }}
+                    {{- if .Values.nodeAffinity.kubernetesIoArch }}
+                      {{- with .Values.nodeAffinity.kubernetesIoArch }}
+                        {{- toYaml . | nindent 20 }}
+                      {{- end }}
+                    {{- else }}
+                      ["amd64"]
                     {{- end }}
                 {{- if not .Values.nodeAffinity.disableBetaArchNodeSelector }}
                 - key: "beta.kubernetes.io/arch"
                   operator: In
                   values:
-                    {{- with .Values.nodeAffinity.kubernetesIoArch }}
-                      {{- toYaml . | nindent 20 }}
+                    {{- if .Values.nodeAffinity.kubernetesIoArch }}
+                      {{- with .Values.nodeAffinity.kubernetesIoArch }}
+                        {{- toYaml . | nindent 20 }}
+                      {{- end }}
+                    {{- else }}
+                      ["amd64"]
                     {{- end }}
                 {{- end }}
       serviceAccountName: {{ include "snyk-monitor.name" . }}
