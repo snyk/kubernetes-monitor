@@ -50,7 +50,7 @@ All integration tests require the Kubernetes-Monitor to be built into an image o
 The easiest way to achieve it is by running the `scripts/docker/build-image.sh` script.
 Please note that `docker` needs to be installed in order for this script to succeed.
 
-As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `GCR_IO_DOCKERCFG`, `PRIVATE_REGISTRIES_DOCKERCFG`, `DOCKER_HUB_RO_USERNAME`, `DOCKER_HUB_RO_PASSWORD`.
+As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `PRIVATE_REGISTRIES_DOCKERCFG`, `DOCKER_HUB_RO_USERNAME`, `DOCKER_HUB_RO_PASSWORD`.
 
 Our integration tests may use different Kubernetes platforms to host the Kubernetes-Monitor. These platforms may use an existing cluster, or create a new one. Both decisions are based on the environment variables:
 * `TEST_PLATFORM` (`kind`, `kindolm`, `eks`)
