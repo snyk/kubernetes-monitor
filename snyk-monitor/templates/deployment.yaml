@@ -151,11 +151,11 @@ spec:
             value: /srv/app
           - name: CLOUDSDK_CONFIG
             value: /var/tmp/gcloud
-          - name: HTTP_PROXY
+          - name: http_proxy
             value: {{ .Values.http_proxy }}
-          - name: HTTPS_PROXY
+          - name: https_proxy
             value: {{ .Values.https_proxy }}
-          - name: NO_PROXY
+          - name: no_proxy
             value: {{ .Values.no_proxy }}
           - name: USE_KEEPALIVE
             value: {{ quote .Values.use_keepalive }}
