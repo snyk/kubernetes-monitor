@@ -46,7 +46,7 @@ jobs:
                 command: |
                     npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
+                    npm run test:integration:aks:yaml
                 name: Integration tests AKS
             - run:
                 command: |
@@ -259,7 +259,7 @@ jobs:
                 command: |
                     npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
+                    npm run test:integration:eks:yaml
                 name: Integration tests EKS
             - run:
                 command: |
@@ -336,7 +336,7 @@ jobs:
                     export OPERATOR_VERSION="0.0.1-ubi8-${CIRCLE_SHA1:0:8}"
                     export IMAGE_TAG_UBI_SUFFIX="-ubi8"
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
-                    .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:kindolm:operator
+                    npm run test:integration:kindolm:operator
                 name: Operator integration tests on vanilla Kubernetes
             - run:
                 command: |
@@ -1170,6 +1170,30 @@ workflows:
                 requires:
                     - build_image
             - integration_tests_helm:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+                requires:
+                    - build_image
+            - integration_tests_proxy:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+                requires:
+                    - build_image
+            - eks_integration_tests:
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+                requires:
+                    - build_image
+            - aks_integration_tests:
                 filters:
                     branches:
                         ignore:
