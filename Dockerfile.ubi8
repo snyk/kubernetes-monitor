@@ -75,6 +75,11 @@ RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/b
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 
+RUN \
+    rpm -e --nodeps platform-python && \
+    rpm -e --nodeps python3-libs && \
+    rpm -e --nodeps python36
+
 # Copy credential helpers
 COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
 COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-acr-env /usr/bin/docker-credential-acr-env
