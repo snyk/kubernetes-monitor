@@ -23,6 +23,9 @@ clusterName: "Development cluster"
 integrationApi: "https://api.dev.snyk.io/v2/kubernetes-upstream"
 skip_k8s_jobs: true
 
+limits:
+  memory: "4Gi"
+
 policyOrgs:
   - $POLICY_ORG_PRE_PROD
 
@@ -49,7 +52,7 @@ cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/multi-tenant-gcp-production.y
 clusterName: "Production cluster"
 skip_k8s_jobs: true
 
-limit:
+limits:
   memory: "4Gi"
 
 policyOrgs:
