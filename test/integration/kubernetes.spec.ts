@@ -729,6 +729,57 @@ test('snyk-monitor has nodeSelector', async () => {
   );
 });
 
+test('snyk-monitor has nodeAffinity', async () => {
+  if (process.env['DEPLOYMENT_TYPE'] !== 'Helm') {
+    console.log(
+      "Not testing nodeAffinity because we're not installing with Helm",
+    );
+    return;
+  }
+
+  const snykMonitorDeployment = await kubectl.getDeploymentJson(
+    'snyk-monitor',
+    'snyk-monitor',
+  );
+  const snykMonitorPodSpec = snykMonitorDeployment.spec.template.spec;
+  expect(snykMonitorPodSpec).toEqual(
+    expect.objectContaining({
+      affinity: {
+        nodeAffinity: {
+          requiredDuringSchedulingIgnoredDuringExecution: {
+            nodeSelectorTerms: [
+              {
+                matchExpressions: [
+                  {
+                    key: 'kubernetes.io/arch',
+                    operator: 'In',
+                    values: ['amd64'],
+                  },
+                  {
+                    key: 'kubernetes.io/os',
+                    operator: 'In',
+                    values: ['linux'],
+                  },
+                  {
+                    key: 'beta.kubernetes.io/arch',
+                    operator: 'In',
+                    values: ['amd64'],
+                  },
+                  {
+                    key: 'beta.kubernetes.io/os',
+                    operator: 'In',
+                    values: ['linux'],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    }),
+  );
+});
+
 test('snyk-monitor secure configuration is as expected', async () => {
   const kubeConfig = new KubeConfig();
   kubeConfig.loadFromDefault();
