@@ -1024,7 +1024,7 @@ workflows:
     MERGE_TO_MASTER:
         jobs:
             - publish:
-                context: nodejs-app-release-public
+                context: team-container-integration
                 filters:
                     branches:
                         only:
@@ -1102,7 +1102,7 @@ workflows:
                     - build_image
                     - build_and_upload_operator
             - tag_and_push:
-                context: nodejs-app-release-public
+                context: team-container-integration
                 filters:
                     branches:
                         only:
@@ -1116,7 +1116,7 @@ workflows:
                     - integration_tests_helm
                     - integration_tests_proxy
             - deploy_to_dev:
-                context: nodejs-app-release-public
+                context: team-container-integration
                 filters:
                     branches:
                         only:
