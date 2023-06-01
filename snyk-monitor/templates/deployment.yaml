@@ -52,6 +52,16 @@ spec:
                     {{- else }}
                       ["amd64"]
                     {{- end }}
+                - key: "kubernetes.io/os"
+                  operator: In
+                  values:
+                    {{- if .Values.nodeAffinity.kubernetesIoOs }}
+                      {{- with .Values.nodeAffinity.kubernetesIoOs }}
+                        {{- toYaml . | nindent 20 }}
+                      {{- end }}
+                    {{- else }}
+                      ["linux"]
+                    {{- end }}
                 {{- if not .Values.nodeAffinity.disableBetaArchNodeSelector }}
                 - key: "beta.kubernetes.io/arch"
                   operator: In
@@ -62,6 +72,16 @@ spec:
                       {{- end }}
                     {{- else }}
                       ["amd64"]
+                    {{- end }}
+                - key: "beta.kubernetes.io/os"
+                  operator: In
+                  values:
+                    {{- if .Values.nodeAffinity.kubernetesIoOs }}
+                      {{- with .Values.nodeAffinity.kubernetesIoOs }}
+                        {{- toYaml . | nindent 20 }}
+                      {{- end }}
+                    {{- else }}
+                      ["linux"]
                     {{- end }}
                 {{- end }}
       serviceAccountName: {{ include "snyk-monitor.name" . }}
