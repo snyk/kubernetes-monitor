@@ -109,7 +109,7 @@ export interface IRuntimeImagesResponse {
      */
     next?: string;
   };
-  data: IRuntimeImage[];
+  data?: IRuntimeImage[];
 }
 
 export type RuntimeDataType = 'sysdig';
