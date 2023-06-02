@@ -5,7 +5,10 @@ import { config } from '../common/config';
 
 import { logger } from '../common/logger';
 import { IRequestError } from './types';
-import { RETRYABLE_NETWORK_ERRORS } from './watchers/types';
+import {
+  RETRYABLE_NETWORK_ERROR_CODES,
+  RETRYABLE_NETWORK_ERROR_MESSAGES,
+} from './watchers/types';
 
 import type { queueAsPromised } from 'fastq';
 
@@ -102,7 +105,11 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return false;
   }
 
-  if (err.code && RETRYABLE_NETWORK_ERRORS.includes(err.code)) {
+  if (err.code && RETRYABLE_NETWORK_ERROR_CODES.includes(err.code)) {
+    return true;
+  }
+
+  if (err.message && RETRYABLE_NETWORK_ERROR_MESSAGES.includes(err.message)) {
     return true;
   }
 

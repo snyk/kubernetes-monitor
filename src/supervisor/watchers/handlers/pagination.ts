@@ -9,6 +9,10 @@ import { calculateSleepSeconds } from '../../kuberenetes-api-wrappers';
 import { V1ClusterList, V1NamespacedList } from './types';
 import { trimWorkloads } from '../../workload-sanitization';
 import type { IRequestError } from '../../types';
+import {
+  RETRYABLE_NETWORK_ERROR_CODES,
+  RETRYABLE_NETWORK_ERROR_MESSAGES,
+} from '../types';
 
 export const PAGE_SIZE = 100;
 
@@ -65,13 +69,13 @@ export async function paginatedNamespacedList<
     } catch (err) {
       const error = err as IRequestError;
 
-      switch (error.code) {
-        case 'ECONNRESET':
-          const seconds = calculateSleepSeconds();
-          await sleep(seconds);
-          continue;
-        default:
-          break;
+      if (
+        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
+        RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
+      ) {
+        const seconds = calculateSleepSeconds();
+        await sleep(seconds);
+        continue;
       }
 
       switch (error.response?.statusCode) {
@@ -149,13 +153,13 @@ export async function paginatedClusterList<
     } catch (err) {
       const error = err as IRequestError;
 
-      switch (error.code) {
-        case 'ECONNRESET':
-          const seconds = calculateSleepSeconds();
-          await sleep(seconds);
-          continue;
-        default:
-          break;
+      if (
+        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
+        RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
+      ) {
+        const seconds = calculateSleepSeconds();
+        await sleep(seconds);
+        continue;
       }
 
       switch (error.response?.statusCode) {

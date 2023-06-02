@@ -11,8 +11,12 @@ export enum PodPhase {
   Unknown = 'Unknown',
 }
 
-export const RETRYABLE_NETWORK_ERRORS: readonly string[] = [
+export const RETRYABLE_NETWORK_ERROR_CODES: readonly string[] = [
   'ECONNREFUSED',
   'ETIMEDOUT',
   'ECONNRESET',
+];
+
+export const RETRYABLE_NETWORK_ERROR_MESSAGES: readonly string[] = [
+  'Too Many Requests',
 ];
