@@ -26,7 +26,7 @@ metadata:
               "name": "snyk-monitor-pvc"
             },
             "initContainerImage": {
-              "repository": "registry.access.redhat.com/ubi8-minimal",
+              "repository": "registry.access.redhat.com/ubi9",
               "tag": "latest"
             },
             "requests": {

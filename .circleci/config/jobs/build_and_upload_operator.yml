@@ -17,8 +17,8 @@ steps:
       name: Create Operator and push Operator image to DockerHub
       command: |
         export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-        OPERATOR_TAG="${IMAGE_TAG}-ubi8-${CIRCLE_SHA1:0:8}"
-        MONITOR_TAG="${IMAGE_TAG}-ubi8-${CIRCLE_SHA1:0:8}"
+        OPERATOR_TAG="${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}"
+        MONITOR_TAG="${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}"
         scripts/operator/create_operator_and_push.py "${OPERATOR_TAG}" "${MONITOR_TAG}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
         echo "export OPERATOR_TAG=$OPERATOR_TAG" >> $BASH_ENV
   - snyk/scan:
@@ -30,8 +30,8 @@ steps:
       name: Package Operator Bundle
       command: |
         export IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-        export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-ubi8-${CIRCLE_SHA1:0:8}"
-        export SNYK_OPERATOR_VERSION="0.0.1-ubi8-${CIRCLE_SHA1:0:8}"
+        export SNYK_MONITOR_IMAGE_TAG="${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}"
+        export SNYK_OPERATOR_VERSION="0.0.1-ubi9-${CIRCLE_SHA1:0:8}"
         export SNYK_OPERATOR_IMAGE_TAG="${SNYK_MONITOR_IMAGE_TAG}"
         OPERATOR_PATH=$(scripts/operator/package_operator_bundle.py "${SNYK_OPERATOR_VERSION}" "${SNYK_OPERATOR_IMAGE_TAG}" "${SNYK_MONITOR_IMAGE_TAG}")
         echo "export OPERATOR_PATH=$OPERATOR_PATH" >> $BASH_ENV
@@ -39,7 +39,7 @@ steps:
       name: Create Operator Bundle and Index and push to Docker Hub
       command: |
         export OPERATOR_DIR=$OPERATOR_PATH
-        export PACKAGE_VERSION="0.0.1-ubi8-${CIRCLE_SHA1:0:8}"
+        export PACKAGE_VERSION="0.0.1-ubi9-${CIRCLE_SHA1:0:8}"
         scripts/operator/create_operator_bundle_and_index_and_push.py "${OPERATOR_DIR}" "${PACKAGE_VERSION}" "${DOCKERHUB_USER}" "${DOCKERHUB_PASSWORD}"
   - run:
       name: Notify Slack on failure
