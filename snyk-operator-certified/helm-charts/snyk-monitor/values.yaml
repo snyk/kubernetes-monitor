@@ -28,7 +28,7 @@ image:
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
 initContainerImage:
-  image: registry.access.redhat.com/ubi8-minimal:latest
+  image: registry.access.redhat.com/ubi9:latest
   pullPolicy: Always
 
 # The snyk-monitor requires knowing the cluster name so that it can organise

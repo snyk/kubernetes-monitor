@@ -300,7 +300,7 @@ spec:
                       - name: RELATED_IMAGE_DEPLOYMENT
                         value: registry.connect.redhat.com/snyk/kubernetes-monitor:1.68.2
                       - name: RELATED_IMAGE_DEPLOYMENT_INIT
-                        value: registry.access.redhat.com/ubi8-minimal:latest
+                        value: registry.access.redhat.com/ubi9:latest
                   - args:
                       - --secure-listen-address=0.0.0.0:8443
                       - --upstream=http://127.0.0.1:8080/

@@ -2,7 +2,7 @@
 
 # default value for our name and tag, when we don't want to push the image
 # for example when testing locally or on opening a PR
-LOCAL_DISCARDABLE_IMAGE=snyk/kubernetes-monitor:ubi8
+LOCAL_DISCARDABLE_IMAGE=snyk/kubernetes-monitor:ubi9
 
 # allow overriding name and tag, when we intend to push the image
 # should happen on merging to `staging`
@@ -18,4 +18,4 @@ docker build \
   --build-arg NODE_16_LATEST_VERSION="${NODE_16_LATEST_VERSION}" \
   --build-arg NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256="${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256}" \
   -t ${NAME_AND_TAG} \
-  --file=Dockerfile.ubi8 .
+  --file=Dockerfile.ubi9 .
