@@ -29,6 +29,7 @@ export enum WorkloadKind {
 }
 
 export interface IRequestError {
+  message?: string;
   code?: string;
   response?: IncomingMessage;
 }
