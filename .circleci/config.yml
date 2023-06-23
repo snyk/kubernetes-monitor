@@ -1058,49 +1058,6 @@ workflows:
                     branches:
                         only:
                             - staging
-            - integration_tests:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-            - integration_tests_helm:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-            - integration_tests_proxy:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-            - eks_integration_tests:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-            - aks_integration_tests:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-            - integration_tests_operator_on_k8s:
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-                    - build_and_upload_operator
             - tag_and_push:
                 context: team-container-integration
                 filters:
@@ -1112,9 +1069,6 @@ workflows:
                     - build_and_upload_operator
                     - unit_tests
                     - system_tests
-                    - integration_tests
-                    - integration_tests_helm
-                    - integration_tests_proxy
             - deploy_to_dev:
                 context: team-container-integration
                 filters:
@@ -1161,20 +1115,4 @@ workflows:
                         ignore:
                             - staging
                             - master
-            - integration_tests:
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
-                requires:
-                    - build_image
-            - integration_tests_helm:
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
-                requires:
-                    - build_image
 
