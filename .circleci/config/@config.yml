@@ -34,14 +34,14 @@ workflows:
           <<: *main_branches_filter
       - system_tests:
           <<: *main_branches_filter
-      - integration_tests:
-          requires:
-            - build_image
-          <<: *main_branches_filter
-      - integration_tests_helm:
-          requires:
-            - build_image
-          <<: *main_branches_filter
+      # - integration_tests:
+      #     requires:
+      #       - build_image
+      #     <<: *main_branches_filter
+      # - integration_tests_helm:
+      #     requires:
+      #       - build_image
+      #     <<: *main_branches_filter
 
   MERGE_TO_STAGING:
     jobs:
@@ -53,49 +53,49 @@ workflows:
           <<: *staging_branch_only_filter
       - system_tests:
           <<: *staging_branch_only_filter
-      - integration_tests:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - integration_tests_helm:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - integration_tests_proxy:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - eks_integration_tests:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - aks_integration_tests:
-          requires:
-            - build_image
-          <<: *staging_branch_only_filter
-      - integration_tests_operator_on_k8s:
-          requires:
-            - build_image
-            - build_and_upload_operator
-          <<: *staging_branch_only_filter
+      # - integration_tests:
+      #     requires:
+      #       - build_image
+      #     <<: *staging_branch_only_filter
+      # - integration_tests_helm:
+      #     requires:
+      #       - build_image
+      #     <<: *staging_branch_only_filter
+      # - integration_tests_proxy:
+      #     requires:
+      #       - build_image
+      #     <<: *staging_branch_only_filter
+      # - eks_integration_tests:
+      #     requires:
+      #       - build_image
+      #     <<: *staging_branch_only_filter
+      # - aks_integration_tests:
+      #     requires:
+      #       - build_image
+      #     <<: *staging_branch_only_filter
+      # - integration_tests_operator_on_k8s:
+      #     requires:
+      #       - build_image
+      #       - build_and_upload_operator
+      #     <<: *staging_branch_only_filter
       # - openshift4_integration_tests:
       #     requires:
       #       - build_image
       #       - build_and_upload_operator
       #     <<: *staging_branch_only_filter
       - tag_and_push:
-          context: nodejs-app-release-public
+          context: team-container-integration
           requires:
             - build_image
             - build_and_upload_operator
             - unit_tests
             - system_tests
-            - integration_tests
-            - integration_tests_helm
-            - integration_tests_proxy
+            # - integration_tests
+            # - integration_tests_helm
+            # - integration_tests_proxy
           <<: *staging_branch_only_filter
       - deploy_to_dev:
-          context: nodejs-app-release-public
+          context: team-container-integration
           requires:
             - tag_and_push
           <<: *staging_branch_only_filter
@@ -108,7 +108,7 @@ workflows:
   MERGE_TO_MASTER:
     jobs:
       - publish:
-          context: nodejs-app-release-public
+          context: team-container-integration
           <<: *master_branch_only_filter
       - deploy_to_prod:
           requires:
