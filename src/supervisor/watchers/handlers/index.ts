@@ -8,8 +8,8 @@ import * as rollout from './argo-rollout';
 import { k8sApi, kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { FALSY_WORKLOAD_NAME_MARKER, KubernetesInformerVerb } from './types';
-import { RETRYABLE_NETWORK_ERRORS } from '../types';
 import { workloadWatchMetadata } from './informer-config';
+import { restartableErrorHandler } from './error';
 import { isExcludedNamespace } from '../internal-namespaces';
 
 async function isSupportedNamespacedWorkload(
@@ -107,23 +107,7 @@ export async function setupNamespacedInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, (error) => {
-    const code = error.code || '';
-    logContext.code = code;
-    if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(logContext, 'informer error occurred, restarting informer');
-
-      // Restart informer after 1sec
-      setTimeout(async () => {
-        await informer.start();
-      }, 1000);
-    } else {
-      logger.error(
-        { ...logContext, error },
-        'unexpected informer error event occurred',
-      );
-    }
-  });
+  informer.on(ERROR, restartableErrorHandler(informer, logContext));
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(
@@ -184,23 +168,7 @@ export async function setupClusterInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, (error) => {
-    const code = error.code || '';
-    logContext.code = code;
-    if (RETRYABLE_NETWORK_ERRORS.includes(code)) {
-      logger.debug(logContext, 'informer error occurred, restarting informer');
-
-      // Restart informer after 1sec
-      setTimeout(async () => {
-        await informer.start();
-      }, 1000);
-    } else {
-      logger.error(
-        { ...logContext, error },
-        'unexpected informer error event occurred',
-      );
-    }
-  });
+  informer.on(ERROR, restartableErrorHandler(informer, logContext));
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(
