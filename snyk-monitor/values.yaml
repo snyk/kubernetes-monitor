@@ -69,14 +69,22 @@ rbac:
     annotations: {}
     labels: {}
 
-# Node.js in-container process memory enhancements
+# General-purpose environment variables
 envs:
+
+# Node.js in-container process memory enhancements
+nodeEnvVars:
   - name: V8_MAX_OLD_SPACE_SIZE
     value: "2048"
   - name: UV_THREADPOOL_SIZE
     value: "24"
   - name: NODE_OPTIONS
     value: --max_old_space_size=2048
+
+# Variables related to AKS
+azureEnvVars:
+  - name: AZURE_CLIENT_ID
+    value: ""
 
 extraCaCerts: /srv/app/certs/ca.pem
 

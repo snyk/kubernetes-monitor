@@ -204,6 +204,15 @@ spec:
           {{- with .Values.envs }}
           {{- toYaml . | trim | nindent 10 -}}
           {{- end }}
+          {{- with .Values.nodeEnvVars }}
+          {{- toYaml . | trim | nindent 10 -}}
+          {{- end }}
+          {{- range $v := .Values.azureEnvVars }}
+          {{- if $v.value }}
+          - name: {{ $v.name }}
+            value: {{ quote $v.value }}
+          {{- end }}
+          {{- end }}
           resources:
             {{- with .Values.requests }}
             requests:
