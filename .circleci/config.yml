@@ -1014,6 +1014,7 @@ orbs:
     azure-cli: circleci/azure-cli@1.2.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
     snyk: snyk/snyk@1.1.2
+    prodsec: snyk/prodsec-orb@1.0
 staging_branch_only_filter:
     filters:
         branches:
@@ -1079,6 +1080,17 @@ workflows:
                     - tag_and_push
     PR_TO_STAGING:
         jobs:
+            - prodsec/secrets-scan:
+                name: Scan repository for secrets
+                context:
+                    - snyk-bot-slack
+                channel: container-integration-alerts
+                filters:
+                    branches:
+                        ignore:
+                            - staging
+                            - master
+
             - build_image:
                 filters:
                     branches:
