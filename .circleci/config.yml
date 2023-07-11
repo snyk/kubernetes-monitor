@@ -126,13 +126,13 @@ jobs:
                     ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
                 name: Build image
             - snyk/scan:
-                additional-arguments: --project-name=alpine
+                additional-arguments: --project-name=alpine --policy-path=.snyk
                 docker-image-name: ${IMAGE_NAME_CANDIDATE}
                 monitor-on-build: false
                 severity-threshold: high
                 target-file: Dockerfile
             - snyk/scan:
-                additional-arguments: --project-name=ubi9
+                additional-arguments: --project-name=ubi9 --policy-path=.snyk
                 docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
                 monitor-on-build: false
                 severity-threshold: critical
@@ -677,13 +677,13 @@ jobs:
                 monitor-on-build: true
                 severity-threshold: high
             - snyk/scan:
-                additional-arguments: --project-name=alpine
+                additional-arguments: --project-name=alpine --policy-path=.snyk
                 docker-image-name: ${IMAGE_NAME_APPROVED}
                 monitor-on-build: true
                 severity-threshold: high
                 target-file: Dockerfile
             - snyk/scan:
-                additional-arguments: --project-name=ubi9
+                additional-arguments: --project-name=ubi9 --policy-path=.snyk
                 docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
                 monitor-on-build: true
                 severity-threshold: critical
