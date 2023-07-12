@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.17.0",
-    "@snyk/dep-graph": "^1.30.0",
+    "@snyk/dep-graph": "^2.7.0",
     "async": "^3.2.4",
     "aws-sdk": "^2.1359.0",
     "bunyan": "^1.8.15",
@@ -55,7 +55,7 @@
     "yaml": "^2.2.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.4",
+    "@commitlint/cli": "^17.6.6",
     "@types/async": "^3.2.10",
     "@types/child-process-promise": "^2.2.2",
     "@types/jest": "^26.0.21",
