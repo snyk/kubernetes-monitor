@@ -282,13 +282,13 @@ publish:
         severity-threshold: high
         target-file: Dockerfile
         monitor-on-build: true
-        additional-arguments: --project-name=alpine
+        additional-arguments: --project-name=alpine --policy-path=.snyk
     - snyk/scan:
         docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
         severity-threshold: critical
         target-file: Dockerfile.ubi9
         monitor-on-build: true
-        additional-arguments: --project-name=ubi9
+        additional-arguments: --project-name=ubi9 --policy-path=.snyk
     - run:
         name: Publish
         command: |
