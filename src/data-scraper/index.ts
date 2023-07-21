@@ -86,12 +86,12 @@ export async function scrapeData(): Promise<void> {
         'runtime images received successfully',
       );
 
-      const responseBody: IRuntimeImagesResponse = response.body;
-      const runtimeDataPayload = constructRuntimeData(responseBody.data);
+      const responseBody: IRuntimeImagesResponse | undefined = response.body;
+      const runtimeDataPayload = constructRuntimeData(responseBody?.data ?? []);
       logger.info({}, 'sending runtime data upstream');
       await sendRuntimeData(runtimeDataPayload);
 
-      cursor = responseBody.page.next || '';
+      cursor = responseBody?.page.next || '';
       if (!cursor) {
         break;
       }
