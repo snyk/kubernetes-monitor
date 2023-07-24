@@ -23,6 +23,7 @@ workflows:
   PR_TO_STAGING:
     jobs:
       - build_image:
+          context: team-container-integration-snyk
           <<: *main_branches_filter
       - build_and_upload_operator:
           <<: *main_branches_filter
@@ -46,6 +47,7 @@ workflows:
   MERGE_TO_STAGING:
     jobs:
       - build_image:
+          context: team-container-integration-snyk
           <<: *staging_branch_only_filter
       - build_and_upload_operator:
           <<: *staging_branch_only_filter
@@ -108,7 +110,9 @@ workflows:
   MERGE_TO_MASTER:
     jobs:
       - publish:
-          context: team-container-integration
+          context: 
+            - team-container-integration
+            - team-container-integration-snyk
           <<: *master_branch_only_filter
       - deploy_to_prod:
           requires:

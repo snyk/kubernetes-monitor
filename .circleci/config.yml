@@ -126,13 +126,13 @@ jobs:
                     ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
                 name: Build image
             - snyk/scan:
-                additional-arguments: --project-name=alpine
+                additional-arguments: --project-name=alpine --policy-path=.snyk
                 docker-image-name: ${IMAGE_NAME_CANDIDATE}
                 monitor-on-build: false
                 severity-threshold: high
                 target-file: Dockerfile
             - snyk/scan:
-                additional-arguments: --project-name=ubi9
+                additional-arguments: --project-name=ubi9 --policy-path=.snyk
                 docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
                 monitor-on-build: false
                 severity-threshold: critical
@@ -674,20 +674,35 @@ jobs:
                     echo "export IMAGE_NAME_PUBLISHED_UBI9=${IMAGE_NAME_PUBLISHED_UBI9}" >> $BASH_ENV
                 name: Export environment variables
             - snyk/scan:
+                additional-arguments: --all-projects --exclude=test
+                fail-on-issues: true
                 monitor-on-build: true
                 severity-threshold: high
+                token-variable: SNYK_TOKEN
             - snyk/scan:
-                additional-arguments: --project-name=alpine
+                command: code test
+                fail-on-issues: true
+                monitor-on-build: true
+                severity-threshold: high
+                token-variable: SNYK_TOKEN
+            - snyk/scan:
+                additional-arguments: --project-name=alpine --policy-path=.snyk
+                command: container test
                 docker-image-name: ${IMAGE_NAME_APPROVED}
+                fail-on-issues: true
                 monitor-on-build: true
                 severity-threshold: high
                 target-file: Dockerfile
+                token-variable: SNYK_TOKEN
             - snyk/scan:
-                additional-arguments: --project-name=ubi9
+                additional-arguments: --project-name=ubi9 --policy-path=.snyk
+                command: container test
                 docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
+                fail-on-issues: true
                 monitor-on-build: true
                 severity-threshold: critical
                 target-file: Dockerfile.ubi9
+                token-variable: SNYK_TOKEN
             - run:
                 command: |
                     docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
@@ -985,8 +1000,17 @@ jobs:
             - setup_node16
             - install_python_requests
             - snyk/scan:
+                additional-arguments: --all-projects --exclude=test
+                fail-on-issues: true
                 monitor-on-build: false
                 severity-threshold: high
+                token-variable: SNYK_TOKEN
+            - snyk/scan:
+                command: code test
+                fail-on-issues: true
+                monitor-on-build: false
+                severity-threshold: high
+                token-variable: SNYK_TOKEN
             - run:
                 command: |
                     npm run build &&
@@ -1012,8 +1036,9 @@ master_branch_only_filter:
 orbs:
     aws-cli: circleci/aws-cli@2.0.6
     azure-cli: circleci/azure-cli@1.2.0
+    prodsec: snyk/prodsec-orb@1.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
-    snyk: snyk/snyk@1.1.2
+    snyk: snyk/snyk@1.7.0
 staging_branch_only_filter:
     filters:
         branches:
@@ -1024,7 +1049,9 @@ workflows:
     MERGE_TO_MASTER:
         jobs:
             - publish:
-                context: team-container-integration
+                context:
+                    - team-container-integration
+                    - team-container-integration-snyk
                 filters:
                     branches:
                         only:
@@ -1039,6 +1066,7 @@ workflows:
     MERGE_TO_STAGING:
         jobs:
             - build_image:
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         only:
@@ -1080,6 +1108,7 @@ workflows:
     PR_TO_STAGING:
         jobs:
             - build_image:
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         ignore:

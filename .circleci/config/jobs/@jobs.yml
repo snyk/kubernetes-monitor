@@ -44,8 +44,17 @@ unit_tests:
     - setup_node16
     - install_python_requests
     - snyk/scan:
+        additional-arguments: --all-projects --exclude=test
+        fail-on-issues: true
         severity-threshold: high
         monitor-on-build: false
+        token-variable: SNYK_TOKEN
+    - snyk/scan:
+        command: code test
+        fail-on-issues: true
+        severity-threshold: high
+        monitor-on-build: false
+        token-variable: SNYK_TOKEN
     - run:
         name: Unit tests
         command: |
@@ -275,20 +284,35 @@ publish:
           echo "export IMAGE_NAME_APPROVED_UBI9=${IMAGE_NAME_APPROVED_UBI9}" >> $BASH_ENV
           echo "export IMAGE_NAME_PUBLISHED_UBI9=${IMAGE_NAME_PUBLISHED_UBI9}" >> $BASH_ENV
     - snyk/scan:
-        severity-threshold: high
-        monitor-on-build: true
+          additional-arguments: --all-projects --exclude=test
+          fail-on-issues: true
+          severity-threshold: high
+          monitor-on-build: true
+          token-variable: SNYK_TOKEN
     - snyk/scan:
+          command: code test
+          fail-on-issues: true
+          severity-threshold: high
+          monitor-on-build: true
+          token-variable: SNYK_TOKEN
+    - snyk/scan:
+        command: container test
         docker-image-name: ${IMAGE_NAME_APPROVED}
+        fail-on-issues: true
         severity-threshold: high
         target-file: Dockerfile
         monitor-on-build: true
-        additional-arguments: --project-name=alpine
+        additional-arguments: --project-name=alpine --policy-path=.snyk
+        token-variable: SNYK_TOKEN
     - snyk/scan:
+        command: container test
         docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
+        fail-on-issues: true
         severity-threshold: critical
         target-file: Dockerfile.ubi9
         monitor-on-build: true
-        additional-arguments: --project-name=ubi9
+        additional-arguments: --project-name=ubi9 --policy-path=.snyk
+        token-variable: SNYK_TOKEN
     - run:
         name: Publish
         command: |
