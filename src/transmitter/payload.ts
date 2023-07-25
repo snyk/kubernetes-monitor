@@ -2,7 +2,7 @@ import { config } from '../common/config';
 import { currentClusterName } from '../supervisor/cluster';
 import { IScanResult } from '../scanner/types';
 import {
-  IDeleteWorkloadPayload,
+  IDeleteWorkloadParams,
   IWorkload,
   ILocalWorkloadLocator,
   IImageLocator,
@@ -118,7 +118,7 @@ export function constructWorkloadMetadata(
 
 export function constructDeleteWorkload(
   localWorkloadLocator: ILocalWorkloadLocator,
-): IDeleteWorkloadPayload {
+): IDeleteWorkloadParams {
   return {
     workloadLocator: {
       ...localWorkloadLocator,

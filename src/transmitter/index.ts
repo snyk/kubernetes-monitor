@@ -8,7 +8,7 @@ import { NeedleResponse, NeedleHttpVerbs, NeedleOptions } from 'needle';
 import { logger } from '../common/logger';
 import { config } from '../common/config';
 import {
-  IDeleteWorkloadPayload,
+  IDeleteWorkloadParams,
   IWorkloadMetadataPayload,
   IResponseWithAttempts,
   IRequestError,
@@ -30,9 +30,9 @@ interface KubernetesUpstreamRequest {
     | IDependencyGraphPayload
     | ScanResultsPayload
     | IWorkloadMetadataPayload
-    | IDeleteWorkloadPayload
     | IClusterMetadataPayload
-    | IRuntimeDataPayload;
+    | IRuntimeDataPayload
+    | null;
   options: NeedleOptions;
 }
 
@@ -59,7 +59,8 @@ function getAgent(u: string): HttpAgent {
 const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
   req: KubernetesUpstreamRequest,
 ) {
-  return await retryRequest(req.method, req.url, req.payload, req.options);
+  const payload = req.payload ? req.payload : null;
+  return await retryRequest(req.method, req.url, payload, req.options);
 },
 config.REQUEST_QUEUE_LENGTH);
 
@@ -229,10 +230,10 @@ export async function sendWorkloadEventsPolicy(
 }
 
 export async function deleteWorkload(
-  payload: IDeleteWorkloadPayload,
+  deleteParams: IDeleteWorkloadParams,
 ): Promise<void> {
   try {
-    const { workloadLocator, agentId } = payload;
+    const { workloadLocator, agentId } = deleteParams;
     const { userLocator, cluster, namespace, type, name } = workloadLocator;
     const queryParams: Record<string, string> = {
       userLocator,
@@ -245,7 +246,7 @@ export async function deleteWorkload(
     const request: KubernetesUpstreamRequest = {
       method: 'delete',
       url: constructUpstreamRequestUrl('api/v1/workload', queryParams),
-      payload,
+      payload: null,
       options: upstreamRequestOptions,
     };
 
@@ -253,7 +254,7 @@ export async function deleteWorkload(
     // TODO: Remove this check, the upstream no longer returns 404 in such cases
     if (response.statusCode === 404) {
       logger.info(
-        { payload },
+        { deleteParams },
         'attempted to delete a workload the Upstream service could not find',
       );
       return;
@@ -262,13 +263,13 @@ export async function deleteWorkload(
       throw new Error(`${response.statusCode} ${response.statusMessage}`);
     } else {
       logger.info(
-        { workloadLocator: payload.workloadLocator, attempt },
+        { workloadLocator, attempt },
         'workload deleted successfully',
       );
     }
   } catch (error) {
     logger.error(
-      { error, payload },
+      { error, deleteParams },
       'could not send delete a workload from the upstream',
     );
   }
@@ -281,7 +282,7 @@ function isSuccessStatusCode(statusCode: number | undefined): boolean {
 export async function retryRequest(
   verb: NeedleHttpVerbs,
   url: string,
-  payload: object,
+  payload: object | null,
   reqOptions: NeedleOptions = {},
 ): Promise<IResponseWithAttempts> {
   const retry = {
@@ -312,7 +313,7 @@ export async function retryRequest(
       statusCode = response.statusCode;
 
       if (
-        ![429, 502, 503, 504].includes(response.statusCode || 0) ||
+        ![429, 502, 503, 504].includes(statusCode || 0) ||
         !stillHaveRetries
       ) {
         break;

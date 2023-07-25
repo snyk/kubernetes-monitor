@@ -6,7 +6,7 @@ import { config } from '../../src/common/config';
 import { IScanResult } from '../../src/scanner/types';
 import * as payload from '../../src/transmitter/payload';
 import {
-  IDeleteWorkloadPayload,
+  IDeleteWorkloadParams,
   IImageLocator,
   ILocalWorkloadLocator,
   IRuntimeDataPayload,
@@ -194,14 +194,14 @@ describe('transmitter payload tests', () => {
       namespace: 'wl-namespace',
       type: 'wl-type',
     };
-    const deleteWorkloadPayload =
+    const deleteWorkloadParams =
       payload.constructDeleteWorkload(localWorkloadLocator);
-    expect(deleteWorkloadPayload).toEqual<IDeleteWorkloadPayload>({
+    expect(deleteWorkloadParams).toEqual<IDeleteWorkloadParams>({
       workloadLocator: expect.any(Object),
       agentId: expect.any(String),
     });
 
-    expect(deleteWorkloadPayload.workloadLocator).toEqual<IWorkloadLocator>({
+    expect(deleteWorkloadParams.workloadLocator).toEqual<IWorkloadLocator>({
       userLocator: expect.any(String),
       cluster: expect.any(String),
       name: 'wl-name',
