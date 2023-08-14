@@ -52,8 +52,10 @@ workflows:
           context: team-container-integration-snyk
           <<: *staging_branch_only_filter
       - build_and_upload_operator:
+          context: team-container-integration-snyk
           <<: *staging_branch_only_filter
       - unit_tests:
+          context: team-container-integration-snyk
           <<: *staging_branch_only_filter
       - system_tests:
           <<: *staging_branch_only_filter
