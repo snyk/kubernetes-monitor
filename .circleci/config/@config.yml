@@ -26,8 +26,10 @@ workflows:
           context: team-container-integration-snyk
           <<: *main_branches_filter
       - build_and_upload_operator:
+          context: team-container-integration-snyk
           <<: *main_branches_filter
       - unit_tests:
+          context: team-container-integration-snyk
           <<: *main_branches_filter
       - lint:
           <<: *main_branches_filter
@@ -110,7 +112,7 @@ workflows:
   MERGE_TO_MASTER:
     jobs:
       - publish:
-          context: 
+          context:
             - team-container-integration
             - team-container-integration-snyk
           <<: *master_branch_only_filter

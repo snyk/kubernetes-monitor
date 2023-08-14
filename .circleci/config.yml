@@ -1115,12 +1115,14 @@ workflows:
                             - staging
                             - master
             - build_and_upload_operator:
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - unit_tests:
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         ignore:
