@@ -43,11 +43,12 @@ workers:
   count: 5
 
 metadata:
+  annotations:
+    github.com/project-slug: snyk/kubernetes-monitor
+    github.com/team-slug: snyk/container-integration
   labels:
     $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
     $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
-  annotations:
-    github.com/project-slug: snyk/kubernetes-monitor
 
 EOF
 
@@ -75,11 +76,13 @@ workers:
   count: 5
 
 metadata:
+metadata:
+  annotations:
+    github.com/project-slug: snyk/kubernetes-monitor
+    github.com/team-slug: snyk/container-integration
   labels:
     $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
     $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
-  annotations:
-    github.com/project-slug: snyk/kubernetes-monitor
 
 EOF
 
