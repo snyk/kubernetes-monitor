@@ -48,7 +48,7 @@
     "needle": "^3.0.0",
     "sleep-promise": "^9.1.0",
     "snyk-config": "5.1.0",
-    "snyk-docker-plugin": "^6.5.1",
+    "snyk-docker-plugin": "^6.5.7",
     "source-map-support": "^0.5.21",
     "tunnel": "0.0.6",
     "typescript": "^4.7.4",
