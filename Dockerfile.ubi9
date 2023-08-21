@@ -1,46 +1,50 @@
-#---------------------------------------------------------------------
-# STAGE 1: Build skopeo inside a temporary container
-#---------------------------------------------------------------------
-FROM fedora:32 AS skopeo-build
-
-RUN dnf install -y skopeo
+# syntax=docker/dockerfile:1
 
 #---------------------------------------------------------------------
-# STAGE 2: Build credential helpers inside a temporary container
+# STAGE 1: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM golang:alpine AS cred-helpers-build
-
-RUN apk update
-RUN apk upgrade
-RUN apk --no-cache add git
-
-RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@69c85dc22db6511932bbf119e1a0cc5c90c69a7f
-RUN go install github.com/chrismellard/docker-credential-acr-env@82a0ddb2758901b711d9d1614755b77e401598a1
-
-#---------------------------------------------------------------------
-# STAGE 3: Build kubernetes-monitor application
-#---------------------------------------------------------------------
-FROM node:gallium-alpine AS build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/nodejs-16:1-118 AS build
 
 ENV NODE_ENV production
 
-WORKDIR /srv/app
-
 # Add manifest files and install before adding anything else to take advantage of layer caching
-ADD package.json package-lock.json ./
+COPY --chown=1001:1001 package.json package-lock.json ./
 
+RUN npm config set unsafe-perm true
 RUN npm ci
 
 # add the rest of the app files
-ADD . .
+COPY --chown=1001:1001 . ./
 
 # Build typescript
 RUN npm run build
 
 #---------------------------------------------------------------------
-# STAGE 4: Build the kubernetes-monitor final image
+# STAGE 2: Install containers-common to obtain configuration files
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi9/ubi:9.2
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.2 AS containers-common
+
+RUN dnf install -y containers-common
+
+#---------------------------------------------------------------------
+# STAGE 3: Build the kubernetes-monitor final image
+#---------------------------------------------------------------------
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.2
+
+ARG NODE_16_LATEST_VERSION
+ARG NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
+# https://github.com/Yelp/dumb-init/releases
+ARG DUMB_INIT_VERSION=1.2.5
+ARG DUMB_INIT_BINARY_FILE_SHASUM256=e874b55f3279ca41415d290c512a7ba9d08f98041b28ae7c2acb19a545f1c4df
+# https://github.com/lework/skopeo-binary/releases
+ARG SKOPEO_VERSION=1.13.2
+ARG SKOPEO_BINARY_FILE_SHASUM256=2f00be6ee1c4cbfa7f2452be90a1a2ce88fd92a6d0f6a2e9d901bd2087bd9092
+# https://github.com/awslabs/amazon-ecr-credential-helper/releases
+ARG ECR_CREDENTIAL_HELPER_VERSION=0.7.1
+ARG ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256=a82cc3ed2cf959616212e3c3c3893dda4f7886da1447c444ef541e6f595ae087
+# https://github.com/chrismellard/docker-credential-acr-env/releases
+ARG ACR_CREDENTIAL_HELPER_VERSION=0.7.0
+ARG ACR_CREDENTIAL_HELPER_TAR_GZ_FILE_SHASUM256=d84939dd0a9983f255d078d24744c70e1c8d1ce9e02a7d149c4f163a4d54b698
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
@@ -54,36 +58,45 @@ ENV NODE_ENV production
 
 RUN yum upgrade -y
 
-ARG NODE_16_LATEST_VERSION
-ARG NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
-RUN curl --fail -o "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "https://nodejs.org/dist/latest-v16.x/${NODE_16_LATEST_VERSION}.tar.gz" && \
-    echo "${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/${NODE_16_LATEST_VERSION}.tar.gz" | sha256sum --check --status && \
-    tar -xf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" -C "/tmp/" && \
-    cp "/tmp/${NODE_16_LATEST_VERSION}/bin/node" /usr/local/bin/ && \
-    rm -rf "/tmp/${NODE_16_LATEST_VERSION}.tar.gz" "/tmp/${NODE_16_LATEST_VERSION}/"
-
-RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
-RUN chmod 755 /usr/bin/dumb-init
+WORKDIR /srv/app
 
 RUN groupadd -g 10001 snyk
 RUN useradd -g snyk -d /srv/app -u 10001 snyk
 
+# Install dumb-init
+RUN curl -sSfLo /usr/bin/dumb-init "https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_x86_64" && \
+    chmod 755 /usr/bin/dumb-init && \
+    echo "${DUMB_INIT_BINARY_FILE_SHASUM256} /usr/bin/dumb-init" | sha256sum --check --status
+
+# Install skopeo
+RUN curl -sSfLo /usr/bin/skopeo "https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64" && \
+    chmod 755 /usr/bin/skopeo && \
+    echo "${SKOPEO_BINARY_FILE_SHASUM256} /usr/bin/skopeo" | sha256sum --check --status
+# Copy configuration files required for skopeo to copy images, without including entire containers-common install
+COPY --chown=snyk:snyk --from=containers-common /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
+COPY --chown=snyk:snyk --from=containers-common /etc/containers/policy.json /etc/containers/policy.json
+
+# Install credential helpers
+RUN curl -sSfLo /usr/local/bin/docker-credential-ecr-login "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/${ECR_CREDENTIAL_HELPER_VERSION}/linux-amd64/docker-credential-ecr-login" && \
+    chmod 755 /usr/local/bin/docker-credential-ecr-login && \
+    echo "${ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256} /usr/local/bin/docker-credential-ecr-login" | sha256sum --check --status
+RUN curl -sSfLo /tmp/docker-credential-acr-env.tar.gz "https://github.com/chrismellard/docker-credential-acr-env/releases/download/${ACR_CREDENTIAL_HELPER_VERSION}/docker-credential-acr-env_${ACR_CREDENTIAL_HELPER_VERSION}_linux_amd64.tar.gz" && \
+    echo "${ACR_CREDENTIAL_HELPER_TAR_GZ_FILE_SHASUM256} /tmp/docker-credential-acr-env.tar.gz" | sha256sum --check --status && \
+    tar -C /usr/local/bin -xzf /tmp/docker-credential-acr-env.tar.gz docker-credential-acr-env && \
+    rm -f /tmp/docker-credential-acr-env.tar.gz
+
 # Install gcloud
-RUN yum install -y python3
-RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/bin/anthoscli && rm -rf /google-cloud-sdk/platform
+RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/ && \
+    rm -f /google-cloud-sdk/bin/anthoscli && \
+	rm -rf /google-cloud-sdk/platform
 ENV PATH=/google-cloud-sdk/bin:$PATH
-RUN rm /install.sh
 
-# Copy credential helpers
-COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
-COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-acr-env /usr/bin/docker-credential-acr-env
-
-WORKDIR /srv/app
-
-COPY --chown=snyk:snyk --from=skopeo-build /usr/bin/skopeo /usr/bin/skopeo
-COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/registries.d/default.yaml /etc/containers/registries.d/default.yaml
-COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/containers/policy.json
+# Install node
+RUN curl -sSfLo /tmp/node_16.tar.gz "https://nodejs.org/dist/latest-v16.x/${NODE_16_LATEST_VERSION}.tar.gz" && \
+    echo "${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/node_16.tar.gz" | sha256sum --check --status && \
+    mkdir /tmp/node_16 && tar -C /tmp/node_16 -xzf /tmp/node_16.tar.gz ${NODE_16_LATEST_VERSION}/bin/node && \
+    mv /tmp/node_16/${NODE_16_LATEST_VERSION}/bin/node /usr/local/bin && \
+    rm -rf /tmp/node_16.tar.gz /tmp/node_16
 
 # The `.config` directory is used by `snyk protect` and we also mount a K8s volume there at runtime.
 # This clashes with OpenShift 3 which mounts things differently and prevents access to the directory.
@@ -91,7 +104,7 @@ COPY --chown=snyk:snyk --from=skopeo-build /etc/containers/policy.json /etc/cont
 RUN mkdir -p .config
 
 # Copy app
-COPY --chown=snyk:snyk --from=build /srv/app /srv/app
+COPY --chown=snyk:snyk --from=build /opt/app-root/src /srv/app/
 
 # OpenShift 4 doesn't allow dumb-init access the app folder without this permission.
 RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
