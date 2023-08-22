@@ -1,4 +1,7 @@
 #! /bin/bash
+set -e
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # default value for our name and tag, when we don't want to push the image
 # for example when testing locally or on opening a PR
@@ -19,3 +22,5 @@ docker build \
   --build-arg NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256="${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256}" \
   -t ${NAME_AND_TAG} \
   --file=Dockerfile.ubi9 .
+
+"$DIR/smoke-test-image-binaries.sh" $NAME_AND_TAG
