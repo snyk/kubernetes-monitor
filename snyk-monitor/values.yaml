@@ -109,7 +109,7 @@ log_level:
 nodeSelector: {}
 
 nodeAffinity:
-  disableBetaArchNodeSelector: false
+  disableBetaArchNodeSelector: true
   kubernetesIoArch:
   - amd64
   kubernetesIoOs:
