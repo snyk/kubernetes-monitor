@@ -37,7 +37,7 @@ jobs:
           any_changes=$(git diff --cached)
           echo "::set-output name=changes::${any_changes}"
           if [[ ! -z "${any_changes}" ]]; then
-            git commit -S -m "chore: update & relock NPM packages"
+            git commit -S -m "fix: update & relock NPM packages"
           fi
 
       - name: Create Pull Request
