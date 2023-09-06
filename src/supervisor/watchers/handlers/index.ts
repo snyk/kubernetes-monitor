@@ -5,7 +5,7 @@ import { WorkloadKind } from '../../types';
 import * as cronJob from './cron-job';
 import * as deploymentConfig from './deployment-config';
 import * as rollout from './argo-rollout';
-import { k8sApi, kubeConfig } from '../../cluster';
+import { kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
 import { FALSY_WORKLOAD_NAME_MARKER, KubernetesInformerVerb } from './types';
 import { workloadWatchMetadata } from './informer-config';
@@ -27,13 +27,11 @@ async function isSupportedNamespacedWorkload(
       return await cronJob.isNamespacedCronJobSupported(
         workloadKind,
         namespace,
-        k8sApi.batchUnstableClient,
       );
     case WorkloadKind.CronJob:
       return await cronJob.isNamespacedCronJobSupported(
         workloadKind,
         namespace,
-        k8sApi.batchClient,
       );
     default:
       return true;
@@ -49,15 +47,9 @@ async function isSupportedClusterWorkload(
     case WorkloadKind.ArgoRollout:
       return await rollout.isClusterArgoRolloutSupported();
     case WorkloadKind.CronJobV1Beta1:
-      return await cronJob.isClusterCronJobSupported(
-        workloadKind,
-        k8sApi.batchUnstableClient,
-      );
+      return await cronJob.isClusterCronJobSupported(workloadKind);
     case WorkloadKind.CronJob:
-      return await cronJob.isClusterCronJobSupported(
-        workloadKind,
-        k8sApi.batchClient,
-      );
+      return await cronJob.isClusterCronJobSupported(workloadKind);
     default:
       return true;
   }
