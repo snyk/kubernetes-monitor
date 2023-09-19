@@ -28,6 +28,9 @@ scope: Cluster
 # The endpoint that being used to transmit monitored information
 integrationApi: ""
 
+# Secrets to use when pulling images from private registries ex artifactory
+imagePullSecrets: []
+
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
