@@ -27,7 +27,7 @@ jobs:
       - name: Run npm update
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-          npm update
+          npm update --save
           rm -f .npmrc
 
       - name: Create Signed Commit
