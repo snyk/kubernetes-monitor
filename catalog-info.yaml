@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-monitor
+  annotations:
+    github.com/project-slug: snyk/kubernetes-monitor
+    github.com/team-slug: snyk/container-integration
+spec:
+  type: external-tooling
+  lifecycle: "-"
+  owner: container-integration
