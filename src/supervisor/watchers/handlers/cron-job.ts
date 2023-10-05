@@ -134,7 +134,7 @@ export async function cronJobWatchHandler(
   );
 }
 
-export async function isNamespacedCronJobSupported(
+async function isNamespacedCronJobSupportedWithClient(
   workloadKind: WorkloadKind,
   namespace: string,
   client: BatchV1Api | BatchV1beta1Api,
@@ -179,7 +179,29 @@ export async function isNamespacedCronJobSupported(
   }
 }
 
-export async function isClusterCronJobSupported(
+export async function isNamespacedCronJobSupported(
+  workloadKind: WorkloadKind,
+  namespace: string,
+): Promise<boolean> {
+  const isSupported = await isNamespacedCronJobSupportedWithClient(
+    workloadKind,
+    namespace,
+    k8sApi.batchClient,
+  );
+  if (workloadKind == WorkloadKind.CronJob) {
+    return isSupported;
+  }
+  if (workloadKind == WorkloadKind.CronJobV1Beta1 && isSupported) {
+    return false;
+  }
+  return await isNamespacedCronJobSupportedWithClient(
+    workloadKind,
+    namespace,
+    k8sApi.batchUnstableClient,
+  );
+}
+
+export async function isClusterCronJobSupportedWithClient(
   workloadKind: WorkloadKind,
   client: BatchV1Api | BatchV1beta1Api,
 ): Promise<boolean> {
@@ -220,4 +242,23 @@ export async function isClusterCronJobSupported(
     );
     return false;
   }
+}
+
+export async function isClusterCronJobSupported(
+  workloadKind: WorkloadKind,
+): Promise<boolean> {
+  const isSupported = await isClusterCronJobSupportedWithClient(
+    workloadKind,
+    k8sApi.batchClient,
+  );
+  if (workloadKind == WorkloadKind.CronJob) {
+    return isSupported;
+  }
+  if (workloadKind == WorkloadKind.CronJobV1Beta1 && isSupported) {
+    return false;
+  }
+  return await isClusterCronJobSupportedWithClient(
+    workloadKind,
+    k8sApi.batchUnstableClient,
+  );
 }
