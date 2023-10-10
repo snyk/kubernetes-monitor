@@ -98,6 +98,9 @@ RUN curl -sSfLo /tmp/node_16.tar.gz "https://nodejs.org/dist/latest-v16.x/${NODE
     mv /tmp/node_16/${NODE_16_LATEST_VERSION}/bin/node /usr/local/bin && \
     rm -rf /tmp/node_16.tar.gz /tmp/node_16
 
+RUN rpm -e --nodeps curl-minimal && \
+    rpm -e --nodeps libcurl-minimal
+
 # The `.config` directory is used by `snyk protect` and we also mount a K8s volume there at runtime.
 # This clashes with OpenShift 3 which mounts things differently and prevents access to the directory.
 # TODO: Remove this line once OpenShift 3 comes out of support.
