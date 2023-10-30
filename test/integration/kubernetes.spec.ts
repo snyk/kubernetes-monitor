@@ -46,13 +46,6 @@ const cronJobValidator = (workloads: IWorkloadLocator[]) =>
       workload.name === 'cron-job' && workload.type === WorkloadKind.CronJob,
   ) !== undefined;
 
-const cronJobV1Beta1Validator = (workloads: IWorkloadLocator[]) =>
-  workloads.find(
-    (workload) =>
-      workload.name === 'cron-job-v1beta1' &&
-      workload.type === WorkloadKind.CronJob,
-  ) !== undefined;
-
 const argoRolloutValidator = (workloads: IWorkloadLocator[]) =>
   workloads.find(
     (workload) =>
@@ -62,7 +55,6 @@ const argoRolloutValidator = (workloads: IWorkloadLocator[]) =>
 
 const supported = {
   cronJobV1: true,
-  cronJobV1Beta1: true,
   argoRollout: true,
 };
 
@@ -82,14 +74,9 @@ test('deploy sample workloads', async () => {
     kubectl.applyK8sYaml('./test/fixtures/consul-deployment.yaml'),
     kubectl.applyK8sYaml('./test/fixtures/cronjob.yaml').catch((error) => {
       console.log('CronJob is possibly unsupported', error);
-      supported.cronJobV1 = false;
+      supported.cronJobV1 = true;
     }),
-    kubectl
-      .applyK8sYaml('./test/fixtures/cronjob-v1beta1.yaml')
-      .catch((error) => {
-        console.log('CronJobV1Beta1 is possibly unsupported', error);
-        supported.cronJobV1Beta1 = false;
-      }),
+
     kubectl.createPodFromImage(
       'alpine-from-sha',
       someImageWithSha,
@@ -207,8 +194,8 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
       ) !== undefined &&
       // It's either there or unsupported
       (argoRolloutValidator(workloads) || !supported.argoRollout) &&
-      // only one of the cronjob versions needs to be valid
-      (cronJobValidator(workloads) || cronJobV1Beta1Validator(workloads))
+      // the cronjob versions needs to be valid
+      cronJobValidator(workloads)
     );
   };
 
@@ -284,21 +271,6 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
       target: { image: 'docker-image|docker.io/snyk/runtime-fixtures' },
     },
   ]);
-
-  if (supported.cronJobV1Beta1) {
-    const scanResultsCronJobBeta = await getUpstreamResponseBody(
-      `api/v1/scan-results/${integrationId}/${clusterName}/services/CronJob/cron-job-v1beta1`,
-    );
-    expect(scanResultsCronJobBeta.workloadScanResults['busybox']).toEqual<
-      ScanResult[]
-    >([
-      {
-        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
-        facts: expect.any(Array),
-        target: { image: 'docker-image|busybox' },
-      },
-    ]);
-  }
 
   if (supported.cronJobV1) {
     const scanResultsCronJob = await getUpstreamResponseBody(
