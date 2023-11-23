@@ -50,12 +50,22 @@ export async function pullImages(
       pulledImages.push(pulledImage);
     } catch (error) {
       logger.error(
-        { error, image: image.imageWithDigest ?? image.imageName },
+        {
+          error: sanitizeSkopeoErrorForLogging(error),
+          image: image.imageWithDigest ?? image.imageName,
+        },
         'failed to pull image docker/oci archive image',
       );
     }
   }
   return pulledImages;
+}
+
+function sanitizeSkopeoErrorForLogging(error) {
+  delete error.stack;
+  delete error.message;
+  delete error.childProcess;
+  return error;
 }
 
 export function getImagesWithFileSystemPath(
