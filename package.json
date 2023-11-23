@@ -36,7 +36,7 @@
     "format:check": "prettier --check '{src,test}/**/*.{js,ts,json,yml}'"
   },
   "dependencies": {
-    "@kubernetes/client-node": "0.17.0",
+    "@kubernetes/client-node": "0.20.0",
     "@snyk/dep-graph": "^2.8.0",
     "async": "^3.2.4",
     "aws-sdk": "^2.1473.0",
