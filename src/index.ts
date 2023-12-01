@@ -68,10 +68,24 @@ async function monitor(): Promise<void> {
 }
 
 async function setupSysdigIntegration(): Promise<void> {
-  if (!config.SYSDIG_ENDPOINT || !config.SYSDIG_TOKEN) {
-    logger.info({}, 'Sysdig integration not detected');
+  if (
+    !config.SYSDIG_REGION_URL &&
+    !config.SYSDIG_API_TOKEN &&
+    !config.SYSDIG_CLUSTER_NAME
+  ) {
+    console.log('Sysdig integration not detected');
     return;
   }
+  if (
+    !config.SYSDIG_REGION_URL ||
+    !config.SYSDIG_API_TOKEN ||
+    !config.SYSDIG_CLUSTER_NAME
+  ) {
+    console.log('Sysdig integration not configured correctly');
+    return;
+  }
+
+  logger.info({}, 'Sysdig data scraping starting');
 
   const initialInterval: number = 20 * 60 * 1000; // 20 mins in milliseconds
   setTimeout(async () => {

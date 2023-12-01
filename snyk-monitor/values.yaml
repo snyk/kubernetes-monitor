@@ -155,8 +155,7 @@ workers:
   count: 5
 sysdig:
   enabled: false
-  namespace: sysdig-agent
-  secretName: sysdig-eve-secret
+  secretName: snyk-sysdig-secret
 
 strategy:
   type: RollingUpdate

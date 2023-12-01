@@ -21,7 +21,13 @@ async function healthCheck(): Promise<void> {
 }
 
 async function sysdigHealthCheck(): Promise<void> {
-  if (!config.SYSDIG_ENDPOINT || !config.SYSDIG_TOKEN) {
+  if (
+    !(
+      config.SYSDIG_CLUSTER_NAME &&
+      config.SYSDIG_API_TOKEN &&
+      config.SYSDIG_REGION_URL
+    )
+  ) {
     return;
   }
 

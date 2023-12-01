@@ -6,13 +6,15 @@ import * as transmitterTypes from '../../../src/transmitter/types';
 
 describe('dataScraper()', () => {
   beforeAll(() => {
-    config.SYSDIG_ENDPOINT = 'https://sysdig';
-    config.SYSDIG_TOKEN = 'token123';
+    config.SYSDIG_REGION_URL = 'sysdig';
+    config.SYSDIG_API_TOKEN = 'token123';
+    config.SYSDIG_CLUSTER_NAME = 'test-sysdig-cluster';
   });
 
   afterAll(() => {
-    delete config.SYSDIG_ENDPOINT;
-    delete config.SYSDIG_TOKEN;
+    delete config.SYSDIG_REGION_URL;
+    delete config.SYSDIG_API_TOKEN;
+    delete config.SYSDIG_CLUSTER_NAME;
   });
 
   it('correctly sends data to kubernetes-upstream', async () => {
@@ -49,13 +51,18 @@ describe('dataScraper()', () => {
       },
     };
     const expectedHeader = 'Bearer token123';
-    nock('https://sysdig', { reqheaders: { authorization: expectedHeader } })
-      .get('/v1/runtimeimages?limit=10&cursor=')
+    nock('https://sysdig', {
+      reqheaders: { authorization: expectedHeader },
+    })
+      .get(
+        '/api/scanning/eveintegration/v2/runtimeimages?clusterName=test-sysdig-cluster&limit=10',
+      )
       .times(1)
       .reply(200, bodyWithToken);
-
     nock('https://sysdig', { reqheaders: { authorization: expectedHeader } })
-      .get('/v1/runtimeimages?limit=10&cursor=xxx')
+      .get(
+        '/api/scanning/eveintegration/v2/runtimeimages?clusterName=test-sysdig-cluster&limit=10&cursor=xxx',
+      )
       .times(1)
       .reply(200, bodyNoToken);
 
@@ -69,7 +76,7 @@ describe('dataScraper()', () => {
           },
           target: {
             userLocator: expect.any(String),
-            cluster: 'Default cluster',
+            cluster: expect.any(String),
             agentId: expect.any(String),
           },
           facts: [

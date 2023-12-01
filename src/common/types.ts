@@ -31,8 +31,9 @@ export interface Config {
   POLICIES_STORAGE_ROOT: '/tmp/policies';
   EXCLUDED_NAMESPACES: string[] | null;
   SKOPEO_COMPRESSION_LEVEL: number;
-  SYSDIG_ENDPOINT: string;
-  SYSDIG_TOKEN: string;
+  SYSDIG_API_TOKEN?: string;
+  SYSDIG_REGION_URL?: string;
+  SYSDIG_CLUSTER_NAME?: string;
   HTTPS_PROXY: string | undefined;
   HTTP_PROXY: string | undefined;
   NO_PROXY: string | undefined;
