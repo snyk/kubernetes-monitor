@@ -70,8 +70,8 @@ describe('transmitter proxy tests', () => {
     async () => {
       const agent: any = getProxyAgent(
         {
-          HTTP_PROXY: 'http://should-not-return',
-          HTTPS_PROXY: 'http://should-return',
+          HTTP_PROXY: 'https://should-not-return',
+          HTTPS_PROXY: 'https://should-return',
         },
         'https://example.endpoint',
       );
@@ -164,5 +164,171 @@ describe('transmitter proxy tests', () => {
         'https://test.example.endpoint',
       );
     }).toThrow();
+  });
+
+  test.concurrent.each([
+    [
+      'returns the correct port when no port defined for http',
+      {
+        HTTP_PROXY: 'http://should-return',
+        HTTPS_PROXY: 'http://should-not-return',
+      },
+      80,
+    ],
+    [
+      'returns the correct port when default port defined for http',
+      {
+        HTTP_PROXY: 'http://should-return:80',
+        HTTPS_PROXY: 'http://should-not-return:80',
+      },
+      80,
+    ],
+    [
+      'returns the correct port when non-default port defined for http',
+      {
+        HTTP_PROXY: 'http://should-return:8080',
+        HTTPS_PROXY: 'http://should-not-return:8080',
+      },
+      8080,
+    ],
+    [
+      'returns the correct port when no port defined for https',
+      {
+        HTTP_PROXY: 'https://should-return',
+        HTTPS_PROXY: 'https://should-not-return',
+      },
+      443,
+    ],
+    [
+      'returns the correct port when default port defined for https',
+      {
+        HTTP_PROXY: 'https://should-return:443',
+        HTTPS_PROXY: 'https://should-not-return:443',
+      },
+      443,
+    ],
+    [
+      'returns the correct port when non-default port defined for http',
+      {
+        HTTP_PROXY: 'https://should-return:8080',
+        HTTPS_PROXY: 'https://should-not-return:8080',
+      },
+      8080,
+    ],
+    [
+      'returns the correct port when no port defined for ftp',
+      {
+        HTTP_PROXY: 'ftp://should-return',
+        HTTPS_PROXY: 'ftp://should-not-return',
+      },
+      21,
+    ],
+    [
+      'returns the correct port when no port defined for ws',
+      {
+        HTTP_PROXY: 'ws://should-return',
+        HTTPS_PROXY: 'ws://should-not-return',
+      },
+      80,
+    ],
+    [
+      'returns the correct port when no port defined for wss',
+      {
+        HTTP_PROXY: 'wss://should-return',
+        HTTPS_PROXY: 'wss://should-not-return',
+      },
+      443,
+    ],
+  ])('HTTP_PROXY: %s', async (_testCaseName, config, port) => {
+    const agent: any = getProxyAgent(config, 'http://example.endpoint');
+    expect(agent.options).toEqual({
+      proxy: {
+        host: 'should-return',
+        port: port,
+      },
+    });
+  });
+
+  test.concurrent.each([
+    [
+      'returns the correct port when no port defined for http',
+      {
+        HTTP_PROXY: 'http://should-not-return',
+        HTTPS_PROXY: 'http://should-return',
+      },
+      80,
+    ],
+    [
+      'returns the correct port when default port defined for http',
+      {
+        HTTP_PROXY: 'http://should-not-not-return:80',
+        HTTPS_PROXY: 'http://should-return:80',
+      },
+      80,
+    ],
+    [
+      'returns the correct port when non-default port defined for http',
+      {
+        HTTP_PROXY: 'http://should-not-return:8080',
+        HTTPS_PROXY: 'http://should-return:8080',
+      },
+      8080,
+    ],
+    [
+      'returns the correct port when no port defined for https',
+      {
+        HTTP_PROXY: 'https://should-not-return',
+        HTTPS_PROXY: 'https://should-return',
+      },
+      443,
+    ],
+    [
+      'returns the correct port when default port defined for https',
+      {
+        HTTP_PROXY: 'https://should-not-return:443',
+        HTTPS_PROXY: 'https://should-return:443',
+      },
+      443,
+    ],
+    [
+      'returns the correct port when non-default port defined for http',
+      {
+        HTTP_PROXY: 'https://should-not-return:8080',
+        HTTPS_PROXY: 'https://should-return:8080',
+      },
+      8080,
+    ],
+    [
+      'returns the correct port when no port defined for ftp',
+      {
+        HTTP_PROXY: 'ftp://should-not-return',
+        HTTPS_PROXY: 'ftp://should-return',
+      },
+      21,
+    ],
+    [
+      'returns the correct port when no port defined for ws',
+      {
+        HTTP_PROXY: 'ws://should-not-return',
+        HTTPS_PROXY: 'ws://should-return',
+      },
+      80,
+    ],
+    [
+      'returns the correct port when no port defined for wss',
+      {
+        HTTP_PROXY: 'wss://should-not-return',
+        HTTPS_PROXY: 'wss://should-return',
+      },
+      443,
+    ],
+  ])('HTTPS_PROXY: %s', async (_testCaseName, config, port) => {
+    const agent: any = getProxyAgent(config, 'https://example.endpoint');
+    expect(agent.options).toEqual({
+      proxy: {
+        host: 'should-return',
+        port: port,
+      },
+    });
   });
 });
