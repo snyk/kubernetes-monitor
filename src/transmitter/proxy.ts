@@ -32,7 +32,7 @@ export function getProxyAgent(
       return httpOverHttp({
         proxy: {
           host: httpProxyUrl.hostname,
-          port: parseInt(httpProxyUrl.port) || 80,
+          port: getPort(httpProxyUrl),
         },
       });
 
@@ -44,7 +44,7 @@ export function getProxyAgent(
       return httpsOverHttp({
         proxy: {
           host: httpsProxyUrl.hostname,
-          port: parseInt(httpsProxyUrl.port) || 443,
+          port: getPort(httpsProxyUrl),
         },
       });
 
@@ -54,5 +54,25 @@ export function getProxyAgent(
         'Unsupported protocol for proxying',
       );
       throw new Error('Unsupported protocol for proxying');
+  }
+}
+
+function getPort(proxyUrl: URL): number {
+  const port = parseInt(proxyUrl.port);
+  if (port) return port;
+
+  switch (proxyUrl.protocol) {
+    case 'ftp:':
+      return 21;
+    case 'http:':
+      return 80;
+    case 'https:':
+      return 443;
+    case 'ws:':
+      return 80;
+    case 'wss:':
+      return 443;
+    default:
+      throw new Error('proxy port not defined');
   }
 }

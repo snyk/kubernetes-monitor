@@ -2,15 +2,9 @@
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  'snyk:lic:npm:shescape:MPL-2.0':
-    - '*':
-        reason: None Given
-        expires: 2122-12-29T08:08:41.608Z
-        created: 2022-11-29T08:08:41.611Z
-  SNYK-JS-SEMVER-3247795:
-    - '*':
-        reason: No direct upgrade available
-        expires: 2023-10-11T12:35:38.260Z
-        created: 2023-07-11T12:35:38.260Z
-
+  SNYK-JS-INFLIGHT-6095116:
+      - '*':
+        reason: Needs some work to remove the dependency and need to release a fix. The ignore window is short.
+        expires: 2023-12-02T14:33:00.260Z
+        created: 2023-12-01T14:33:00.260Z
 patch: {}
