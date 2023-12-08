@@ -8,6 +8,7 @@ import {
   DELETE,
   UPDATE,
 } from '@kubernetes/client-node';
+import { bool } from 'aws-sdk/clients/signer';
 import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
@@ -101,6 +102,7 @@ export type V1ClusterList<T> = (
   pretty?: string,
   resourceVersion?: string,
   resourceVersionMatch?: string,
+  sendInitialEvents?: boolean,
   timeoutSeconds?: number,
   watch?: boolean,
   options?: {
@@ -123,6 +125,7 @@ export type V1NamespacedList<T> = (
   limit?: number,
   resourceVersion?: string,
   resourceVersionMatch?: string,
+  sendInitialEvents?: boolean,
   timeoutSeconds?: number,
   watch?: boolean,
   options?: {

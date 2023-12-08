@@ -1,11 +1,4 @@
-import {
-  V1CronJob,
-  V1CronJobList,
-  V1beta1CronJob,
-  V1beta1CronJobList,
-  BatchV1Api,
-  BatchV1beta1Api,
-} from '@kubernetes/client-node';
+import { V1CronJob, V1CronJobList, BatchV1Api } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
@@ -55,46 +48,7 @@ export async function paginatedClusterCronJobList(): Promise<{
   );
 }
 
-export async function paginatedNamespacedCronJobV1Beta1List(
-  namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1beta1CronJobList;
-}> {
-  const cronJobList = new V1beta1CronJobList();
-  cronJobList.apiVersion = 'batch/v1beta1';
-  cronJobList.kind = 'CronJobList';
-  cronJobList.items = new Array<V1beta1CronJob>();
-
-  return await paginatedNamespacedList(
-    namespace,
-    cronJobList,
-    k8sApi.batchUnstableClient.listNamespacedCronJob.bind(
-      k8sApi.batchUnstableClient,
-    ),
-  );
-}
-
-export async function paginatedClusterCronJobV1Beta1List(): Promise<{
-  response: IncomingMessage;
-  body: V1beta1CronJobList;
-}> {
-  const cronJobList = new V1beta1CronJobList();
-  cronJobList.apiVersion = 'batch/v1beta1';
-  cronJobList.kind = 'CronJobList';
-  cronJobList.items = new Array<V1beta1CronJob>();
-
-  return await paginatedClusterList(
-    cronJobList,
-    k8sApi.batchUnstableClient.listCronJobForAllNamespaces.bind(
-      k8sApi.batchUnstableClient,
-    ),
-  );
-}
-
-export async function cronJobWatchHandler(
-  cronJob: V1CronJob | V1beta1CronJob,
-): Promise<void> {
+export async function cronJobWatchHandler(cronJob: V1CronJob): Promise<void> {
   cronJob = trimWorkload(cronJob);
 
   if (
@@ -137,7 +91,7 @@ export async function cronJobWatchHandler(
 async function isNamespacedCronJobSupportedWithClient(
   workloadKind: WorkloadKind,
   namespace: string,
-  client: BatchV1Api | BatchV1beta1Api,
+  client: BatchV1Api,
 ): Promise<boolean> {
   try {
     const pretty = undefined;
@@ -148,6 +102,7 @@ async function isNamespacedCronJobSupportedWithClient(
     const limit = 1; // Try to grab only a single object
     const resourceVersion = undefined; // List anything in the cluster
     const resourceVersionMatch = undefined;
+    const sendInitialEvents = false;
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
       client.listNamespacedCronJob(
@@ -160,6 +115,7 @@ async function isNamespacedCronJobSupportedWithClient(
         limit,
         resourceVersion,
         resourceVersionMatch,
+        sendInitialEvents,
         timeoutSeconds,
       ),
     );
@@ -173,7 +129,7 @@ async function isNamespacedCronJobSupportedWithClient(
   } catch (error) {
     logger.debug(
       { error, workloadKind: workloadKind },
-      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
+      'Failed on Kubernetes API call to list CronJob',
     );
     return false;
   }
@@ -191,19 +147,12 @@ export async function isNamespacedCronJobSupported(
   if (workloadKind == WorkloadKind.CronJob) {
     return isSupported;
   }
-  if (workloadKind == WorkloadKind.CronJobV1Beta1 && isSupported) {
-    return false;
-  }
-  return await isNamespacedCronJobSupportedWithClient(
-    workloadKind,
-    namespace,
-    k8sApi.batchUnstableClient,
-  );
+  return false;
 }
 
 export async function isClusterCronJobSupportedWithClient(
   workloadKind: WorkloadKind,
-  client: BatchV1Api | BatchV1beta1Api,
+  client: BatchV1Api,
 ): Promise<boolean> {
   try {
     const pretty = undefined;
@@ -214,6 +163,7 @@ export async function isClusterCronJobSupportedWithClient(
     const limit = 1; // Try to grab only a single object
     const resourceVersion = undefined; // List anything in the cluster
     const resourceVersionMatch = undefined;
+    const sendInitialEvents = false;
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
       client.listCronJobForAllNamespaces(
@@ -225,6 +175,7 @@ export async function isClusterCronJobSupportedWithClient(
         pretty,
         resourceVersion,
         resourceVersionMatch,
+        sendInitialEvents,
         timeoutSeconds,
       ),
     );
@@ -238,7 +189,7 @@ export async function isClusterCronJobSupportedWithClient(
   } catch (error) {
     logger.debug(
       { error, workloadKind: workloadKind },
-      'Failed on Kubernetes API call to list CronJob or v1beta1 CronJob',
+      'Failed on Kubernetes API call to list CronJob',
     );
     return false;
   }
@@ -254,11 +205,5 @@ export async function isClusterCronJobSupported(
   if (workloadKind == WorkloadKind.CronJob) {
     return isSupported;
   }
-  if (workloadKind == WorkloadKind.CronJobV1Beta1 && isSupported) {
-    return false;
-  }
-  return await isClusterCronJobSupportedWithClient(
-    workloadKind,
-    k8sApi.batchUnstableClient,
-  );
+  return false;
 }

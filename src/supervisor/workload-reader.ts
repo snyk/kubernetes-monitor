@@ -249,19 +249,9 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
     return cachedMetadata;
   }
 
-  const cronJobResult = await kubernetesApiWrappers
-    .retryKubernetesApiRequest(() =>
-      k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
-    )
-    // In case the V1 client fails, try using the V1Beta1 client.
-    .catch(() =>
-      kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-        k8sApi.batchUnstableClient.readNamespacedCronJob(
-          workloadName,
-          namespace,
-        ),
-      ),
-    );
+  const cronJobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
+  );
   const cronJob = trimWorkload(cronJobResult.body);
 
   if (
