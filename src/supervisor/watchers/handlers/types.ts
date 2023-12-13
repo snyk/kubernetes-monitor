@@ -101,6 +101,7 @@ export type V1ClusterList<T> = (
   pretty?: string,
   resourceVersion?: string,
   resourceVersionMatch?: string,
+  sendInitialEvents?: boolean,
   timeoutSeconds?: number,
   watch?: boolean,
   options?: {
@@ -123,6 +124,7 @@ export type V1NamespacedList<T> = (
   limit?: number,
   resourceVersion?: string,
   resourceVersionMatch?: string,
+  sendInitialEvents?: boolean,
   timeoutSeconds?: number,
   watch?: boolean,
   options?: {
