@@ -67,17 +67,6 @@ export const workloadWatchMetadata: Readonly<IWorkloadWatchMetadata> = {
     namespacedListFactory: (namespace) => () =>
       cronJob.paginatedNamespacedCronJobList(namespace),
   },
-  [WorkloadKind.CronJobV1Beta1]: {
-    clusterEndpoint: '/apis/batch/v1beta1/cronjobs',
-    namespacedEndpoint: '/apis/batch/v1beta1/namespaces/{namespace}/cronjobs',
-    handlers: {
-      [DELETE]: cronJob.cronJobWatchHandler,
-    },
-    clusterListFactory: () => () =>
-      cronJob.paginatedClusterCronJobV1Beta1List(),
-    namespacedListFactory: (namespace) => () =>
-      cronJob.paginatedNamespacedCronJobV1Beta1List(namespace),
-  },
   [WorkloadKind.Job]: {
     clusterEndpoint: '/apis/batch/v1/jobs',
     namespacedEndpoint: '/apis/batch/v1/namespaces/{namespace}/jobs',

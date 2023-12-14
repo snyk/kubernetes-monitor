@@ -242,26 +242,15 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   return metadata;
 };
 
-// cronJobReader can read v1 and v1beta1 CronJobs
 const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   const cachedMetadata = getCachedWorkloadMetadata(workloadName, namespace);
   if (cachedMetadata !== undefined) {
     return cachedMetadata;
   }
 
-  const cronJobResult = await kubernetesApiWrappers
-    .retryKubernetesApiRequest(() =>
-      k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
-    )
-    // In case the V1 client fails, try using the V1Beta1 client.
-    .catch(() =>
-      kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-        k8sApi.batchUnstableClient.readNamespacedCronJob(
-          workloadName,
-          namespace,
-        ),
-      ),
-    );
+  const cronJobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
+    () => k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
+  );
   const cronJob = trimWorkload(cronJobResult.body);
 
   if (
@@ -390,10 +379,6 @@ const workloadReader: Record<string, IWorkloadReaderFunc> = {
   [WorkloadKind.DaemonSet]: daemonSetReader,
   [WorkloadKind.Job]: jobReader,
   [WorkloadKind.CronJob]: cronJobReader,
-  // ------------
-  // Note: WorkloadKind.CronJobV1Beta1 is intentionally not listed here.
-  // The WorkloadKind.CronJob reader can handle both v1 and v1beta1 API versions.
-  // ------------
   [WorkloadKind.ReplicationController]: replicationControllerReader,
   [WorkloadKind.DeploymentConfig]: deploymentConfigReader,
 };
