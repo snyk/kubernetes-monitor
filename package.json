@@ -46,7 +46,7 @@
     "fs-extra": "^10.1.0",
     "lru-cache": "^6.0.0",
     "needle": "^3.2.0",
-    "packageurl-js": "^1.2.0",
+    "packageurl-js": "^1.2.1",
     "sleep-promise": "^9.1.0",
     "snyk-config": "5.1.0",
     "snyk-docker-plugin": "^6.7.9",
