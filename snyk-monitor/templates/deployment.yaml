@@ -191,19 +191,19 @@ spec:
           - name: SNYK_SYSDIG_RISK_SPOTLIGHT_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.sysdig.secretName }}
+                name: snyk-sysdig-secret
                 key: token
                 optional: true
           - name: SNYK_SYSDIG_REGION_URL
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.sysdig.secretName }}
+                name: snyk-sysdig-secret
                 key: region
                 optional: true
           - name: SNYK_SYSDIG_CLUSTER_NAME
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.sysdig.secretName }}
+                name: snyk-sysdig-secret
                 key: cluster
                 optional: true
           - name: SNYK_SYSDIG_ENDPOINT

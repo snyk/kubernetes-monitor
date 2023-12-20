@@ -53,7 +53,7 @@ async function sysdigHealthCheck(): Promise<void> {
     let sysdigVersion = getSysdigVersion();
     if (sysdigVersion == sysdigV1) {
       await dataScraper.validateConnectivityV1();
-    } else if (sysdigVersion == sysdigV2) {
+    } else {
       await dataScraper.validateConnectivity();
     }
   } catch (error) {

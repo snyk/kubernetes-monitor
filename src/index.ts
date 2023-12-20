@@ -88,12 +88,12 @@ async function setupSysdigIntegration(): Promise<void> {
   let sysdigVersion = getSysdigVersion();
   logger.info({}, `Sysdig ${sysdigVersion} data scraping starting`);
 
-  const initialInterval: number = 20 * 60 * 1000; // 20 mins in milliseconds
+  const initialInterval: number = 60 * 1000; // 20 mins in milliseconds
   setTimeout(async () => {
     try {
       if (sysdigVersion == sysdigV1) {
         await scrapeDataV1();
-      } else if (sysdigVersion == sysdigV2) {
+      } else {
         await scrapeData();
       }
     } catch (error) {
@@ -109,7 +109,7 @@ async function setupSysdigIntegration(): Promise<void> {
     try {
       if (sysdigVersion == sysdigV1) {
         await scrapeDataV1();
-      } else if (sysdigVersion == sysdigV2) {
+      } else {
         await scrapeData();
       }
     } catch (error) {

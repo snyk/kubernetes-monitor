@@ -156,8 +156,7 @@ workers:
 
 sysdig:
   enabled: false
-  secretName: snyk-sysdig-secret
-  legacySecretName: sysdig-eve-secret
+  secretName: sysdig-eve-secret
 
 strategy:
   type: RollingUpdate
