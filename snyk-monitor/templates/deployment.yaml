@@ -188,23 +188,35 @@ spec:
           - name: SNYK_WORKERS_COUNT
             value: {{ quote .Values.workers.count }}
           {{- if .Values.sysdig.enabled }}
+          - name: SNYK_SYSDIG_RISK_SPOTLIGHT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.sysdig.secretName }}
+                key: token
+                optional: true
           - name: SNYK_SYSDIG_REGION_URL
             valueFrom:
               secretKeyRef:
                 name: {{ .Values.sysdig.secretName }}
                 key: region
                 optional: true
-          - name: SNYK_SYSDIG_API_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.sysdig.secretName }}
-                key: token
-                optional: true
           - name: SNYK_SYSDIG_CLUSTER_NAME
             valueFrom:
               secretKeyRef:
                 name: {{ .Values.sysdig.secretName }}
                 key: cluster
+                optional: true
+          - name: SNYK_SYSDIG_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.sysdig.legacySecretName }}
+                key: endpoint
+                optional: true
+          - name: SNYK_SYSDIG_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.sysdig.legacySecretName }}
+                key: token
                 optional: true
           {{- end }}
           {{- with .Values.envs }}

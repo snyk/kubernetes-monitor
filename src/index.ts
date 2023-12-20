@@ -10,8 +10,13 @@ import { beginWatchingWorkloads } from './supervisor/watchers';
 import { loadAndSendWorkloadEventsPolicy } from './common/policy';
 import { sendClusterMetadata } from './transmitter';
 import { setSnykMonitorAgentId } from './supervisor/agent';
-import { scrapeData } from './data-scraper';
-import { setupHealthCheck } from './healthcheck';
+import { scrapeData, scrapeDataV1 } from './data-scraper';
+import {
+  getSysdigVersion,
+  setupHealthCheck,
+  sysdigV1,
+  sysdigV2,
+} from './healthcheck';
 
 process.on('uncaughtException', (error) => {
   if (state.shutdownInProgress) {
@@ -69,28 +74,28 @@ async function monitor(): Promise<void> {
 
 async function setupSysdigIntegration(): Promise<void> {
   if (
-    !config.SYSDIG_REGION_URL &&
-    !config.SYSDIG_API_TOKEN &&
-    !config.SYSDIG_CLUSTER_NAME
+    !(
+      config.SYSDIG_REGION_URL &&
+      config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&
+      config.SYSDIG_CLUSTER_NAME
+    ) ||
+    !(config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN)
   ) {
-    console.log('Sysdig integration not detected');
-    return;
-  }
-  if (
-    !config.SYSDIG_REGION_URL ||
-    !config.SYSDIG_API_TOKEN ||
-    !config.SYSDIG_CLUSTER_NAME
-  ) {
-    console.log('Sysdig integration not configured correctly');
+    console.log('Sysdig integration not enabled');
     return;
   }
 
-  logger.info({}, 'Sysdig data scraping starting');
+  let sysdigVersion = getSysdigVersion();
+  logger.info({}, `Sysdig ${sysdigVersion} data scraping starting`);
 
   const initialInterval: number = 20 * 60 * 1000; // 20 mins in milliseconds
   setTimeout(async () => {
     try {
-      await scrapeData();
+      if (sysdigVersion == sysdigV1) {
+        await scrapeDataV1();
+      } else if (sysdigVersion == sysdigV2) {
+        await scrapeData();
+      }
     } catch (error) {
       logger.error(
         { error },
@@ -102,7 +107,11 @@ async function setupSysdigIntegration(): Promise<void> {
   const interval: number = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
   setInterval(async () => {
     try {
-      await scrapeData();
+      if (sysdigVersion == sysdigV1) {
+        await scrapeDataV1();
+      } else if (sysdigVersion == sysdigV2) {
+        await scrapeData();
+      }
     } catch (error) {
       logger.error({ error }, 'an error occurred while scraping runtime data');
     }

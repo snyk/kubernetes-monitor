@@ -153,9 +153,11 @@ skopeo:
 
 workers:
   count: 5
+
 sysdig:
   enabled: false
   secretName: snyk-sysdig-secret
+  legacySecretName: sysdig-eve-secret
 
 strategy:
   type: RollingUpdate
