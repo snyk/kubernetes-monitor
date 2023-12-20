@@ -74,6 +74,7 @@ describe('dataScraper()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
+            legacy: false,
           },
           target: {
             userLocator: expect.any(String),
@@ -94,6 +95,7 @@ describe('dataScraper()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
+            legacy: false,
           },
           target: {
             userLocator: expect.any(String),
@@ -120,7 +122,7 @@ describe('dataScraper()', () => {
   });
 });
 
-describe('dataScraperV2()', () => {
+describe('dataScraperV1()', () => {
   beforeAll(() => {
     config.SYSDIG_ENDPOINT = 'https://sysdig';
     config.SYSDIG_TOKEN = 'token123';
@@ -182,6 +184,7 @@ describe('dataScraperV2()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
+            legacy: true,
           },
           target: {
             userLocator: expect.any(String),
@@ -202,6 +205,7 @@ describe('dataScraperV2()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
+            legacy: true,
           },
           target: {
             userLocator: expect.any(String),

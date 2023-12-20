@@ -11,12 +11,7 @@ import { loadAndSendWorkloadEventsPolicy } from './common/policy';
 import { sendClusterMetadata } from './transmitter';
 import { setSnykMonitorAgentId } from './supervisor/agent';
 import { scrapeData, scrapeDataV1 } from './data-scraper';
-import {
-  getSysdigVersion,
-  setupHealthCheck,
-  sysdigV1,
-  sysdigV2,
-} from './healthcheck';
+import { getSysdigVersion, setupHealthCheck, sysdigV1 } from './healthcheck';
 
 process.on('uncaughtException', (error) => {
   if (state.shutdownInProgress) {

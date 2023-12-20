@@ -209,13 +209,13 @@ spec:
           - name: SNYK_SYSDIG_ENDPOINT
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.sysdig.legacySecretName }}
+                name: {{ .Values.sysdig.secretName }}
                 key: endpoint
                 optional: true
           - name: SNYK_SYSDIG_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.sysdig.legacySecretName }}
+                name: {{ .Values.sysdig.secretName }}
                 key: token
                 optional: true
           {{- end }}
