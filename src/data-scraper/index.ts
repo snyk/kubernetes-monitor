@@ -106,7 +106,7 @@ export async function scrapeData(): Promise<void> {
       const responseBody: IRuntimeImagesResponse | undefined = response.body;
       const runtimeDataPayload = constructRuntimeData(
         responseBody?.data ?? [],
-        false,
+        2,
       );
 
       logger.info({}, 'sending runtime data upstream');
@@ -193,7 +193,7 @@ export async function scrapeDataV1(): Promise<void> {
       const responseBody: IRuntimeImagesResponse | undefined = response.body;
       const runtimeDataPayload = constructRuntimeData(
         responseBody?.data ?? [],
-        true,
+        1,
       );
 
       logger.info({}, 'sending runtime data upstream');

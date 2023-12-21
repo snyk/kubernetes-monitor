@@ -74,7 +74,7 @@ describe('dataScraper()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
-            legacy: false,
+            sysdigVersion: 2,
           },
           target: {
             userLocator: expect.any(String),
@@ -95,7 +95,7 @@ describe('dataScraper()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
-            legacy: false,
+            sysdigVersion: 2,
           },
           target: {
             userLocator: expect.any(String),
@@ -184,7 +184,7 @@ describe('dataScraperV1()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
-            legacy: true,
+            sysdigVersion: 1,
           },
           target: {
             userLocator: expect.any(String),
@@ -205,7 +205,7 @@ describe('dataScraperV1()', () => {
         expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
           identity: {
             type: 'sysdig',
-            legacy: true,
+            sysdigVersion: 1,
           },
           target: {
             userLocator: expect.any(String),
