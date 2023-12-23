@@ -101,13 +101,46 @@ export async function paginatedClusterArgoRolloutList(): Promise<{
 export async function argoRolloutWatchHandler(
   rollout: V1alpha1Rollout,
 ): Promise<void> {
+  if (rollout.spec?.workloadRef && rollout.metadata?.namespace) {
+    // Attempt to load workloadRef if a template is not directly defined
+    const workloadName = rollout.spec.workloadRef.name;
+    const namespace = rollout.metadata.namespace;
+    switch (rollout.spec.workloadRef.kind) {
+      // Perform lookup for known supported kinds: https://github.com/argoproj/argo-rollouts/blob/master/rollout/templateref.go#L40-L52
+      case 'Deployment': {
+        const deployResult = await retryKubernetesApiRequest(() =>
+          k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
+        );
+        rollout.spec.template = deployResult.body.spec?.template;
+        break;
+      }
+      case 'ReplicaSet': {
+        const replacaSetResult = await retryKubernetesApiRequest(() =>
+          k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
+        );
+        rollout.spec.template = replacaSetResult.body.spec?.template;
+        break;
+      }
+      case 'PodTemplate': {
+        const podTemplateResult = await retryKubernetesApiRequest(() =>
+          k8sApi.coreClient.readNamespacedPodTemplate(workloadName, namespace),
+        );
+        rollout.spec.template = podTemplateResult.body.template;
+        break;
+      }
+      default:
+        logger.debug(
+          { workloadKind: WorkloadKind.ArgoRollout },
+          'Unsupported workloadRef kind specified',
+        );
+    }
+  }
   rollout = trimWorkload(rollout);
 
   if (
     !rollout.metadata ||
-    !rollout.spec ||
-    !rollout.spec.template.metadata ||
-    !rollout.spec.template.spec ||
+    !rollout.spec?.template?.metadata ||
+    !rollout.spec?.template?.spec ||
     !rollout.status
   ) {
     return;

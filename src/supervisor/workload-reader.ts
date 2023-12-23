@@ -338,11 +338,21 @@ const argoRolloutReader: IWorkloadReaderFunc = async (
   );
   const rollout: V1alpha1Rollout = trimWorkload(rolloutResult.body);
 
+  if (rollout.spec?.workloadRef && rollout.metadata?.namespace) {
+    // Lookup child template metadata when a workload ref is defined
+    const workloadReader = getWorkloadReader(rollout.spec.workloadRef.kind);
+    const workloadMetadata = await workloadReader(
+      rollout.spec.workloadRef.name,
+      rollout.metadata.namespace,
+    );
+    rollout.spec.template = {
+      metadata: workloadMetadata?.specMeta,
+    };
+  }
+
   if (
     !rollout.metadata ||
-    !rollout.spec ||
-    !rollout.spec.template.metadata ||
-    !rollout.spec.template.spec ||
+    !rollout.spec?.template?.metadata ||
     !rollout.status
   ) {
     logIncompleteWorkload(workloadName, namespace);
