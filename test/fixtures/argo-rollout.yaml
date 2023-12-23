@@ -31,3 +31,53 @@ spec:
             requests:
               memory: 32Mi
               cpu: 5m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: argo-rollout-workload-ref
+  namespace: services
+spec:
+  replicas: 1
+  strategy:
+    canary:
+      steps:
+        - setWeight: 100
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: rollouts-workload-demo
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: argo-rollout-workload-deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-rollout-workload-deployment
+  namespace: services
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: rollouts-workload-demo
+  template:
+    metadata:
+      labels:
+        app: rollouts-workload-demo
+    spec:
+      imagePullSecrets:
+        - name: docker-io
+      containers:
+        - name: rollouts-workload-demo
+          image: argoproj/rollouts-demo:blue
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 5m

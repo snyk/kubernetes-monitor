@@ -299,6 +299,22 @@ test('snyk-monitor sends data to kubernetes-upstream', async () => {
       },
       expect.any(Object),
     ]);
+
+    const scanResultsArgoRolloutWorkloadRef = await getUpstreamResponseBody(
+      `api/v1/scan-results/${integrationId}/${clusterName}/services/Rollout/argo-rollout-workload-ref`,
+    );
+    expect(
+      scanResultsArgoRolloutWorkloadRef.workloadScanResults[
+        'argoproj/rollouts-demo'
+      ],
+    ).toEqual<ScanResult[]>([
+      {
+        identity: { type: 'linux', args: { platform: 'linux/amd64' } },
+        facts: expect.any(Array),
+        target: { image: 'docker-image|argoproj/rollouts-demo' },
+      },
+      expect.any(Object),
+    ]);
   }
 });
 
