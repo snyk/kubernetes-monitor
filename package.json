@@ -45,7 +45,7 @@
     "fastq": "^1.15.0",
     "fs-extra": "^10.1.0",
     "lru-cache": "^6.0.0",
-    "needle": "^3.2.0",
+    "needle": "^3.3.0",
     "packageurl-js": "^1.2.0",
     "sleep-promise": "^9.1.0",
     "snyk-config": "5.1.0",
