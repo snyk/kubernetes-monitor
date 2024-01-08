@@ -161,7 +161,6 @@ export async function buildMetadataForWorkload(
       workloadName: pod.metadata?.name,
       workloadType: pod.kind,
       workloadNamespace: pod.metadata?.namespace,
-      clusterName: pod.metadata?.clusterName,
     };
     logger.debug(
       logContext,

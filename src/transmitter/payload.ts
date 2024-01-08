@@ -154,6 +154,7 @@ const workloadKindMap = {
 };
 export function constructRuntimeData(
   runtimeResults: IRuntimeImage[],
+  sysdigVersion: number,
 ): IRuntimeDataPayload {
   const filteredRuntimeResults = runtimeResults.reduce((acc, runtimeResult) => {
     if (!isExcludedNamespace(runtimeResult.namespace)) {
@@ -185,6 +186,7 @@ export function constructRuntimeData(
   return {
     identity: {
       type: 'sysdig',
+      sysdigVersion: sysdigVersion,
     },
     target: {
       agentId: config.AGENT_ID,

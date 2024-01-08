@@ -153,9 +153,9 @@ skopeo:
 
 workers:
   count: 5
+
 sysdig:
   enabled: false
-  namespace: sysdig-agent
   secretName: sysdig-eve-secret
 
 strategy:

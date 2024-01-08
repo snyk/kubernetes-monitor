@@ -128,6 +128,7 @@ export interface IRuntimeDataFact {
 export interface IRuntimeDataPayload extends Omit<ScanResult, 'target'> {
   identity: {
     type: RuntimeDataType;
+    sysdigVersion: number;
   };
   target: IRuntimeDataTarget;
   facts: [IRuntimeDataFact];
