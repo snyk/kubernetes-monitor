@@ -1,7 +1,8 @@
 import nock from 'nock';
 
 import { config } from '../../../src/common/config';
-import { scrapeData, scrapeDataV1 } from '../../../src/data-scraper';
+import { scrapeData } from '../../../src/data-scraper';
+import { scrapeDataV1 } from '../../../src/data-scraper/scraping-v1';
 
 import * as transmitterTypes from '../../../src/transmitter/types';
 
