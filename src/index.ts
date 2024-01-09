@@ -10,7 +10,8 @@ import { beginWatchingWorkloads } from './supervisor/watchers';
 import { loadAndSendWorkloadEventsPolicy } from './common/policy';
 import { sendClusterMetadata } from './transmitter';
 import { setSnykMonitorAgentId } from './supervisor/agent';
-import { scrapeData, scrapeDataV1 } from './data-scraper';
+import { scrapeData } from './data-scraper';
+import { scrapeDataV1 } from './data-scraper/scraping-v1';
 import { getSysdigVersion, setupHealthCheck, sysdigV1 } from './healthcheck';
 
 process.on('uncaughtException', (error) => {
@@ -73,9 +74,14 @@ async function setupSysdigIntegration(): Promise<void> {
       config.SYSDIG_REGION_URL &&
       config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&
       config.SYSDIG_CLUSTER_NAME
-    ) ||
+    ) &&
     !(config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN)
   ) {
+    console.log(
+      config.SYSDIG_REGION_URL,
+      config.SYSDIG_RISK_SPOTLIGHT_TOKEN,
+      config.SYSDIG_CLUSTER_NAME,
+    );
     console.log('Sysdig integration not enabled');
     return;
   }
@@ -83,7 +89,7 @@ async function setupSysdigIntegration(): Promise<void> {
   let sysdigVersion = getSysdigVersion();
   logger.info({}, `Sysdig ${sysdigVersion} data scraping starting`);
 
-  const initialInterval: number = 60 * 1000; // 20 mins in milliseconds
+  const initialInterval: number = 20 * 60 * 1000; // 20 mins in milliseconds
   setTimeout(async () => {
     try {
       if (sysdigVersion == sysdigV1) {

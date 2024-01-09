@@ -1,6 +1,7 @@
 import { config } from './common/config';
 import { logger } from './common/logger';
 import { state } from './state';
+import { validateConnectivityV1 } from './data-scraper/scraping-v1';
 
 import * as dataScraper from './data-scraper';
 
@@ -52,7 +53,7 @@ async function sysdigHealthCheck(): Promise<void> {
   try {
     let sysdigVersion = getSysdigVersion();
     if (sysdigVersion == sysdigV1) {
-      await dataScraper.validateConnectivityV1();
+      await validateConnectivityV1();
     } else {
       await dataScraper.validateConnectivity();
     }
