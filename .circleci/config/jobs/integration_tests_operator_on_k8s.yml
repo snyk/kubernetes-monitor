@@ -4,7 +4,7 @@ machine:
   docker_layer_caching: true
 steps:
 - checkout
-- setup_node16
+- setup_node
 - install_python_requests
 - run:
     command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
