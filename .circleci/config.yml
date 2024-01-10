@@ -16,18 +16,18 @@ commands:
                     sudo apt update
                     sudo apt install python3-requests
                 when: always
-    setup_node16:
-        description: Setup Node 16
+    setup_node:
+        description: Setup Node 18
         steps:
             - run:
                 command: |
                     export NVM_DIR="/opt/circleci/.nvm"
                     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm install v16
+                    nvm install v18
                     npm ci
                     echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
                     echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-                    echo 'nvm alias default v16' >> $BASH_ENV
+                    echo 'nvm alias default v18' >> $BASH_ENV
 jobs:
     aks_integration_tests:
         machine:
@@ -36,7 +36,7 @@ jobs:
         resource_class: large
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - azure-cli/install
             - run:
@@ -154,7 +154,7 @@ jobs:
             image: ubuntu-2004:202111-01
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: |
@@ -249,7 +249,7 @@ jobs:
         steps:
             - checkout
             - install_python_requests
-            - setup_node16
+            - setup_node
             - aws-cli/install:
                 override-installed: true
             - run:
@@ -276,7 +276,7 @@ jobs:
         resource_class: large
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind
@@ -301,7 +301,7 @@ jobs:
         resource_class: large
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind-helm
@@ -326,7 +326,7 @@ jobs:
             resource_class: large
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
@@ -353,7 +353,7 @@ jobs:
         resource_class: large
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/proxy
@@ -377,7 +377,7 @@ jobs:
             image: ubuntu-2004:202111-01
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: |
@@ -396,7 +396,7 @@ jobs:
             resource_class: large
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/openshift4
@@ -945,7 +945,7 @@ jobs:
             image: ubuntu-2204:2022.04.1
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - run:
                 command: |
@@ -997,7 +997,7 @@ jobs:
             image: ubuntu-2004:202111-01
         steps:
             - checkout
-            - setup_node16
+            - setup_node
             - install_python_requests
             - snyk/scan:
                 additional-arguments: --all-projects --exclude=test

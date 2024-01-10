@@ -3,14 +3,13 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi8/nodejs-16:1-118 AS build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/nodejs-18:1-84 AS build
 
 ENV NODE_ENV production
 
 # Add manifest files and install before adding anything else to take advantage of layer caching
 COPY --chown=1001:1001 package.json package-lock.json ./
 
-RUN npm config set unsafe-perm true
 RUN npm ci
 
 # add the rest of the app files
@@ -31,8 +30,8 @@ RUN dnf install -y containers-common
 #---------------------------------------------------------------------
 FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.2
 
-ARG NODE_16_LATEST_VERSION
-ARG NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
+ARG NODE_18_LATEST_VERSION
+ARG NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
 # https://github.com/Yelp/dumb-init/releases
 ARG DUMB_INIT_VERSION=1.2.5
 ARG DUMB_INIT_BINARY_FILE_SHASUM256=e874b55f3279ca41415d290c512a7ba9d08f98041b28ae7c2acb19a545f1c4df
@@ -92,11 +91,11 @@ RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --ins
 ENV PATH=/google-cloud-sdk/bin:$PATH
 
 # Install node
-RUN curl -sSfLo /tmp/node_16.tar.gz "https://nodejs.org/dist/latest-v16.x/${NODE_16_LATEST_VERSION}.tar.gz" && \
-    echo "${NODE_16_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/node_16.tar.gz" | sha256sum --check --status && \
-    mkdir /tmp/node_16 && tar -C /tmp/node_16 -xzf /tmp/node_16.tar.gz ${NODE_16_LATEST_VERSION}/bin/node && \
-    mv /tmp/node_16/${NODE_16_LATEST_VERSION}/bin/node /usr/local/bin && \
-    rm -rf /tmp/node_16.tar.gz /tmp/node_16
+RUN curl -sSfLo /tmp/node_18.tar.gz "https://nodejs.org/dist/latest-v18.x/${NODE_18_LATEST_VERSION}.tar.gz" && \
+    echo "${NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/node_18.tar.gz" | sha256sum --check --status && \
+    mkdir /tmp/node_18 && tar -C /tmp/node_18 -xzf /tmp/node_18.tar.gz ${NODE_18_LATEST_VERSION}/bin/node && \
+    mv /tmp/node_18/${NODE_18_LATEST_VERSION}/bin/node /usr/local/bin && \
+    rm -rf /tmp/node_18.tar.gz /tmp/node_18
 
 RUN rpm -e --nodeps curl-minimal && \
     rpm -e --nodeps libcurl-minimal

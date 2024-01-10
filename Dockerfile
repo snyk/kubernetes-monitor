@@ -13,7 +13,7 @@ RUN go install github.com/chrismellard/docker-credential-acr-env@82a0ddb2758901b
 #---------------------------------------------------------------------
 # STAGE 2: Build the kubernetes-monitor
 #---------------------------------------------------------------------
-FROM node:gallium-alpine
+FROM node:hydrogen-alpine
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \

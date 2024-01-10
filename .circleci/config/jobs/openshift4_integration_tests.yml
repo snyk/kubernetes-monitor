@@ -6,7 +6,7 @@ machine:
 working_directory: ~/kubernetes-monitor
 steps:
   - checkout
-  - setup_node16
+  - setup_node
   - install_python_requests
   - run:
       name: create temp dir for logs

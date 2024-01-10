@@ -4,7 +4,7 @@ lint:
     image: ubuntu-2004:202111-01
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - run:
         command: |
@@ -22,7 +22,7 @@ code_formatter:
     image: ubuntu-2004:202111-01
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - run:
         command: |
@@ -41,7 +41,7 @@ unit_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - snyk/scan:
         additional-arguments: --all-projects --exclude=test
@@ -73,7 +73,7 @@ system_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - run:
         name: Install Skopeo
@@ -100,7 +100,7 @@ integration_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - run:
         name: create temp dir for logs
@@ -126,7 +126,7 @@ integration_tests_helm:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - run:
         name: Create temporary directory for logs
@@ -152,7 +152,7 @@ integration_tests_proxy:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - run:
         name: Create temporary directory for logs
@@ -179,7 +179,7 @@ eks_integration_tests:
   steps:
     - checkout
     - install_python_requests
-    - setup_node16
+    - setup_node
     - aws-cli/install:
         override-installed: true
     - run:
@@ -207,7 +207,7 @@ aks_integration_tests:
   working_directory: ~/kubernetes-monitor
   steps:
     - checkout
-    - setup_node16
+    - setup_node
     - install_python_requests
     - azure-cli/install
     - run:
