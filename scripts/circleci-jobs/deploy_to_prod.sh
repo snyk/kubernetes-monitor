@@ -18,7 +18,7 @@ APPROVAL_REQUEST_ID=$(curl -s --fail --show-error \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -H "Circle-Token: $CIRCLI_CI_API_TOKEN" \
-  https://circleci.com/api/v2/workflow/"${WORKFLOW_ID}"/job | jq -r '.items[] | select(.name == "Approve Production deployment") | .approval_request_id')
+  https://circleci.com/api/v2/workflow/"${WORKFLOW_ID}"/job | jq -r '.items[] | select(.name == "Approve prod deployment") | .approval_request_id')
 
 APPROVAL=$(curl -s --fail --show-error \
   -H "Accept: application/json" \
