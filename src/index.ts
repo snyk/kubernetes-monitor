@@ -77,12 +77,7 @@ async function setupSysdigIntegration(): Promise<void> {
     ) &&
     !(config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN)
   ) {
-    console.log(
-      config.SYSDIG_REGION_URL,
-      config.SYSDIG_RISK_SPOTLIGHT_TOKEN,
-      config.SYSDIG_CLUSTER_NAME,
-    );
-    console.log('Sysdig integration not enabled');
+    logger.info({}, 'Sysdig integration not enabled');
     return;
   }
 
