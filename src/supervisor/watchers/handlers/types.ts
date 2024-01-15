@@ -85,11 +85,18 @@ export interface V1alpha1Rollout extends KubernetesObject {
 }
 
 export interface V1alpha1RolloutSpec {
-  template: V1PodTemplateSpec;
+  template?: V1PodTemplateSpec;
+  workloadRef?: V1alpha1RolloutWorkloadRef;
 }
 
 export interface V1alpha1RolloutStatus {
   observedGeneration?: number;
+}
+
+export interface V1alpha1RolloutWorkloadRef {
+  apiVersion: string;
+  kind: string;
+  name: string;
 }
 
 export type V1ClusterList<T> = (

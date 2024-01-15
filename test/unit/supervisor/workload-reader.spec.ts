@@ -15,6 +15,7 @@ describe('workload reader tests', () => {
     expect(
       SupportedWorkloadTypes.indexOf('ReplicationController') > -1,
     ).toEqual(true);
+    expect(SupportedWorkloadTypes.indexOf('Rollout') > -1).toEqual(true);
   });
 
   test.concurrent('getSupportedWorkload()', async () => {
