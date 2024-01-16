@@ -194,11 +194,11 @@ spec:
                 name: snyk-sysdig-secret
                 key: token
                 optional: true
-          - name: SNYK_SYSDIG_REGION_URL
+          - name: SNYK_SYSDIG_ENDPOINT_URL
             valueFrom:
               secretKeyRef:
                 name: snyk-sysdig-secret
-                key: region
+                key: endpoint
                 optional: true
           - name: SNYK_SYSDIG_CLUSTER_NAME
             valueFrom:

@@ -26,7 +26,7 @@ async function healthCheck(): Promise<void> {
 
 export function getSysdigVersion() {
   if (
-    config.SYSDIG_REGION_URL &&
+    config.SYSDIG_ENDPOINT_URL &&
     config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&
     config.SYSDIG_CLUSTER_NAME
   ) {
@@ -43,7 +43,7 @@ async function sysdigHealthCheck(): Promise<void> {
     !(
       config.SYSDIG_CLUSTER_NAME &&
       config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&
-      config.SYSDIG_REGION_URL
+      config.SYSDIG_ENDPOINT_URL
     ) ||
     !(config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN)
   ) {

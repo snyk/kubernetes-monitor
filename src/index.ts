@@ -71,7 +71,7 @@ async function monitor(): Promise<void> {
 async function setupSysdigIntegration(): Promise<void> {
   if (
     !(
-      config.SYSDIG_REGION_URL &&
+      config.SYSDIG_ENDPOINT_URL &&
       config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&
       config.SYSDIG_CLUSTER_NAME
     ) &&

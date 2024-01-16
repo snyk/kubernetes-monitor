@@ -9,13 +9,13 @@ import * as transmitterTypes from '../../../src/transmitter/types';
 describe('dataScraper()', () => {
   describe('sysdig v2 env vars configured', () => {
     beforeAll(() => {
-      config.SYSDIG_REGION_URL = 'sysdig';
+      config.SYSDIG_ENDPOINT_URL = 'sysdig';
       config.SYSDIG_RISK_SPOTLIGHT_TOKEN = 'token123';
       config.SYSDIG_CLUSTER_NAME = 'test-sysdig-cluster';
     });
 
     afterAll(() => {
-      delete config.SYSDIG_REGION_URL;
+      delete config.SYSDIG_ENDPOINT_URL;
       delete config.SYSDIG_RISK_SPOTLIGHT_TOKEN;
       delete config.SYSDIG_CLUSTER_NAME;
     });
@@ -137,7 +137,7 @@ describe('dataScraper()', () => {
     beforeAll(() => {
       config.SYSDIG_ENDPOINT = 'https://sysdig';
       config.SYSDIG_TOKEN = 'token123';
-      config.SYSDIG_REGION_URL = 'sysdig';
+      config.SYSDIG_ENDPOINT_URL = 'sysdig';
       config.SYSDIG_RISK_SPOTLIGHT_TOKEN = 'token123';
       config.SYSDIG_CLUSTER_NAME = 'test-sysdig-cluster';
     });
@@ -145,7 +145,7 @@ describe('dataScraper()', () => {
     afterAll(() => {
       delete config.SYSDIG_ENDPOINT;
       delete config.SYSDIG_TOKEN;
-      delete config.SYSDIG_REGION_URL;
+      delete config.SYSDIG_ENDPOINT_URL;
       delete config.SYSDIG_RISK_SPOTLIGHT_TOKEN;
       delete config.SYSDIG_CLUSTER_NAME;
     });

@@ -34,7 +34,7 @@ export interface Config {
   SYSDIG_ENDPOINT?: string;
   SYSDIG_TOKEN?: string;
   SYSDIG_RISK_SPOTLIGHT_TOKEN?: string;
-  SYSDIG_REGION_URL?: string;
+  SYSDIG_ENDPOINT_URL?: string;
   SYSDIG_CLUSTER_NAME?: string;
   HTTPS_PROXY: string | undefined;
   HTTP_PROXY: string | undefined;
