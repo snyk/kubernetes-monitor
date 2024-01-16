@@ -16,7 +16,7 @@ const httpsAgent = new HttpsAgent({
 function getSysdigUrl(): string {
   return (
     'https://' +
-    config.SYSDIG_REGION_URL +
+    config.SYSDIG_ENDPOINT_URL +
     '/api/scanning/eveintegration/v2/runtimeimages'
   );
 }

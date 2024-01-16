@@ -50,12 +50,12 @@ config.SKOPEO_COMPRESSION_LEVEL = Number(config.SKOPEO_COMPRESSION_LEVEL) || 6;
 // return Sysdig v2 endpoint information
 if (
   config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&
-  config.SYSDIG_REGION_URL &&
+  config.SYSDIG_ENDPOINT_URL &&
   config.SYSDIG_CLUSTER_NAME
 ) {
   config.SYSDIG_RISK_SPOTLIGHT_TOKEN =
     config.SYSDIG_RISK_SPOTLIGHT_TOKEN.trim();
-  config.SYSDIG_REGION_URL = config.SYSDIG_REGION_URL.trim();
+  config.SYSDIG_ENDPOINT_URL = config.SYSDIG_ENDPOINT_URL.trim();
   config.SYSDIG_CLUSTER_NAME = config.SYSDIG_CLUSTER_NAME.trim();
 }
 
