@@ -22,6 +22,7 @@ export interface Config {
   SERVICE_ACCOUNT_API_TOKEN: string;
   DEFAULT_KUBERNETES_UPSTREAM_URL: string;
   MAX_RETRY_BACKOFF_DURATION_SECONDS: number;
+  SYSDIG_POLLING_INTERVAL_MINS: number;
 
   // ----------------------------------------
   // Properties injected by Helm (via environment variables) or manually set in code:

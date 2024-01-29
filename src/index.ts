@@ -100,7 +100,7 @@ async function setupSysdigIntegration(): Promise<void> {
     }
   }, initialInterval).unref();
 
-  const interval: number = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+  const interval: number = config.SYSDIG_POLLING_INTERVAL_MINS * 60 * 1000; // change to milliseconds
   setInterval(async () => {
     try {
       if (sysdigVersion == sysdigV1) {

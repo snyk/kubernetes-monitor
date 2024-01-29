@@ -47,6 +47,11 @@ config.EXCLUDED_NAMESPACES = loadExcludedNamespaces();
 config.WORKERS_COUNT = Number(config.WORKERS_COUNT) || 10;
 config.SKOPEO_COMPRESSION_LEVEL = Number(config.SKOPEO_COMPRESSION_LEVEL) || 6;
 
+// 30 mins minimum
+if (config.SYSDIG_POLLING_INTERVAL_MINS < 30) {
+  config.SYSDIG_POLLING_INTERVAL_MINS = 30;
+}
+
 // return Sysdig v2 endpoint information
 if (
   config.SYSDIG_RISK_SPOTLIGHT_TOKEN &&

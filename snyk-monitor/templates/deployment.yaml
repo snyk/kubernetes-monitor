@@ -187,6 +187,8 @@ spec:
             value: {{ quote .Values.skopeo.compression.level }}
           - name: SNYK_WORKERS_COUNT
             value: {{ quote .Values.workers.count }}
+          - name: SNYK_SYSDIG_POLLING_INTERVAL_MINS
+            value: {{ quote .Values.sysdig.pollingIntervalMins }}
           {{- if .Values.sysdig.enabled }}
           - name: SNYK_SYSDIG_RISK_SPOTLIGHT_TOKEN
             valueFrom:
