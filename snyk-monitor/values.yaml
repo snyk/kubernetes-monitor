@@ -157,6 +157,8 @@ workers:
 sysdig:
   enabled: false
   secretName: sysdig-eve-secret
+  # The minumum pollingIntervalMins is 30
+  pollingIntervalMins: 30
 
 strategy:
   type: RollingUpdate

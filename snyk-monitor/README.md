@@ -218,7 +218,7 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
 
 > NOTE: The above command should be executed after installing Sysdig. This will upgrade or install the snyk monitor, to allow the detection of Sysdig in the cluster.
 
-The snyk-monitor will now collect data from Sysdig every 4 hours.
+The snyk-monitor will now collect data from Sysdig every 30 mins.
 
 ## Setting up proxying ##
 
