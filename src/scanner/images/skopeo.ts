@@ -43,8 +43,8 @@ export async function pull(
   workloadName: string,
 ): Promise<ImageDigests> {
   const creds = await credentials.getSourceCredentials(image);
-  const credentialsParameters = getCredentialParameters(creds);
-  const certificatesParameters = getCertificatesParameters();
+  const credentialsParameters = getCopyCredentialParameters(creds);
+  const certificatesParameters = getCopyCertificatesParameters();
 
   const args: Array<processWrapper.IProcessArgument> = [];
   args.push({ body: 'copy', sanitise: false });
@@ -74,6 +74,7 @@ export async function pull(
   return await extractImageDigests(
     prefixRespository(image, SkopeoRepositoryType.ImageRegistry),
     env,
+    creds,
   );
 }
 
@@ -112,6 +113,7 @@ async function pullWithRetry(
 export async function extractImageDigests(
   image: string,
   env: Record<string, string | undefined> = {},
+  creds?: string,
 ): Promise<ImageDigests> {
   let indexDigest: string | undefined = undefined;
   let manifestDigest: string | undefined = undefined;
@@ -120,6 +122,8 @@ export async function extractImageDigests(
     { body: 'inspect', sanitise: false },
     { body: '--raw', sanitise: false },
     { body: image, sanitise: false },
+    ...getInspectCredentialParameters(creds),
+    ...getInspectCertificatesParameters(),
   ];
 
   try {
@@ -159,7 +163,7 @@ function calculateDigest(manifest: string): string {
     .toString()}`;
 }
 
-export function getCredentialParameters(
+export function getCopyCredentialParameters(
   credentials: string | undefined,
 ): Array<processWrapper.IProcessArgument> {
   const credentialsParameters: Array<processWrapper.IProcessArgument> = [];
@@ -170,9 +174,27 @@ export function getCredentialParameters(
   return credentialsParameters;
 }
 
-export function getCertificatesParameters(): Array<processWrapper.IProcessArgument> {
+export function getInspectCredentialParameters(
+  credentials?: string,
+): Array<processWrapper.IProcessArgument> {
+  const credentialsParameters: Array<processWrapper.IProcessArgument> = [];
+  if (credentials) {
+    credentialsParameters.push({ body: '--creds', sanitise: true });
+    credentialsParameters.push({ body: credentials, sanitise: true });
+  }
+  return credentialsParameters;
+}
+
+export function getCopyCertificatesParameters(): Array<processWrapper.IProcessArgument> {
   const certificatesParameters: Array<processWrapper.IProcessArgument> = [];
   certificatesParameters.push({ body: '--src-cert-dir', sanitise: true });
+  certificatesParameters.push({ body: '/srv/app/certs', sanitise: true });
+  return certificatesParameters;
+}
+
+export function getInspectCertificatesParameters(): Array<processWrapper.IProcessArgument> {
+  const certificatesParameters: Array<processWrapper.IProcessArgument> = [];
+  certificatesParameters.push({ body: '--cert-dir', sanitise: true });
   certificatesParameters.push({ body: '/srv/app/certs', sanitise: true });
   return certificatesParameters;
 }
