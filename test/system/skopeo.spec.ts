@@ -16,7 +16,8 @@ describe('extract index & manifest digests', () => {
   });
 
   test('multi-arch image', async () => {
-    const imageName = 'docker://docker.io/library/ubuntu:24.04';
+    const imageName =
+      'docker://docker.io/library/ubuntu@sha256:36fa0c7153804946e17ee951fdeffa6a1c67e5088438e5b90de077de5c600d4c';
 
     const { indexDigest, manifestDigest } = await skopeo.extractImageDigests(
       imageName,
@@ -31,7 +32,8 @@ describe('extract index & manifest digests', () => {
   });
 
   test('multi-arch image with no linux/amd64 manifest', async () => {
-    const imageName = 'docker://docker.io/carlosedp/arm_exporter:latest';
+    const imageName =
+      'docker://docker.io/carlosedp/arm_exporter@sha256:c2510142e3824686cba8af75826737a8158b25648e29867e262d26f553de5211';
 
     const { indexDigest, manifestDigest } = await skopeo.extractImageDigests(
       imageName,
