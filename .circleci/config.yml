@@ -166,7 +166,7 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    deploy_to_dev:
+    prepare_to_deploy:
         docker:
             - auth:
                 password: $DOCKERHUB_PASSWORD
@@ -176,7 +176,7 @@ jobs:
             - checkout
             - install_python_requests
             - run:
-                command: ./scripts/circleci-jobs/deploy_to_dev.sh
+                command: ./scripts/circleci-jobs/prepare_to_deploy.sh
                 name: Deploy to dev
             - run:
                 command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
@@ -1099,7 +1099,7 @@ workflows:
                     - build_and_upload_operator
                     - unit_tests
                     - system_tests
-            - deploy_to_dev:
+            - prepare_to_deploy:
                 context: team-container-integration
                 filters:
                     branches:
