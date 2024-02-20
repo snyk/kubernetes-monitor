@@ -10,7 +10,7 @@ steps:
 
   - run:
       name: Deploy to dev
-      command: ./scripts/circleci-jobs/deploy_to_dev.sh
+      command: ./scripts/circleci-jobs/prepare_to_deploy.sh
 
   - run:
       name: Notify Slack on failure
