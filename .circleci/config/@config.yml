@@ -100,7 +100,7 @@ workflows:
             # - integration_tests_helm
             # - integration_tests_proxy
           <<: *staging_branch_only_filter
-      - deploy_to_dev:
+      - prepare_to_deploy:
           context: team-container-integration
           requires:
             - tag_and_push
