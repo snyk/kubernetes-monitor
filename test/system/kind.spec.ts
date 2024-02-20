@@ -249,7 +249,20 @@ test('Kubernetes-Monitor with KinD', async () => {
                     expect.stringContaining(
                       'docker.io/library/openjdk@sha256:',
                     ),
+                    expect.stringContaining(
+                      'docker.io/library/openjdk@sha256:',
+                    ),
                   ],
+                },
+              },
+              {
+                type: 'ociDistributionMetadata',
+                data: {
+                  imageTag: 'latest',
+                  indexDigest: expect.stringContaining('sha256:'),
+                  manifestDigest: expect.stringContaining('sha256:'),
+                  registryHost: 'docker.io',
+                  repository: 'library/openjdk',
                 },
               },
             ]),
