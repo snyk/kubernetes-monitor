@@ -1036,9 +1036,10 @@ master_branch_only_filter:
 orbs:
     aws-cli: circleci/aws-cli@2.0.6
     azure-cli: circleci/azure-cli@1.2.0
-    prodsec: snyk/prodsec-orb@1.0
+    prodsec: snyk/prodsec-orb@1.1
     redhat-openshift: circleci/redhat-openshift@0.2.0
-    snyk: snyk/snyk@1.7.0
+    snyk: snyk/snyk@2
+
 staging_branch_only_filter:
     filters:
         branches:
@@ -1051,7 +1052,7 @@ workflows:
             - publish:
                 context:
                     - team-container-integration
-                    - team-container-integration-snyk
+                    - analysis_integrations
                 filters:
                     branches:
                         only:
@@ -1066,19 +1067,19 @@ workflows:
     MERGE_TO_STAGING:
         jobs:
             - build_image:
-                context: team-container-integration-snyk
+                context: analysis_integrations
                 filters:
                     branches:
                         only:
                             - staging
             - build_and_upload_operator:
-                context: team-container-integration-snyk
+                context: analysis_integrations
                 filters:
                     branches:
                         only:
                             - staging
             - unit_tests:
-                context: team-container-integration-snyk
+                context: analysis_integrations
                 filters:
                     branches:
                         only:
@@ -1109,22 +1110,29 @@ workflows:
                     - tag_and_push
     PR_TO_STAGING:
         jobs:
+            - prodsec/secrets-scan:
+                  name: Scan repository for secrets
+                  trusted-branch: main
+                  context:
+                      - snyk-bot-slack
+                  channel: team-integrations-alerts
+
             - build_image:
-                context: team-container-integration-snyk
+                context: analysis_integrations
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - build_and_upload_operator:
-                context: team-container-integration-snyk
+                context: analysis_integrations
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - unit_tests:
-                context: team-container-integration-snyk
+                context: analysis_integrations
                 filters:
                     branches:
                         ignore:
