@@ -152,10 +152,11 @@ const workloadKindMap = {
   pod: 'Pod',
   rollout: 'Rollout',
 };
+
 export function constructRuntimeData(
   runtimeResults: IRuntimeImage[],
   sysdigVersion: number,
-): IRuntimeDataPayload {
+): IRuntimeDataPayload | undefined {
   const filteredRuntimeResults = runtimeResults.reduce((acc, runtimeResult) => {
     if (!isExcludedNamespace(runtimeResult.namespace)) {
       const mappedWorkloadKind =
@@ -177,6 +178,10 @@ export function constructRuntimeData(
     }
     return acc;
   }, [] as IRuntimeImage[]);
+
+  if (filteredRuntimeResults.length === 0) {
+    return;
+  }
 
   const dataFact: IRuntimeDataFact = {
     type: 'loadedPackages',

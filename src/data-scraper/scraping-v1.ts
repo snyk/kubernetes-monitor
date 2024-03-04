@@ -91,8 +91,10 @@ export async function scrapeDataV1(): Promise<void> {
         1,
       );
 
-      logger.info({}, 'sending runtime data upstream');
-      await sendRuntimeData(runtimeDataPayload);
+      if (runtimeDataPayload) {
+        logger.info({}, 'sending runtime data upstream');
+        await sendRuntimeData(runtimeDataPayload);
+      }
 
       cursor = responseBody?.page.next || '';
       if (!cursor) {

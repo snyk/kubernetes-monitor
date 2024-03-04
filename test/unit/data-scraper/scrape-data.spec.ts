@@ -132,6 +132,78 @@ describe('dataScraper()', () => {
         throw err;
       }
     });
+
+    it('correctly skips pages of data without relevant runtime images', async () => {
+      const runtimeImageTemplate = {
+        imageID: 'something',
+        namespace: 'sysdig',
+        workloadName: 'workload',
+        workloadKind: 'Deployment',
+        container: 'box',
+        packages: [],
+      };
+      const page1 = {
+        data: Array(10).fill({
+          ...runtimeImageTemplate,
+          namespace: 'kube-system',
+        }),
+        page: {
+          returned: 10,
+          next: 'xxx',
+        },
+      };
+      const page2 = {
+        data: [runtimeImageTemplate],
+        page: {
+          returned: 1,
+        },
+      };
+      nock('https://sysdig')
+        .get(
+          '/api/scanning/eveintegration/v2/runtimeimages?clusterName=test-sysdig-cluster&limit=10',
+        )
+        .times(1)
+        .reply(200, page1)
+        .get(
+          '/api/scanning/eveintegration/v2/runtimeimages?clusterName=test-sysdig-cluster&limit=10&cursor=xxx',
+        )
+        .times(1)
+        .reply(200, page2);
+
+      nock('https://api.snyk.io')
+        .post(
+          '/v2/kubernetes-upstream/api/v1/runtime-results?version=2023-02-10',
+        )
+        .times(1)
+        .reply(200, (_, requestBody: transmitterTypes.IRuntimeDataPayload) => {
+          expect(requestBody).toEqual<transmitterTypes.IRuntimeDataPayload>({
+            identity: {
+              type: 'sysdig',
+              sysdigVersion: 2,
+            },
+            target: {
+              userLocator: expect.any(String),
+              cluster: expect.any(String),
+              agentId: expect.any(String),
+            },
+            facts: [
+              {
+                type: 'loadedPackages',
+                data: page2.data,
+              },
+            ],
+          });
+        });
+
+      await scrapeData();
+
+      try {
+        expect(nock.isDone()).toBeTruthy();
+      } catch (err) {
+        console.error(`nock pending mocks: ${nock.pendingMocks()}`);
+        throw err;
+      }
+    });
   });
   describe('when sysdig v1 and v2 env vars configured, should use v2', () => {
     beforeAll(() => {
