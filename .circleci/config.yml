@@ -16,27 +16,16 @@ commands:
                     sudo apt update
                     sudo apt install python3-requests
                 when: always
-    setup_node:
-        description: Setup Node 18
-        steps:
-            - run:
-                command: |
-                    export NVM_DIR="/opt/circleci/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm install v18
-                    npm ci
-                    echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
-                    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-                    echo 'nvm alias default v18' >> $BASH_ENV
 jobs:
     aks_integration_tests:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         resource_class: large
         steps:
             - checkout
-            - setup_node
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
             - azure-cli/install
             - run:
@@ -44,7 +33,6 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
-                    npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
                 name: Integration tests AKS
@@ -58,10 +46,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     build_and_upload_operator:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/python:3.10
+            - image: cimg/python:3.10
         steps:
             - checkout
             - setup_remote_docker
@@ -106,10 +91,11 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     build_image:
-        machine:
-            image: ubuntu-2004:202111-02
+        docker:
+            - image: cimg/base:current
         steps:
             - checkout
+            - setup_remote_docker
             - install_python_requests
             - run:
                 command: |
@@ -149,12 +135,12 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     code_formatter:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         steps:
             - checkout
-            - setup_node
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: |
@@ -168,10 +154,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     prepare_to_deploy:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/node:16.13
+            - image: cimg/base:current
         steps:
             - checkout
             - install_python_requests
@@ -185,10 +168,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_to_prod:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/node:16.13
+            - image: cimg/base:current
         steps:
             - checkout
             - install_python_requests
@@ -202,10 +182,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_to_sysdig_integration_cluster:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/base:stable
+            - image: cimg/base:stable
         steps:
             - checkout
             - run:
@@ -242,14 +219,15 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     eks_integration_tests:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         resource_class: large
         steps:
             - checkout
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
-            - setup_node
             - aws-cli/install:
                 override-installed: true
             - run:
@@ -257,7 +235,6 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
-                    npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
                 name: Integration tests EKS
@@ -270,13 +247,14 @@ jobs:
                 path: /tmp/logs/test/integration/eks
         working_directory: ~/kubernetes-monitor
     integration_tests:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         resource_class: large
         steps:
             - checkout
-            - setup_node
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind
@@ -295,13 +273,14 @@ jobs:
                 path: /tmp/logs/test/integration/kind
         working_directory: ~/kubernetes-monitor
     integration_tests_helm:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         resource_class: large
         steps:
             - checkout
-            - setup_node
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind-helm
@@ -320,13 +299,14 @@ jobs:
                 path: /tmp/logs/test/integration/kind-helm
         working_directory: ~/kubernetes-monitor
     integration_tests_operator_on_k8s:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
-            resource_class: large
+        docker:
+            - image: cimg/node:18.19.1
+        resource_class: large
         steps:
             - checkout
-            - setup_node
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
@@ -347,13 +327,14 @@ jobs:
                 path: /tmp/logs/test/integration/kind-olm-operator
         working_directory: ~/kubernetes-monitor
     integration_tests_proxy:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         resource_class: large
         steps:
             - checkout
-            - setup_node
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/proxy
@@ -372,12 +353,12 @@ jobs:
                 path: /tmp/logs/test/integration/proxy
         working_directory: ~/kubernetes-monitor
     lint:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         steps:
             - checkout
-            - setup_node
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: |
@@ -390,13 +371,14 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     openshift4_integration_tests:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2204:current
-            resource_class: large
+        docker:
+            - image: cimg/node:18.19.1
+        resource_class: large
         steps:
             - checkout
-            - setup_node
+            - setup_remote_docker
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/openshift4
@@ -650,10 +632,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     publish:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/node:16.13
+            - image: cimg/node:18.19.1
         steps:
             - checkout
             - setup_remote_docker
@@ -877,10 +856,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     sync_community_operators_with_snyk_fork:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/python:3.10
+            - image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -909,10 +885,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     sync_embedded_community_operators_with_snyk_fork:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/python:3.10
+            - image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -942,10 +915,11 @@ jobs:
     system_tests:
         machine:
             docker_layer_caching: true
-            image: ubuntu-2204:2022.04.1
+            image: default
         steps:
             - checkout
-            - setup_node
+            - run:
+                command: npm ci
             - install_python_requests
             - run:
                 command: |
@@ -966,10 +940,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     tag_and_push:
         docker:
-            - auth:
-                password: $DOCKERHUB_PASSWORD
-                username: $DOCKERHUB_USER
-              image: cimg/node:16.13
+            - image: cimg/node:18.19.1
         steps:
             - checkout
             - setup_remote_docker
@@ -992,12 +963,12 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     unit_tests:
-        machine:
-            docker_layer_caching: true
-            image: ubuntu-2004:202111-01
+        docker:
+            - image: cimg/node:18.19.1
         steps:
             - checkout
-            - setup_node
+            - run:
+                command: npm ci
             - install_python_requests
             - snyk/scan:
                 additional-arguments: --all-projects --exclude=test
