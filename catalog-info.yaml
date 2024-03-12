@@ -4,8 +4,8 @@ metadata:
   name: kubernetes-monitor
   annotations:
     github.com/project-slug: snyk/kubernetes-monitor
-    github.com/team-slug: snyk/container-integration
+    github.com/team-slug: snyk/orchestration-integrations
 spec:
   type: external-tooling
   lifecycle: "-"
-  owner: container-integration
+  owner: orchestration-integrations
