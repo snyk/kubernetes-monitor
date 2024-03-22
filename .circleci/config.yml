@@ -17,6 +17,15 @@ commands:
                     sudo apt install python3-requests
                 when: always
 jobs:
+    security-scans:
+        docker:
+            - image: cimg/node:18.19.1
+        steps:
+            - checkout
+            - prodsec/security_scans:
+                  mode: auto
+                  release-branch: master
+
     aks_integration_tests:
         docker:
             - image: cimg/node:18.19.1
@@ -1020,10 +1029,20 @@ version: 2.1
 workflows:
     MERGE_TO_MASTER:
         jobs:
+            - security-scans:
+                  name: Security Scans
+                  context:
+                      - analysis_integrations
+                  filters:
+                      branches:
+                          only:
+                              - master
             - publish:
                 context:
                     - team-container-integration
                     - analysis_integrations
+                requires:
+                    - Security Scans
                 filters:
                     branches:
                         only:
@@ -1087,9 +1106,25 @@ workflows:
                   context:
                       - snyk-bot-slack
                   channel: team-integrations-alerts
-
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
+            - security-scans:
+                  name: Security Scans
+                  context:
+                      - analysis_integrations
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - build_image:
                 context: analysis_integrations
+                requires:
+                    - Scan repository for secrets
+                    - Security Scans
                 filters:
                     branches:
                         ignore:
