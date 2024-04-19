@@ -1,5 +1,0 @@
-channels:
-- currentCSV: snyk-operator.v0.0.0
-  name: stable
-defaultChannel: stable
-packageName: snyk-operator
