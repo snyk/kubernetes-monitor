@@ -16,25 +16,27 @@ commands:
                     sudo apt update
                     sudo apt install python3-requests
                 when: always
-jobs:
-    security-scans:
-        docker:
-            - image: cimg/node:18.19.1
+    setup_node:
+        description: Setup Node 18
         steps:
-            - checkout
-            - prodsec/security_scans:
-                  mode: auto
-                  release-branch: master
-
+            - run:
+                command: |
+                    export NVM_DIR="/opt/circleci/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm install v18
+                    npm ci
+                    echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+                    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+                    echo 'nvm alias default v18' >> $BASH_ENV
+jobs:
     aks_integration_tests:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - azure-cli/install
             - run:
@@ -42,6 +44,7 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
+                    npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:aks:yaml
                 name: Integration tests AKS
@@ -55,7 +58,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     build_and_upload_operator:
         docker:
-            - image: cimg/python:3.10
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/python:3.10
         steps:
             - checkout
             - setup_remote_docker
@@ -100,11 +106,10 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     build_image:
-        docker:
-            - image: cimg/base:current
+        machine:
+            image: ubuntu-2004:202111-02
         steps:
             - checkout
-            - setup_remote_docker
             - install_python_requests
             - run:
                 command: |
@@ -144,12 +149,12 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     code_formatter:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: |
@@ -161,9 +166,12 @@ jobs:
                 name: Notify Slack on failure
                 when: on_fail
         working_directory: ~/kubernetes-monitor
-    prepare_to_deploy:
+    deploy_to_dev:
         docker:
-            - image: cimg/base:current
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/node:16.13
         steps:
             - checkout
             - install_python_requests
@@ -177,7 +185,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_to_prod:
         docker:
-            - image: cimg/base:current
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/node:16.13
         steps:
             - checkout
             - install_python_requests
@@ -191,7 +202,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     deploy_to_sysdig_integration_cluster:
         docker:
-            - image: cimg/base:stable
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/base:stable
         steps:
             - checkout
             - run:
@@ -228,15 +242,14 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     eks_integration_tests:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
             - install_python_requests
+            - setup_node
             - aws-cli/install:
                 override-installed: true
             - run:
@@ -244,6 +257,7 @@ jobs:
                 name: Create temp dir for logs
             - run:
                 command: |
+                    npm ci &&
                     export KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG=$(./scripts/circleci-jobs/setup-integration-tests.py)
                     .circleci/do-exclusively --branch staging --job ${CIRCLE_JOB} npm run test:integration:eks:yaml
                 name: Integration tests EKS
@@ -256,14 +270,13 @@ jobs:
                 path: /tmp/logs/test/integration/eks
         working_directory: ~/kubernetes-monitor
     integration_tests:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind
@@ -282,14 +295,13 @@ jobs:
                 path: /tmp/logs/test/integration/kind
         working_directory: ~/kubernetes-monitor
     integration_tests_helm:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind-helm
@@ -308,14 +320,13 @@ jobs:
                 path: /tmp/logs/test/integration/kind-helm
         working_directory: ~/kubernetes-monitor
     integration_tests_operator_on_k8s:
-        docker:
-            - image: cimg/node:18.19.1
-        resource_class: large
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
+            resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/kind-olm-operator
@@ -336,14 +347,13 @@ jobs:
                 path: /tmp/logs/test/integration/kind-olm-operator
         working_directory: ~/kubernetes-monitor
     integration_tests_proxy:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/proxy
@@ -362,12 +372,12 @@ jobs:
                 path: /tmp/logs/test/integration/proxy
         working_directory: ~/kubernetes-monitor
     lint:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: |
@@ -380,14 +390,13 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     openshift4_integration_tests:
-        docker:
-            - image: cimg/node:18.19.1
-        resource_class: large
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2204:current
+            resource_class: large
         steps:
             - checkout
-            - setup_remote_docker
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: mkdir -p /tmp/logs/test/integration/openshift4
@@ -641,7 +650,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     publish:
         docker:
-            - image: cimg/node:18.19.1
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/node:16.13
         steps:
             - checkout
             - setup_remote_docker
@@ -865,7 +877,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     sync_community_operators_with_snyk_fork:
         docker:
-            - image: cimg/python:3.10
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -894,7 +909,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     sync_embedded_community_operators_with_snyk_fork:
         docker:
-            - image: cimg/python:3.10
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/python:3.10
         steps:
             - checkout
             - install_python_requests
@@ -924,11 +942,10 @@ jobs:
     system_tests:
         machine:
             docker_layer_caching: true
-            image: default
+            image: ubuntu-2204:2022.04.1
         steps:
             - checkout
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - run:
                 command: |
@@ -949,7 +966,10 @@ jobs:
         working_directory: ~/kubernetes-monitor
     tag_and_push:
         docker:
-            - image: cimg/node:18.19.1
+            - auth:
+                password: $DOCKERHUB_PASSWORD
+                username: $DOCKERHUB_USER
+              image: cimg/node:16.13
         steps:
             - checkout
             - setup_remote_docker
@@ -972,12 +992,12 @@ jobs:
                 when: on_fail
         working_directory: ~/kubernetes-monitor
     unit_tests:
-        docker:
-            - image: cimg/node:18.19.1
+        machine:
+            docker_layer_caching: true
+            image: ubuntu-2004:202111-01
         steps:
             - checkout
-            - run:
-                command: npm ci
+            - setup_node
             - install_python_requests
             - snyk/scan:
                 additional-arguments: --all-projects --exclude=test
@@ -1016,10 +1036,9 @@ master_branch_only_filter:
 orbs:
     aws-cli: circleci/aws-cli@2.0.6
     azure-cli: circleci/azure-cli@1.2.0
-    prodsec: snyk/prodsec-orb@1.1
+    prodsec: snyk/prodsec-orb@1.0
     redhat-openshift: circleci/redhat-openshift@0.2.0
-    snyk: snyk/snyk@2
-
+    snyk: snyk/snyk@1.7.0
 staging_branch_only_filter:
     filters:
         branches:
@@ -1029,20 +1048,10 @@ version: 2.1
 workflows:
     MERGE_TO_MASTER:
         jobs:
-            - security-scans:
-                  name: Security Scans
-                  context:
-                      - analysis_integrations
-                  filters:
-                      branches:
-                          only:
-                              - master
             - publish:
                 context:
                     - team-container-integration
-                    - analysis_integrations
-                requires:
-                    - Security Scans
+                    - team-container-integration-snyk
                 filters:
                     branches:
                         only:
@@ -1057,19 +1066,19 @@ workflows:
     MERGE_TO_STAGING:
         jobs:
             - build_image:
-                context: analysis_integrations
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         only:
                             - staging
             - build_and_upload_operator:
-                context: analysis_integrations
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         only:
                             - staging
             - unit_tests:
-                context: analysis_integrations
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         only:
@@ -1100,45 +1109,22 @@ workflows:
                     - tag_and_push
     PR_TO_STAGING:
         jobs:
-            - prodsec/secrets-scan:
-                  name: Scan repository for secrets
-                  trusted-branch: main
-                  context:
-                      - snyk-bot-slack
-                  channel: team-integrations-alerts
-                  filters:
-                      branches:
-                          ignore:
-                              - staging
-                              - master
-            - security-scans:
-                  name: Security Scans
-                  context:
-                      - analysis_integrations
-                  filters:
-                      branches:
-                          ignore:
-                              - staging
-                              - master
             - build_image:
-                context: analysis_integrations
-                requires:
-                    - Scan repository for secrets
-                    - Security Scans
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - build_and_upload_operator:
-                context: analysis_integrations
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - unit_tests:
-                context: analysis_integrations
+                context: team-container-integration-snyk
                 filters:
                     branches:
                         ignore:
