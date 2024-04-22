@@ -187,8 +187,6 @@ helm upgrade snyk-monitor snyk-charts/snyk-monitor -n snyk-monitor --reuse-value
 ```
 If '--reset-values' is specified, this is ignored.
 
-If running with Operator Lifecycle Manager (OLM) then OLM will handle upgrades for you when you request to install the latest version. This applies to OpenShift (OCP) and regular installations of OLM.
-
 ## Sysdig Integration ##
 
 We have partnered with Sysdig to enrich the issues detected by Snyk for workloads with runtime data provided by Sysdig.
@@ -398,8 +396,6 @@ extraInitContainers:
 
 ## Terms and conditions ##
 
-Note that these terms and conditions apply when installing the Snyk Certified Red Hat Marketplace Operator, which uses Red Hat UBI.
-
-*The Snyk Container Kubernetes integration uses Red Hat UBI (Universal Base Image).*
+Note that these terms and conditions apply when installing the Snyk Kubernetes Monitor which uses the Red Hat UBI, denoted by `-ubi9` in the image tag.
 
 *Before downloading or using this application, you must agree to the Red Hat subscription agreement located at redhat.com/licenses. If you do not agree with these terms, do not download or use the application. If you have an existing Red Hat Enterprise Agreement (or other negotiated agreement with Red Hat) with terms that govern subscription services associated with Containers, then your existing agreement will control.*

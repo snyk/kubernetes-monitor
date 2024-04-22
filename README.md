@@ -17,7 +17,6 @@ A containerized application that is deployed with Helm. Monitors the security of
 Supported Kubernetes distributions:
 
 * Any *Generally Available* Kubernetes Certified distribution, for example: GKE, AKS, EKS, OCP.
-* OCP 4.1+ if running on OpenShift - supported and tested on *Generally Available* versions
 
 Tested with the following [Security Context Constraint](scc.txt) on OCP.
 

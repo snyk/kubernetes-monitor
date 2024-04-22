@@ -6,8 +6,6 @@
   - [KinD](#kind)
   - [EKS](#eks)
   - [AKS](#aks)
-  - [OpenShift 4](#openshift-4)
-  - [KinD with OLM](#kind-with-olm)
 - [Debugging with Tilt](#debugging-with-tilt)
   - [Start a debugging session](#start-a-debugging-session)
   - [Errors with read-only file system](#errors-with-read-only-file-system)
@@ -57,7 +55,7 @@ Our integration tests may use different Kubernetes platforms to host the Kuberne
 * `CREATE_CLUSTER` (`true`, `false`).
 
 Additionally, the deployment of the Kubernetes-Monitor can be configured through an environment variable:
-* `DEPLOYMENT_TYPE` (`YAML`, `Operator`)
+* `DEPLOYMENT_TYPE` (`YAML`)
 
 All integration tests determine the image to be tested based on the environment variable called `KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG`, and fallback to `snyk/kubernetes-monitor:local`, meaning one has to make sure the image desired to be tested is properly named and tagged.
 
@@ -97,22 +95,6 @@ This test uses an existing Azure account with an existing AKS cluster, and as su
 This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
 
 Run with `npm run test:integration:aks:yaml`.
-
-### OpenShift 4 ###
-
-See the [OpenShift 4 README](README.md) for setup instructions.
-
-OpenShift is RedHat's Kubernetes platform and helps us ensure we support not only the generic Kubernetes API, but also specifically OpenShift 4.
-
-This test runs whenever we commit to our `staging` branch, and at the moment may only run once concurrently since it uses the same cluster.
-
-### KinD with OLM ###
-
-This test helps us ensure our operator is installable and functioning on a plain k8s cluster.
-
-This test runs whenever we commit to any branch.
-
-Run with `npm run test:integration:kindolm:operator`.
 
 ## Debugging with Tilt ##
 
