@@ -1,4 +1,11 @@
 # syntax=docker/dockerfile:1
+#---------------------------------------------------------------------
+# PRE-BUILD STAGE: Build the acr credential helper binary
+# This is due to the fact that the acr credential helper is not being actively released
+#---------------------------------------------------------------------
+FROM --platform=linux/amd64 golang:1.16 as cred-helpers-build
+
+RUN go install github.com/chrismellard/docker-credential-acr-env@82a0ddb2758901b711d9d1614755b77e401598a1    
 
 #---------------------------------------------------------------------
 # STAGE 1: Build kubernetes-monitor application
@@ -41,9 +48,7 @@ ARG SKOPEO_BINARY_FILE_SHASUM256=2f00be6ee1c4cbfa7f2452be90a1a2ce88fd92a6d0f6a2e
 # https://github.com/awslabs/amazon-ecr-credential-helper/releases
 ARG ECR_CREDENTIAL_HELPER_VERSION=0.7.1
 ARG ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256=a82cc3ed2cf959616212e3c3c3893dda4f7886da1447c444ef541e6f595ae087
-# https://github.com/chrismellard/docker-credential-acr-env/releases
-ARG ACR_CREDENTIAL_HELPER_VERSION=0.7.0
-ARG ACR_CREDENTIAL_HELPER_TAR_GZ_FILE_SHASUM256=d84939dd0a9983f255d078d24744c70e1c8d1ce9e02a7d149c4f163a4d54b698
+ARG ACR_CREDENTIAL_HELPER_BINARY_SHASUM256=598bbd4ad2741ae2e68ac55e938a4542e71952e418e6278a74baf6213ef8ce76
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
@@ -79,10 +84,9 @@ COPY --chown=snyk:snyk --from=containers-common /etc/containers/policy.json /etc
 RUN curl -sSfLo /usr/local/bin/docker-credential-ecr-login "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/${ECR_CREDENTIAL_HELPER_VERSION}/linux-amd64/docker-credential-ecr-login" && \
     chmod 755 /usr/local/bin/docker-credential-ecr-login && \
     echo "${ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256} /usr/local/bin/docker-credential-ecr-login" | sha256sum --check --status
-RUN curl -sSfLo /tmp/docker-credential-acr-env.tar.gz "https://github.com/chrismellard/docker-credential-acr-env/releases/download/${ACR_CREDENTIAL_HELPER_VERSION}/docker-credential-acr-env_${ACR_CREDENTIAL_HELPER_VERSION}_linux_amd64.tar.gz" && \
-    echo "${ACR_CREDENTIAL_HELPER_TAR_GZ_FILE_SHASUM256} /tmp/docker-credential-acr-env.tar.gz" | sha256sum --check --status && \
-    tar -C /usr/local/bin -xzf /tmp/docker-credential-acr-env.tar.gz docker-credential-acr-env && \
-    rm -f /tmp/docker-credential-acr-env.tar.gz
+COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-acr-env /usr/local/bin/docker-credential-acr-env
+RUN echo "${ACR_CREDENTIAL_HELPER_BINARY_SHASUM256} /usr/local/bin/docker-credential-acr-env" | sha256sum --check --status
+
 
 # Install gcloud
 RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/ && \
