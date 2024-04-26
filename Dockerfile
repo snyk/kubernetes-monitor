@@ -34,7 +34,7 @@ RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
 
 # Install gcloud
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/ && rm /google-cloud-sdk/bin/anthoscli && rm -rf /google-cloud-sdk/platform
+RUN bash /install.sh --disable-prompts --install-dir=/ && rm -rf /google-cloud-sdk/platform
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 RUN apk del curl bash
