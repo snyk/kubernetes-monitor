@@ -25,6 +25,7 @@ jobs:
             - prodsec/security_scans:
                 mode: auto
                 release-branch: master
+                open-source-additional-arguments: --exclude=test
     aks_integration_tests:
         docker:
             - image: cimg/node:18.19.1
@@ -327,18 +328,6 @@ jobs:
                     echo "export IMAGE_NAME_PUBLISHED_UBI9=${IMAGE_NAME_PUBLISHED_UBI9}" >> $BASH_ENV
                 name: Export environment variables
             - snyk/scan:
-                additional-arguments: --all-projects --exclude=test
-                fail-on-issues: true
-                monitor-on-build: true
-                severity-threshold: high
-                token-variable: SNYK_TOKEN
-            - snyk/scan:
-                command: code test
-                fail-on-issues: true
-                monitor-on-build: true
-                severity-threshold: high
-                token-variable: SNYK_TOKEN
-            - snyk/scan:
                 additional-arguments: --project-name=alpine --policy-path=.snyk
                 command: container test
                 docker-image-name: ${IMAGE_NAME_APPROVED}
@@ -432,18 +421,6 @@ jobs:
             - run:
                 command: npm ci
             - install_python_requests
-            - snyk/scan:
-                additional-arguments: --all-projects --exclude=test
-                fail-on-issues: true
-                monitor-on-build: false
-                severity-threshold: high
-                token-variable: SNYK_TOKEN
-            - snyk/scan:
-                command: code test
-                fail-on-issues: true
-                monitor-on-build: false
-                severity-threshold: high
-                token-variable: SNYK_TOKEN
             - run:
                 command: |
                     npm run build &&
