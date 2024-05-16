@@ -1,5 +1,17 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore: {}
+ignore: 
+    SNYK-JS-BRACES-6838727:
+    - '*':
+        reason: >-
+          Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-BRACES-6838727
+        expires: 2024-06-16T12:00:00.000Z
+        created: 2024-05-16T12:00:00.000Z
+    SNYK-JS-MICROMATCH-6838728:
+    - '*':
+        reason: >-
+          Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728
+        expires: 2024-06-16T12:00:00.000Z
+        created: 2024-05-16T12:00:00.000Z
 patch: {}
