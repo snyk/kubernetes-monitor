@@ -28,14 +28,14 @@ RUN npm run build
 #---------------------------------------------------------------------
 # STAGE 2: Install containers-common to obtain configuration files
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.2 AS containers-common
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.3 AS containers-common
 
 RUN dnf install -y containers-common
 
 #---------------------------------------------------------------------
 # STAGE 3: Build the kubernetes-monitor final image
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.2
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.3
 
 ARG NODE_18_LATEST_VERSION
 ARG NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
@@ -51,10 +51,10 @@ ARG ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256=a82cc3ed2cf959616212e3c3c3893dda
 ARG ACR_CREDENTIAL_HELPER_BINARY_SHASUM256=598bbd4ad2741ae2e68ac55e938a4542e71952e418e6278a74baf6213ef8ce76
 
 LABEL name="Snyk Controller" \
-      maintainer="support@snyk.io" \
-      vendor="Snyk Ltd" \
-      summary="Snyk integration for Kubernetes" \
-      description="Snyk Controller enables you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure."
+    maintainer="support@snyk.io" \
+    vendor="Snyk Ltd" \
+    summary="Snyk integration for Kubernetes" \
+    description="Snyk Controller enables you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure."
 
 COPY LICENSE /licenses/LICENSE
 
@@ -91,7 +91,7 @@ RUN echo "${ACR_CREDENTIAL_HELPER_BINARY_SHASUM256} /usr/local/bin/docker-creden
 # Install gcloud
 RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/ && \
     rm -f /google-cloud-sdk/bin/anthoscli && \
-	rm -rf /google-cloud-sdk/platform
+    rm -rf /google-cloud-sdk/platform
 ENV PATH=/google-cloud-sdk/bin:$PATH
 
 # Install node
