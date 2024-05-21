@@ -446,7 +446,7 @@ master_branch_only_filter:
 orbs:
     aws-cli: circleci/aws-cli@2.0.6
     azure-cli: circleci/azure-cli@1.2.0
-    prodsec: snyk/prodsec-orb@1.1
+    prodsec: snyk/prodsec-orb@dev:807385175ebaf59aa6a54edf3398dafa2f496c91
     snyk: snyk/snyk@2
 
 staging_branch_only_filter:
