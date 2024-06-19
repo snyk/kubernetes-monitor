@@ -93,5 +93,10 @@
       "@semantic-release/github"
     ]
   },
-  "snyk": true
+  "snyk": true,
+  "overrides": {
+    "@kubernetes/client-node": {
+      "ws": "8.17.1"
+    }
+  }
 }
