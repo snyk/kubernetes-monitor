@@ -85,7 +85,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
   const loggedListMethod = async () => {
     try {
       return await retryKubernetesApiRequest(async () => {
-        logger.info({}, 're-getting resource');
+        logger.info({}, 'retrying k8s api request');
         const reply = await k8sApi.coreClient.readNamespace(namespace);
         const list = new V1NamespaceList();
         list.apiVersion = 'v1';
