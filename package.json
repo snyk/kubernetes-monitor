@@ -35,9 +35,9 @@
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.20.0",
-    "@snyk/dep-graph": "^2.8.1",
+    "@snyk/dep-graph": "^2.9.0",
     "async": "^3.2.5",
-    "aws-sdk": "^2.1621.0",
+    "aws-sdk": "^2.1659.0",
     "bunyan": "^1.8.15",
     "child-process-promise": "^2.2.1",
     "fastq": "^1.17.1",
@@ -51,7 +51,7 @@
     "source-map-support": "^0.5.21",
     "tunnel": "0.0.6",
     "typescript": "4.9.5",
-    "yaml": "^2.4.2"
+    "yaml": "^2.4.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.8.1",
@@ -61,7 +61,7 @@
     "@types/jest": "^26.0.24",
     "@types/lru-cache": "^5.1.1",
     "@types/needle": "^2.5.3",
-    "@types/node": "^16.18.97",
+    "@types/node": "^16.18.102",
     "@types/source-map-support": "^0.5.10",
     "@types/tunnel": "0.0.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
@@ -93,5 +93,10 @@
       "@semantic-release/github"
     ]
   },
-  "snyk": true
+  "snyk": true,
+  "overrides": {
+    "@kubernetes/client-node": {
+      "ws": "8.17.1"
+    }
+  }
 }

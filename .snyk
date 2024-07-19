@@ -6,12 +6,12 @@ ignore:
     - '*':
         reason: >-
           Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-BRACES-6838727
-        expires: 2024-06-16T12:00:00.000Z
+        expires: 2024-07-19T12:00:00.000Z
         created: 2024-05-16T12:00:00.000Z
     SNYK-JS-MICROMATCH-6838728:
     - '*':
         reason: >-
           Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728
-        expires: 2024-06-16T12:00:00.000Z
+        expires: 2024-07-19T12:00:00.000Z
         created: 2024-05-16T12:00:00.000Z
 patch: {}
