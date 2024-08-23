@@ -33,9 +33,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- with .Values.securityContext.fsGroup }}
+      {{- with .Values.podSecurityContext }}
       securityContext:
-        fsGroup: {{ int . }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       affinity:
         nodeAffinity:
@@ -250,14 +250,10 @@ spec:
             exec:
               command:
               - "true"
+          {{- with .Values.snykMonitorSecurityContext }}
           securityContext:
-            privileged: false
-            runAsNonRoot: true
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       volumes:
         - name: docker-config
           secret:

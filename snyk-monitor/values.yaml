@@ -134,9 +134,17 @@ excludedNamespaces:
 #   template:
 #     spec:
 #       securityContext:
-#         fsGroup: <-- here
-securityContext:
-  fsGroup:
+#         ... <-- here
+podSecurityContext: {}
+
+snykMonitorSecurityContext:
+  privileged: false
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
 
 # Set node tolerations for snyk-monitor
 tolerations: []
