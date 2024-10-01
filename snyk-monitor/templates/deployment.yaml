@@ -33,10 +33,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- with .Values.securityContext.fsGroup }}
-      securityContext:
-        fsGroup: {{ int . }}
-      {{- end }}
+    {{- with .Values.podSecurityContext }}
+    securityContext:
+    {{- $fsGroupOverride := dict }}
+    {{- if hasKey $.Values.securityContext "fsGroup" }}
+    {{- $fsGroupOverride = dict "fsGroup" (int $.Values.securityContext.fsGroup) }}
+    {{- end }}
+    {{- merge $fsGroupOverride . | toYaml | nindent 8 }}
+    {{- else }}
+    {{- if .Values.securityContext.fsGroup }}
+    securityContext:
+      fsGroup: {{ int .Values.securityContext.fsGroup }}
+    {{- end }}
+    {{- end }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -250,14 +259,10 @@ spec:
             exec:
               command:
               - "true"
+          {{- with .Values.snykMonitorSecurityContext }}
           securityContext:
-            privileged: false
-            runAsNonRoot: true
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       volumes:
         - name: docker-config
           secret:
