@@ -134,6 +134,15 @@ excludedNamespaces:
 #   template:
 #     spec:
 #       securityContext:
+#         fsGroup: <-- here
+#         ... <-- here
+securityContext: {}
+
+# Allow specifying the whole object in the PodSpec securityContext:
+# spec:
+#   template:
+#     spec:
+#       securityContext:
 #         ... <-- here
 podSecurityContext: {}
 
