@@ -4,8 +4,8 @@ metadata:
   name: kubernetes-monitor
   annotations:
     github.com/project-slug: snyk/kubernetes-monitor
-    github.com/team-slug: snyk/orchestration-integrations
+    github.com/team-slug: snyk/test-enrichment
 spec:
   type: external-tooling
   lifecycle: "-"
-  owner: orchestration-integrations
+  owner: test-enrichment
