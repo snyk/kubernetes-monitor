@@ -461,7 +461,7 @@ workflows:
             - security-scans:
                 name: Security Scans
                 context:
-                    - analysis_integrations
+                    - analysis_test-enrichment
                 filters:
                     branches:
                         only:
@@ -469,7 +469,7 @@ workflows:
             - publish:
                 context:
                     - team-container-integration
-                    - analysis_integrations
+                    - analysis_test-enrichment
                 requires:
                     - Security Scans
                 filters:
@@ -486,13 +486,13 @@ workflows:
     MERGE_TO_STAGING:
         jobs:
             - build_image:
-                context: analysis_integrations
+                context: analysis_test-enrichment
                 filters:
                     branches:
                         only:
                             - staging
             - unit_tests:
-                context: analysis_integrations
+                context: analysis_test-enrichment
                 filters:
                     branches:
                         only:
@@ -527,7 +527,7 @@ workflows:
                 trusted-branch: main
                 context:
                     - snyk-bot-slack
-                channel: team-integrations-alerts
+                channel: snyk-on-snyk-analysis_test-enrichment
                 filters:
                     branches:
                         ignore:
@@ -536,14 +536,14 @@ workflows:
             - security-scans:
                 name: Security Scans
                 context:
-                    - analysis_integrations
+                    - analysis_test-enrichment
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - build_image:
-                context: analysis_integrations
+                context: analysis_test-enrichment
                 requires:
                     - Scan repository for secrets
                     - Security Scans
@@ -553,7 +553,7 @@ workflows:
                             - staging
                             - master
             - unit_tests:
-                context: analysis_integrations
+                context: analysis_test-enrichment
                 filters:
                     branches:
                         ignore:
