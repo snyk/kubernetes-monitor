@@ -46,8 +46,10 @@ ARG DUMB_INIT_BINARY_FILE_SHASUM256=e874b55f3279ca41415d290c512a7ba9d08f98041b28
 ARG SKOPEO_VERSION=1.13.2
 ARG SKOPEO_BINARY_FILE_SHASUM256=2f00be6ee1c4cbfa7f2452be90a1a2ce88fd92a6d0f6a2e9d901bd2087bd9092
 # https://github.com/awslabs/amazon-ecr-credential-helper/releases
-ARG ECR_CREDENTIAL_HELPER_VERSION=0.7.1
-ARG ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256=a82cc3ed2cf959616212e3c3c3893dda4f7886da1447c444ef541e6f595ae087
+# for sha: download SHA256 for the linux-amd64/docker-credential-ecr-login, then `cat docker-credential-ecr-login.sha256`
+ARG ECR_CREDENTIAL_HELPER_VERSION=0.9.0
+ARG ECR_CREDENTIAL_HELPER_BINARY_FILE_SHASUM256=dd6bd933e439ddb33b9f005ad5575705a243d4e1e3d286b6c82928bcb70e949a
+# since this is built from a commit, you will need to build it locally to get the sha
 ARG ACR_CREDENTIAL_HELPER_BINARY_SHASUM256=598bbd4ad2741ae2e68ac55e938a4542e71952e418e6278a74baf6213ef8ce76
 
 LABEL name="Snyk Controller" \
