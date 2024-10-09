@@ -7,7 +7,7 @@ RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add git
 
-RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@69c85dc22db6511932bbf119e1a0cc5c90c69a7f
+RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN go install github.com/chrismellard/docker-credential-acr-env@82a0ddb2758901b711d9d1614755b77e401598a1
 
 #---------------------------------------------------------------------
