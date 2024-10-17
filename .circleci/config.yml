@@ -69,6 +69,9 @@ jobs:
                     echo "export IMAGE_NAME_CANDIDATE_UBI9=$IMAGE_NAME_CANDIDATE_UBI9" >> $BASH_ENV
                 name: Export environment variables
             - run:
+                name: Grab Snyk NPM token for deployment
+                command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+            - run:
                 command: |
                     docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
                     ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
@@ -102,6 +105,9 @@ jobs:
             - image: cimg/node:18.19.1
         steps:
             - checkout
+            - run:
+                name: Grab Snyk NPM token for deployment
+                command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
             - run:
                 command: npm ci
             - install_python_requests
@@ -293,6 +299,9 @@ jobs:
         steps:
             - checkout
             - run:
+                name: Grab Snyk NPM token for deployment
+                command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+            - run:
                 command: npm ci
             - install_python_requests
             - run:
@@ -419,6 +428,9 @@ jobs:
         steps:
             - checkout
             - run:
+                name: Grab Snyk NPM token for deployment
+                command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+            - run:
                 command: npm ci
             - install_python_requests
             - run:
@@ -486,18 +498,25 @@ workflows:
     MERGE_TO_STAGING:
         jobs:
             - build_image:
-                context: analysis_test-enrichment
+                context: 
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         only:
                             - staging
             - unit_tests:
-                context: analysis_test-enrichment
+                context: 
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         only:
                             - staging
             - system_tests:
+                context:
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         only:
@@ -543,7 +562,9 @@ workflows:
                             - staging
                             - master
             - build_image:
-                context: analysis_test-enrichment
+                context: 
+                    - analysis_test-enrichment
+                    - nodejs-install
                 requires:
                     - Scan repository for secrets
                     - Security Scans
@@ -553,25 +574,36 @@ workflows:
                             - staging
                             - master
             - unit_tests:
-                context: analysis_test-enrichment
+                context: 
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - lint:
+                context:
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - code_formatter:
+                context:
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         ignore:
                             - staging
                             - master
             - system_tests:
+                context:
+                    - analysis_test-enrichment
+                    - nodejs-install
                 filters:
                     branches:
                         ignore:
