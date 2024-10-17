@@ -379,6 +379,9 @@ jobs:
         steps:
             - checkout
             - run:
+                name: Grab Snyk NPM token for deployment
+                command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+            - run:
                 command: npm ci
             - install_python_requests
             - run:
