@@ -50,7 +50,6 @@ describe('image and workload image cache', () => {
     .mockResolvedValue(workloadMetadata);
 
   afterAll(() => {
-    asyncQueueSpy.mockRestore();
     buildMetadataSpy.mockRestore();
     jest.restoreAllMocks();
   });
