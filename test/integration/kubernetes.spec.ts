@@ -776,6 +776,15 @@ test('snyk-monitor secure configuration is as expected', async () => {
     namespace,
   );
   const deployment = response.body;
+  expect(deployment.spec?.template.spec).toEqual(
+    expect.objectContaining({
+      securityContext: {
+        fsGroup: 65534,
+        fsGroupChangePolicy: 'Always',
+      },
+    }),
+  );
+
   expect(deployment.spec?.template?.spec?.containers?.[0]).toEqual(
     expect.objectContaining({
       securityContext: {
