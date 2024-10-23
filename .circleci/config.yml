@@ -486,7 +486,9 @@ workflows:
     MERGE_TO_STAGING:
         jobs:
             - build_image:
-                context: analysis_test-enrichment
+                context:
+                  - analysis_test-enrichment
+                  - go-private-modules
                 filters:
                     branches:
                         only:
@@ -543,7 +545,9 @@ workflows:
                             - staging
                             - master
             - build_image:
-                context: analysis_test-enrichment
+                context:
+                  - analysis_test-enrichment
+                  - go-private-modules
                 requires:
                     - Scan repository for secrets
                     - Security Scans

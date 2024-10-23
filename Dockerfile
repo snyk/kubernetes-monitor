@@ -1,19 +1,19 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM golang:alpine AS cred-helpers-build
-
-RUN apk update
-RUN apk upgrade
-RUN apk --no-cache add git
+FROM --platform=linux/amd64 golang:1.23 AS cred-helpers-build
 
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
-RUN go install github.com/chrismellard/docker-credential-acr-env@82a0ddb2758901b711d9d1614755b77e401598a1
+RUN --mount=type=secret,id=gh_token,required=true \
+    git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
+    go env -w GOPRIVATE=github.com/snyk && \
+    go install github.com/snyk/docker-credential-acr-env@8fa416c5b20b174e9032df1899843b4ebe2adda8 && \
+    git config --global --unset url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf
 
 #---------------------------------------------------------------------
-# STAGE 2: Build the kubernetes-monitor
+# STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM node:18-alpine3.20
+FROM --platform=linux/amd64 node:18-alpine3.20
 
 LABEL name="Snyk Controller" \
       maintainer="support@snyk.io" \
@@ -23,7 +23,7 @@ LABEL name="Snyk Controller" \
 
 COPY LICENSE /licenses/LICENSE
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 RUN apk update
 RUN apk upgrade
@@ -34,7 +34,8 @@ RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
 
 # Install gcloud
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/ && rm -rf /google-cloud-sdk/platform
+RUN bash /install.sh --disable-prompts --install-dir=/ && \
+    rm -rf /google-cloud-sdk/platform /google-cloud-sdk/bin/anthoscli /google-cloud-sdk/bin/gcloud-crc32c
 ENV PATH=/google-cloud-sdk/bin:$PATH
 RUN rm /install.sh
 RUN apk del curl bash
