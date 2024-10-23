@@ -20,6 +20,7 @@ NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256=$(curl --fail --silent https://node
 docker build \
   --build-arg NODE_18_LATEST_VERSION="${NODE_18_LATEST_VERSION}" \
   --build-arg NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256="${NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256}" \
+  --secret id=gh_token,env=GITHUB_PRIVATE_TOKEN \
   -t ${NAME_AND_TAG} \
   --file=Dockerfile.ubi9 .
 

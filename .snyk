@@ -4,20 +4,26 @@ version: v1.25.0
 ignore: 
     SNYK-JS-BRACES-6838727:
     - '*':
-        reason: >-
-          Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-BRACES-6838727
-        expires: 2024-12-19T12:00:00.000Z
-        created: 2024-05-16T12:00:00.000Z
-    SNYK-JS-MICROMATCH-6838728:
+        reason: devDependency
+        expires: 2025-12-01T12:00:00.000Z
+        created: 2024-10-23T12:00:00.000Z
+    SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: Waiting for upstream fix
+        expires: 2025-01-10T12:00:00.000Z
+        created: 2024-10-23T12:00:00.000Z
+    SNYK-JS-REQUEST-3361831:
     - '*':
         reason: >-
-          Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728
-        expires: 2024-12-19T12:00:00.000Z
-        created: 2024-05-16T12:00:00.000Z
-    SNYK-JS-JSONPATHPLUS-7945884:
+          Waiting for @kubernetes/client-node fetch migration
+          https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
+        expires: 2025-01-10T12:00:00.000Z
+        created: 2024-10-23T12:00:00.000Z
+    SNYK-JS-TOUGHCOOKIE-5672873:
     - '*':
         reason: >-
-          Waiting for transient dependency to update
-        expires: 2024-12-19T12:00:00.000Z
+          Waiting for @kubernetes/client-node fetch migration
+          https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
+        expires: 2025-01-10T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
 patch: {}
