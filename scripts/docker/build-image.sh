@@ -11,6 +11,6 @@ LOCAL_DISCARDABLE_IMAGE=snyk/kubernetes-monitor:local
 # should happen on merging to `staging`
 NAME_AND_TAG=${1:-$LOCAL_DISCARDABLE_IMAGE}
 
-docker build -t ${NAME_AND_TAG} .
+docker build --secret id=gh_token,env=GITHUB_PRIVATE_TOKEN -t ${NAME_AND_TAG} .
 
 "$DIR/smoke-test-image-binaries.sh" $NAME_AND_TAG
