@@ -39,6 +39,7 @@ async function deployKubernetesMonitor(
       '--set rbac.serviceAccount.annotations."foo"="bar" ' +
       '--set volumes.projected.serviceAccountToken=true ' +
       '--set securityContext.fsGroup=65534 ' +
+      '--set podSecurityContext.fsGroupChangePolicy="Always" ' +
       '--set skopeo.compression.level=1 ' +
       '--set workers.count=5 ' +
       '--set sysdig.enabled=true ',

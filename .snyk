@@ -14,4 +14,10 @@ ignore:
           Waiting for a patch: https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728
         expires: 2024-12-19T12:00:00.000Z
         created: 2024-05-16T12:00:00.000Z
+    SNYK-JS-JSONPATHPLUS-7945884:
+    - '*':
+        reason: >-
+          Waiting for transient dependency to update
+        expires: 2024-12-19T12:00:00.000Z
+        created: 2024-10-23T12:00:00.000Z
 patch: {}
