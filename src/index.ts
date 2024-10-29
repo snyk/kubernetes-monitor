@@ -34,7 +34,10 @@ process.on('unhandledRejection', (reason, promise) => {
   }
 
   try {
-    logger.error({ reason, promise }, 'UNHANDLED REJECTION!');
+    logger.error(
+      { reason, promise, stack: (reason as any).stack },
+      'UNHANDLED REJECTION!',
+    );
   } catch (ignore) {
     console.log('UNHANDLED REJECTION!', reason, promise);
   } finally {
