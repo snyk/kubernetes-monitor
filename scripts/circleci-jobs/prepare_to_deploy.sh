@@ -21,26 +21,12 @@ cat $KUBERNETES_MONITOR_DEPLOYER_REPO/Chart.yaml > $KUBERNETES_MONITOR_DEPLOYER_
 # Create environment values file(s)
 cat >$KUBERNETES_MONITOR_DEPLOYER_REPO/helm/values/$PRODUCTION_YAML_FILE_NAME.yaml <<EOF
 clusterName: "Production cluster"
-skip_k8s_jobs: true
-
-requests:
-  memory: "4Gi"
-
-limits:
-  memory: "4Gi"
 
 policyOrgs:
   - $POLICY_ORG_PROD
 
 image:
   tag: $LATEST_TAG
-
-skopeo:
-  compression:
-    level: 1
-
-workers:
-  count: 5
 
 metadata:
   annotations:
