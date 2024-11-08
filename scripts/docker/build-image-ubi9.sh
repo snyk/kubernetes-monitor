@@ -15,7 +15,7 @@ NAME_AND_TAG=${1:-$LOCAL_DISCARDABLE_IMAGE}
 # It is used when buidling the ubi image in order to download the latest node 18 version and copy its binary.
 NODE_18_LATEST_VERSION_TAR_GZ_FILE=$(curl -L --fail --silent https://nodejs.org/dist/latest-v18.x/SHASUMS256.txt | grep linux-x64.tar.gz | awk '{ print $2 }')
 NODE_18_LATEST_VERSION="${NODE_18_LATEST_VERSION_TAR_GZ_FILE%%.tar.gz}"
-NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256=$(curl --fail --silent https://nodejs.org/dist/latest-v18.x/SHASUMS256.txt | grep linux-x64.tar.gz | awk '{ print $1 }')
+NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256=$(curl -L --fail --silent https://nodejs.org/dist/latest-v18.x/SHASUMS256.txt | grep linux-x64.tar.gz | awk '{ print $1 }')
 
 docker build \
   --build-arg NODE_18_LATEST_VERSION="${NODE_18_LATEST_VERSION}" \
