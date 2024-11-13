@@ -1,7 +1,5 @@
 import fsExtra = require('fs-extra');
 
-import * as SourceMapSupport from 'source-map-support';
-
 import { state } from './state';
 import { config } from './common/config';
 import { logger } from './common/logger';
@@ -114,7 +112,6 @@ async function setupSysdigIntegration(): Promise<void> {
   }, interval).unref();
 }
 
-SourceMapSupport.install();
 cleanUpTempStorage();
 
 // Allow running in an async context
