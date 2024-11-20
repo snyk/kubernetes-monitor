@@ -32,4 +32,10 @@ ignore:
           No upstream fix available
         expires: 2024-12-08T12:00:00.000Z
         created: 2024-11-08T12:00:00.000Z
+    SNYK-JS-JSONPATHPLUS-7945884:
+    - '*':
+        reason: >-
+          Waiting for @kubernetes/client-node upgrade
+        expires: 2024-12-08T12:00:00.000Z
+        created: 2024-11-20T12:00:00.000Z
 patch: {}
