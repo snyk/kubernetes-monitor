@@ -1,7 +1,7 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore: 
+ignore:
     SNYK-JS-BRACES-6838727:
     - '*':
         reason: devDependency
@@ -27,6 +27,12 @@ ignore:
         expires: 2025-01-10T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
     SNYK-JS-CROSSSPAWN-8303230:
+    - '*':
+        reason: >-
+          No upstream fix available
+        expires: 2024-12-08T12:00:00.000Z
+        created: 2024-11-08T12:00:00.000Z
+    SNYK-JS-JSONPATHPLUS-7945884:
     - '*':
         reason: >-
           No upstream fix available
