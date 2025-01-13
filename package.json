@@ -40,7 +40,7 @@
     "aws-sdk": "^2.1692.0",
     "bunyan": "^1.8.15",
     "child-process-promise": "^2.2.1",
-    "fastq": "^1.17.1",
+    "fastq": "^1.18.0",
     "fs-extra": "^10.1.0",
     "lru-cache": "^6.0.0",
     "needle": "^3.3.1",
