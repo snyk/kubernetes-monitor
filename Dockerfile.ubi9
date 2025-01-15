@@ -1,13 +1,13 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 golang:1.23 as cred-helpers-build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:9.5 as cred-helpers-build
 
-RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
-RUN --mount=type=secret,id=gh_token,required=true \
+RUN GOTOOLCHAIN=go1.23.4 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
+RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
     git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
     go env -w GOPRIVATE=github.com/snyk && \
-    go install github.com/snyk/docker-credential-acr-env@8fa416c5b20b174e9032df1899843b4ebe2adda8 && \
+    GOTOOLCHAIN=go1.23.4 go install github.com/snyk/docker-credential-acr-env@8fa416c5b20b174e9032df1899843b4ebe2adda8 && \
     git config --global --unset url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf
 
 #---------------------------------------------------------------------
@@ -80,8 +80,8 @@ COPY --chown=snyk:snyk --from=containers-common /etc/containers/registries.d/def
 COPY --chown=snyk:snyk --from=containers-common /etc/containers/policy.json /etc/containers/policy.json
 
 # Install credential helpers
-COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
-COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-acr-env /usr/local/bin/docker-credential-acr-env
+COPY --chown=snyk:snyk --from=cred-helpers-build /opt/app-root/src/go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
+COPY --chown=snyk:snyk --from=cred-helpers-build /opt/app-root/src/go/bin/docker-credential-acr-env /usr/bin/docker-credential-acr-env
 
 # Install gcloud
 RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/ && \
