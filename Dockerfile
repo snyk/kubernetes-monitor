@@ -1,8 +1,9 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 golang:1.23 AS cred-helpers-build
+FROM --platform=linux/amd64 golang:1.23-alpine AS cred-helpers-build
 
+RUN apk add git
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN --mount=type=secret,id=gh_token,required=true \
     git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
@@ -28,6 +29,8 @@ ENV NODE_ENV=production
 RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add dumb-init skopeo curl bash python3
+
+RUN npm install -g npm@v10.9.2
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
