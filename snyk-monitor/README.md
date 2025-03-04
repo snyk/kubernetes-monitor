@@ -4,17 +4,6 @@
 
 A Helm chart for the Snyk monitor
 
-## Updating from V1 to V2 (existing installations only) ##
-
-If you are an existing customer and are updating your Snyk monitor to V2:
-- you must delete your existing snyk-monitor secret
-```shell
-kubectl delete secret snyk-monitor -n snyk-monitor
-```
-- Follow the instructions in the [Installing](#installing) section. This section now includes the creation of a service account token, which is stored in the `snyk-monitor` secret.
-- Follow the instructions in the [Installation from Helm repo](#installation-from-helm-repo) section. You must run the `helm repo add ...` command in order to get the latest helm chart version.
-- Follow the instructions in the [Installation and monitoring of the whole cluster](#installation-and-monitoring-of-the-whole-cluster) or [Installation and monitoring of a single namespace](#installation-and-monitoring-of-a-single-namespace) section.
-
 ## Installing ##
 
 The Snyk monitor (`kubernetes-monitor`) requires some minimal configuration items in order to work correctly.
