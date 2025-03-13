@@ -34,10 +34,10 @@
     "format:check": "prettier --check '{src,test}/**/*.{js,ts,json,yml}'"
   },
   "dependencies": {
+    "@aws-sdk/client-ecr": "^3.766.0",
     "@kubernetes/client-node": "^0.22.3",
     "@snyk/dep-graph": "^2.9.0",
     "async": "^3.2.6",
-    "aws-sdk": "^2.1692.0",
     "bunyan": "^1.8.15",
     "child-process-promise": "^2.2.1",
     "fastq": "^1.19.0",

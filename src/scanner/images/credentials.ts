@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import * as aws from 'aws-sdk';
+import { ECR } from '@aws-sdk/client-ecr';
 
 import { logger } from '../../common/logger';
 
@@ -22,7 +22,9 @@ export function isEcrSource(imageSource: string): boolean {
 
 function getEcrCredentials(region: string): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const ecr = new aws.ECR({ region });
+    const ecr = new ECR({
+      region,
+    });
     return ecr.getAuthorizationToken({}, (err, data) => {
       if (err) {
         return reject(err);
