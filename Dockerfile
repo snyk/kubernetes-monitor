@@ -8,7 +8,7 @@ RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/doc
 RUN --mount=type=secret,id=gh_token,required=true \
     git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
     go env -w GOPRIVATE=github.com/snyk && \
-    go install github.com/snyk/docker-credential-acr-env@8fa416c5b20b174e9032df1899843b4ebe2adda8 && \
+    go install github.com/snyk/docker-credential-acr-env@697fe895979cea8a1595b4c0c30ea78a5f5c13ce && \
     git config --global --unset url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf
 
 #---------------------------------------------------------------------
