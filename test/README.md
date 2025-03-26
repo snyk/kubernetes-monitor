@@ -3,8 +3,6 @@
 - [Testing the Kubernetes-Monitor](#testing-the-kubernetes-monitor)
   - [Unit Tests](#unit-tests)
   - [System Tests](#system-tests)
-  - [Integration Tests](#integration-tests)
-    - [KinD](#kind)
   - [Debugging with Tilt](#debugging-with-tilt)
     - [Start a debugging session](#start-a-debugging-session)
     - [Errors with read-only file system](#errors-with-read-only-file-system)
@@ -38,39 +36,6 @@ This means we're not running in the real runtime environment we expect to run (a
 This test requires Skopeo for MacOS machines, but will install it for Linux machines that don't have it.
 
 Run with `npm run test:system`.
-
-## Integration Tests
-
-These tests assert the Kubernetes-Monitor's behaviour mostly through its affect on our Upstream service's state.
-
-All integration tests require the Kubernetes-Monitor to be built into an image on the local machine and be named and tagged as:
-`snyk/kubernetes-monitor:local`.
-The easiest way to achieve it is by running the `scripts/docker/build-image.sh` script.
-Please note that `docker` needs to be installed in order for this script to succeed.
-
-As part of these tests, we attempt pulling and scanning an image hosted on a private GCR registry. For this test case to work, one has to define the following environment variables: `GCR_IO_SERVICE_ACCOUNT`, `PRIVATE_REGISTRIES_DOCKERCFG`, `DOCKER_HUB_RO_USERNAME`, `DOCKER_HUB_RO_PASSWORD`.
-
-Our integration tests may use different Kubernetes platforms to host the Kubernetes-Monitor. These platforms may use an existing cluster, or create a new one. Both decisions are based on the environment variables:
-
-- `TEST_PLATFORM` (`kind`, `kindolm`, `eks`)
-- `CREATE_CLUSTER` (`true`, `false`).
-
-Additionally, the deployment of the Kubernetes-Monitor can be configured through an environment variable:
-
-- `DEPLOYMENT_TYPE` (`YAML`)
-
-All integration tests determine the image to be tested based on the environment variable called `KUBERNETES_MONITOR_IMAGE_NAME_AND_TAG`, and fallback to `snyk/kubernetes-monitor:local`, meaning one has to make sure the image desired to be tested is properly named and tagged.
-
-### KinD
-
-KinD is a Kubernetes-inside-Docker project mostly used for simple, light-weight conformance testing against the Kubernetes API.
-https://github.com/kubernetes-sigs/kind
-
-Our KinD integration test creates a new KinD cluster locally and deploys the Kubernetes-Monitor there.
-
-This test runs whenever we commit to any branch.
-
-Run with `npm run test:integration:kind`.
 
 ## Debugging with Tilt
 
