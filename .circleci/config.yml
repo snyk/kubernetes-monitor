@@ -477,6 +477,8 @@ workflows:
                         only:
                             - master
             - deploy_to_prod:
+                context:
+                    - team-container-integration-circleci
                 filters:
                     branches:
                         only:
