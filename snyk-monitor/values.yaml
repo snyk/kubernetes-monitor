@@ -115,6 +115,10 @@ nodeAffinity:
   kubernetesIoOs:
   - linux
 
+# Additional labels for the snyk-monitor Deployment
+deployment:
+  labels: {}
+
 # Additional labels and annotations for the snyk-monitor Deployment's Pod
 metadata:
   labels: {}
