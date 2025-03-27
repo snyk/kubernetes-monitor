@@ -308,6 +308,7 @@ workflows:
             - deploy_to_prod:
                 context:
                     - team-container-integration-circleci
+                    - kubernetes-monitor
                 filters:
                     branches:
                         only:
@@ -349,6 +350,7 @@ workflows:
                 context: 
                     - team-container-integration
                     - team-container-integration-circleci
+                    - kubernetes-monitor
                 filters:
                     branches:
                         only:
