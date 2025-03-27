@@ -4,7 +4,7 @@ import os
 import subprocess
 
 dockerhub_user = os.getenv('DOCKERHUB_USER')
-dockerhub_password = os.getenv('DOCKERHUB_PASSWORD')
+dockerhub_password = os.getenv('DOCKERHUB_PASS')
 image_tag_suffix = os.getenv('IMAGE_TAG_UBI_SUFFIX', '')
 
 subprocess.getoutput("docker login --username " + dockerhub_user + " --password " + dockerhub_password)
