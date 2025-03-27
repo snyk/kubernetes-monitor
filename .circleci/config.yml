@@ -43,7 +43,7 @@ jobs:
                 name: Export environment variables
             - run:
                 command: |
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD}
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS}
                     ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
                     ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
                 name: Build image
@@ -176,7 +176,7 @@ jobs:
                 token-variable: SNYK_TOKEN
             - run:
                 command: |
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
                     docker pull ${IMAGE_NAME_APPROVED} &&
                     docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
                     docker push ${IMAGE_NAME_PUBLISHED} &&
@@ -228,7 +228,7 @@ jobs:
             - run:
                 command: |
                     npm ci &&
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASSWORD} &&
+                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
                     unset CIRCLE_PULL_REQUEST &&
                     unset CI_PULL_REQUEST &&
                     unset CI_PULL_REQUESTS &&
@@ -299,6 +299,7 @@ workflows:
                 context:
                     - team-container-integration
                     - analysis_test-enrichment
+                    - team-container-integration-docker-hub
                 requires:
                     - Security Scans
                 filters:
@@ -321,6 +322,7 @@ workflows:
                 context:
                   - analysis_test-enrichment
                   - go-private-modules
+                  - team-container-integration-docker-hub
                 filters:
                     branches:
                         only:
@@ -337,7 +339,9 @@ workflows:
                         only:
                             - staging
             - tag_and_push:
-                context: team-container-integration
+                context: 
+                    - team-container-integration
+                    - team-container-integration-docker-hub
                 filters:
                     branches:
                         only:
@@ -383,6 +387,7 @@ workflows:
                 context:
                   - analysis_test-enrichment
                   - go-private-modules
+                  - team-container-integration-docker-hub
                 requires:
                     - Scan repository for secrets
                     - Security Scans
