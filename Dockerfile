@@ -17,10 +17,10 @@ RUN --mount=type=secret,id=gh_token,required=true \
 FROM --platform=linux/amd64 node:18-alpine3.20
 
 LABEL name="Snyk Controller" \
-      maintainer="support@snyk.io" \
-      vendor="Snyk Ltd" \
-      summary="Snyk integration for Kubernetes" \
-      description="Snyk Controller enables you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure."
+    maintainer="support@snyk.io" \
+    vendor="Snyk Ltd" \
+    summary="Snyk integration for Kubernetes" \
+    description="Snyk Controller enables you to import and test your running workloads and identify vulnerabilities in their associated images and configurations that might make those workloads less secure."
 
 COPY LICENSE /licenses/LICENSE
 
