@@ -1,6 +1,4 @@
 import * as kind from './kind';
-import * as eks from './eks';
-import * as aks from './aks';
 
 interface IPlatformSetup {
   // create a Kubernetes cluster
@@ -29,26 +27,6 @@ const kindSetup: IPlatformSetup = {
   validateRequiredEnvironment: kind.validateRequiredEnvironment,
 };
 
-const eksSetup: IPlatformSetup = {
-  create: eks.createCluster,
-  loadImage: eks.loadImageInCluster,
-  delete: eks.deleteCluster,
-  config: eks.exportKubeConfig,
-  clean: eks.clean,
-  setupTester: eks.setupTester,
-  validateRequiredEnvironment: eks.validateRequiredEnvironment,
-};
-
-const aksSetup: IPlatformSetup = {
-  create: aks.createCluster,
-  loadImage: aks.loadImageInCluster,
-  delete: aks.deleteCluster,
-  config: aks.exportKubeConfig,
-  clean: aks.clean,
-  setupTester: aks.setupTester,
-  validateRequiredEnvironment: aks.validateRequiredEnvironment,
-};
-
 export function getKubernetesVersionForPlatform(testPlatform: string): string {
   switch (testPlatform) {
     default:
@@ -58,8 +36,6 @@ export function getKubernetesVersionForPlatform(testPlatform: string): string {
 
 export default {
   kind: kindSetup,
-  eks: eksSetup,
-  aks: aksSetup,
 } as {
   [key: string]: IPlatformSetup;
 };
