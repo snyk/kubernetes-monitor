@@ -3,19 +3,80 @@ commands:
         description: Install Helm
         steps:
             - run:
-                command: |
-                    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-                    chmod 700 get_helm.sh
-                    ./get_helm.sh
-                name: Install Helm
-    install_python_requests:
-        description: Install requests library
+                  command: |
+                      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+                      chmod 700 get_helm.sh
+                      ./get_helm.sh
+                  name: Install Helm
+
+    notify_slack_on_failure:
         steps:
-            - run:
-                command: |
-                    sudo apt update
-                    sudo apt install python3-requests
-                when: always
+            - slack/notify:
+                  branch_pattern: master,staging
+                  channel: team-test-enrichment-deployment
+                  event: fail
+                  mentions: '@testenrichers'
+                  custom: |
+                      {
+                          "blocks": [
+                              {
+                                  "type": "header",
+                                  "text": {
+                                      "type": "plain_text",
+                                      "text": "CICD pipeline failed :circleci-fail:",
+                                      "emoji": true
+                                  }
+                              },
+                              {
+                                  "type": "divider"
+                              },
+                              {
+                                  "type": "section",
+                                  "fields": [
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Project*: ${CIRCLE_PROJECT_REPONAME}"
+                                      },
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Job*: ${CIRCLE_JOB}"
+                                      },
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Branch*: ${CIRCLE_BRANCH}"
+                                      },
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Author*: ${CIRCLE_USERNAME}"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "section",
+                                  "fields": [
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Mentions*: ${SLACK_PARAM_MENTIONS}"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "actions",
+                                  "elements": [
+                                      {
+                                          "type": "button",
+                                          "action_id": "basic_fail_view",
+                                          "text": {
+                                              "type": "plain_text",
+                                              "text": "View Job"
+                                          },
+                                          "url": "${CIRCLE_BUILD_URL}"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+
 jobs:
     security-scans:
         docker:
@@ -23,52 +84,47 @@ jobs:
         steps:
             - checkout
             - prodsec/security_scans:
-                mode: auto
-                release-branch: master
-                open-source-additional-arguments: --exclude=test
+                  mode: auto
+                  release-branch: master
+                  open-source-additional-arguments: --exclude=test
     build_image:
         docker:
             - image: cimg/base:current
         steps:
             - checkout
             - setup_remote_docker
-            - install_python_requests
             - run:
-                command: |
-                    IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
-                    IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
-                    IMAGE_NAME_CANDIDATE_UBI9=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}
-                    echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
-                    echo "export IMAGE_NAME_CANDIDATE_UBI9=$IMAGE_NAME_CANDIDATE_UBI9" >> $BASH_ENV
-                name: Export environment variables
+                  command: |
+                      IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+                      IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
+                      IMAGE_NAME_CANDIDATE_UBI9=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}
+                      echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
+                      echo "export IMAGE_NAME_CANDIDATE_UBI9=$IMAGE_NAME_CANDIDATE_UBI9" >> $BASH_ENV
+                  name: Export environment variables
             - run:
-                command: |
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS}
-                    ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
-                    ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
-                name: Build image
+                  command: |
+                      docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS}
+                      ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
+                      ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
+                  name: Build image
             - snyk/scan:
-                additional-arguments: --project-name=alpine --policy-path=.snyk
-                docker-image-name: ${IMAGE_NAME_CANDIDATE}
-                monitor-on-build: false
-                severity-threshold: high
-                target-file: Dockerfile
+                  additional-arguments: --project-name=alpine --policy-path=.snyk
+                  docker-image-name: ${IMAGE_NAME_CANDIDATE}
+                  monitor-on-build: false
+                  severity-threshold: high
+                  target-file: Dockerfile
             - snyk/scan:
-                additional-arguments: --project-name=ubi9 --policy-path=.snyk
-                docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
-                monitor-on-build: false
-                severity-threshold: critical
-                target-file: Dockerfile.ubi9
+                  additional-arguments: --project-name=ubi9 --policy-path=.snyk
+                  docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
+                  monitor-on-build: false
+                  severity-threshold: critical
+                  target-file: Dockerfile.ubi9
             - run:
-                command: |
-                    docker push ${IMAGE_NAME_CANDIDATE}
-                    docker push ${IMAGE_NAME_CANDIDATE_UBI9}
-                name: Push image
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      docker push ${IMAGE_NAME_CANDIDATE}
+                      docker push ${IMAGE_NAME_CANDIDATE_UBI9}
+                  name: Push image
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     code_formatter:
         docker:
@@ -76,45 +132,32 @@ jobs:
         steps:
             - checkout
             - run:
-                command: npm ci
-            - install_python_requests
+                  command: npm ci
             - run:
-                command: |
-                    npm run format:check
-                name: code formatter check
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      npm run format:check
+                  name: code formatter check
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     prepare_to_deploy:
         docker:
             - image: cimg/base:current
         steps:
             - checkout
-            - install_python_requests
             - run:
-                command: ./scripts/circleci-jobs/prepare_to_deploy.sh
-                name: Deploy to dev
-            - run:
-                command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: ./scripts/circleci-jobs/prepare_to_deploy.sh
+                  name: Deploy to dev
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     deploy_to_prod:
         docker:
             - image: cimg/base:current
         steps:
             - checkout
-            - install_python_requests
             - run:
-                command: ./scripts/circleci-jobs/deploy_to_prod.sh
-                name: Deploy to prod
-            - run:
-                command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: ./scripts/circleci-jobs/deploy_to_prod.sh
+                  name: Deploy to prod
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     lint:
         docker:
@@ -122,17 +165,12 @@ jobs:
         steps:
             - checkout
             - run:
-                command: npm ci
-            - install_python_requests
+                  command: npm ci
             - run:
-                command: |
-                    npm run lint
-                name: lint
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      npm run lint
+                  name: lint
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     publish:
         docker:
@@ -140,57 +178,51 @@ jobs:
         steps:
             - checkout
             - setup_remote_docker
-            - install_python_requests
             - install_helm
             - run:
-                command: |
-                    LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
-                    LATEST_TAG=${LATEST_TAG_WITH_V:1}
-                    IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
-                    IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
-                    IMAGE_NAME_APPROVED_UBI9=snyk/kubernetes-monitor:${LATEST_TAG}-ubi9-approved
-                    IMAGE_NAME_PUBLISHED_UBI9=snyk/kubernetes-monitor:${LATEST_TAG}-ubi9
-                    echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
-                    echo "export IMAGE_NAME_APPROVED=${IMAGE_NAME_APPROVED}" >> $BASH_ENV
-                    echo "export IMAGE_NAME_PUBLISHED=${IMAGE_NAME_PUBLISHED}" >> $BASH_ENV
-                    echo "export IMAGE_NAME_APPROVED_UBI9=${IMAGE_NAME_APPROVED_UBI9}" >> $BASH_ENV
-                    echo "export IMAGE_NAME_PUBLISHED_UBI9=${IMAGE_NAME_PUBLISHED_UBI9}" >> $BASH_ENV
-                name: Export environment variables
+                  command: |
+                      LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
+                      LATEST_TAG=${LATEST_TAG_WITH_V:1}
+                      IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
+                      IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
+                      IMAGE_NAME_APPROVED_UBI9=snyk/kubernetes-monitor:${LATEST_TAG}-ubi9-approved
+                      IMAGE_NAME_PUBLISHED_UBI9=snyk/kubernetes-monitor:${LATEST_TAG}-ubi9
+                      echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
+                      echo "export IMAGE_NAME_APPROVED=${IMAGE_NAME_APPROVED}" >> $BASH_ENV
+                      echo "export IMAGE_NAME_PUBLISHED=${IMAGE_NAME_PUBLISHED}" >> $BASH_ENV
+                      echo "export IMAGE_NAME_APPROVED_UBI9=${IMAGE_NAME_APPROVED_UBI9}" >> $BASH_ENV
+                      echo "export IMAGE_NAME_PUBLISHED_UBI9=${IMAGE_NAME_PUBLISHED_UBI9}" >> $BASH_ENV
+                  name: Export environment variables
             - snyk/scan:
-                additional-arguments: --project-name=alpine --policy-path=.snyk
-                command: container test
-                docker-image-name: ${IMAGE_NAME_APPROVED}
-                fail-on-issues: true
-                monitor-on-build: true
-                severity-threshold: high
-                target-file: Dockerfile
-                token-variable: SNYK_TOKEN
+                  additional-arguments: --project-name=alpine --policy-path=.snyk
+                  command: container test
+                  docker-image-name: ${IMAGE_NAME_APPROVED}
+                  fail-on-issues: true
+                  monitor-on-build: true
+                  severity-threshold: high
+                  target-file: Dockerfile
+                  token-variable: SNYK_TOKEN
             - snyk/scan:
-                additional-arguments: --project-name=ubi9 --policy-path=.snyk
-                command: container test
-                docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
-                fail-on-issues: true
-                monitor-on-build: true
-                severity-threshold: critical
-                target-file: Dockerfile.ubi9
-                token-variable: SNYK_TOKEN
+                  additional-arguments: --project-name=ubi9 --policy-path=.snyk
+                  command: container test
+                  docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
+                  fail-on-issues: true
+                  monitor-on-build: true
+                  severity-threshold: critical
+                  target-file: Dockerfile.ubi9
+                  token-variable: SNYK_TOKEN
             - run:
-                command: |
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
-                    docker pull ${IMAGE_NAME_APPROVED} &&
-                    docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
-                    docker push ${IMAGE_NAME_PUBLISHED} &&
-                    docker pull ${IMAGE_NAME_APPROVED_UBI9} &&
-                    docker tag ${IMAGE_NAME_APPROVED_UBI9} ${IMAGE_NAME_PUBLISHED_UBI9} &&
-                    docker push ${IMAGE_NAME_PUBLISHED_UBI9} &&
-                    ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED} &&
-                    ./scripts/slack/notify_push.py ${IMAGE_NAME_PUBLISHED_UBI9} &&
-                    ./scripts/publish-gh-pages.sh ${LATEST_TAG}
-                name: Publish
-            - run:
-                command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
+                      docker pull ${IMAGE_NAME_APPROVED} &&
+                      docker tag ${IMAGE_NAME_APPROVED} ${IMAGE_NAME_PUBLISHED} &&
+                      docker push ${IMAGE_NAME_PUBLISHED} &&
+                      docker pull ${IMAGE_NAME_APPROVED_UBI9} &&
+                      docker tag ${IMAGE_NAME_APPROVED_UBI9} ${IMAGE_NAME_PUBLISHED_UBI9} &&
+                      docker push ${IMAGE_NAME_PUBLISHED_UBI9} &&
+                      ./scripts/publish-gh-pages.sh ${LATEST_TAG}
+                  name: Publish
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     system_tests:
         machine:
@@ -199,24 +231,19 @@ jobs:
         steps:
             - checkout
             - run:
-                command: npm ci
-            - install_python_requests
+                  command: npm ci
             - run:
-                command: |
-                    export DEBIAN_FRONTEND=noninteractive
-                    sudo apt-get update -qq
-                    sudo apt-get install skopeo
-                name: Install Skopeo
+                  command: |
+                      export DEBIAN_FRONTEND=noninteractive
+                      sudo apt-get update -qq
+                      sudo apt-get install skopeo
+                  name: Install Skopeo
             - run:
-                command: |
-                    npm run build &&
-                    npm run test:system
-                name: System tests
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      npm run build &&
+                      npm run test:system
+                  name: System tests
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     tag_and_push:
         docker:
@@ -224,23 +251,19 @@ jobs:
         steps:
             - checkout
             - setup_remote_docker
-            - install_python_requests
             - run:
-                command: |
-                    npm ci &&
-                    docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
-                    unset CIRCLE_PULL_REQUEST &&
-                    unset CI_PULL_REQUEST &&
-                    unset CI_PULL_REQUESTS &&
-                    unset CIRCLE_PULL_REQUESTS &&
-                    npx semantic-release@17.2.2 &&
-                    NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
-                    ./scripts/docker/approve-image.sh $NEW_VERSION
-                name: Tag and push
-            - run:
-                command: ./scripts/slack/notify_failure.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      npm ci &&
+                      docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
+                      unset CIRCLE_PULL_REQUEST &&
+                      unset CI_PULL_REQUEST &&
+                      unset CI_PULL_REQUESTS &&
+                      unset CIRCLE_PULL_REQUESTS &&
+                      npx semantic-release@17.2.2 &&
+                      NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
+                      ./scripts/docker/approve-image.sh $NEW_VERSION
+                  name: Tag and push
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
     unit_tests:
         docker:
@@ -248,18 +271,13 @@ jobs:
         steps:
             - checkout
             - run:
-                command: npm ci
-            - install_python_requests
+                  command: npm ci
             - run:
-                command: |
-                    npm run build &&
-                    npm run test:unit
-                name: Unit tests
-            - run:
-                command: |
-                    ./scripts/slack/notify_failure_on_branch.py "${CIRCLE_BRANCH}" "${CIRCLE_JOB}" "${CIRCLE_BUILD_URL}" "${CIRCLE_PULL_REQUEST}" "${SLACK_WEBHOOK}"
-                name: Notify Slack on failure
-                when: on_fail
+                  command: |
+                      npm run build &&
+                      npm run test:unit
+                  name: Unit tests
+            - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
 main_branches_filter:
     filters:
@@ -276,6 +294,7 @@ orbs:
     aws-cli: circleci/aws-cli@2.0.6
     azure-cli: circleci/azure-cli@1.2.0
     prodsec: snyk/prodsec-orb@1.1
+    slack: circleci/slack@4.12.5
     snyk: snyk/snyk@2
 
 staging_branch_only_filter:
@@ -288,136 +307,155 @@ workflows:
     MERGE_TO_MASTER:
         jobs:
             - security-scans:
-                name: Security Scans
-                context:
-                    - analysis_test-enrichment
-                filters:
-                    branches:
-                        only:
-                            - master
+                  name: Security Scans
+                  context:
+                      - analysis_test-enrichment
+                  filters:
+                      branches:
+                          only:
+                              - master
             - publish:
-                context:
-                    - team-container-integration
-                    - analysis_test-enrichment
-                    - team-container-integration-docker-hub
-                requires:
-                    - Security Scans
-                filters:
-                    branches:
-                        only:
-                            - master
+                  context:
+                      - analysis_test-enrichment
+                      - snyk-bot-slack
+                      - team-container-integration
+                      - team-container-integration-docker-hub
+                  requires:
+                      - Security Scans
+                  filters:
+                      branches:
+                          only:
+                              - master
             - deploy_to_prod:
-                context:
-                    - team-container-integration-circleci
-                    - kubernetes-monitor
-                filters:
-                    branches:
-                        only:
-                            - master
-                requires:
-                    - publish
+                  context:
+                      - kubernetes-monitor
+                      - snyk-bot-slack
+                      - team-container-integration-circleci
+                  filters:
+                      branches:
+                          only:
+                              - master
+                  requires:
+                      - publish
     MERGE_TO_STAGING:
         jobs:
             - build_image:
-                context:
-                  - analysis_test-enrichment
-                  - go-private-modules
-                  - team-container-integration-docker-hub
-                filters:
-                    branches:
-                        only:
-                            - staging
+                  context:
+                      - analysis_test-enrichment
+                      - go-private-modules
+                      - snyk-bot-slack
+                      - team-container-integration-docker-hub
+                  filters:
+                      branches:
+                          only:
+                              - staging
             - unit_tests:
-                context: analysis_test-enrichment
-                filters:
-                    branches:
-                        only:
-                            - staging
+                  context:
+                      - analysis_test-enrichment
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          only:
+                              - staging
             - system_tests:
-                filters:
-                    branches:
-                        only:
-                            - staging
+                  context:
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          only:
+                              - staging
             - tag_and_push:
-                context: 
-                    - team-container-integration
-                    - team-container-integration-docker-hub
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - build_image
-                    - unit_tests
-                    - system_tests
+                  context:
+                      - snyk-bot-slack
+                      - team-container-integration
+                      - team-container-integration-docker-hub
+                  filters:
+                      branches:
+                          only:
+                              - staging
+                  requires:
+                      - build_image
+                      - unit_tests
+                      - system_tests
             - prepare_to_deploy:
-                context: 
-                    - team-container-integration
-                    - team-container-integration-circleci
-                    - kubernetes-monitor
-                filters:
-                    branches:
-                        only:
-                            - staging
-                requires:
-                    - tag_and_push
+                  context:
+                      - kubernetes-monitor
+                      - snyk-bot-slack
+                      - team-container-integration
+                      - team-container-integration-circleci
+                  filters:
+                      branches:
+                          only:
+                              - staging
+                  requires:
+                      - tag_and_push
     PR_TO_STAGING:
         jobs:
             - prodsec/secrets-scan:
-                name: Scan repository for secrets
-                trusted-branch: main
-                context:
-                    - snyk-bot-slack
-                channel: snyk-on-snyk-analysis_test-enrichment
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  name: Scan repository for secrets
+                  trusted-branch: main
+                  context:
+                      - snyk-bot-slack
+                  channel: snyk-on-snyk-analysis_test-enrichment
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - security-scans:
-                name: Security Scans
-                context:
-                    - analysis_test-enrichment
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  name: Security Scans
+                  context:
+                      - analysis_test-enrichment
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - build_image:
-                context:
-                  - analysis_test-enrichment
-                  - go-private-modules
-                  - team-container-integration-docker-hub
-                requires:
-                    - Scan repository for secrets
-                    - Security Scans
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  context:
+                      - analysis_test-enrichment
+                      - go-private-modules
+                      - snyk-bot-slack
+                      - team-container-integration-docker-hub
+                  requires:
+                      - Scan repository for secrets
+                      - Security Scans
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - unit_tests:
-                context: analysis_test-enrichment
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  context:
+                      - analysis_test-enrichment
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - lint:
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  context:
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - code_formatter:
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  context:
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master
             - system_tests:
-                filters:
-                    branches:
-                        ignore:
-                            - staging
-                            - master
+                  context:
+                      - snyk-bot-slack
+                  filters:
+                      branches:
+                          ignore:
+                              - staging
+                              - master

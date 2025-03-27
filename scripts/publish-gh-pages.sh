@@ -15,7 +15,6 @@ git checkout -f gh-pages
 if grep -Fxq "  tag: ${NEW_TAG}" ./snyk-monitor/values.yaml
 then
   echo not publishing a new gh-pages commit since this version is already published
-  ./scripts/slack/notify_success_no_publish.py
   exit 0
 fi
 
@@ -59,5 +58,3 @@ for (( i=0; i<${attempts}; i++ )); do
   echo "$curl_response"
   sleep $sleep_time
 done
-
-./scripts/slack/notify_push.py "gh-pages"
