@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:9.5 as cred-helpers-build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:9.6 as cred-helpers-build
 
 RUN GOTOOLCHAIN=go1.23.4 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
@@ -13,7 +13,7 @@ RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
 #---------------------------------------------------------------------
 # STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/nodejs-18:1-123 AS build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/nodejs-22:9.6 AS build
 
 ENV NODE_ENV production
 
@@ -31,17 +31,18 @@ RUN npm run build
 #---------------------------------------------------------------------
 # STAGE 3: Install containers-common to obtain configuration files
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.5 AS containers-common
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.6 AS containers-common
 
 RUN dnf install -y containers-common
 
 #---------------------------------------------------------------------
 # STAGE 4: Build the kubernetes-monitor final image
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.5
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.6
 
-ARG NODE_18_LATEST_VERSION
-ARG NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
+ARG NODE_MAJOR_VERSION=22
+ARG NODE_LATEST_VERSION
+ARG NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
 # https://github.com/Yelp/dumb-init/releases
 ARG DUMB_INIT_VERSION=1.2.5
 ARG DUMB_INIT_BINARY_FILE_SHASUM256=e874b55f3279ca41415d290c512a7ba9d08f98041b28ae7c2acb19a545f1c4df
@@ -89,11 +90,11 @@ RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --ins
 ENV PATH=/google-cloud-sdk/bin:$PATH
 
 # Install node
-RUN curl -sSfLo /tmp/node_18.tar.gz "https://nodejs.org/dist/latest-v18.x/${NODE_18_LATEST_VERSION}.tar.gz" && \
-    echo "${NODE_18_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/node_18.tar.gz" | sha256sum --check --status && \
-    mkdir /tmp/node_18 && tar -C /tmp/node_18 -xzf /tmp/node_18.tar.gz ${NODE_18_LATEST_VERSION}/bin/node && \
-    mv /tmp/node_18/${NODE_18_LATEST_VERSION}/bin/node /usr/local/bin && \
-    rm -rf /tmp/node_18.tar.gz /tmp/node_18
+RUN curl -sSfLo /tmp/node_${NODE_MAJOR_VERSION}.tar.gz "https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/${NODE_LATEST_VERSION}.tar.gz" && \
+    echo "${NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256} /tmp/node_${NODE_MAJOR_VERSION}.tar.gz" | sha256sum --check --status && \
+    mkdir /tmp/node_${NODE_MAJOR_VERSION} && tar -C /tmp/node_${NODE_MAJOR_VERSION} -xzf /tmp/node_${NODE_MAJOR_VERSION}.tar.gz ${NODE_LATEST_VERSION}/bin/node && \
+    mv /tmp/node_${NODE_MAJOR_VERSION}/${NODE_LATEST_VERSION}/bin/node /usr/local/bin && \
+    rm -rf /tmp/node_${NODE_MAJOR_VERSION}.tar.gz /tmp/node_${NODE_MAJOR_VERSION}
 
 RUN rpm -e --nodeps curl-minimal && \
     rpm -e --nodeps libcurl-minimal
