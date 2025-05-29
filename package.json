@@ -34,7 +34,7 @@
     "format:check": "prettier --check '{src,test}/**/*.{js,ts,json,yml}'"
   },
   "dependencies": {
-    "@aws-sdk/client-ecr": "^3.816.0",
+    "@aws-sdk/client-ecr": "^3.817.0",
     "@kubernetes/client-node": "^0.22.3",
     "@snyk/dep-graph": "^2.9.0",
     "async": "^3.2.6",
@@ -61,7 +61,7 @@
     "@types/jest": "^26.0.24",
     "@types/lru-cache": "^5.1.1",
     "@types/needle": "^2.5.3",
-    "@types/node": "^16.18.126",
+    "@types/node": "^20.17.52",
     "@types/source-map-support": "^0.5.10",
     "@types/tunnel": "0.0.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",

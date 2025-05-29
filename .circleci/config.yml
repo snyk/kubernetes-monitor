@@ -80,7 +80,7 @@ commands:
 jobs:
     security-scans:
         docker:
-            - image: cimg/node:18.19.1
+            - image: cimg/node:22.15
         steps:
             - checkout
             - prodsec/security_scans:
@@ -128,7 +128,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     code_formatter:
         docker:
-            - image: cimg/node:18.19.1
+            - image: cimg/node:22.15
         steps:
             - checkout
             - run:
@@ -161,7 +161,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     lint:
         docker:
-            - image: cimg/node:18.19.1
+            - image: cimg/node:22.15
         steps:
             - checkout
             - run:
@@ -174,7 +174,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     publish:
         docker:
-            - image: cimg/node:18.19.1
+            - image: cimg/node:22.15
         steps:
             - checkout
             - setup_remote_docker
@@ -247,7 +247,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     tag_and_push:
         docker:
-            - image: cimg/node:18.19.1
+            - image: cimg/node:22.15
         steps:
             - checkout
             - setup_remote_docker
@@ -267,7 +267,7 @@ jobs:
         working_directory: ~/kubernetes-monitor
     unit_tests:
         docker:
-            - image: cimg/node:18.19.1
+            - image: cimg/node:22.15
         steps:
             - checkout
             - run:
