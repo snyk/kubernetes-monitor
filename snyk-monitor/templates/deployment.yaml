@@ -283,8 +283,8 @@ spec:
             sizeLimit: {{ .Values.temporaryStorageSize }}
           {{- end }}
         - name: ssl-certs
-          configMap:
-            name: {{ .Values.certsConfigMap }}
+          secret:
+            secretName: {{ .Values.certsSecret }}
             optional: true
         - name: workload-policies
           configMap:
