@@ -31,7 +31,7 @@ image:
 metadata:
   annotations:
     github.com/project-slug: snyk/kubernetes-monitor
-    github.com/team-slug: snyk/test-enrichment
+    github.com/team-slug: snyk/infrasec_container
   labels:
     $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
     $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
