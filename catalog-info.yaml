@@ -4,8 +4,8 @@ metadata:
   name: kubernetes-monitor
   annotations:
     github.com/project-slug: snyk/kubernetes-monitor
-    github.com/team-slug: snyk/test-enrichment
+    github.com/team-slug: snyk/infrasec_container
 spec:
   type: external-tooling
   lifecycle: "-"
-  owner: test-enrichment
+  owner: container
