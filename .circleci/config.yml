@@ -318,7 +318,6 @@ workflows:
                   context:
                       - infrasec_container
                       - snyk-bot-slack
-                      - team-container-integration
                       - team-container-integration-docker-hub
                   requires:
                       - Security Scans
@@ -367,7 +366,7 @@ workflows:
             - tag_and_push:
                   context:
                       - snyk-bot-slack
-                      - team-container-integration
+                      - infrasec_container
                       - team-container-integration-docker-hub
                   filters:
                       branches:
@@ -381,7 +380,7 @@ workflows:
                   context:
                       - kubernetes-monitor
                       - snyk-bot-slack
-                      - team-container-integration
+                      - infrasec_container
                       - team-container-integration-circleci
                   filters:
                       branches:
