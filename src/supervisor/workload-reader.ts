@@ -24,9 +24,12 @@ const deploymentReader: IWorkloadReaderFunc = async (
 
   const deploymentResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-      k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
+      k8sApi.appsClient.readNamespacedDeployment({
+        name: workloadName,
+        namespace: namespace,
+      }),
     );
-  const deployment = trimWorkload(deploymentResult.body);
+  const deployment = trimWorkload(deploymentResult);
 
   if (
     !deployment.metadata ||
@@ -63,13 +66,13 @@ const deploymentConfigReader: IWorkloadReaderFunc = async (
 
   const deploymentResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.getNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
-        namespace,
-        'deploymentconfigs',
-        workloadName,
-      ),
+      k8sApi.customObjectsClient.getNamespacedCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        namespace: namespace,
+        plural: 'deploymentconfigs',
+        name: workloadName,
+      }),
     );
   const deployment: V1DeploymentConfig = trimWorkload(deploymentResult.body);
 
@@ -107,9 +110,12 @@ const replicaSetReader: IWorkloadReaderFunc = async (
 
   const replicaSetResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-      k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
+      k8sApi.appsClient.readNamespacedReplicaSet({
+        name: workloadName,
+        namespace: namespace,
+      }),
     );
-  const replicaSet = trimWorkload(replicaSetResult.body);
+  const replicaSet = trimWorkload(replicaSetResult);
 
   if (
     !replicaSet.metadata ||
@@ -146,9 +152,12 @@ const statefulSetReader: IWorkloadReaderFunc = async (
 
   const statefulSetResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-      k8sApi.appsClient.readNamespacedStatefulSet(workloadName, namespace),
+      k8sApi.appsClient.readNamespacedStatefulSet({
+        name: workloadName,
+        namespace: namespace,
+      }),
     );
-  const statefulSet = trimWorkload(statefulSetResult.body);
+  const statefulSet = trimWorkload(statefulSetResult);
 
   if (
     !statefulSet.metadata ||
@@ -183,9 +192,13 @@ const daemonSetReader: IWorkloadReaderFunc = async (
   }
 
   const daemonSetResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () => k8sApi.appsClient.readNamespacedDaemonSet(workloadName, namespace),
+    () =>
+      k8sApi.appsClient.readNamespacedDaemonSet({
+        name: workloadName,
+        namespace: namespace,
+      }),
   );
-  const daemonSet = trimWorkload(daemonSetResult.body);
+  const daemonSet = trimWorkload(daemonSetResult);
 
   if (
     !daemonSet.metadata ||
@@ -217,9 +230,12 @@ const jobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   }
 
   const jobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-    k8sApi.batchClient.readNamespacedJob(workloadName, namespace),
+    k8sApi.batchClient.readNamespacedJob({
+      name: workloadName,
+      namespace: namespace,
+    }),
   );
-  const job = trimWorkload(jobResult.body);
+  const job = trimWorkload(jobResult);
 
   if (
     !job.metadata ||
@@ -249,9 +265,13 @@ const cronJobReader: IWorkloadReaderFunc = async (workloadName, namespace) => {
   }
 
   const cronJobResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
-    () => k8sApi.batchClient.readNamespacedCronJob(workloadName, namespace),
+    () =>
+      k8sApi.batchClient.readNamespacedCronJob({
+        name: workloadName,
+        namespace: namespace,
+      }),
   );
-  const cronJob = trimWorkload(cronJobResult.body);
+  const cronJob = trimWorkload(cronJobResult);
 
   if (
     !cronJob.metadata ||
@@ -286,12 +306,12 @@ const replicationControllerReader: IWorkloadReaderFunc = async (
 
   const replicationControllerResult =
     await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
-      k8sApi.coreClient.readNamespacedReplicationController(
-        workloadName,
-        namespace,
-      ),
+      k8sApi.coreClient.readNamespacedReplicationController({
+        name: workloadName,
+        namespace: namespace,
+      }),
     );
-  const replicationController = trimWorkload(replicationControllerResult.body);
+  const replicationController = trimWorkload(replicationControllerResult);
 
   if (
     !replicationController.metadata ||
@@ -328,13 +348,13 @@ const argoRolloutReader: IWorkloadReaderFunc = async (
 
   const rolloutResult = await kubernetesApiWrappers.retryKubernetesApiRequest(
     () =>
-      k8sApi.customObjectsClient.getNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        namespace,
-        'rollouts',
-        workloadName,
-      ),
+      k8sApi.customObjectsClient.getNamespacedCustomObject({
+        group: 'argoproj.io',
+        version: 'v1alpha1',
+        namespace: namespace,
+        plural: 'rollouts',
+        name: workloadName,
+      }),
   );
   const rollout: V1alpha1Rollout = trimWorkload(rolloutResult.body);
 

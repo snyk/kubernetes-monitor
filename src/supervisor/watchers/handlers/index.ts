@@ -6,7 +6,7 @@ import * as deploymentConfig from './deployment-config';
 import * as rollout from './argo-rollout';
 import { kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
-import { FALSY_WORKLOAD_NAME_MARKER, KubernetesInformerVerb } from './types';
+import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { workloadWatchMetadata } from './informer-config';
 import { restartableErrorHandler } from './error';
 import { isExcludedNamespace } from '../internal-namespaces';
@@ -87,22 +87,24 @@ export async function setupNamespacedInformer(
   informer.on(ERROR, restartableErrorHandler(informer, logContext));
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
-    informer.on(
-      informerVerb as KubernetesInformerVerb,
-      async (watchedWorkload) => {
-        try {
-          await workloadMetadata.handlers[informerVerb](watchedWorkload);
-        } catch (error) {
-          const name =
-            (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
-            FALSY_WORKLOAD_NAME_MARKER;
-          logger.warn(
-            { ...logContext, error, workloadName: name },
-            'could not execute the namespaced informer handler for a workload',
-          );
+    informer.on(informerVerb, async (watchedWorkload) => {
+      try {
+        const handler = workloadMetadata.handlers[informerVerb];
+        if (handler === undefined) {
+          throw new Error(`Undefined handler for "${informerVerb}"`);
         }
-      },
-    );
+
+        await handler(watchedWorkload);
+      } catch (error) {
+        const name =
+          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+          FALSY_WORKLOAD_NAME_MARKER;
+        logger.warn(
+          { ...logContext, error, workloadName: name },
+          'could not execute the namespaced informer handler for a workload',
+        );
+      }
+    });
   }
 
   await informer.start();
@@ -145,29 +147,31 @@ export async function setupClusterInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  //informer.on(ERROR, restartableErrorHandler(informer, logContext));
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
-    informer.on(
-      informerVerb as KubernetesInformerVerb,
-      async (watchedWorkload) => {
-        try {
-          if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
-            return;
-          }
-
-          await workloadMetadata.handlers[informerVerb](watchedWorkload);
-        } catch (error) {
-          const name =
-            (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
-            FALSY_WORKLOAD_NAME_MARKER;
-          logger.warn(
-            { ...logContext, error, workloadName: name },
-            'could not execute the cluster informer handler for a workload',
-          );
+    informer.on(informerVerb, async (watchedWorkload) => {
+      try {
+        if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
+          return;
         }
-      },
-    );
+
+        const handler = workloadMetadata.handlers[informerVerb];
+        if (handler == undefined) {
+          throw new Error('Unefined handler for ' + informerVerb);
+        }
+
+        await handler(watchedWorkload);
+      } catch (error) {
+        const name =
+          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+          FALSY_WORKLOAD_NAME_MARKER;
+        logger.warn(
+          { ...logContext, error, workloadName: name },
+          'could not execute the cluster informer handler for a workload',
+        );
+      }
+    });
   }
 
   await informer.start();
