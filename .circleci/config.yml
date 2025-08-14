@@ -329,6 +329,7 @@ workflows:
                   context:
                       - kubernetes-monitor
                       - snyk-bot-slack
+                      - infrasec_container
                       - team-container-integration-circleci
                   filters:
                       branches:
