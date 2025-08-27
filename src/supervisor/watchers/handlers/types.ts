@@ -4,16 +4,11 @@ import {
   V1ListMeta,
   V1ObjectMeta,
   V1PodTemplateSpec,
-  ADD,
-  DELETE,
-  UPDATE,
 } from '@kubernetes/client-node';
-import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
-export type KubernetesInformerVerb = ADD | DELETE | UPDATE;
-
+export type KubernetesInformerVerb = string;
 type WorkloadHandlers = Partial<
   Record<KubernetesInformerVerb, WorkloadHandlerFunc>
 >;
@@ -22,15 +17,9 @@ type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
 type ListNamespacedWorkloadFunctionFactory = (
   namespace: string,
-) => () => Promise<{
-  response: any;
-  body: any;
-}>;
+) => () => Promise<any>;
 
-type ListClusterWorkloadFunctionFactory = () => () => Promise<{
-  response: any;
-  body: any;
-}>;
+type ListClusterWorkloadFunctionFactory = () => () => Promise<any>;
 
 export interface IWorkloadWatchMetadata {
   [workloadKind: string]: {
@@ -99,47 +88,41 @@ export interface V1alpha1RolloutWorkloadRef {
   name: string;
 }
 
-export type V1ClusterList<T> = (
-  allowWatchBookmarks?: boolean,
-  _continue?: string,
-  fieldSelector?: string,
-  labelSelector?: string,
-  limit?: number,
-  pretty?: string,
-  resourceVersion?: string,
-  resourceVersionMatch?: string,
-  sendInitialEvents?: boolean,
-  timeoutSeconds?: number,
-  watch?: boolean,
+export type V1ClusterList<T> = (clusterRequest: {
+  allowWatchBookmarks?: boolean;
+  _continue?: string;
+  fieldSelector?: string;
+  labelSelector?: string;
+  limit?: number;
+  pretty?: string;
+  resourceVersion?: string;
+  resourceVersionMatch?: string;
+  sendInitialEvents?: boolean;
+  timeoutSeconds?: number;
+  watch?: boolean;
   options?: {
     headers: {
       [name: string]: string;
     };
-  },
-) => Promise<{
-  response: IncomingMessage;
-  body: T;
-}>;
+  };
+}) => Promise<T>;
 
-export type V1NamespacedList<T> = (
-  namespace: string,
-  pretty?: string,
-  allowWatchBookmarks?: boolean,
-  _continue?: string,
-  fieldSelector?: string,
-  labelSelector?: string,
-  limit?: number,
-  resourceVersion?: string,
-  resourceVersionMatch?: string,
-  sendInitialEvents?: boolean,
-  timeoutSeconds?: number,
-  watch?: boolean,
+export type V1NamespacedList<T> = (batchRequst: {
+  namespace: string;
+  pretty?: string;
+  allowWatchBookmarks?: boolean;
+  _continue?: string;
+  fieldSelector?: string;
+  labelSelector?: string;
+  limit?: number;
+  resourceVersion?: string;
+  resourceVersionMatch?: string;
+  sendInitialEvents?: boolean;
+  timeoutSeconds?: number;
+  watch?: boolean;
   options?: {
     headers: {
       [name: string]: string;
     };
-  },
-) => Promise<{
-  response: IncomingMessage;
-  body: T;
-}>;
+  };
+}) => Promise<T>;

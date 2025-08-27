@@ -2,7 +2,6 @@ import { V1StatefulSet, V1StatefulSetList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
@@ -15,10 +14,7 @@ import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedStatefulSetList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1StatefulSetList;
-}> {
+): Promise<V1StatefulSetList> {
   const v1StatefulSetList = new V1StatefulSetList();
   v1StatefulSetList.apiVersion = 'apps/v1';
   v1StatefulSetList.kind = 'StatefulSetList';
@@ -31,10 +27,7 @@ export async function paginatedNamespacedStatefulSetList(
   );
 }
 
-export async function paginatedClusterStatefulSetList(): Promise<{
-  response: IncomingMessage;
-  body: V1StatefulSetList;
-}> {
+export async function paginatedClusterStatefulSetList(): Promise<V1StatefulSetList> {
   const v1StatefulSetList = new V1StatefulSetList();
   v1StatefulSetList.apiVersion = 'apps/v1';
   v1StatefulSetList.kind = 'StatefulSetList';

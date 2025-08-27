@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
@@ -20,10 +19,7 @@ import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedDeploymentConfigList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1DeploymentConfigList;
-}> {
+): Promise<V1DeploymentConfigList> {
   const v1DeploymentConfigList = new V1DeploymentConfigList();
   v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
   v1DeploymentConfigList.kind = 'DeploymentConfigList';
@@ -32,26 +28,28 @@ export async function paginatedNamespacedDeploymentConfigList(
   return await paginatedNamespacedList(
     namespace,
     v1DeploymentConfigList,
-    async (
-      namespace: string,
-      pretty?: string,
-      _allowWatchBookmarks?: boolean,
-      _continue?: string,
-      fieldSelector?: string,
-      labelSelector?: string,
-      limit?: number,
-    ) =>
+    async (batchRequest: {
+      namespace: string;
+      pretty?: string;
+      _allowWatchBookmarks?: boolean;
+      _continue?: string;
+      fieldSelector?: string;
+      labelSelector?: string;
+      limit?: number;
+    }) =>
       k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
-        namespace,
-        'deploymentconfigs',
-        pretty,
-        false,
-        _continue,
-        fieldSelector,
-        labelSelector,
-        limit,
+        {
+          group: 'apps.openshift.io',
+          version: 'v1',
+          namespace: namespace,
+          plural: 'deploymentconfigs',
+          pretty: batchRequest.pretty,
+          allowWatchBookmarks: false,
+          _continue: batchRequest._continue,
+          fieldSelector: batchRequest.fieldSelector,
+          labelSelector: batchRequest.labelSelector,
+          limit: batchRequest.limit,
+        },
         /**
          * The K8s client's listNamespacedCustomObject() doesn't allow to specify
          * the type of the response body and returns the generic "object" type,
@@ -65,10 +63,7 @@ export async function paginatedNamespacedDeploymentConfigList(
   );
 }
 
-export async function paginatedClusterDeploymentConfigList(): Promise<{
-  response: IncomingMessage;
-  body: V1DeploymentConfigList;
-}> {
+export async function paginatedClusterDeploymentConfigList(): Promise<V1DeploymentConfigList> {
   const v1DeploymentConfigList = new V1DeploymentConfigList();
   v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
   v1DeploymentConfigList.kind = 'DeploymentConfigList';
@@ -76,25 +71,25 @@ export async function paginatedClusterDeploymentConfigList(): Promise<{
 
   return await paginatedClusterList(
     v1DeploymentConfigList,
-    async (
-      _allowWatchBookmarks?: boolean,
-      _continue?: string,
-      fieldSelector?: string,
-      labelSelector?: string,
-      limit?: number,
-      pretty?: string,
-    ) =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'apps.openshift.io',
-        'v1',
-        'deploymentconfigs',
-        pretty,
-        false,
-        _continue,
-        fieldSelector,
-        labelSelector,
-        limit,
-      ) as any,
+    async (clusterRequest: {
+      _allowWatchBookmarks?: boolean;
+      _continue?: string;
+      fieldSelector?: string;
+      labelSelector?: string;
+      limit?: number;
+      pretty?: string;
+    }) =>
+      k8sApi.customObjectsClient.listClusterCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        plural: 'deploymentconfigs',
+        pretty: clusterRequest.pretty,
+        allowWatchBookmarks: false,
+        _continue: clusterRequest._continue,
+        fieldSelector: clusterRequest.fieldSelector,
+        labelSelector: clusterRequest.labelSelector,
+        limit: clusterRequest.limit,
+      }) as any,
   );
 }
 
@@ -154,21 +149,21 @@ export async function isNamespacedDeploymentConfigSupported(
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
-        namespace,
-        'deploymentconfigs',
-        pretty,
-        false,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        limit,
-        resourceVersion,
-        undefined,
-        timeoutSeconds,
-      ),
+      k8sApi.customObjectsClient.listNamespacedCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        namespace: namespace,
+        plural: 'deploymentconfigs',
+        pretty: pretty,
+        allowWatchBookmarks: false,
+        _continue: continueToken,
+        fieldSelector: fieldSelector,
+        labelSelector: labelSelector,
+        limit: limit,
+        resourceVersion: resourceVersion,
+        resourceVersionMatch: undefined,
+        timeoutSeconds: timeoutSeconds,
+      }),
     );
     return (
       attemptedApiCall !== undefined &&
@@ -196,20 +191,20 @@ export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'apps.openshift.io',
-        'v1',
-        'deploymentconfigs',
-        pretty,
-        false,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        limit,
-        resourceVersion,
-        undefined,
-        timeoutSeconds,
-      ),
+      k8sApi.customObjectsClient.listClusterCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        plural: 'deploymentconfigs',
+        pretty: pretty,
+        allowWatchBookmarks: false,
+        _continue: continueToken,
+        fieldSelector: fieldSelector,
+        labelSelector: labelSelector,
+        limit: limit,
+        resourceVersion: resourceVersion,
+        resourceVersionMatch: undefined,
+        timeoutSeconds: timeoutSeconds,
+      }),
     );
     return (
       attemptedApiCall !== undefined &&
