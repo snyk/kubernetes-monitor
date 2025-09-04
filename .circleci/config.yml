@@ -13,9 +13,9 @@ commands:
         steps:
             - slack/notify:
                   branch_pattern: master,staging
-                  channel: team-test-enrichment-deployment
+                  channel: team-container-pipeline-info
                   event: fail
-                  mentions: '@testenrichers'
+                #   mentions: '@testenrichers'
                   custom: |
                       {
                           "blocks": [
@@ -309,16 +309,15 @@ workflows:
             - security-scans:
                   name: Security Scans
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                   filters:
                       branches:
                           only:
                               - master
             - publish:
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                       - snyk-bot-slack
-                      - team-container-integration
                       - team-container-integration-docker-hub
                   requires:
                       - Security Scans
@@ -330,6 +329,7 @@ workflows:
                   context:
                       - kubernetes-monitor
                       - snyk-bot-slack
+                      - infrasec_container
                       - team-container-integration-circleci
                   filters:
                       branches:
@@ -341,7 +341,7 @@ workflows:
         jobs:
             - build_image:
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                       - go-private-modules
                       - snyk-bot-slack
                       - team-container-integration-docker-hub
@@ -351,7 +351,7 @@ workflows:
                               - staging
             - unit_tests:
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                       - snyk-bot-slack
                   filters:
                       branches:
@@ -367,7 +367,7 @@ workflows:
             - tag_and_push:
                   context:
                       - snyk-bot-slack
-                      - team-container-integration
+                      - infrasec_container
                       - team-container-integration-docker-hub
                   filters:
                       branches:
@@ -381,7 +381,7 @@ workflows:
                   context:
                       - kubernetes-monitor
                       - snyk-bot-slack
-                      - team-container-integration
+                      - infrasec_container
                       - team-container-integration-circleci
                   filters:
                       branches:
@@ -396,7 +396,7 @@ workflows:
                   trusted-branch: main
                   context:
                       - snyk-bot-slack
-                  channel: snyk-on-snyk-analysis_test-enrichment
+                  channel: snyk-on-snyk-infrasec_container
                   filters:
                       branches:
                           ignore:
@@ -405,7 +405,7 @@ workflows:
             - security-scans:
                   name: Security Scans
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                       - snyk-bot-slack
                   filters:
                       branches:
@@ -414,7 +414,7 @@ workflows:
                               - master
             - build_image:
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                       - go-private-modules
                       - snyk-bot-slack
                       - team-container-integration-docker-hub
@@ -428,7 +428,7 @@ workflows:
                               - master
             - unit_tests:
                   context:
-                      - analysis_test-enrichment
+                      - infrasec_container
                       - snyk-bot-slack
                   filters:
                       branches:
