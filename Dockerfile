@@ -26,9 +26,9 @@ COPY LICENSE /licenses/LICENSE
 
 ENV NODE_ENV=production
 
-RUN apk update
-RUN apk upgrade
-RUN apk --no-cache add dumb-init skopeo curl bash python3
+RUN apk update && \
+    apk upgrade && \
+    apk --no-cache add dumb-init skopeo curl bash python3
 
 RUN npm install -g npm@v10.9.2
 
@@ -36,12 +36,13 @@ RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
 
 # Install gcloud
-RUN curl -sL https://sdk.cloud.google.com > /install.sh
-RUN bash /install.sh --disable-prompts --install-dir=/ && \
-    rm -rf /google-cloud-sdk/platform /google-cloud-sdk/bin/anthoscli /google-cloud-sdk/bin/gcloud-crc32c
+RUN curl -sL https://sdk.cloud.google.com > /install.sh && \
+    bash /install.sh --disable-prompts --install-dir=/ && \
+    rm -rf /google-cloud-sdk/platform /google-cloud-sdk/bin/anthoscli /google-cloud-sdk/bin/gcloud-crc32c && \
+    rm /install.sh && \
+    apk del curl bash
+
 ENV PATH=/google-cloud-sdk/bin:$PATH
-RUN rm /install.sh
-RUN apk del curl bash
 
 # Copy credential helpers
 COPY --chown=snyk:snyk --from=cred-helpers-build /go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
@@ -64,7 +65,9 @@ RUN npm ci
 ADD --chown=snyk:snyk . .
 
 # OpenShift 4 doesn't allow dumb-init access the app folder without this permission.
-RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
+RUN chmod 755 /srv/app && \ 
+  chmod 755 /srv/app/bin && \
+  chmod +x /srv/app/bin/start
 
 # This must be in the end for Red Hat Build Service
 RUN chown -R snyk:snyk .
