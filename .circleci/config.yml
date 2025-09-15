@@ -107,18 +107,16 @@ jobs:
                       ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
                       ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
                   name: Build image
-            - snyk/scan:
-                  additional-arguments: --project-name=alpine --policy-path=.snyk
-                  docker-image-name: ${IMAGE_NAME_CANDIDATE}
-                  monitor-on-build: false
-                  severity-threshold: high
-                  target-file: Dockerfile
-            - snyk/scan:
-                  additional-arguments: --project-name=ubi9 --policy-path=.snyk
-                  docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
-                  monitor-on-build: false
-                  severity-threshold: critical
-                  target-file: Dockerfile.ubi9
+            - prodsec/container_scan:
+                mode: gate
+                docker-image-name: ${IMAGE_NAME_CANDIDATE}
+                docker-file: Dockerfile
+                project-name: alpine
+            - prodsec/container_scan:
+                mode: gate
+                docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
+                docker-file: Dockerfile.ubi9
+                project-name: ubi9
             - run:
                   command: |
                       docker push ${IMAGE_NAME_CANDIDATE}
@@ -193,24 +191,17 @@ jobs:
                       echo "export IMAGE_NAME_APPROVED_UBI9=${IMAGE_NAME_APPROVED_UBI9}" >> $BASH_ENV
                       echo "export IMAGE_NAME_PUBLISHED_UBI9=${IMAGE_NAME_PUBLISHED_UBI9}" >> $BASH_ENV
                   name: Export environment variables
-            - snyk/scan:
-                  additional-arguments: --project-name=alpine --policy-path=.snyk
-                  command: container test
-                  docker-image-name: ${IMAGE_NAME_APPROVED}
-                  fail-on-issues: true
-                  monitor-on-build: true
-                  severity-threshold: high
-                  target-file: Dockerfile
-                  token-variable: SNYK_TOKEN
-            - snyk/scan:
-                  additional-arguments: --project-name=ubi9 --policy-path=.snyk
-                  command: container test
-                  docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
-                  fail-on-issues: true
-                  monitor-on-build: true
-                  severity-threshold: critical
-                  target-file: Dockerfile.ubi9
-                  token-variable: SNYK_TOKEN
+            - prodsec/container_scan:
+                mode: gate-and-upload
+                docker-image-name: ${IMAGE_NAME_APPROVED}
+                docker-file: Dockerfile
+                project-name: alpine
+
+            - prodsec/container_scan:
+                mode: gate-and-upload
+                docker-image-name: ${IMAGE_NAME_APPROVED_UBI9}
+                docker-file: Dockerfile.ubi9
+                project-name: ubi9
             - run:
                   command: |
                       docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS} &&
@@ -293,9 +284,8 @@ master_branch_only_filter:
 orbs:
     aws-cli: circleci/aws-cli@2.0.6
     azure-cli: circleci/azure-cli@1.2.0
-    prodsec: snyk/prodsec-orb@1.1
+    prodsec: snyk/prodsec-orb@1
     slack: circleci/slack@4.12.5
-    snyk: snyk/snyk@2
 
 staging_branch_only_filter:
     filters:
