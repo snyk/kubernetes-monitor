@@ -17,7 +17,7 @@ Different tests have different requirements in terms of software and environment
 2. Node (v10 or higher)
 
 In order to run the Kubernetes-Monitor's tests, please run
-`npm test`.
+`npm test`
 
 ## Unit Tests
 
