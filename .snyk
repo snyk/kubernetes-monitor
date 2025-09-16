@@ -12,6 +12,12 @@ ignore:
         reason: devDependency
         expires: 2025-12-01T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
+    SNYK-RHEL9-EXPAT-12672450:
+    - '*':
+        reason: >-
+          There is no fix at this time
+        expires: 2026-10-31T12:00:00.000Z
+        created: 2025-09-15T12:00:00.000Z
     SNYK-JS-INFLIGHT-6095116:
     - '*':
         reason: Waiting for upstream fix

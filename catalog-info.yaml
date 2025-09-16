@@ -6,6 +6,6 @@ metadata:
     github.com/project-slug: snyk/kubernetes-monitor
     github.com/team-slug: snyk/infrasec_container
 spec:
-  type: external-tooling
+  type: snyk-deployed-prod
   lifecycle: "-"
   owner: container
