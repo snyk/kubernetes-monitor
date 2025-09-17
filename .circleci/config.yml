@@ -76,6 +76,73 @@ commands:
                               }
                           ]
                       }
+    notify_slack_test:
+        steps:
+            - slack/notify:
+                  branch_pattern: master,staging
+                  channel: team-container-pipeline-info
+                  event: success
+                #   mentions: '@testenrichers'
+                  custom: |
+                      {
+                          "blocks": [
+                              {
+                                  "type": "header",
+                                  "text": {
+                                      "type": "plain_text",
+                                      "text": "CICD Step Triggered :circleci-pass:",
+                                      "emoji": true
+                                  }
+                              },
+                              {
+                                  "type": "divider"
+                              },
+                              {
+                                  "type": "section",
+                                  "fields": [
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Project*: ${CIRCLE_PROJECT_REPONAME}"
+                                      },
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Job*: ${CIRCLE_JOB}"
+                                      },
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Branch*: ${CIRCLE_BRANCH}"
+                                      },
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Author*: ${CIRCLE_USERNAME}"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "section",
+                                  "fields": [
+                                      {
+                                          "type": "mrkdwn",
+                                          "text": "*Mentions*: ${SLACK_PARAM_MENTIONS}"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "actions",
+                                  "elements": [
+                                      {
+                                          "type": "button",
+                                          "action_id": "basic_fail_view",
+                                          "text": {
+                                              "type": "plain_text",
+                                              "text": "View Job"
+                                          },
+                                          "url": "${CIRCLE_BUILD_URL}"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
 
 jobs:
     security-scans:
@@ -296,37 +363,21 @@ version: 2.1
 workflows:
     MERGE_TO_MASTER:
         jobs:
+            - approve_deployment_to_prod:
+                type: approval
+                requires: 
+                    - build_image
             - security-scans:
                   name: Security Scans
+                  requires:
+                      - approve_deployment_to_prod
                   context:
                       - infrasec_container
-                  filters:
-                      branches:
-                          only:
-                              - master
-            - publish:
+            - notify_slack_test:
                   context:
-                      - infrasec_container
                       - snyk-bot-slack
-                      - team-container-integration-docker-hub
                   requires:
                       - Security Scans
-                  filters:
-                      branches:
-                          only:
-                              - master
-            - deploy_to_prod:
-                  context:
-                      - kubernetes-monitor
-                      - snyk-bot-slack
-                      - infrasec_container
-                      - team-container-integration-circleci
-                  filters:
-                      branches:
-                          only:
-                              - master
-                  requires:
-                      - publish
     MERGE_TO_STAGING:
         jobs:
             - build_image:
