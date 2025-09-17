@@ -337,6 +337,11 @@ jobs:
                   name: Unit tests
             - notify_slack_on_failure
         working_directory: ~/kubernetes-monitor
+    notify_slack_test_job:
+        docker:
+            - image: cimg/base:current
+        steps:
+            - notify_slack_test
 main_branches_filter:
     filters:
         branches:
@@ -373,7 +378,7 @@ workflows:
                       - approve_deployment_to_prod
                   context:
                       - infrasec_container
-            - notify_slack_test:
+            - notify_slack_test_job:
                   context:
                       - snyk-bot-slack
                   requires:
