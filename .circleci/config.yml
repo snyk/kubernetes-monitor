@@ -368,6 +368,12 @@ version: 2.1
 workflows:
     MERGE_TO_MASTER:
         jobs:
+            - build_image:
+                  context:
+                      - infrasec_container
+                      - go-private-modules
+                      - snyk-bot-slack
+                      - team-container-integration-docker-hub
             - approve_deployment_to_prod:
                 type: approval
                 requires: 
