@@ -81,7 +81,7 @@ commands:
             - slack/notify:
                   branch_pattern: master,staging
                   channel: team-container-pipeline-info
-                  event: success
+                  event: pass
                 #   mentions: '@testenrichers'
                   custom: |
                       {
