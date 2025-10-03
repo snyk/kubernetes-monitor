@@ -1,12 +1,12 @@
 /**
  * Adapter layer for @kubernetes/client-node v1.0.0 API compatibility
- * 
+ *
  * This adapter provides backward compatibility with v0.2.3 API signatures by:
  * 1. Converting individual parameters to object parameters (v1.0.0 uses ObjectParamAPI)
  * 2. Calling *WithHttpInfo methods to get full HTTP metadata
  * 3. Transforming HttpInfo<T> responses to the old { response, body } format
- * 
- * This allows the rest of the codebase to remain unchanged during the upgrade.
+ *
+ * This allows the rest of the codebase to remain unchanged.
  */
 
 import {
@@ -39,22 +39,28 @@ import { IncomingMessage } from 'http';
 
 /**
  * Helper function to convert HttpInfo<T> to the old { response, body } format
- * 
+ *
  * The v1.0.0 API returns HttpInfo which contains:
  * - httpStatusCode: number
  * - headers: Record<string, string>
  * - body: ResponseBody (not directly useful)
  * - data: T (the actual response data)
- * 
+ *
  * We need to create a mock IncomingMessage with the essential properties
  * that the existing error handling and retry logic depends on.
  */
-function adaptHttpInfo<T>(httpInfo: HttpInfo<T>): { response: IncomingMessage; body: T } {
+function adaptHttpInfo<T>(httpInfo: HttpInfo<T>): {
+  response: IncomingMessage;
+  body: T;
+} {
   // Create a mock IncomingMessage with the properties our code actually uses
   const mockResponse = {
     statusCode: httpInfo.httpStatusCode,
     headers: httpInfo.headers,
-    statusMessage: httpInfo.httpStatusCode >= 200 && httpInfo.httpStatusCode < 300 ? 'OK' : 'Error',
+    statusMessage:
+      httpInfo.httpStatusCode >= 200 && httpInfo.httpStatusCode < 300
+        ? 'OK'
+        : 'Error',
   } as IncomingMessage;
 
   return {
@@ -65,7 +71,7 @@ function adaptHttpInfo<T>(httpInfo: HttpInfo<T>): { response: IncomingMessage; b
 
 /**
  * Adapted CoreV1Api client
- * 
+ *
  * Wraps the v1.0.0 CoreV1Api and provides v0.2.3-compatible method signatures
  */
 export class AdaptedCoreV1Api {
@@ -220,20 +226,21 @@ export class AdaptedCoreV1Api {
     timeoutSeconds?: number,
     watch?: boolean,
   ): Promise<{ response: IncomingMessage; body: V1ReplicationControllerList }> {
-    const httpInfo = await this.api.listNamespacedReplicationControllerWithHttpInfo({
-      namespace,
-      pretty,
-      allowWatchBookmarks,
-      _continue,
-      fieldSelector,
-      labelSelector,
-      limit,
-      resourceVersion,
-      resourceVersionMatch,
-      sendInitialEvents,
-      timeoutSeconds,
-      watch,
-    });
+    const httpInfo =
+      await this.api.listNamespacedReplicationControllerWithHttpInfo({
+        namespace,
+        pretty,
+        allowWatchBookmarks,
+        _continue,
+        fieldSelector,
+        labelSelector,
+        limit,
+        resourceVersion,
+        resourceVersionMatch,
+        sendInitialEvents,
+        timeoutSeconds,
+        watch,
+      });
     return adaptHttpInfo(httpInfo);
   }
 
@@ -253,19 +260,20 @@ export class AdaptedCoreV1Api {
     timeoutSeconds?: number,
     watch?: boolean,
   ): Promise<{ response: IncomingMessage; body: V1ReplicationControllerList }> {
-    const httpInfo = await this.api.listReplicationControllerForAllNamespacesWithHttpInfo({
-      allowWatchBookmarks,
-      _continue,
-      fieldSelector,
-      labelSelector,
-      limit,
-      pretty,
-      resourceVersion,
-      resourceVersionMatch,
-      sendInitialEvents,
-      timeoutSeconds,
-      watch,
-    });
+    const httpInfo =
+      await this.api.listReplicationControllerForAllNamespacesWithHttpInfo({
+        allowWatchBookmarks,
+        _continue,
+        fieldSelector,
+        labelSelector,
+        limit,
+        pretty,
+        resourceVersion,
+        resourceVersionMatch,
+        sendInitialEvents,
+        timeoutSeconds,
+        watch,
+      });
     return adaptHttpInfo(httpInfo);
   }
 
@@ -277,18 +285,19 @@ export class AdaptedCoreV1Api {
     namespace: string,
     pretty?: string,
   ): Promise<{ response: IncomingMessage; body: V1ReplicationController }> {
-    const httpInfo = await this.api.readNamespacedReplicationControllerWithHttpInfo({
-      name,
-      namespace,
-      pretty,
-    });
+    const httpInfo =
+      await this.api.readNamespacedReplicationControllerWithHttpInfo({
+        name,
+        namespace,
+        pretty,
+      });
     return adaptHttpInfo(httpInfo);
   }
 }
 
 /**
  * Adapted AppsV1Api client
- * 
+ *
  * Wraps the v1.0.0 AppsV1Api and provides v0.2.3-compatible method signatures
  */
 export class AdaptedAppsV1Api {
@@ -528,19 +537,21 @@ export class AdaptedAppsV1Api {
     timeoutSeconds?: number,
     watch?: boolean,
   ): Promise<{ response: IncomingMessage; body: V1StatefulSetList }> {
-    const httpInfo = await this.api.listStatefulSetForAllNamespacesWithHttpInfo({
-      allowWatchBookmarks,
-      _continue,
-      fieldSelector,
-      labelSelector,
-      limit,
-      pretty,
-      resourceVersion,
-      resourceVersionMatch,
-      sendInitialEvents,
-      timeoutSeconds,
-      watch,
-    });
+    const httpInfo = await this.api.listStatefulSetForAllNamespacesWithHttpInfo(
+      {
+        allowWatchBookmarks,
+        _continue,
+        fieldSelector,
+        labelSelector,
+        limit,
+        pretty,
+        resourceVersion,
+        resourceVersionMatch,
+        sendInitialEvents,
+        timeoutSeconds,
+        watch,
+      },
+    );
     return adaptHttpInfo(httpInfo);
   }
 
@@ -629,7 +640,7 @@ export class AdaptedAppsV1Api {
 
 /**
  * Adapted BatchV1Api client
- * 
+ *
  * Wraps the v1.0.0 BatchV1Api and provides v0.2.3-compatible method signatures
  */
 export class AdaptedBatchV1Api {
@@ -806,9 +817,9 @@ export class AdaptedBatchV1Api {
 
 /**
  * Adapted CustomObjectsApi client
- * 
+ *
  * Wraps the v1.0.0 CustomObjectsApi and provides v0.2.3-compatible method signatures
- * 
+ *
  * Note: The CustomObjectsApi methods return generic 'object' types in v1.0.0,
  * similar to v0.2.3, so the type casting behavior remains the same.
  */
@@ -841,7 +852,7 @@ export class AdaptedCustomObjectsApi {
 
   /**
    * List namespaced custom objects
-   * 
+   *
    * Note: CustomObjectsApi does not support sendInitialEvents parameter
    */
   async listNamespacedCustomObject(
@@ -881,7 +892,7 @@ export class AdaptedCustomObjectsApi {
 
   /**
    * List cluster-scoped custom objects
-   * 
+   *
    * Note: CustomObjectsApi does not support sendInitialEvents parameter
    */
   async listClusterCustomObject(
@@ -917,4 +928,3 @@ export class AdaptedCustomObjectsApi {
     return adaptHttpInfo(httpInfo);
   }
 }
-

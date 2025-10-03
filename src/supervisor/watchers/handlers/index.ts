@@ -88,25 +88,22 @@ export async function setupNamespacedInformer(
   informer.on('error', restartableErrorHandler(informer, logContext) as any);
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
-    informer.on(
-      informerVerb as KubernetesInformerVerb,
-      async (watchedWorkload) => {
-        try {
-          const handler = workloadMetadata.handlers[informerVerb];
-          if (handler) {
-            await handler(watchedWorkload);
-          }
-        } catch (error) {
-          const name =
-            (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
-            FALSY_WORKLOAD_NAME_MARKER;
-          logger.warn(
-            { ...logContext, error, workloadName: name },
-            'could not execute the namespaced informer handler for a workload',
-          );
+    informer.on(informerVerb, async (watchedWorkload) => {
+      try {
+        const handler = workloadMetadata.handlers[informerVerb];
+        if (handler) {
+          await handler(watchedWorkload);
         }
-      },
-    );
+      } catch (error) {
+        const name =
+          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+          FALSY_WORKLOAD_NAME_MARKER;
+        logger.warn(
+          { ...logContext, error, workloadName: name },
+          'could not execute the namespaced informer handler for a workload',
+        );
+      }
+    });
   }
 
   await informer.start();
@@ -153,29 +150,26 @@ export async function setupClusterInformer(
   informer.on('error', restartableErrorHandler(informer, logContext) as any);
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
-    informer.on(
-      informerVerb as KubernetesInformerVerb,
-      async (watchedWorkload) => {
-        try {
-          if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
-            return;
-          }
-
-          const handler = workloadMetadata.handlers[informerVerb];
-          if (handler) {
-            await handler(watchedWorkload);
-          }
-        } catch (error) {
-          const name =
-            (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
-            FALSY_WORKLOAD_NAME_MARKER;
-          logger.warn(
-            { ...logContext, error, workloadName: name },
-            'could not execute the cluster informer handler for a workload',
-          );
+    informer.on(informerVerb, async (watchedWorkload) => {
+      try {
+        if (isExcludedNamespace(watchedWorkload.metadata?.namespace || '')) {
+          return;
         }
-      },
-    );
+
+        const handler = workloadMetadata.handlers[informerVerb];
+        if (handler) {
+          await handler(watchedWorkload);
+        }
+      } catch (error) {
+        const name =
+          (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
+          FALSY_WORKLOAD_NAME_MARKER;
+        logger.warn(
+          { ...logContext, error, workloadName: name },
+          'could not execute the cluster informer handler for a workload',
+        );
+      }
+    });
   }
 
   await informer.start();

@@ -42,7 +42,9 @@ export async function trackNamespaces(): Promise<void> {
 
   const loggedListMethod = async (): Promise<V1NamespaceList> => {
     try {
-      const result = await retryKubernetesApiRequest(() => paginatedNamespaceList());
+      const result = await retryKubernetesApiRequest(() =>
+        paginatedNamespaceList(),
+      );
       return result.body; // v1.0.0 makeInformer expects just the body
     } catch (error) {
       logger.error(
