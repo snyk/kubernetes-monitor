@@ -1,7 +1,6 @@
 import {
   ADD,
   DELETE,
-  ERROR,
   KubernetesObject,
   makeInformer,
   UPDATE,
@@ -41,9 +40,10 @@ export async function trackNamespaces(): Promise<void> {
   const logContext: Record<string, unknown> = {};
   const endpoint = '/api/v1/namespaces';
 
-  const loggedListMethod = async () => {
+  const loggedListMethod = async (): Promise<V1NamespaceList> => {
     try {
-      return await retryKubernetesApiRequest(() => paginatedNamespaceList());
+      const result = await retryKubernetesApiRequest(() => paginatedNamespaceList());
+      return result.body; // v1.0.0 makeInformer expects just the body
     } catch (error) {
       logger.error(
         { ...logContext, error },
@@ -62,7 +62,7 @@ export async function trackNamespaces(): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  informer.on('error', restartableErrorHandler(informer, logContext) as any);
 
   await informer.start();
 }
@@ -82,9 +82,9 @@ export async function trackNamespace(namespace: string): Promise<void> {
   const logContext: Record<string, unknown> = {};
   const endpoint = `/api/v1/watch/namespaces/${namespace}`;
 
-  const loggedListMethod = async () => {
+  const loggedListMethod = async (): Promise<V1NamespaceList> => {
     try {
-      return await retryKubernetesApiRequest(async () => {
+      const result = await retryKubernetesApiRequest(async () => {
         logger.info({}, 'retrying k8s api request');
         const reply = await k8sApi.coreClient.readNamespace(namespace);
         const list = new V1NamespaceList();
@@ -92,11 +92,9 @@ export async function trackNamespace(namespace: string): Promise<void> {
         list.kind = 'NamespaceList';
         list.items = new Array<V1Namespace>(reply.body);
         list.metadata = new V1ListMeta();
-        return {
-          response: reply.response,
-          body: list,
-        };
+        return list; // v1.0.0 makeInformer expects just the body
       });
+      return result;
     } catch (error) {
       logger.error({ ...logContext, error }, 'error while listing namespace');
       throw error;
@@ -112,7 +110,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  informer.on('error', restartableErrorHandler(informer, logContext) as any);
 
   await informer.start();
 }

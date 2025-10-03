@@ -12,7 +12,7 @@ import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
-export type KubernetesInformerVerb = ADD | DELETE | UPDATE;
+export type KubernetesInformerVerb = typeof ADD | typeof DELETE | typeof UPDATE;
 
 type WorkloadHandlers = Partial<
   Record<KubernetesInformerVerb, WorkloadHandlerFunc>

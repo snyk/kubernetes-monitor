@@ -1,15 +1,17 @@
 import { IncomingMessage } from 'http';
 import {
-  AppsV1Api,
-  BatchV1Api,
-  CoreV1Api,
-  CustomObjectsApi,
   KubeConfig,
   V1Namespace,
   V1ObjectMeta,
   V1OwnerReference,
   V1PodSpec,
 } from '@kubernetes/client-node';
+import {
+  AdaptedAppsV1Api,
+  AdaptedBatchV1Api,
+  AdaptedCoreV1Api,
+  AdaptedCustomObjectsApi,
+} from './k8s-api-adapter';
 
 export enum WorkloadKind {
   Deployment = 'Deployment',
@@ -45,24 +47,25 @@ export type IKubeObjectMetadataWithoutPodSpec = Omit<
 >;
 
 export interface IK8sClients {
-  readonly appsClient: AppsV1Api;
-  readonly coreClient: CoreV1Api;
-  readonly batchClient: BatchV1Api;
-  readonly customObjectsClient: CustomObjectsApi;
+  readonly appsClient: AdaptedAppsV1Api;
+  readonly coreClient: AdaptedCoreV1Api;
+  readonly batchClient: AdaptedBatchV1Api;
+  readonly customObjectsClient: AdaptedCustomObjectsApi;
 }
 
 export class K8sClients implements IK8sClients {
-  public readonly appsClient: AppsV1Api;
-  public readonly coreClient: CoreV1Api;
-  public readonly batchClient: BatchV1Api;
+  public readonly appsClient: AdaptedAppsV1Api;
+  public readonly coreClient: AdaptedCoreV1Api;
+  public readonly batchClient: AdaptedBatchV1Api;
   /** This client is used to access Custom Resources in the cluster, e.g. DeploymentConfig on OpenShift. */
-  public readonly customObjectsClient: CustomObjectsApi;
+  public readonly customObjectsClient: AdaptedCustomObjectsApi;
 
   constructor(config: KubeConfig) {
-    this.appsClient = config.makeApiClient(AppsV1Api);
-    this.coreClient = config.makeApiClient(CoreV1Api);
-    this.batchClient = config.makeApiClient(BatchV1Api);
-    this.customObjectsClient = config.makeApiClient(CustomObjectsApi);
+    // Use adapted clients that provide v0.2.3-compatible API
+    this.appsClient = new AdaptedAppsV1Api(config);
+    this.coreClient = new AdaptedCoreV1Api(config);
+    this.batchClient = new AdaptedBatchV1Api(config);
+    this.customObjectsClient = new AdaptedCustomObjectsApi(config);
   }
 }
 

@@ -1,4 +1,4 @@
-import { makeInformer, ERROR, KubernetesObject } from '@kubernetes/client-node';
+import { makeInformer, KubernetesObject } from '@kubernetes/client-node';
 
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
@@ -66,9 +66,10 @@ export async function setupNamespacedInformer(
   const listMethod = workloadMetadata.namespacedListFactory(namespace);
   const loggedListMethod = async () => {
     try {
-      return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+      const result = await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
         listMethod(),
       );
+      return result.body; // v1.0.0 makeInformer expects just the body
     } catch (error) {
       logger.error(
         { ...logContext, error },
@@ -84,14 +85,17 @@ export async function setupNamespacedInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  informer.on('error', restartableErrorHandler(informer, logContext) as any);
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(
       informerVerb as KubernetesInformerVerb,
       async (watchedWorkload) => {
         try {
-          await workloadMetadata.handlers[informerVerb](watchedWorkload);
+          const handler = workloadMetadata.handlers[informerVerb];
+          if (handler) {
+            await handler(watchedWorkload);
+          }
         } catch (error) {
           const name =
             (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
@@ -127,9 +131,10 @@ export async function setupClusterInformer(
   const listMethod = workloadMetadata.clusterListFactory();
   const loggedListMethod = async () => {
     try {
-      return await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
+      const result = await kubernetesApiWrappers.retryKubernetesApiRequest(() =>
         listMethod(),
       );
+      return result.body; // v1.0.0 makeInformer expects just the body
     } catch (error) {
       logger.error(
         { ...logContext, error },
@@ -145,7 +150,7 @@ export async function setupClusterInformer(
     loggedListMethod,
   );
 
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  informer.on('error', restartableErrorHandler(informer, logContext) as any);
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(
@@ -156,7 +161,10 @@ export async function setupClusterInformer(
             return;
           }
 
-          await workloadMetadata.handlers[informerVerb](watchedWorkload);
+          const handler = workloadMetadata.handlers[informerVerb];
+          if (handler) {
+            await handler(watchedWorkload);
+          }
         } catch (error) {
           const name =
             (watchedWorkload.metadata && watchedWorkload.metadata.name) ||
