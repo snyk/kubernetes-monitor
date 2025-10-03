@@ -6,7 +6,7 @@ import * as deploymentConfig from './deployment-config';
 import * as rollout from './argo-rollout';
 import { kubeConfig } from '../../cluster';
 import * as kubernetesApiWrappers from '../../kuberenetes-api-wrappers';
-import { FALSY_WORKLOAD_NAME_MARKER, KubernetesInformerVerb } from './types';
+import { FALSY_WORKLOAD_NAME_MARKER } from './types';
 import { workloadWatchMetadata } from './informer-config';
 import { restartableErrorHandler } from './error';
 import { isExcludedNamespace } from '../internal-namespaces';
