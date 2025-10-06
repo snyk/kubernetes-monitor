@@ -1,4 +1,4 @@
-import { makeInformer, KubernetesObject, ERROR } from '@kubernetes/client-node';
+import { makeInformer, ERROR, KubernetesObject } from '@kubernetes/client-node';
 
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
