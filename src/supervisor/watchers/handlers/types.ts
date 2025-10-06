@@ -12,6 +12,7 @@ import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
+// Extracts the literal types from the constant values - v.1.0.0 has string literals for the verbs
 export type KubernetesInformerVerb = typeof ADD | typeof DELETE | typeof UPDATE;
 
 type WorkloadHandlers = Partial<

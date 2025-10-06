@@ -1,4 +1,4 @@
-import { makeInformer, KubernetesObject } from '@kubernetes/client-node';
+import { makeInformer, KubernetesObject, ERROR } from '@kubernetes/client-node';
 
 import { logger } from '../../../common/logger';
 import { WorkloadKind } from '../../types';
@@ -85,8 +85,9 @@ export async function setupNamespacedInformer(
     loggedListMethod,
   );
 
-  informer.on('error', restartableErrorHandler(informer, logContext) as any);
-
+  informer.on(ERROR, restartableErrorHandler(informer, logContext) as any);
+  // removed type assertion since informerVerb is aleady defined as a string via 1.0.0 makeInformer
+  // added handler for null check in case handler is undefined
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(informerVerb, async (watchedWorkload) => {
       try {
@@ -147,7 +148,7 @@ export async function setupClusterInformer(
     loggedListMethod,
   );
 
-  informer.on('error', restartableErrorHandler(informer, logContext) as any);
+  informer.on(ERROR, restartableErrorHandler(informer, logContext) as any);
 
   for (const informerVerb of Object.keys(workloadMetadata.handlers)) {
     informer.on(informerVerb, async (watchedWorkload) => {

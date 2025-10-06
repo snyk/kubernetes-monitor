@@ -11,7 +11,7 @@ import {
   AdaptedBatchV1Api,
   AdaptedCoreV1Api,
   AdaptedCustomObjectsApi,
-} from './k8s-api-adapter';
+} from './kubernetes-api-adapter';
 
 export enum WorkloadKind {
   Deployment = 'Deployment',
@@ -53,15 +53,14 @@ export interface IK8sClients {
   readonly customObjectsClient: AdaptedCustomObjectsApi;
 }
 
+// Created wrapper classes to provide client-node v1.0.0-compatible API with the old v0.2.3 API signatures
 export class K8sClients implements IK8sClients {
   public readonly appsClient: AdaptedAppsV1Api;
   public readonly coreClient: AdaptedCoreV1Api;
   public readonly batchClient: AdaptedBatchV1Api;
-  /** This client is used to access Custom Resources in the cluster, e.g. DeploymentConfig on OpenShift. */
   public readonly customObjectsClient: AdaptedCustomObjectsApi;
 
   constructor(config: KubeConfig) {
-    // Use adapted clients that provide v0.2.3-compatible API
     this.appsClient = new AdaptedAppsV1Api(config);
     this.coreClient = new AdaptedCoreV1Api(config);
     this.batchClient = new AdaptedBatchV1Api(config);

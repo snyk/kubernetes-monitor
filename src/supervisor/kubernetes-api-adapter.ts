@@ -53,10 +53,15 @@ function adaptHttpInfo<T>(httpInfo: HttpInfo<T>): {
   response: IncomingMessage;
   body: T;
 } {
-  // Create a mock IncomingMessage with the properties our code actually uses
+  /* Create a mock IncomingMessage with the properties our code actually uses
+  risk - we lose details by constructing our own from the new response of the api signatures 
+  IncomingMesssage was used before and has more fields available (httpVersion, complete, connection, socket, etc)
+  that we now do not have access to. However, currently we only use statusCode, headers and can construct our own statusMessage based on statusCode
+*/
   const mockResponse = {
     statusCode: httpInfo.httpStatusCode,
     headers: httpInfo.headers,
+    // status messages is mostly used for error logs -- we lose details by constructing our own
     statusMessage:
       httpInfo.httpStatusCode >= 200 && httpInfo.httpStatusCode < 300
         ? 'OK'
@@ -65,7 +70,7 @@ function adaptHttpInfo<T>(httpInfo: HttpInfo<T>): {
 
   return {
     response: mockResponse,
-    body: httpInfo.data, // v1.0.0 uses 'data' instead of 'body'
+    body: httpInfo.data,
   };
 }
 

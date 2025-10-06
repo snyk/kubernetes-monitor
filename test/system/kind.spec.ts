@@ -59,7 +59,7 @@ afterAll(async () => {
 test('Kubernetes-Monitor with KinD', async () => {
   const emptyDirSyncStub = jest
     .spyOn(fsExtra, 'emptyDirSync')
-    .mockReturnValue({});
+    .mockReturnValue(undefined);
 
   const agentId = randomUUID();
   const retryKubernetesApiRequestMock = jest

@@ -1,6 +1,7 @@
 import {
   ADD,
   DELETE,
+  ERROR,
   KubernetesObject,
   makeInformer,
   UPDATE,
@@ -112,7 +113,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on('error', restartableErrorHandler(informer, logContext) as any);
+  informer.on(ERROR, restartableErrorHandler(informer, logContext) as any);
 
   await informer.start();
 }
