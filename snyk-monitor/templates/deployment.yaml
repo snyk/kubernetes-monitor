@@ -152,8 +152,10 @@ spec:
           {{- toYaml .Values.extraVolumeMounts | nindent 10 }}
           {{- end }}
           env:
+          {{- if .Values.extraCaCerts  }}
           - name: NODE_EXTRA_CA_CERTS
             value: {{ .Values.extraCaCerts }}
+          {{- end }}
           - name: SNYK_INTEGRATION_ID
             valueFrom:
               secretKeyRef:
@@ -282,10 +284,12 @@ spec:
           emptyDir:
             sizeLimit: {{ .Values.temporaryStorageSize }}
           {{- end }}
+        {{- if .Values.certsConfigMap }}
         - name: ssl-certs
           configMap:
             name: {{ .Values.certsConfigMap }}
             optional: true
+        {{- end }}
         - name: workload-policies
           configMap:
             {{- if .Values.workloadPoliciesMap }}
