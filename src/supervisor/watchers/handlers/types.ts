@@ -20,13 +20,15 @@ type WorkloadHandlers = Partial<
 
 type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
+
+// TODO might want to consider creating a new response type that is more 1.0.0 compatible
 type ListNamespacedWorkloadFunctionFactory = (
   namespace: string,
 ) => () => Promise<{
   response: any;
   body: any;
 }>;
-
+// TODO might want to consider creating a new response type that is more 1.0.0 compatible
 type ListClusterWorkloadFunctionFactory = () => () => Promise<{
   response: any;
   body: any;
@@ -99,6 +101,7 @@ export interface V1alpha1RolloutWorkloadRef {
   name: string;
 }
 
+// TODO this might need to change to remove IncomingMessage 
 export type V1ClusterList<T> = (
   allowWatchBookmarks?: boolean,
   _continue?: string,
@@ -120,7 +123,7 @@ export type V1ClusterList<T> = (
   response: IncomingMessage;
   body: T;
 }>;
-
+// TODO this might need to change to remove IncomingMessage 
 export type V1NamespacedList<T> = (
   namespace: string,
   pretty?: string,

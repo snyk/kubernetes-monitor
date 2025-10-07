@@ -1,4 +1,4 @@
-import * as http from 'http';
+import * as http from 'http'; // no longer used in client-node1.0.0 (move away from request library and now use node-fetch)
 import * as kubernetesApiWrappers from '../../../src/supervisor/kuberenetes-api-wrappers';
 
 describe('kubernetes api wrappers', () => {

@@ -41,6 +41,10 @@ export async function paginatedNamespacedArgoRolloutList(
       labelSelector?: string,
       limit?: number,
     ) =>
+      // The problem here is 2 parts. 
+      // 1 (easy) is that we need to wrap individual parameters into one object 
+      // 2 (harder) is that the response is excpecting IncomingMessage and body is V1alpha1RolloutList but IncomingMessage 
+      // is no longer a supported return type in 1.0.0. Options: might want to consider removing the type IncomingMessage and create a new respnse type. 
       k8sApi.customObjectsClient.listNamespacedCustomObject(
         'argoproj.io',
         'v1alpha1',
@@ -109,23 +113,23 @@ export async function argoRolloutWatchHandler(
       // Perform lookup for known supported kinds: https://github.com/argoproj/argo-rollouts/blob/master/rollout/templateref.go#L40-L52
       case 'Deployment': {
         const deployResult = await retryKubernetesApiRequest(() =>
-          k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
+          k8sApi.appsClient.readNamespacedDeployment({name:workloadName, namespace}),
         );
-        rollout.spec.template = deployResult.body.spec?.template;
+        rollout.spec.template = deployResult.spec?.template;
         break;
       }
       case 'ReplicaSet': {
         const replicaSetResult = await retryKubernetesApiRequest(() =>
-          k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
+          k8sApi.appsClient.readNamespacedReplicaSet({name: workloadName, namespace}),
         );
-        rollout.spec.template = replicaSetResult.body.spec?.template;
+        rollout.spec.template = replicaSetResult.spec?.template;
         break;
       }
       case 'PodTemplate': {
         const podTemplateResult = await retryKubernetesApiRequest(() =>
-          k8sApi.coreClient.readNamespacedPodTemplate(workloadName, namespace),
+          k8sApi.coreClient.readNamespacedPodTemplate({name:workloadName, namespace}),
         );
-        rollout.spec.template = podTemplateResult.body.template;
+        rollout.spec.template = podTemplateResult.template;
         break;
       }
       default:
@@ -186,28 +190,27 @@ export async function isNamespacedArgoRolloutSupported(
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
+      k8sApi.customObjectsClient.listNamespacedCustomObjectWithHttpInfo({
+        group:'argoproj.io',
+        version:'v1alpha1',
         namespace,
-        'rollouts',
+        plural:'rollouts',
         pretty,
-        false,
-        continueToken,
+        allowWatchBookmarks:false,
+        _continue:continueToken,
         fieldSelector,
         labelSelector,
         limit,
         resourceVersion,
-        undefined,
         timeoutSeconds,
-      ),
+    }),
     );
     return (
-      attemptedApiCall !== undefined &&
-      attemptedApiCall.response !== undefined &&
-      attemptedApiCall.response.statusCode !== undefined &&
-      attemptedApiCall.response.statusCode >= 200 &&
-      attemptedApiCall.response.statusCode < 300
+       // checking that the response is defined and the status code is in the 200 range
+      attemptedApiCall !== undefined  &&
+      attemptedApiCall.httpStatusCode !== undefined &&
+      attemptedApiCall.httpStatusCode >= 200 &&
+      attemptedApiCall.httpStatusCode < 300
     );
   } catch (error) {
     logger.debug(
@@ -228,27 +231,26 @@ export async function isClusterArgoRolloutSupported(): Promise<boolean> {
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        'rollouts',
+      k8sApi.customObjectsClient.listClusterCustomObjectWithHttpInfo({
+        group:'argoproj.io',
+        version:'v1alpha1',
+        plural:'rollouts',
         pretty,
-        false,
-        continueToken,
+        allowWatchBookmarks:false,
+        _continue:continueToken,
         fieldSelector,
         labelSelector,
         limit,
         resourceVersion,
-        undefined,
         timeoutSeconds,
-      ),
+   }),
     );
     return (
-      attemptedApiCall !== undefined &&
-      attemptedApiCall.response !== undefined &&
-      attemptedApiCall.response.statusCode !== undefined &&
-      attemptedApiCall.response.statusCode >= 200 &&
-      attemptedApiCall.response.statusCode < 300
+      // checking that the response is defined and the status code is in the 200 range
+      attemptedApiCall !== undefined  &&
+      attemptedApiCall.httpStatusCode !== undefined &&
+      attemptedApiCall.httpStatusCode >= 200 &&
+      attemptedApiCall.httpStatusCode < 300
     );
   } catch (error) {
     logger.debug(

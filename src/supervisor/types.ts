@@ -24,6 +24,8 @@ export enum WorkloadKind {
   ArgoRollout = 'Rollout',
 }
 
+// TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
+// Problem for all calls that are wrapped in retryKubernetesApiRequest
 export interface IRequestError {
   message?: string;
   code?: string;

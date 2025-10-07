@@ -21,10 +21,10 @@ async function getSnykMonitorDeploymentUid(
 ): Promise<string | undefined> {
   try {
     const attemptedApiCall = await retryKubernetesApiRequestIndefinitely(
-      () => k8sApi.appsClient.readNamespacedDeployment(name, namespace),
+      () => k8sApi.appsClient.readNamespacedDeployment({name, namespace}),
       config.MAX_RETRY_BACKOFF_DURATION_SECONDS,
     );
-    return attemptedApiCall.body.metadata?.uid;
+    return attemptedApiCall.metadata?.uid;
   } catch (error) {
     logger.error(
       { error, namespace, deploymentName: name },

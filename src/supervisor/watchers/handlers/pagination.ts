@@ -21,6 +21,11 @@ export const PAGE_SIZE = 100;
  * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
  * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
  */
+
+// another issue is if http and non-http client node api calls are wrapped in this funciton 
+// both types of functions  have different return signatures that do not align with IncomingMessage
+
+// This is the source of a lot of errors -- if we tweak this to be 1.0.0 compatible, will help alleviate a lot of the issues  
 export async function paginatedNamespacedList<
   T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
 >(
@@ -109,6 +114,8 @@ export async function paginatedNamespacedList<
  * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
  * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
  */
+
+// same core issue as paginatedNamespacedList 
 export async function paginatedClusterList<
   T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
 >(
@@ -161,7 +168,7 @@ export async function paginatedClusterList<
         await sleep(seconds);
         continue;
       }
-
+      // the status code is no longer a property of the error object
       switch (error.response?.statusCode) {
         case 410: // Gone
           break loop;

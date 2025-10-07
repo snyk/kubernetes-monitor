@@ -24,6 +24,8 @@ const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
 },
 config.REQUEST_QUEUE_LENGTH);
 
+// TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
+// Error handling here will need to be updated to handle the new response type
 export async function retryKubernetesApiRequest<ResponseType>(
   func: IKubernetesApiFunction<ResponseType>,
 ): Promise<ResponseType> {
@@ -78,7 +80,7 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
     }
   }
 }
-
+// TODO httpResponse is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
 export function calculateSleepSeconds(
   httpResponse?: http.IncomingMessage,
 ): number {
@@ -112,11 +114,12 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
   if (err.message && RETRYABLE_NETWORK_ERROR_MESSAGES.includes(err.message)) {
     return true;
   }
-
+  // err.response = IncomingMessage
+  // TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
   if (!err.response) {
     return false;
   }
-
+  // TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
   if (err.response.statusCode === 429) {
     return true;
   }

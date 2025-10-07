@@ -77,7 +77,10 @@ export async function setupNamespacedInformer(
       throw error;
     }
   };
-
+  // I think the problem here is that now makeInformer expected the last parameter to be a function that 
+  // ruturns just ListPromise<T> and currently, it returns a function that returns { response: any; body: any; }
+  // we need to refactor loggedListMethod 
+  // Q: Are there places where informer needs http metadata? 
   const informer = makeInformer<KubernetesObject>(
     kubeConfig,
     endpoint,
