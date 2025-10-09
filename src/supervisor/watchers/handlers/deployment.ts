@@ -2,7 +2,6 @@ import { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
@@ -15,10 +14,7 @@ import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedDeploymentList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1DeploymentList;
-}> {
+): Promise<V1DeploymentList> {
   const v1DeploymentList = new V1DeploymentList();
   v1DeploymentList.apiVersion = 'apps/v1';
   v1DeploymentList.kind = 'DeploymentList';
@@ -27,14 +23,11 @@ export async function paginatedNamespacedDeploymentList(
   return await paginatedNamespacedList(
     namespace,
     v1DeploymentList,
-    k8sApi.appsClient.listNamespacedDeployment.bind(k8sApi.appsClient),
+    k8sApi.appsClient.listNamespacedDeploymentWithHttpInfo.bind(k8sApi.appsClient),
   );
 }
 
-export async function paginatedClusterDeploymentList(): Promise<{
-  response: IncomingMessage;
-  body: V1DeploymentList;
-}> {
+export async function paginatedClusterDeploymentList(): Promise<V1DeploymentList> {
   const v1DeploymentList = new V1DeploymentList();
   v1DeploymentList.apiVersion = 'apps/v1';
   v1DeploymentList.kind = 'DeploymentList';
@@ -42,7 +35,7 @@ export async function paginatedClusterDeploymentList(): Promise<{
 
   return await paginatedClusterList(
     v1DeploymentList,
-    k8sApi.appsClient.listDeploymentForAllNamespaces.bind(k8sApi.appsClient),
+    k8sApi.appsClient.listDeploymentForAllNamespacesWithHttpInfo.bind(k8sApi.appsClient),
   );
 }
 

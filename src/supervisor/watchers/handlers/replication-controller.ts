@@ -5,7 +5,6 @@ import {
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
@@ -18,10 +17,7 @@ import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedReplicationControllerList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1ReplicationControllerList;
-}> {
+): Promise<V1ReplicationControllerList> {
   const v1ReplicationControllerList = new V1ReplicationControllerList();
   v1ReplicationControllerList.apiVersion = 'v1';
   v1ReplicationControllerList.kind = 'ReplicationControllerList';
@@ -30,16 +26,13 @@ export async function paginatedNamespacedReplicationControllerList(
   return await paginatedNamespacedList(
     namespace,
     v1ReplicationControllerList,
-    k8sApi.coreClient.listNamespacedReplicationController.bind(
+    k8sApi.coreClient.listNamespacedReplicationControllerWithHttpInfo.bind(
       k8sApi.coreClient,
     ),
   );
 }
 
-export async function paginatedClusterReplicationControllerList(): Promise<{
-  response: IncomingMessage;
-  body: V1ReplicationControllerList;
-}> {
+export async function paginatedClusterReplicationControllerList(): Promise<V1ReplicationControllerList> {
   const v1ReplicationControllerList = new V1ReplicationControllerList();
   v1ReplicationControllerList.apiVersion = 'v1';
   v1ReplicationControllerList.kind = 'ReplicationControllerList';
@@ -47,7 +40,7 @@ export async function paginatedClusterReplicationControllerList(): Promise<{
 
   return await paginatedClusterList(
     v1ReplicationControllerList,
-    k8sApi.coreClient.listReplicationControllerForAllNamespaces.bind(
+    k8sApi.coreClient.listReplicationControllerForAllNamespacesWithHttpInfo.bind(
       k8sApi.coreClient,
     ),
   );

@@ -1,6 +1,4 @@
 import { V1Pod, V1PodList } from '@kubernetes/client-node';
-import { IncomingMessage } from 'http';
-
 import { logger } from '../../../common/logger';
 import { sendWorkloadMetadata } from '../../../transmitter';
 import { IWorkload } from '../../../transmitter/types';
@@ -85,10 +83,7 @@ export function isPodReady(pod: V1Pod): boolean {
   return !isTerminating && podStatusPhase && containerReadyStatuses;
 }
 
-export async function paginatedNamespacedPodList(namespace: string): Promise<{
-  response: IncomingMessage;
-  body: V1PodList;
-}> {
+export async function paginatedNamespacedPodList(namespace: string): Promise<V1PodList> {
   const v1PodList = new V1PodList();
   v1PodList.apiVersion = 'v1';
   v1PodList.kind = 'PodList';
@@ -97,14 +92,11 @@ export async function paginatedNamespacedPodList(namespace: string): Promise<{
   return await paginatedNamespacedList(
     namespace,
     v1PodList,
-    k8sApi.coreClient.listNamespacedPod.bind(k8sApi.coreClient),
+    k8sApi.coreClient.listNamespacedPodWithHttpInfo.bind(k8sApi.coreClient),
   );
 }
 
-export async function paginatedClusterPodList(): Promise<{
-  response: IncomingMessage;
-  body: V1PodList;
-}> {
+export async function paginatedClusterPodList(): Promise<V1PodList> {
   const v1PodList = new V1PodList();
   v1PodList.apiVersion = 'v1';
   v1PodList.kind = 'PodList';
@@ -112,7 +104,7 @@ export async function paginatedClusterPodList(): Promise<{
 
   return await paginatedClusterList(
     v1PodList,
-    k8sApi.coreClient.listPodForAllNamespaces.bind(k8sApi.coreClient),
+    k8sApi.coreClient.listPodForAllNamespacesWithHttpInfo.bind(k8sApi.coreClient),
   );
 }
 

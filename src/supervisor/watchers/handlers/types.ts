@@ -7,8 +7,9 @@ import {
   ADD,
   DELETE,
   UPDATE,
+  HttpInfo,
+  ConfigurationOptions,
 } from '@kubernetes/client-node';
-import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
@@ -21,18 +22,12 @@ type WorkloadHandlers = Partial<
 type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
 
-// TODO might want to consider creating a new response type that is more 1.0.0 compatible
+// TODO might want to consider creating a new response type that is more specific but still compatible with 1.0.0
 type ListNamespacedWorkloadFunctionFactory = (
   namespace: string,
-) => () => Promise<{
-  response: any;
-  body: any;
-}>;
-// TODO might want to consider creating a new response type that is more 1.0.0 compatible
-type ListClusterWorkloadFunctionFactory = () => () => Promise<{
-  response: any;
-  body: any;
-}>;
+) => () => Promise<any>;
+// TODO might want to consider creating a new response type that is more specific but still compatible with 1.0.0
+type ListClusterWorkloadFunctionFactory = () => () => Promise<any>;
 
 export interface IWorkloadWatchMetadata {
   [workloadKind: string]: {
@@ -101,48 +96,45 @@ export interface V1alpha1RolloutWorkloadRef {
   name: string;
 }
 
-// TODO this might need to change to remove IncomingMessage 
-export type V1ClusterList<T> = (
-  allowWatchBookmarks?: boolean,
-  _continue?: string,
-  fieldSelector?: string,
-  labelSelector?: string,
-  limit?: number,
-  pretty?: string,
-  resourceVersion?: string,
-  resourceVersionMatch?: string,
-  sendInitialEvents?: boolean,
-  timeoutSeconds?: number,
-  watch?: boolean,
-  options?: {
-    headers: {
-      [name: string]: string;
-    };
+// 1. removed IncomingMessage as the return and now using HttpInfo
+// 2. removed individual parameters and now using the param object
+export type V1ClusterList<T> = ( 
+  param: {
+    allowWatchBookmarks?: boolean,
+    _continue?: string,
+    fieldSelector?: string,
+    labelSelector?: string,
+    limit?: number,
+    pretty?: string,
+    resourceVersion?: string,
+    resourceVersionMatch?: string,
+    sendInitialEvents?: boolean,
+    timeoutSeconds?: number,
+    watch?: boolean,
   },
-) => Promise<{
-  response: IncomingMessage;
-  body: T;
-}>;
-// TODO this might need to change to remove IncomingMessage 
+  // this is a change from 0.22.3 where it was { headers: { [name: string]: string; } }
+  // Now it is ConfigurationOptions - includes baseServer, httpApi, middleware, and authMethods
+  options?: ConfigurationOptions 
+
+) => Promise<HttpInfo<T>>;
+
+
+// 1. removed IncomingMessage as the return and now using HttpInfo
+// 2. removed individual parameters and now using the param object
 export type V1NamespacedList<T> = (
-  namespace: string,
-  pretty?: string,
-  allowWatchBookmarks?: boolean,
-  _continue?: string,
-  fieldSelector?: string,
-  labelSelector?: string,
-  limit?: number,
-  resourceVersion?: string,
-  resourceVersionMatch?: string,
-  sendInitialEvents?: boolean,
-  timeoutSeconds?: number,
-  watch?: boolean,
-  options?: {
-    headers: {
-      [name: string]: string;
-    };
+  param: {
+    namespace: string;
+    pretty?: string;
+    allowWatchBookmarks?: boolean;
+    _continue?: string;
+    fieldSelector?: string;
+    labelSelector?: string;
+    limit?: number;
+    resourceVersion?: string;
+    resourceVersionMatch?: string;
+    sendInitialEvents?: boolean;
+    timeoutSeconds?: number;
+    watch?: boolean;
   },
-) => Promise<{
-  response: IncomingMessage;
-  body: T;
-}>;
+  options?: ConfigurationOptions
+) => Promise<HttpInfo<T>>;

@@ -1,7 +1,7 @@
 let sleepMock = jest.fn();
 jest.mock('sleep-promise', () => sleepMock);
 
-import { IRequestError } from '../../../src/supervisor/types';
+import { NewIRequestError } from '../../../src/supervisor/types';
 import {
   paginatedNamespacedList,
   paginatedClusterList,
@@ -38,7 +38,7 @@ describe('pagination', () => {
         .mockResolvedValueOnce(undefined)
         .mockRejectedValueOnce(sleepError);
 
-      const listError = { code } as IRequestError;
+      const listError = { code } as NewIRequestError;
       const listMock = jest.fn().mockRejectedValue(listError);
       const pushMock = jest.fn();
       const workloads = { items: [] };
@@ -55,7 +55,7 @@ describe('pagination', () => {
     });
 
     it.each([['EPIPE']])('handles unknown error: %s', async (code) => {
-      const listError = { code } as IRequestError;
+      const listError = { code } as NewIRequestError;
       const listMock = jest.fn().mockRejectedValue(listError);
       const pushMock = jest.fn();
       const workloads = { items: [] };
@@ -79,7 +79,8 @@ describe('pagination', () => {
           .mockResolvedValueOnce(undefined)
           .mockRejectedValueOnce(sleepError);
 
-        const listError = { response: { statusCode: code } } as IRequestError;
+        //const listError = { response: { statusCode: code } } as IRequestError;
+        const listError = { code, message: 'HTTP Error', name: 'ApiException' } as NewIRequestError;
         const listMock = jest.fn().mockRejectedValue(listError);
         const pushMock = jest.fn();
         const workloads = { items: [] };
@@ -97,7 +98,8 @@ describe('pagination', () => {
     );
 
     it.each([[410]])('handles unrecoverable http error: %s', async (code) => {
-      const listError = { response: { statusCode: code } } as IRequestError;
+      //const listError = { response: { statusCode: code } } as IRequestError;
+      const listError = { code, message: 'HTTP Error', name: 'ApiException' } as NewIRequestError;
       const listMock = jest.fn().mockRejectedValue(listError);
       const pushMock = jest.fn();
       const workloads = { items: [] };
@@ -118,7 +120,8 @@ describe('pagination', () => {
       async (codes) => {
         const listMock = jest.fn();
         for (const code of codes) {
-          const listError = { response: { statusCode: code } } as IRequestError;
+          //const listError = { response: { statusCode: code } } as IRequestError;
+          const listError = { code, message: 'HTTP Error', name: 'ApiException' } as NewIRequestError;
           listMock.mockRejectedValueOnce(listError);
         }
 
@@ -138,17 +141,27 @@ describe('pagination', () => {
     );
 
     it('handles failure after success', async () => {
-      const listError = { response: { statusCode: 410 } } as IRequestError;
+      //const listError = { response: { statusCode: 410 } } as IRequestError;
+      const listError = { code: 410, message: 'HTTP Error', name: 'ApiException' } as NewIRequestError;
       const items = [{ metadata: { name: 'pod ' } }];
       const listMock = jest
         .fn()
+        // .mockResolvedValueOnce({
+        //   response: {},
+        //   body: {
+        //     items,
+        //     metadata: {
+        //       _continue: 'token',
+        //     },
+        //   },
+        // })
         .mockResolvedValueOnce({
-          response: {},
-          body: {
+          httpStatusCode: 200,
+          headers: {},
+          body: {} as any, // ResponseBody from client-node
+          data: {
             items,
-            metadata: {
-              _continue: 'token',
-            },
+            metadata: { _continue: 'token' },
           },
         })
         .mockRejectedValueOnce(listError);
@@ -172,24 +185,45 @@ describe('pagination', () => {
     });
 
     it('retries after failure', async () => {
-      const listError = { response: { statusCode: 429 } } as IRequestError;
+      //const listError = { response: { statusCode: 429 } } as IRequestError;
+      const listError = { code: 429, message: 'HTTP Error', name: 'ApiException' } as NewIRequestError;
       const firstItems = [{ metadata: { name: 'first ' } }];
       const secondItems = [{ metadata: { name: 'second ' } }];
       const listMock = jest
         .fn()
+        // .mockResolvedValueOnce({
+        //   response: {},
+        //   body: {
+        //     items: firstItems,
+        //     metadata: {
+        //       _continue: 'token',
+        //     },
+        //   },
+        // })
         .mockResolvedValueOnce({
-          response: {},
-          body: {
+          httpStatusCode: 200,
+          headers: {},
+          body: {} as any, // ResponseBody from client-node
+          data: {
             items: firstItems,
-            metadata: {
-              _continue: 'token',
-            },
+            metadata: { _continue: 'token' },
           },
         })
         .mockRejectedValueOnce(listError)
+        // .mockResolvedValueOnce({
+        //   response: {},
+        //   body: {
+        //     items: secondItems,
+        //     metadata: {
+        //       _continue: undefined,
+        //     },
+        //   },
+       
         .mockResolvedValueOnce({
-          response: {},
-          body: {
+          httpStatusCode: 200,
+          headers: {},
+          body: {} as any,
+          data: {
             items: secondItems,
             metadata: {
               _continue: undefined,

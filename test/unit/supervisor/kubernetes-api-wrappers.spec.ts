@@ -1,26 +1,26 @@
-import * as http from 'http'; // no longer used in client-node1.0.0 (move away from request library and now use node-fetch)
+import { NewIRequestError } from '../../../src/supervisor/types';
 import * as kubernetesApiWrappers from '../../../src/supervisor/kuberenetes-api-wrappers';
 
 describe('kubernetes api wrappers', () => {
   test.concurrent('calculateSleepSeconds', async () => {
-    const responseWithoutHeaders = {};
+    const responseWithoutHeaders = {} ;
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithoutHeaders as http.IncomingMessage,
+        responseWithoutHeaders as NewIRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
     const responseWithNegativeSeconds = { headers: { 'Retry-After': -3 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithNegativeSeconds as unknown as http.IncomingMessage,
+        responseWithNegativeSeconds as unknown as NewIRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
     const responseWithZeroSeconds = { headers: { 'Retry-After': 0 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithZeroSeconds as unknown as http.IncomingMessage,
+        responseWithZeroSeconds as unknown as NewIRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
@@ -29,21 +29,21 @@ describe('kubernetes api wrappers', () => {
     };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithDate as unknown as http.IncomingMessage,
+        responseWithDate as unknown as NewIRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
     const responseWithHighSecondsMock = { headers: { 'Retry-After': 55 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithHighSecondsMock as unknown as http.IncomingMessage,
+        responseWithHighSecondsMock as unknown as NewIRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.MAX_SLEEP_SEC);
 
     const responseWithSecondsMock = { headers: { 'Retry-After': 4 } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithSecondsMock as unknown as http.IncomingMessage,
+        responseWithSecondsMock as unknown as NewIRequestError,
       ),
     ).toEqual(4);
   });

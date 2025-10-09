@@ -1,10 +1,11 @@
 import * as fastq from 'fastq';
-import * as http from 'http';
+//import * as http from 'http';
+//import {ApiException} from '@kubernetes/client-node';
+import { NewIRequestError } from './types';
 import sleep from 'sleep-promise';
 import { config } from '../common/config';
 
 import { logger } from '../common/logger';
-import { IRequestError } from './types';
 import {
   RETRYABLE_NETWORK_ERROR_CODES,
   RETRYABLE_NETWORK_ERROR_MESSAGES,
@@ -24,8 +25,6 @@ const reqQueue: queueAsPromised<unknown> = fastq.promise(async function (
 },
 config.REQUEST_QUEUE_LENGTH);
 
-// TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
-// Error handling here will need to be updated to handle the new response type
 export async function retryKubernetesApiRequest<ResponseType>(
   func: IKubernetesApiFunction<ResponseType>,
 ): Promise<ResponseType> {
@@ -37,7 +36,7 @@ export async function retryKubernetesApiRequest<ResponseType>(
         throw err;
       }
 
-      const sleepSeconds = calculateSleepSeconds(err.response);
+      const sleepSeconds = calculateSleepSeconds(err);
       await sleep(sleepSeconds * 1000);
     }
   }
@@ -80,18 +79,13 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
     }
   }
 }
-// TODO httpResponse is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
 export function calculateSleepSeconds(
-  httpResponse?: http.IncomingMessage,
+  error?: NewIRequestError,
 ): number {
   let sleepSeconds = DEFAULT_SLEEP_SEC;
-  if (
-    httpResponse &&
-    httpResponse.headers &&
-    httpResponse.headers['Retry-After']
-  ) {
+  if (error?.headers && error.headers['Retry-After']) {
     try {
-      sleepSeconds = Number(httpResponse.headers['Retry-After']);
+      sleepSeconds = Number(error.headers['Retry-After']);
       if (isNaN(sleepSeconds) || sleepSeconds <= 0) {
         sleepSeconds = DEFAULT_SLEEP_SEC;
       }
@@ -102,25 +96,30 @@ export function calculateSleepSeconds(
   return Math.min(sleepSeconds, MAX_SLEEP_SEC);
 }
 
-function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
+function shouldRetryRequest(err: any, attempt: number): boolean {
   if (attempt >= ATTEMPTS_MAX) {
     return false;
   }
 
-  if (err.code && RETRYABLE_NETWORK_ERROR_CODES.includes(err.code)) {
+  // Network error codes (ECONNREFUSED, ETIMEDOUT, ECONNRESET)
+  // These come from FetchError which has err.code as string vs ApiException which has err.code as number
+  if (err.code && typeof err.code === 'string' && 
+    RETRYABLE_NETWORK_ERROR_CODES.includes(err.code)) {
     return true;
   }
 
   if (err.message && RETRYABLE_NETWORK_ERROR_MESSAGES.includes(err.message)) {
     return true;
   }
-  // err.response = IncomingMessage
-  // TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
-  if (!err.response) {
-    return false;
+  // 429 is Too Many Requests
+  if (err.code && typeof err.code === 'number' && err.code === 429) {
+    return true;
   }
-  // TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
-  if (err.response.statusCode === 429) {
+
+  // TODO: Q: Should we add other error codes to the list? 
+  // 502 is Bad Gateway, 503 is Service Unavailable, 504 is Gateway Timeout
+  if (err.code && typeof err.code === 'number' && 
+    [502, 503, 504].includes(err.code)) {
     return true;
   }
 

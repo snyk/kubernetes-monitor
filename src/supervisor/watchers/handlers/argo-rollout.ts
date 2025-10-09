@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
@@ -20,10 +19,7 @@ import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedArgoRolloutList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1alpha1RolloutList;
-}> {
+): Promise<V1alpha1RolloutList> {
   const rolloutList = new V1alpha1RolloutList();
   rolloutList.apiVersion = 'argoproj.io/v1alpha1';
   rolloutList.kind = 'RolloutList';
@@ -32,7 +28,7 @@ export async function paginatedNamespacedArgoRolloutList(
   return await paginatedNamespacedList(
     namespace,
     rolloutList,
-    async (
+    async (param: {
       namespace: string,
       pretty?: string,
       _allowWatchBookmarks?: boolean,
@@ -40,22 +36,22 @@ export async function paginatedNamespacedArgoRolloutList(
       fieldSelector?: string,
       labelSelector?: string,
       limit?: number,
-    ) =>
+    }) =>
       // The problem here is 2 parts. 
       // 1 (easy) is that we need to wrap individual parameters into one object 
       // 2 (harder) is that the response is excpecting IncomingMessage and body is V1alpha1RolloutList but IncomingMessage 
       // is no longer a supported return type in 1.0.0. Options: might want to consider removing the type IncomingMessage and create a new respnse type. 
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
+      k8sApi.customObjectsClient.listNamespacedCustomObjectWithHttpInfo({
+        group:'argoproj.io',
+        version:'v1alpha1',
         namespace,
-        'rollouts',
-        pretty,
-        false,
-        _continue,
-        fieldSelector,
-        labelSelector,
-        limit,
+        plural:'rollouts',
+        pretty: param.pretty,
+        allowWatchBookmarks: false,
+        _continue: param._continue,
+        fieldSelector: param.fieldSelector,
+        labelSelector: param.labelSelector,
+        limit: param.limit,
         /**
          * The K8s client's listNamespacedCustomObject() doesn't allow to specify
          * the type of the response body and returns the generic "object" type,
@@ -65,14 +61,11 @@ export async function paginatedNamespacedArgoRolloutList(
          * Type 'Promise<{ response: IncomingMessage; ***body: object;*** }>' is not assignable to type
          * 'Promise<{ response: IncomingMessage; ***body: KubernetesListObject<...>;*** }>'
          */
-      ) as any,
+      }) as any,
   );
 }
 
-export async function paginatedClusterArgoRolloutList(): Promise<{
-  response: IncomingMessage;
-  body: V1alpha1RolloutList;
-}> {
+export async function paginatedClusterArgoRolloutList(): Promise<V1alpha1RolloutList> {
   const rolloutList = new V1alpha1RolloutList();
   rolloutList.apiVersion = 'argoproj.io/v1';
   rolloutList.kind = 'RolloutList';
@@ -80,25 +73,25 @@ export async function paginatedClusterArgoRolloutList(): Promise<{
 
   return await paginatedClusterList(
     rolloutList,
-    async (
+    async (param: {
       _allowWatchBookmarks?: boolean,
       _continue?: string,
       fieldSelector?: string,
       labelSelector?: string,
       limit?: number,
       pretty?: string,
-    ) =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        'rollouts',
-        pretty,
-        false,
-        _continue,
-        fieldSelector,
-        labelSelector,
-        limit,
-      ) as any,
+    }) =>
+      k8sApi.customObjectsClient.listClusterCustomObjectWithHttpInfo({
+        group:'argoproj.io',
+        version:'v1alpha1',
+        plural:'rollouts',
+        pretty: param.pretty,
+        allowWatchBookmarks: false,
+        _continue: param._continue,
+        fieldSelector: param.fieldSelector,
+        labelSelector: param.labelSelector,
+        limit: param.limit,
+      }) as any,
   );
 }
 

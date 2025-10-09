@@ -9,7 +9,6 @@ import {
   V1NamespaceList,
   V1ListMeta,
 } from '@kubernetes/client-node';
-import { IncomingMessage } from 'http';
 import sleep from 'sleep-promise';
 import { logger } from '../../../common/logger';
 import { storeNamespace, deleteNamespace } from '../../../state';
@@ -18,7 +17,6 @@ import {
   calculateSleepSeconds,
   retryKubernetesApiRequest,
 } from '../../kuberenetes-api-wrappers';
-import { IRequestError } from '../../types';
 import { trimWorkloads } from '../../workload-sanitization';
 import {
   RETRYABLE_NETWORK_ERROR_CODES,
@@ -26,6 +24,7 @@ import {
 } from '../types';
 import { restartableErrorHandler } from './error';
 import { PAGE_SIZE } from './pagination';
+import { NewIRequestError } from '../../types';
 
 /**
  * We need to track all namespaces in the cluster so that we can detect usage of the namespaced annotated import.
@@ -92,10 +91,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
         list.kind = 'NamespaceList';
         list.items = new Array<V1Namespace>(reply);
         list.metadata = new V1ListMeta();
-        return {
-          response: reply.response, // TODO - change response signature 
-          body: list,
-        };
+        return list;
       });
     } catch (error) {
       logger.error({ ...logContext, error }, 'error while listing namespace');
@@ -117,10 +113,7 @@ export async function trackNamespace(namespace: string): Promise<void> {
   await informer.start();
 }
 
-async function paginatedNamespaceList(): Promise<{
-  response: IncomingMessage;
-  body: V1NamespaceList;
-}> {
+async function paginatedNamespaceList(): Promise<V1NamespaceList> {
   const v1NamespaceList = new V1NamespaceList();
   v1NamespaceList.apiVersion = 'v1';
   v1NamespaceList.kind = 'NamespaceList';
@@ -134,10 +127,8 @@ async function paginatedNamespaceList(): Promise<{
  * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
  * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
  */
-async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
-  response: IncomingMessage;
-  body: V1NamespaceList;
-}> {
+async function listPaginatedNamespaces(list: V1NamespaceList): Promise<
+  V1NamespaceList> {
   let continueToken: string | undefined = undefined;
 
   const pretty = undefined;
@@ -145,35 +136,35 @@ async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
   const fieldSelector = undefined;
   const labelSelector = undefined;
 
-  let incomingMessage: IncomingMessage | undefined = undefined;
+  //let incomingMessage: IncomingMessage | undefined = undefined;
 
   loop: while (true) {
     try {
-      const listCall = await k8sApi.coreClient.listNamespace(
+      const listCall = await k8sApi.coreClient.listNamespaceWithHttpInfo({
         pretty,
         allowWatchBookmarks,
-        continueToken,
-        fieldSelector,
+        _continue: continueToken,
+        fieldSelector: fieldSelector,
         labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+        limit: PAGE_SIZE,
+      });
+      //incomingMessage = listCall.response;
+      list.metadata = listCall.data.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(listCall.data.items)) {
+        const trimmedItems = trimWorkloads(listCall.data.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = listCall.data.metadata?._continue;
       if (!continueToken) {
         break;
       }
     } catch (err) {
-      const error = err as IRequestError;
+      const error = err as NewIRequestError;
 
       if (
-        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
+        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code as string) ||
         RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
       ) {
         const seconds = calculateSleepSeconds();
@@ -181,14 +172,14 @@ async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
         continue;
       }
 
-      switch (error.response?.statusCode) {
+      switch (error.code) {
         case 410: // Gone
           break loop;
         case 429: // Too Many Requests
         case 502: // Bad Gateway
         case 503: // Service Unavailable
         case 504: // Gateway Timeout
-          const seconds = calculateSleepSeconds(error.response);
+          const seconds = calculateSleepSeconds(error);
           await sleep(seconds);
           continue;
         default:
@@ -197,12 +188,10 @@ async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
     }
   }
 
-  if (!incomingMessage) {
-    throw new Error('could not list workload');
-  }
+    // TODO: Q: Do we need to throw an error here? No longer using incomingMessage
+  // if (!incomingMessage) {
+  //   throw new Error('could not list workload');
+  // }
 
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  return list;
 }

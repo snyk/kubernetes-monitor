@@ -1,11 +1,10 @@
-import { IncomingMessage } from 'http';
+// import { IncomingMessage } from 'http';
 import {
   AppsV1Api,
   BatchV1Api,
   CoreV1Api,
   CustomObjectsApi,
   KubeConfig,
-  V1Namespace,
   V1ObjectMeta,
   V1OwnerReference,
   V1PodSpec,
@@ -26,11 +25,30 @@ export enum WorkloadKind {
 
 // TODO - IncomingMessage is no longer a supported type in 1.0.0 (move away from request library and now use node-fetch)
 // Problem for all calls that are wrapped in retryKubernetesApiRequest
-export interface IRequestError {
-  message?: string;
-  code?: string;
-  response?: IncomingMessage;
+// will use the HTTPInfo object directly instead 
+// export interface IRequestError {
+//   message?: string;
+//   code?: string;
+//   response?: IncomingMessage;
+// }
+
+// TODO - will rename after refactoring
+export interface NewIRequestError extends Error {
+  // Error already has 
+  // name: string;
+  // message: string;
+  // stack?: string;
+
+  // Network error code (string) OR HTTP status code (number)
+  code?: string | number;
+  // Only present for ApiException (HTTP errors) which is returned by the 1.0.0 client-node 
+  headers?: {
+    [key: string]: string | string[];
+  };
+  // Only present for ApiException (HTTP errors)
+  body?: any;
 }
+
 
 export interface IKubeObjectMetadata {
   kind: string;
@@ -66,9 +84,4 @@ export class K8sClients implements IK8sClients {
     this.batchClient = config.makeApiClient(BatchV1Api);
     this.customObjectsClient = config.makeApiClient(CustomObjectsApi);
   }
-}
-
-export interface NamespaceResponse {
-  response: IncomingMessage;
-  body: V1Namespace;
 }

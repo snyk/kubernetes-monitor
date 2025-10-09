@@ -8,12 +8,39 @@ module.exports = {
   clearMocks: true,
   errorOnDeprecated: true,
 
-  // This is here until a bug in Jest (which in turn affects ts-jest) is resolved.
-  // It affects our CI/CD runs and makes the machine run out of memory.
-  // https://github.com/facebook/jest/issues/10550
-  globals: {
-    "ts-jest": {
+  // Transform ESM packages from node_modules
+  // By default Jest ignores node_modules, but @kubernetes/client-node v1.0.0+ is ESM-only
+  // Also need to transform its ESM dependencies: openid-client, oauth4webapi, jose
+  transformIgnorePatterns: [
+    'node_modules/(?!(@kubernetes/client-node|openid-client|oauth4webapi|jose))'
+  ],
+
+  // Treat .js files from @kubernetes/client-node as ESM
+  extensionsToTreatAsEsm: ['.ts'],
+  
+  // Modern ts-jest configuration
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      // This is here until a bug in Jest (which in turn affects ts-jest) is resolved.
+      // It affects our CI/CD runs and makes the machine run out of memory.
+      // https://github.com/facebook/jest/issues/10550
       isolatedModules: true,
-    },
+      useESM: false,
+    }],
+    // Transform ESM JavaScript files from @kubernetes/client-node with CommonJS output
+    '^.+\\.js$': ['ts-jest', {
+      isolatedModules: true,
+      useESM: false,
+      tsconfig: {
+        allowJs: true,
+        checkJs: false,
+        module: 'commonjs',
+      },
+    }],
+  },
+  
+  // Map ESM module imports to their locations
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 };
