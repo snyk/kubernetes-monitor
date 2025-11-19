@@ -20,4 +20,16 @@ ignore:
           https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
         expires: 2025-01-10T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
+    SNYK-RHEL9-LIBXML2-13863026:
+    - '*':
+        reason: >-
+          No fix available at this time
+        expires: 2025-12-19T12:00:00.000Z
+        created: 2025-11-19T12:00:00.000Z
+    SNYK-PYTHON-SETUPTOOLS-7448482:
+    - '*':
+        reason: >-
+          Introduced by Google Cloud SDK, waiting for upstream fix
+        expires: 2025-12-19T12:00:00.000Z
+        created: 2025-11-19T12:00:00.000Z
 patch: {}

@@ -24,5 +24,5 @@ spec:
         ports:
         - containerPort: 80
       - name: openjdk
-        image: docker.io/library/openjdk:14.0.1
-        command: ['sh', '-c', 'echo Hello from openjdk:14 pod! && sleep 360000']
+        image: eclipse-temurin:17-jre
+        command: ['sh', '-c', 'echo Hello from eclipse-temurin:17 pod! && sleep 360000']
