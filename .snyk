@@ -1,23 +1,27 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.25.0
+version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-    SNYK-JS-BRACES-6838727:
+  SNYK-JS-BRACES-6838727:
     - '*':
         reason: devDependency
         expires: 2025-12-01T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
-    SNYK-RHEL9-EXPAT-12672450:
+  SNYK-RHEL9-EXPAT-12672450:
     - '*':
-        reason: >-
-          There is no fix at this time
+        reason: There is no fix at this time
         expires: 2026-10-31T12:00:00.000Z
         created: 2025-09-15T12:00:00.000Z
-    SNYK-JS-TOUGHCOOKIE-5672873:
+  SNYK-JS-TOUGHCOOKIE-5672873:
     - '*':
         reason: >-
           Waiting for @kubernetes/client-node fetch migration
           https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
         expires: 2025-01-10T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
+  SNYK-RHEL9-LIBXML2-13863026:
+    - '*':
+        reason: No upstream fix available
+        expires: 2026-01-19T00:00:00.000Z
+        created: 2025-11-19T08:49:30.715Z
 patch: {}

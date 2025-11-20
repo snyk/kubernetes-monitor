@@ -1,7 +1,9 @@
+ARG UBI9_VERSION=9.7
+
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:9.6 as cred-helpers-build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:${UBI9_VERSION} as cred-helpers-build
 
 RUN GOTOOLCHAIN=go1.23.4 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
@@ -13,7 +15,7 @@ RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
 #---------------------------------------------------------------------
 # STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/nodejs-22:9.6 AS build
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/nodejs-22:${UBI9_VERSION} AS build
 
 ENV NODE_ENV production
 
@@ -31,14 +33,14 @@ RUN npm run build
 #---------------------------------------------------------------------
 # STAGE 3: Install containers-common to obtain configuration files
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.6 AS containers-common
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:${UBI9_VERSION} AS containers-common
 
 RUN dnf install -y containers-common
 
 #---------------------------------------------------------------------
 # STAGE 4: Build the kubernetes-monitor final image
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:9.6
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:${UBI9_VERSION}
 
 ARG NODE_MAJOR_VERSION=22
 ARG NODE_LATEST_VERSION

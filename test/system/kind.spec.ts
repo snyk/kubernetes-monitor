@@ -245,29 +245,25 @@ test('Kubernetes-Monitor with KinD', async () => {
                 type: 'imageNames',
                 data: {
                   names: [
-                    'docker.io/library/openjdk:latest',
-                    expect.stringContaining(
-                      'docker.io/library/openjdk@sha256:',
-                    ),
-                    expect.stringContaining(
-                      'docker.io/library/openjdk@sha256:',
-                    ),
+                    'eclipse-temurin:17-jre',
+                    expect.stringContaining('eclipse-temurin@sha256:'),
+                    expect.stringContaining('eclipse-temurin@sha256:'),
                   ],
                 },
               },
               {
                 type: 'ociDistributionMetadata',
                 data: {
-                  imageTag: 'latest',
+                  imageTag: '17-jre',
                   indexDigest: expect.stringContaining('sha256:'),
                   manifestDigest: expect.stringContaining('sha256:'),
                   registryHost: 'docker.io',
-                  repository: 'library/openjdk',
+                  repository: 'library/eclipse-temurin',
                 },
               },
             ]),
-            target: { image: 'docker-image|docker.io/library/openjdk' },
-            identity: { type: 'rpm', args: { platform: 'linux/amd64' } },
+            target: { image: 'docker-image|eclipse-temurin' },
+            identity: { type: 'deb', args: { platform: 'linux/amd64' } },
           },
           {
             facts: [
@@ -276,9 +272,9 @@ test('Kubernetes-Monitor with KinD', async () => {
             ],
             identity: {
               type: 'maven',
-              targetFile: '/usr/java/openjdk-18/lib',
+              targetFile: expect.stringMatching('/opt/java/openjdk/lib'),
             },
-            target: { image: 'docker-image|docker.io/library/openjdk' },
+            target: { image: 'docker-image|eclipse-temurin' },
           },
         ],
       });
@@ -294,7 +290,7 @@ test('Kubernetes-Monitor with KinD', async () => {
         expect(requestBody).toEqual<transmitterTypes.IDependencyGraphPayload>({
           agentId,
           dependencyGraph: expect.stringContaining(
-            'docker-image|docker.io/library/openjdk',
+            'docker-image|eclipse-temurin',
           ),
           imageLocator: {
             userLocator: expect.any(String),
