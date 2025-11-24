@@ -105,9 +105,10 @@ Finally, create the secret in Kubernetes by running the following command:
 kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockercfg.json --from-literal=integrationId=abcd1234-abcd-1234-abcd-1234abcd1234 --from-literal=serviceAccountApiToken=aabb1212-abab-1212-dcba-4321abcd4321
 ```
 
-5. (Optional) If your private registry requires installing certificates (*.crt, *.cert, *.key only) please put them in a folder and create the following ConfigMap:
+5. (Optional) If your private registry requires installing certificates (_.crt,_.cert, *.key only) please put them in a folder and create the following Secret:
+
 ```shell
-kubectl create configmap snyk-monitor-certs -n snyk-monitor --from-file=<path_to_certs_folder>
+kubectl create secret tls snyk-monitor-certs -n snyk-monitor --cert=path/to/tls.crt --key=path/to/tls.key
 ```
 
 6. (Optional) If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
