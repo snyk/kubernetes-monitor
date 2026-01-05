@@ -24,4 +24,9 @@ ignore:
         reason: No upstream fix available
         expires: 2026-01-19T00:00:00.000Z
         created: 2025-11-19T08:49:30.715Z
+  SNYK-GOLANG-GITHUBCOMCONTAINERSSTORAGE-8230413:
+    - '*':
+        reason: devDependency
+        expires: 2025-06-01T12:00:00.000Z
+        created: 2025-01-06T12:00:00.000Z
 patch: {}
