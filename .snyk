@@ -29,4 +29,9 @@ ignore:
         reason: devDependency
         expires: 2025-06-01T12:00:00.000Z
         created: 2025-01-06T12:00:00.000Z
+  SNYK-JS-QS-14724253:
+    - '*':
+        reason: devDependency
+        expires: 2025-06-01T12:00:00.000Z
+        created: 2025-01-06T12:00:00.000Z
 patch: {}
