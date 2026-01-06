@@ -51,7 +51,7 @@
     "source-map-support": "^0.5.21",
     "tunnel": "0.0.6",
     "typescript": "4.9.5",
-    "yaml": "^2.8.1"
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -101,6 +101,7 @@
       "form-data": "2.5.5" 
     },
     "cross-spawn": "^7.0.5",
-    "jsonpath-plus": "10.3.0"
+    "jsonpath-plus": "10.3.0",
+    "qs": "^6.14.1"
   }
 }

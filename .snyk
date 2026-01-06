@@ -24,4 +24,19 @@ ignore:
         reason: No upstream fix available
         expires: 2026-01-19T00:00:00.000Z
         created: 2025-11-19T08:49:30.715Z
+  SNYK-GOLANG-GITHUBCOMCONTAINERSSTORAGE-8230413:
+    - '*':
+        reason: devDependency
+        expires: 2026-06-06T12:00:00.000Z
+        created: 2026-01-05T12:00:00.000Z
+  SNYK-JS-QS-14724253:
+    - '*':
+        reason: devDependency
+        expires: 2026-06-06T12:00:00.000Z
+        created: 2026-01-05T12:00:00.000Z
+  SNYK-RHEL9-GNUPG2-14723579:
+    - '*':
+        reason: Base image vulnerability
+        expires: 2026-06-01T12:00:00.000Z
+        created: 2026-01-06T12:00:00.000Z
 patch: {}
