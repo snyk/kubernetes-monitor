@@ -24,4 +24,36 @@ ignore:
         reason: No upstream fix available
         expires: 2026-01-19T00:00:00.000Z
         created: 2025-11-19T08:49:30.715Z
+  SNYK-GOLANG-GITHUBCOMCONTAINERSSTORAGE-8230413:
+    - '*':
+        reason: devDependency
+        expires: 2026-06-06T12:00:00.000Z
+        created: 2026-01-05T12:00:00.000Z
+  SNYK-JS-QS-14724253:
+    - '*':
+        reason: devDependency
+        expires: 2026-06-06T12:00:00.000Z
+        created: 2026-01-05T12:00:00.000Z
+  SNYK-JS-GLOB-14040952:
+    - '*':
+        reason: >-
+          Base image vulnerability in node:22-alpine3.23 bundled glob package.
+          CVE-2025-64756 affects glob CLI. Waiting for upstream Node.js Alpine image update.
+        expires: 2026-06-06T12:00:00.000Z
+        created: 2026-01-14T12:00:00.000Z
+  SNYK-RHEL9-GNUPG2-14723579:
+    - '*':
+        reason: Base image vulnerability in ubi9:9.7, waiting for upstream UBI9 update
+        expires: 2026-02-06T12:00:00.000Z
+        created: 2026-01-06T12:00:00.000Z
+  SNYK-RHEL9-PYTHON3URLLIB3-14916620:
+    - '*':
+        reason: Base image vulnerability in ubi9:9.7, waiting for upstream UBI9 update
+        expires: 2026-02-14T12:00:00.000Z
+        created: 2026-01-14T12:00:00.000Z
+  SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
+    - '*':
+        reason: >-
+          CVE-2024-47081 - Red Hat has assessed this advisory as not relevant for RHEL 9.
+          The vulnerability does not affect this distribution.
 patch: {}
