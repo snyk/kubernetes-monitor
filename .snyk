@@ -44,4 +44,9 @@ ignore:
         reason: No fix available at this time
         expires: 2026-02-27T18:27:23.301Z
         created: 2026-01-28T18:27:23.304Z
+  'SNYK-JS-GLOB-14040952':
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-02-27T21:03:52.116Z
+        created: 2026-01-28T21:03:52.119Z
 patch: {}
