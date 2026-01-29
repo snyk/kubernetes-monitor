@@ -59,4 +59,9 @@ ignore:
         reason: No fix available at this time
         expires: 2026-02-27T21:21:43.742Z
         created: 2026-01-28T21:21:43.745Z
+  SNYK-RHEL9-TAR-15145598:
+    - '*':
+        reason: No fix available
+        expires: 2026-02-28T16:33:39.944Z
+        created: 2026-01-29T16:33:39.950Z
 patch: {}
