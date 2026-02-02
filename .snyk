@@ -7,11 +7,6 @@ ignore:
         reason: devDependency
         expires: 2025-12-01T12:00:00.000Z
         created: 2024-10-23T12:00:00.000Z
-  SNYK-RHEL9-EXPAT-12672450:
-    - '*':
-        reason: There is no fix at this time
-        expires: 2026-10-31T12:00:00.000Z
-        created: 2025-09-15T12:00:00.000Z
   SNYK-JS-TOUGHCOOKIE-5672873:
     - '*':
         reason: >-
@@ -34,9 +29,44 @@ ignore:
         reason: devDependency
         expires: 2026-06-06T12:00:00.000Z
         created: 2026-01-05T12:00:00.000Z
-  SNYK-RHEL9-GNUPG2-14723579:
+  SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
     - '*':
-        reason: Base image vulnerability
-        expires: 2026-06-01T12:00:00.000Z
-        created: 2026-01-06T12:00:00.000Z
+        reason: >-
+          CVE-2024-47081 - Red Hat has assessed this advisory as not relevant
+          for RHEL 9. The vulnerability does not affect this distribution.
+  SNYK-RHEL9-TAR-15041307:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-02-27T18:27:07.111Z
+        created: 2026-01-28T18:27:07.114Z
+  SNYK-RHEL9-TAR-15041355:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-02-27T18:27:23.301Z
+        created: 2026-01-28T18:27:23.304Z
+  SNYK-JS-GLOB-14040952:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-02-27T21:03:52.116Z
+        created: 2026-01-28T21:03:52.119Z
+  SNYK-RHEL9-GNUPG2-15127565:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-02-27T21:21:29.836Z
+        created: 2026-01-28T21:21:29.840Z
+  SNYK-RHEL9-GNUPG2-15127613:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-02-27T21:21:43.742Z
+        created: 2026-01-28T21:21:43.745Z
+  SNYK-RHEL9-TAR-15145598:
+    - '*':
+        reason: No fix available
+        expires: 2026-02-28T16:33:39.944Z
+        created: 2026-01-29T16:33:39.950Z
+  SNYK-JS-FASTXMLPARSER-15155603:
+    - '*':
+        reason: No fix at this time
+        expires: 2026-03-04T14:39:46.325Z
+        created: 2026-02-02T14:39:46.328Z
 patch: {}
