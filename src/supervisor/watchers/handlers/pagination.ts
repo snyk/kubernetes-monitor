@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http';
 import sleep from 'sleep-promise';
 import type {
   KubernetesListObject,
@@ -27,10 +26,7 @@ export async function paginatedNamespacedList<
   namespace: string,
   list: KubernetesListObject<KubernetesObject>,
   listPromise: V1NamespacedList<KubernetesListObject<T>>,
-): Promise<{
-  response: IncomingMessage;
-  body: KubernetesListObject<KubernetesObject>;
-}> {
+): Promise<KubernetesListObject<KubernetesObject>> {
   let continueToken: string | undefined = undefined;
 
   const pretty = undefined;
@@ -38,31 +34,29 @@ export async function paginatedNamespacedList<
   const fieldSelector = undefined;
   const labelSelector = undefined;
 
-  let incomingMessage: IncomingMessage | undefined = undefined;
+  // let incomingMessage: IncomingMessage | undefined = undefined;
 
   loop: while (true) {
     try {
-      const listCall: {
-        response: IncomingMessage;
-        body: KubernetesListObject<T>;
-      } = await listPromise(
+      const listCall = await listPromise({
         namespace,
         pretty,
         allowWatchBookmarks,
-        continueToken,
+        _continue: continueToken,
         fieldSelector,
         labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+        limit: PAGE_SIZE,
+      });
+      // TODO: Resolve this type issue here and below
+      // incomingMessage = listCall.response;
+      list.metadata = listCall.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(listCall.items)) {
+        const trimmedItems = trimWorkloads(listCall.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = listCall.metadata?._continue;
       if (!continueToken) {
         break;
       }
@@ -94,14 +88,15 @@ export async function paginatedNamespacedList<
     }
   }
 
-  if (!incomingMessage) {
-    throw new Error('could not list workload');
-  }
+  // if (!incomingMessage) {
+  //   throw new Error('could not list workload');
+  // }
 
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  // return {
+  //   response: incomingMessage,
+  //   body: list,
+  // };
+  return list;
 }
 
 /**
@@ -114,39 +109,33 @@ export async function paginatedClusterList<
 >(
   list: KubernetesListObject<KubernetesObject>,
   listPromise: V1ClusterList<KubernetesListObject<T>>,
-): Promise<{
-  response: IncomingMessage;
-  body: KubernetesListObject<KubernetesObject>;
-}> {
+): Promise<KubernetesListObject<KubernetesObject>> {
   let continueToken: string | undefined = undefined;
 
   const allowWatchBookmarks = undefined;
   const fieldSelector = undefined;
   const labelSelector = undefined;
 
-  let incomingMessage: IncomingMessage | undefined = undefined;
+  // let incomingMessage: IncomingMessage | undefined = undefined;
 
   loop: while (true) {
     try {
-      const listCall: {
-        response: IncomingMessage;
-        body: KubernetesListObject<T>;
-      } = await listPromise(
+      const listCall = await listPromise({
         allowWatchBookmarks,
-        continueToken,
+        _continue: continueToken,
         fieldSelector,
         labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+        limit: PAGE_SIZE,
+      });
+      // incomingMessage = listCall;
+      list.metadata = listCall.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(listCall.items)) {
+        const trimmedItems = trimWorkloads(listCall.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = listCall.metadata?._continue;
       if (!continueToken) {
         break;
       }
@@ -178,12 +167,9 @@ export async function paginatedClusterList<
     }
   }
 
-  if (!incomingMessage) {
-    throw new Error('could not list workload');
-  }
+  // if (!incomingMessage) {
+  //   throw new Error('could not list workload');
+  // }
 
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  return list;
 }
