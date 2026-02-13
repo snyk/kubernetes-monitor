@@ -61,3 +61,6 @@ opm
 .operator_version
 snyk-monitor-catalog-source.yaml
 *.iml
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.cursor/rules/snyk_rules.mdc

@@ -143,12 +143,9 @@ describe('pagination', () => {
       const listMock = jest
         .fn()
         .mockResolvedValueOnce({
-          response: {},
-          body: {
-            items,
-            metadata: {
-              _continue: 'token',
-            },
+          items,
+          metadata: {
+            _continue: 'token',
           },
         })
         .mockRejectedValueOnce(listError);
@@ -178,12 +175,9 @@ describe('pagination', () => {
       const listMock = jest
         .fn()
         .mockResolvedValueOnce({
-          response: {},
-          body: {
-            items: firstItems,
-            metadata: {
-              _continue: 'token',
-            },
+          items: firstItems,
+          metadata: {
+            _continue: 'token',
           },
         })
         .mockRejectedValueOnce(listError)

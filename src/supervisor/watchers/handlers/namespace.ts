@@ -9,7 +9,6 @@ import {
   V1NamespaceList,
   V1ListMeta,
 } from '@kubernetes/client-node';
-import { IncomingMessage } from 'http';
 import sleep from 'sleep-promise';
 import { logger } from '../../../common/logger';
 import { storeNamespace, deleteNamespace } from '../../../state';
@@ -62,7 +61,13 @@ export async function trackNamespaces(): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  informer.on(
+    ERROR,
+    // In Kubernetes client-node 1.x, there is only one callback type for this function, even in error scenarios. We should still be able to cast for type correctness here while logging using the same information in the error handler.
+    restartableErrorHandler(informer, logContext) as (
+      obj: KubernetesObject,
+    ) => void,
+  );
 
   await informer.start();
 }
@@ -86,16 +91,15 @@ export async function trackNamespace(namespace: string): Promise<void> {
     try {
       return await retryKubernetesApiRequest(async () => {
         logger.info({}, 'retrying k8s api request');
-        const reply = await k8sApi.coreClient.readNamespace(namespace);
+        const reply = await k8sApi.coreClient.readNamespace({
+          name: namespace,
+        });
         const list = new V1NamespaceList();
         list.apiVersion = 'v1';
         list.kind = 'NamespaceList';
-        list.items = new Array<V1Namespace>(reply.body);
+        list.items = new Array<V1Namespace>(reply);
         list.metadata = new V1ListMeta();
-        return {
-          response: reply.response,
-          body: list,
-        };
+        return list;
       });
     } catch (error) {
       logger.error({ ...logContext, error }, 'error while listing namespace');
@@ -112,15 +116,17 @@ export async function trackNamespace(namespace: string): Promise<void> {
   informer.on(ADD, storeNamespace);
   informer.on(UPDATE, storeNamespace);
   informer.on(DELETE, deleteNamespace);
-  informer.on(ERROR, restartableErrorHandler(informer, logContext));
+  informer.on(
+    ERROR,
+    restartableErrorHandler(informer, logContext) as (
+      obj: KubernetesObject,
+    ) => void,
+  );
 
   await informer.start();
 }
 
-async function paginatedNamespaceList(): Promise<{
-  response: IncomingMessage;
-  body: V1NamespaceList;
-}> {
+async function paginatedNamespaceList(): Promise<V1NamespaceList> {
   const v1NamespaceList = new V1NamespaceList();
   v1NamespaceList.apiVersion = 'v1';
   v1NamespaceList.kind = 'NamespaceList';
@@ -134,10 +140,9 @@ async function paginatedNamespaceList(): Promise<{
  * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
  * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
  */
-async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
-  response: IncomingMessage;
-  body: V1NamespaceList;
-}> {
+async function listPaginatedNamespaces(
+  list: V1NamespaceList,
+): Promise<V1NamespaceList> {
   let continueToken: string | undefined = undefined;
 
   const pretty = undefined;
@@ -145,27 +150,24 @@ async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
   const fieldSelector = undefined;
   const labelSelector = undefined;
 
-  let incomingMessage: IncomingMessage | undefined = undefined;
-
   loop: while (true) {
     try {
-      const listCall = await k8sApi.coreClient.listNamespace(
+      const listCall = await k8sApi.coreClient.listNamespace({
         pretty,
         allowWatchBookmarks,
-        continueToken,
+        _continue: continueToken,
         fieldSelector,
         labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+        limit: PAGE_SIZE,
+      });
+      list.metadata = listCall.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(listCall.items)) {
+        const trimmedItems = trimWorkloads(listCall.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = listCall.metadata?._continue;
       if (!continueToken) {
         break;
       }
@@ -197,12 +199,5 @@ async function listPaginatedNamespaces(list: V1NamespaceList): Promise<{
     }
   }
 
-  if (!incomingMessage) {
-    throw new Error('could not list workload');
-  }
-
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  return list;
 }

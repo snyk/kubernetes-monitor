@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
@@ -20,10 +19,7 @@ import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedArgoRolloutList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1alpha1RolloutList;
-}> {
+): Promise<V1alpha1RolloutList> {
   const rolloutList = new V1alpha1RolloutList();
   rolloutList.apiVersion = 'argoproj.io/v1alpha1';
   rolloutList.kind = 'RolloutList';
@@ -32,43 +28,30 @@ export async function paginatedNamespacedArgoRolloutList(
   return await paginatedNamespacedList(
     namespace,
     rolloutList,
-    async (
-      namespace: string,
-      pretty?: string,
-      _allowWatchBookmarks?: boolean,
-      _continue?: string,
-      fieldSelector?: string,
-      labelSelector?: string,
-      limit?: number,
-    ) =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
+    async ({
+      namespace,
+      pretty,
+      _continue,
+      fieldSelector,
+      labelSelector,
+      limit,
+    }) =>
+      k8sApi.customObjectsClient.listNamespacedCustomObject({
+        group: 'argoproj.io',
+        version: 'v1alpha1',
         namespace,
-        'rollouts',
+        plural: 'rollouts',
         pretty,
-        false,
+        allowWatchBookmarks: false,
         _continue,
         fieldSelector,
         labelSelector,
         limit,
-        /**
-         * The K8s client's listNamespacedCustomObject() doesn't allow to specify
-         * the type of the response body and returns the generic "object" type,
-         * but with how we declared our types we expect it to return a "KubernetesListObject" type.
-         *
-         * Not using "any" results in a similar error (highlighting the "body" property):
-         * Type 'Promise<{ response: IncomingMessage; ***body: object;*** }>' is not assignable to type
-         * 'Promise<{ response: IncomingMessage; ***body: KubernetesListObject<...>;*** }>'
-         */
-      ) as any,
+      }),
   );
 }
 
-export async function paginatedClusterArgoRolloutList(): Promise<{
-  response: IncomingMessage;
-  body: V1alpha1RolloutList;
-}> {
+export async function paginatedClusterArgoRolloutList(): Promise<V1alpha1RolloutList> {
   const rolloutList = new V1alpha1RolloutList();
   rolloutList.apiVersion = 'argoproj.io/v1';
   rolloutList.kind = 'RolloutList';
@@ -76,25 +59,18 @@ export async function paginatedClusterArgoRolloutList(): Promise<{
 
   return await paginatedClusterList(
     rolloutList,
-    async (
-      _allowWatchBookmarks?: boolean,
-      _continue?: string,
-      fieldSelector?: string,
-      labelSelector?: string,
-      limit?: number,
-      pretty?: string,
-    ) =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        'rollouts',
+    async ({ _continue, fieldSelector, labelSelector, limit, pretty }) =>
+      k8sApi.customObjectsClient.listClusterCustomObject({
+        group: 'argoproj.io',
+        version: 'v1alpha1',
+        plural: 'rollouts',
         pretty,
-        false,
+        allowWatchBookmarks: false,
         _continue,
         fieldSelector,
         labelSelector,
         limit,
-      ) as any,
+      }),
   );
 }
 
@@ -109,23 +85,32 @@ export async function argoRolloutWatchHandler(
       // Perform lookup for known supported kinds: https://github.com/argoproj/argo-rollouts/blob/master/rollout/templateref.go#L40-L52
       case 'Deployment': {
         const deployResult = await retryKubernetesApiRequest(() =>
-          k8sApi.appsClient.readNamespacedDeployment(workloadName, namespace),
+          k8sApi.appsClient.readNamespacedDeployment({
+            name: workloadName,
+            namespace,
+          }),
         );
-        rollout.spec.template = deployResult.body.spec?.template;
+        rollout.spec.template = deployResult.spec?.template;
         break;
       }
       case 'ReplicaSet': {
         const replicaSetResult = await retryKubernetesApiRequest(() =>
-          k8sApi.appsClient.readNamespacedReplicaSet(workloadName, namespace),
+          k8sApi.appsClient.readNamespacedReplicaSet({
+            name: workloadName,
+            namespace,
+          }),
         );
-        rollout.spec.template = replicaSetResult.body.spec?.template;
+        rollout.spec.template = replicaSetResult.spec?.template;
         break;
       }
       case 'PodTemplate': {
         const podTemplateResult = await retryKubernetesApiRequest(() =>
-          k8sApi.coreClient.readNamespacedPodTemplate(workloadName, namespace),
+          k8sApi.coreClient.readNamespacedPodTemplate({
+            name: workloadName,
+            namespace,
+          }),
         );
-        rollout.spec.template = podTemplateResult.body.template;
+        rollout.spec.template = podTemplateResult.template;
         break;
       }
       default:
@@ -186,21 +171,20 @@ export async function isNamespacedArgoRolloutSupported(
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'argoproj.io',
-        'v1alpha1',
+      k8sApi.customObjectsClient.listNamespacedCustomObject({
+        group: 'argoproj.io',
+        version: 'v1alpha1',
         namespace,
-        'rollouts',
+        plural: 'rollouts',
         pretty,
-        false,
-        continueToken,
+        allowWatchBookmarks: false,
+        _continue: continueToken,
         fieldSelector,
         labelSelector,
         limit,
         resourceVersion,
-        undefined,
         timeoutSeconds,
-      ),
+      }),
     );
     return (
       attemptedApiCall !== undefined &&
@@ -228,20 +212,19 @@ export async function isClusterArgoRolloutSupported(): Promise<boolean> {
     const resourceVersion = undefined; // List anything in the cluster
     const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
     const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'argoproj.io',
-        'v1alpha1',
-        'rollouts',
+      k8sApi.customObjectsClient.listClusterCustomObject({
+        group: 'argoproj.io',
+        version: 'v1alpha1',
+        plural: 'rollouts',
         pretty,
-        false,
-        continueToken,
+        allowWatchBookmarks: false,
+        _continue: continueToken,
         fieldSelector,
         labelSelector,
         limit,
         resourceVersion,
-        undefined,
         timeoutSeconds,
-      ),
+      }),
     );
     return (
       attemptedApiCall !== undefined &&
