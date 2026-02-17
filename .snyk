@@ -24,11 +24,6 @@ ignore:
         reason: devDependency
         expires: 2026-06-06T12:00:00.000Z
         created: 2026-01-05T12:00:00.000Z
-  SNYK-JS-QS-14724253:
-    - '*':
-        reason: devDependency
-        expires: 2026-06-06T12:00:00.000Z
-        created: 2026-01-05T12:00:00.000Z
   SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
     - '*':
         reason: >-
