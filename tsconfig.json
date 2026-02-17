@@ -4,6 +4,8 @@
     "incremental": true,
     "target": "es2021",
     "module": "commonjs",
+    // "module": "NodeNext", // or Node18/NodeNext
+    // "target": "ESNext",
     "sourceMap": true,
     "pretty": true,
     "importHelpers": true,

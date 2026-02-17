@@ -182,12 +182,9 @@ describe('pagination', () => {
         })
         .mockRejectedValueOnce(listError)
         .mockResolvedValueOnce({
-          response: {},
-          body: {
-            items: secondItems,
-            metadata: {
-              _continue: undefined,
-            },
+          items: secondItems,
+          metadata: {
+            _continue: undefined,
           },
         });
 

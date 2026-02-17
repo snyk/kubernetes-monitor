@@ -16,4 +16,15 @@ module.exports = {
       isolatedModules: true,
     },
   },
+  // Allow transforming ESM-only packages (and their deps) so Jest can load them in CJS mode.
+  // transformIgnorePatterns: [
+  //   'node_modules/(?!(@kubernetes/client-node|openid-client|oauth4webapi)/)',
+  // ],
+  // transformIgnorePatterns: [
+  //   'node_modules/',
+  // ],
+  // transform: {
+  //   '^.+\\.(ts|tsx)$': 'ts-jest',
+  //   '^.+\\.js$': 'babel-jest',
+  // },
 };
