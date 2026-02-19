@@ -14,7 +14,7 @@ RUN --mount=type=secret,id=gh_token,required=true \
 #---------------------------------------------------------------------
 # STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 node:22-alpine3.22
+FROM --platform=linux/amd64 node:22-alpine3.23
 
 LABEL name="Snyk Controller" \
     maintainer="support@snyk.io" \
@@ -30,7 +30,7 @@ RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add dumb-init skopeo curl bash python3
 
-RUN npm install -g npm@v10.9.2
+RUN npm install -g npm@v10.9.4
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
