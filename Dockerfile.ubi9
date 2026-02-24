@@ -87,7 +87,9 @@ COPY --chown=snyk:snyk --from=cred-helpers-build /opt/app-root/src/go/bin/docker
 COPY --chown=snyk:snyk --from=cred-helpers-build /opt/app-root/src/go/bin/docker-credential-acr-env /usr/bin/docker-credential-acr-env
 
 # Install gcloud
-RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/ && \
+RUN curl -sSfLo /tmp/google-cloud-sdk.tar.gz "https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-cli-linux-x86_64.tar.gz" && \
+    tar -xzf /tmp/google-cloud-sdk.tar.gz -C / && \
+    rm -f /tmp/google-cloud-sdk.tar.gz && \
     rm -rf /google-cloud-sdk/platform /google-cloud-sdk/bin/anthoscli /google-cloud-sdk/bin/gcloud-crc32c
 ENV PATH=/google-cloud-sdk/bin:$PATH
 
