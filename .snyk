@@ -64,4 +64,20 @@ ignore:
         reason: No fix at this time
         expires: 2026-03-04T14:39:46.325Z
         created: 2026-02-02T14:39:46.328Z
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: No fix available; inflight is unmaintained
+        expires: 2026-03-26T00:00:00.000Z
+        created: 2026-02-24T00:00:00.000Z
+  SNYK-JS-REQUEST-3361831:
+    - '*':
+        reason: >-
+          Fix requires major upgrade of @kubernetes/client-node to 1.0.0
+        expires: 2026-03-26T00:00:00.000Z
+        created: 2026-02-24T00:00:00.000Z
+  snyk:lic:npm:shescape:MPL-2.0:
+    - '*':
+        reason: MPL-2.0 license is acceptable for this project
+        expires: 2026-03-26T00:00:00.000Z
+        created: 2026-02-24T00:00:00.000Z
 patch: {}
