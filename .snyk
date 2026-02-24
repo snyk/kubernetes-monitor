@@ -80,4 +80,18 @@ ignore:
         reason: MPL-2.0 license is acceptable for this project
         expires: 2026-03-26T00:00:00.000Z
         created: 2026-02-24T00:00:00.000Z
+  SNYK-JS-MINIMATCH-15309438:
+    - '*':
+        reason: >-
+          In base image global npm, not in app dependencies. Requires
+          Node.js base image update to npm@11.6.4.
+        expires: 2026-03-26T00:00:00.000Z
+        created: 2026-02-24T00:00:00.000Z
+  SNYK-JS-TAR-15307072:
+    - '*':
+        reason: >-
+          In base image global npm (via cacache), not in app dependencies.
+          Requires Node.js base image update to npm@11.6.4.
+        expires: 2026-03-26T00:00:00.000Z
+        created: 2026-02-24T00:00:00.000Z
 patch: {}
