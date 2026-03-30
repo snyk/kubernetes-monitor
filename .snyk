@@ -2,33 +2,49 @@
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JS-BRACES-6838727:
-    - '*':
-        reason: devDependency
-        expires: 2025-12-01T12:00:00.000Z
-        created: 2024-10-23T12:00:00.000Z
-  SNYK-JS-TOUGHCOOKIE-5672873:
-    - '*':
-        reason: >-
-          Waiting for @kubernetes/client-node fetch migration
-          https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
-        expires: 2025-01-10T12:00:00.000Z
-        created: 2024-10-23T12:00:00.000Z
-  SNYK-RHEL9-LIBXML2-13863026:
-    - '*':
-        reason: No upstream fix available
-        expires: 2026-01-19T00:00:00.000Z
-        created: 2025-11-19T08:49:30.715Z
   SNYK-GOLANG-GITHUBCOMCONTAINERSSTORAGE-8230413:
     - '*':
         reason: devDependency
         expires: 2026-06-06T12:00:00.000Z
         created: 2026-01-05T12:00:00.000Z
-  SNYK-JS-QS-14724253:
+  SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
     - '*':
-        reason: devDependency
-        expires: 2026-06-06T12:00:00.000Z
-        created: 2026-01-05T12:00:00.000Z
+        reason: >-
+          Container scan: skopeo binary embeds google.golang.org/grpc until
+          distro package provides fix (>= 1.79.3). Not network-exposed as a
+          gRPC server in this image. Re-check when skopeo/apk updates.
+        expires: 2026-04-07T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
+  SNYK-RHEL9-GNUPG2-15127565:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-01-28T21:21:29.840Z
+  SNYK-RHEL9-GNUPG2-15127613:
+    - '*':
+        reason: No fix available at this time
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-01-28T21:21:43.745Z
+  SNYK-RHEL9-LIBARCHIVE-15747822:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
+  SNYK-RHEL9-LIBNGHTTP2-15748803:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
+  SNYK-RHEL9-PYTHON3-15760267:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
+  SNYK-RHEL9-PYTHON3LIBS-15760285:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
     - '*':
         reason: >-
@@ -37,36 +53,37 @@ ignore:
   SNYK-RHEL9-TAR-15041307:
     - '*':
         reason: No fix available at this time
-        expires: 2026-02-27T18:27:07.111Z
+        expires: 2026-04-23T12:00:00.000Z
         created: 2026-01-28T18:27:07.114Z
   SNYK-RHEL9-TAR-15041355:
     - '*':
         reason: No fix available at this time
-        expires: 2026-02-27T18:27:23.301Z
+        expires: 2026-04-23T12:00:00.000Z
         created: 2026-01-28T18:27:23.304Z
-  SNYK-JS-GLOB-14040952:
-    - '*':
-        reason: No fix available at this time
-        expires: 2026-02-27T21:03:52.116Z
-        created: 2026-01-28T21:03:52.119Z
-  SNYK-RHEL9-GNUPG2-15127565:
-    - '*':
-        reason: No fix available at this time
-        expires: 2026-02-27T21:21:29.836Z
-        created: 2026-01-28T21:21:29.840Z
-  SNYK-RHEL9-GNUPG2-15127613:
-    - '*':
-        reason: No fix available at this time
-        expires: 2026-02-27T21:21:43.742Z
-        created: 2026-01-28T21:21:43.745Z
   SNYK-RHEL9-TAR-15145598:
     - '*':
         reason: No fix available
-        expires: 2026-02-28T16:33:39.944Z
+        expires: 2026-04-23T12:00:00.000Z
         created: 2026-01-29T16:33:39.950Z
-  SNYK-JS-FASTXMLPARSER-15155603:
+  SNYK-JS-TAR-15307072:
     - '*':
-        reason: No fix at this time
-        expires: 2026-03-04T14:39:46.325Z
-        created: 2026-02-02T14:39:46.328Z
+        reason: >-
+          Global npm in image bundles tar via cacache; no patched path until
+          npm/apk update. Re-verify on image refresh.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
+  SNYK-JS-TAR-15416075:
+    - '*':
+        reason: >-
+          Global npm in image bundles tar via cacache; no patched path until
+          npm/apk update. Re-verify on image refresh.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
+  SNYK-JS-TAR-15456201:
+    - '*':
+        reason: >-
+          Global npm in image bundles tar via cacache; no patched path until
+          npm/apk update. Re-verify on image refresh.
+        expires: 2026-04-23T12:00:00.000Z
+        created: 2026-03-24T12:00:00.000Z
 patch: {}
