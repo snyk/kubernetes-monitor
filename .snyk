@@ -25,6 +25,11 @@ ignore:
         reason: No fix available at this time
         expires: 2026-04-23T12:00:00.000Z
         created: 2026-01-28T21:21:43.745Z
+  SNYK-RHEL9-VIMMINIMAL-15796062:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-04-09T12:00:00.000Z
+        created: 2026-03-30T12:00:00.000Z
   SNYK-RHEL9-LIBARCHIVE-15747822:
     - '*':
         reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
