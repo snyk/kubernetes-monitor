@@ -35,7 +35,7 @@ RUN npm run build
 #---------------------------------------------------------------------
 FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/ubi:${UBI9_VERSION} AS containers-common
 
-RUN dnf upgrade -y && dnf install -y containers-common
+RUN dnf install -y containers-common
 
 #---------------------------------------------------------------------
 # STAGE 4: Build the kubernetes-monitor final image
@@ -49,8 +49,8 @@ ARG NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
 ARG DUMB_INIT_VERSION=1.2.5
 ARG DUMB_INIT_BINARY_FILE_SHASUM256=e874b55f3279ca41415d290c512a7ba9d08f98041b28ae7c2acb19a545f1c4df
 # https://github.com/lework/skopeo-binary/releases
-ARG SKOPEO_VERSION=1.22.0
-ARG SKOPEO_BINARY_FILE_SHASUM256=397708bef1afa0defdc041bb0d3684570d97135076370257438c871600c1c587
+ARG SKOPEO_VERSION=1.16.1
+ARG SKOPEO_BINARY_FILE_SHASUM256=8813fb7fcd7a723196ac287683dd929d280f6fe7f0782eace452fe1e3ff2b7eb
 
 LABEL name="Snyk Controller" \
     maintainer="support@snyk.io" \
@@ -62,7 +62,7 @@ COPY LICENSE /licenses/LICENSE
 
 ENV NODE_ENV=production
 
-RUN dnf upgrade -y && dnf clean all
+RUN yum upgrade -y
 
 WORKDIR /srv/app
 
