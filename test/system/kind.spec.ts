@@ -266,10 +266,31 @@ test('Kubernetes-Monitor with KinD', async () => {
             identity: { type: 'deb', args: { platform: 'linux/amd64' } },
           },
           {
-            facts: [
+            facts: expect.arrayContaining([
               { type: 'jarFingerprints', data: expect.any(Object) },
               { type: 'imageId', data: expect.any(String) },
-            ],
+              {
+                type: 'imageNames',
+                data: {
+                  names: [
+                    'eclipse-temurin:17-jre',
+                    expect.stringContaining('eclipse-temurin@sha256:'),
+                    expect.stringContaining('eclipse-temurin@sha256:'),
+                  ],
+                },
+              },
+              {
+                type: 'ociDistributionMetadata',
+                data: {
+                  imageTag: '17-jre',
+                  indexDigest: expect.stringContaining('sha256:'),
+                  manifestDigest: expect.stringContaining('sha256:'),
+                  registryHost: 'docker.io',
+                  repository: 'library/eclipse-temurin',
+                },
+              },
+              { type: 'pluginVersion', data: expect.any(String) },
+            ]),
             identity: {
               type: 'maven',
               targetFile: expect.stringMatching('/opt/java/openjdk/lib'),
