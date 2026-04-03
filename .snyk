@@ -96,4 +96,9 @@ ignore:
         reason: Transitive dependency via snyk-docker-plugin; awaiting upstream fix
         expires: 2026-04-14T12:00:00.000Z
         created: 2026-04-14T12:00:00.000Z
+  SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
+    - '*':
+        reason: Container scan - skopeo binary embeds go-jose; awaiting distro package update
+        expires: 2026-04-14T12:00:00.000Z
+        created: 2026-04-14T12:00:00.000Z
 patch: {}
