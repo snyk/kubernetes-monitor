@@ -94,6 +94,6 @@ ignore:
   SNYK-JS-LODASH-15869625:
     - '*':
         reason: Transitive dependency via snyk-docker-plugin; awaiting upstream fix
-        expires: 2026-02-25T12:00:00.000Z
-        created: 2026-02-18T12:00:00.000Z
+        expires: 2026-04-14T12:00:00.000Z
+        created: 2026-04-14T12:00:00.000Z
 patch: {}
