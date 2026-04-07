@@ -28,27 +28,47 @@ ignore:
   SNYK-RHEL9-VIMMINIMAL-15796062:
     - '*':
         reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-09T12:00:00.000Z
+        expires: 2026-05-07T12:00:00.000Z
         created: 2026-03-30T12:00:00.000Z
+  SNYK-RHEL9-VIMMINIMAL-15884750:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-05-07T12:00:00.000Z
+        created: 2026-04-07T12:00:00.000Z
+  SNYK-RHEL9-GLIBCMINIMALLANGPACK-15885179:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-05-07T12:00:00.000Z
+        created: 2026-04-07T12:00:00.000Z
+  SNYK-RHEL9-GLIBCCOMMON-15884768:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-05-07T12:00:00.000Z
+        created: 2026-04-07T12:00:00.000Z
+  SNYK-RHEL9-GLIBC-15884867:
+    - '*':
+        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
+        expires: 2026-05-07T12:00:00.000Z
+        created: 2026-04-07T12:00:00.000Z
   SNYK-RHEL9-LIBARCHIVE-15747822:
     - '*':
         reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
+        expires: 2026-05-07T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-LIBNGHTTP2-15748803:
     - '*':
         reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
+        expires: 2026-05-07T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-PYTHON3-15760267:
     - '*':
         reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
+        expires: 2026-05-07T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-PYTHON3LIBS-15760285:
     - '*':
         reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
+        expires: 2026-05-07T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
     - '*':
@@ -95,10 +115,10 @@ ignore:
     - '*':
         reason: Transitive dependency via snyk-docker-plugin; awaiting upstream fix
         expires: 2026-04-14T12:00:00.000Z
-        created: 2026-04-14T12:00:00.000Z
+        created: 2026-04-03T12:00:00.000Z
   SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
     - '*':
         reason: Container scan - skopeo binary embeds go-jose; awaiting distro package update
         expires: 2026-04-14T12:00:00.000Z
-        created: 2026-04-14T12:00:00.000Z
+        created: 2026-04-03T12:00:00.000Z
 patch: {}
