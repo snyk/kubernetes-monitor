@@ -13,7 +13,7 @@ ignore:
           Container scan: skopeo binary embeds google.golang.org/grpc until
           distro package provides fix (>= 1.79.3). Not network-exposed as a
           gRPC server in this image. Re-check when skopeo/apk updates.
-        expires: 2026-04-14T12:00:00.000Z
+        expires: 2026-07-21T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
   SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
     - '*':
