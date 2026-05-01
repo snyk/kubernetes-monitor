@@ -2,24 +2,14 @@
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-GOLANG-GITHUBCOMCONTAINERSSTORAGE-8230413:
-    - '*':
-        reason: devDependency
-        expires: 2026-06-06T12:00:00.000Z
-        created: 2026-01-05T12:00:00.000Z
   SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
     - '*':
         reason: >-
           Container scan: skopeo binary embeds google.golang.org/grpc until
           distro package provides fix (>= 1.79.3). Not network-exposed as a
           gRPC server in this image. Re-check when skopeo/apk updates.
-        expires: 2026-04-14T12:00:00.000Z
+        expires: 2026-07-21T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
-  SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-15875221:
-    - '*':
-        reason: Container scan - skopeo binary embeds go-jose; awaiting distro package update
-        expires: 2026-04-14T12:00:00.000Z
-        created: 2026-04-03T12:00:00.000Z
   SNYK-RHEL9-GNUPG2-15127565:
     - '*':
         reason: No fix available at this time
@@ -116,9 +106,4 @@ ignore:
           npm/apk update. Re-verify on image refresh.
         expires: 2026-04-23T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
-  SNYK-JS-LODASH-15869625:
-    - '*':
-        reason: Transitive dependency via snyk-docker-plugin; awaiting upstream fix
-        expires: 2026-04-14T12:00:00.000Z
-        created: 2026-04-03T12:00:00.000Z
 patch: {}
