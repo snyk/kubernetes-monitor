@@ -58,7 +58,10 @@ ADD --chown=snyk:snyk package.json package-lock.json ./
 # TODO: Remove this line once OpenShift 3 comes out of support.
 RUN mkdir -p .config
 
-RUN npm ci
+RUN --mount=type=secret,id=npm_token,uid=10001 \
+    echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
+    npm ci && \
+    rm -f ~/.npmrc
 
 # add the rest of the app files
 ADD --chown=snyk:snyk . .
