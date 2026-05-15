@@ -22,7 +22,10 @@ ENV NODE_ENV production
 # Add manifest files and install before adding anything else to take advantage of layer caching
 COPY --chown=1001:1001 package.json package-lock.json ./
 
-RUN npm ci
+RUN --mount=type=secret,id=npm_token,uid=1001 \
+    echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
+    npm ci && \
+    rm -f ~/.npmrc
 
 # add the rest of the app files
 COPY --chown=1001:1001 . ./
