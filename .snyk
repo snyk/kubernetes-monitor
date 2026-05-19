@@ -138,4 +138,19 @@ ignore:
           npm/apk update. Re-verify on image refresh.
         expires: 2026-04-23T12:00:00.000Z
         created: 2026-03-24T12:00:00.000Z
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: "No non-major fix available as of 2026-05-19; revisit in 7 days"
+        expires: '2026-05-26T00:00:00.000Z'
+        created: '2026-05-19T00:00:00.000Z'
+  SNYK-JS-REQUEST-3361831:
+    - '*':
+        reason: "No fix available as of 2026-05-19; request package is deprecated and unmaintained; revisit in 7 days"
+        expires: '2026-05-26T00:00:00.000Z'
+        created: '2026-05-19T00:00:00.000Z'
+  SNYK-JS-UUID-16133035:
+    - '*':
+        reason: "No non-major fix available as of 2026-05-19; fixedIn versions 11.1.1 and 14.0.0 are major bumps from v3; revisit in 7 days"
+        expires: '2026-05-26T00:00:00.000Z'
+        created: '2026-05-19T00:00:00.000Z'
 patch: {}
