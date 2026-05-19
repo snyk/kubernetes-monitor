@@ -2,14 +2,6 @@
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-GOLANG-GOOGLEGOLANGORGGRPC-15691172:
-    - '*':
-        reason: >-
-          Container scan: skopeo binary embeds google.golang.org/grpc until
-          distro package provides fix (>= 1.79.3). Not network-exposed as a
-          gRPC server in this image. Re-check when skopeo/apk updates.
-        expires: 2026-07-21T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-GNUPG2-15127565:
     - '*':
         reason: >-
@@ -26,11 +18,6 @@ ignore:
           https://access.redhat.com/security/cve/CVE-2026-24882
         expires: 2026-11-14T12:00:00.000Z
         created: 2026-01-28T21:21:43.745Z
-  SNYK-RHEL9-VIMMINIMAL-15796062:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-05-07T12:00:00.000Z
-        created: 2026-03-30T12:00:00.000Z
   SNYK-RHEL9-VIMMINIMAL-15884750:
     - '*':
         reason: >-
@@ -39,41 +26,6 @@ ignore:
           https://access.redhat.com/security/cve/CVE-2026-34714
         expires: 2026-11-14T12:00:00.000Z
         created: 2026-04-07T12:00:00.000Z
-  SNYK-RHEL9-GLIBCMINIMALLANGPACK-15885179:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-04-07T12:00:00.000Z
-  SNYK-RHEL9-GLIBCCOMMON-15884768:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-04-07T12:00:00.000Z
-  SNYK-RHEL9-GLIBC-15884867:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-04-07T12:00:00.000Z
-  SNYK-RHEL9-LIBARCHIVE-15747822:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
-  SNYK-RHEL9-LIBNGHTTP2-15748803:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
-  SNYK-RHEL9-PYTHON3-15760267:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
-  SNYK-RHEL9-PYTHON3LIBS-15760285:
-    - '*':
-        reason: UBI 9 base image; no fix in Red Hat channels yet. Re-verify after dnf upgrade.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
   SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
     - '*':
         reason: >-
@@ -117,25 +69,4 @@ ignore:
           https://access.redhat.com/security/cve/CVE-2026-24842
         expires: 2026-11-14T12:00:00.000Z
         created: 2026-01-29T16:33:39.950Z
-  SNYK-JS-TAR-15307072:
-    - '*':
-        reason: >-
-          Global npm in image bundles tar via cacache; no patched path until
-          npm/apk update. Re-verify on image refresh.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
-  SNYK-JS-TAR-15416075:
-    - '*':
-        reason: >-
-          Global npm in image bundles tar via cacache; no patched path until
-          npm/apk update. Re-verify on image refresh.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
-  SNYK-JS-TAR-15456201:
-    - '*':
-        reason: >-
-          Global npm in image bundles tar via cacache; no patched path until
-          npm/apk update. Re-verify on image refresh.
-        expires: 2026-04-23T12:00:00.000Z
-        created: 2026-03-24T12:00:00.000Z
 patch: {}
