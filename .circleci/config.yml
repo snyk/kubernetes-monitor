@@ -77,6 +77,13 @@ commands:
                 ]
             }
 
+  setup_npm_auth:
+    description: Configure ~/.npmrc with NPM_TOKEN so npm ci can resolve private @snyk/* packages.
+    steps:
+      - run:
+          name: Configure npm auth
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+
 jobs:
   security-scans:
     docker:
@@ -129,6 +136,7 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
+      - setup_npm_auth
       - run:
           command: npm ci
       - run:
@@ -162,6 +170,7 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
+      - setup_npm_auth
       - run:
           command: npm ci
       - run:
@@ -221,6 +230,7 @@ jobs:
       image: default
     steps:
       - checkout
+      - setup_npm_auth
       - run:
           command: npm ci
       - run:
@@ -242,6 +252,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - setup_npm_auth
       - run:
           command: |
             npm ci &&
@@ -261,6 +272,7 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
+      - setup_npm_auth
       - run:
           command: npm ci
       - run:
@@ -284,7 +296,7 @@ master_branch_only_filter:
 orbs:
   aws-cli: circleci/aws-cli@2.0.6
   azure-cli: circleci/azure-cli@1.2.0
-  prodsec: snyk/prodsec-orb@1
+  prodsec: snyk/prodsec-orb@dev:2c981fab5b1c20d52b31daa641e67f959653c86f
   slack: circleci/slack@4.12.5
 
 staging_branch_only_filter:
@@ -353,6 +365,7 @@ workflows:
                 - staging
       - system_tests:
           context:
+            - infrasec_container
             - snyk-bot-slack
           filters:
             branches:
@@ -433,6 +446,7 @@ workflows:
                 - master
       - lint:
           context:
+            - infrasec_container
             - snyk-bot-slack
           filters:
             branches:
@@ -441,6 +455,7 @@ workflows:
                 - master
       - code_formatter:
           context:
+            - infrasec_container
             - snyk-bot-slack
           filters:
             branches:
@@ -449,6 +464,7 @@ workflows:
                 - master
       - system_tests:
           context:
+            - infrasec_container
             - snyk-bot-slack
           filters:
             branches:
