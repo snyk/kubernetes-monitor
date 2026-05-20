@@ -22,7 +22,10 @@ ENV NODE_ENV production
 # Add manifest files and install before adding anything else to take advantage of layer caching
 COPY --chown=1001:1001 package.json package-lock.json ./
 
-RUN npm ci
+RUN --mount=type=secret,id=npm_token,uid=1001 \
+    echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
+    npm ci && \
+    rm -f ~/.npmrc
 
 # add the rest of the app files
 COPY --chown=1001:1001 . ./
@@ -85,6 +88,10 @@ COPY --chown=snyk:snyk --from=containers-common /etc/containers/policy.json /etc
 # Install credential helpers
 COPY --chown=snyk:snyk --from=cred-helpers-build /opt/app-root/src/go/bin/docker-credential-ecr-login /usr/bin/docker-credential-ecr-login
 COPY --chown=snyk:snyk --from=cred-helpers-build /opt/app-root/src/go/bin/docker-credential-acr-env /usr/bin/docker-credential-acr-env
+
+# Install Python 3.11 for gcloud — the CLI dropped support for Python 3.9, which is the ubi9 default
+RUN dnf install -y python3.11 && dnf clean all
+ENV CLOUDSDK_PYTHON=/usr/bin/python3.11
 
 # Install gcloud
 RUN curl -sSfL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/ && \

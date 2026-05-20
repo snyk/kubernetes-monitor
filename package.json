@@ -36,7 +36,7 @@
   "dependencies": {
     "@aws-sdk/client-ecr": "^3.1030.0",
     "@kubernetes/client-node": "^0.22.3",
-    "@snyk/dep-graph": "^2.16.3",
+    "@snyk/dep-graph": "^2.16.8",
     "async": "^3.2.6",
     "bunyan": "^1.8.15",
     "child-process-promise": "^2.2.1",
@@ -107,6 +107,7 @@
     "qs": "^6.14.2",
     "fast-xml-parser": "^5.3.6",
     "minimatch": "^10.2.3",
-    "tar": "^7.5.11"
+    "tar": "^7.5.11",
+    "path-to-regexp@^8": "^8.4.0"
   }
 }
