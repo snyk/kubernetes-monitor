@@ -67,6 +67,79 @@ describe('pullImages()', () => {
   });
 });
 
+describe('sanitizeSkopeoErrorForLogging()', () => {
+  it('strips message (which may contain --src-creds) when error has stderr', () => {
+    const skopeoError = {
+      name: 'ChildProcessError',
+      message:
+        'Command failed: skopeo copy --src-creds user:supersecret docker://example/image:tag docker-archive:/tmp/x.tar',
+      stderr:
+        'time="2025-01-01" level=fatal msg="unable to retrieve auth token"',
+      stdout: '',
+      childProcess: { pid: 1234 },
+      stack: 'Error: Command failed\n    at ...',
+      exitCode: 1,
+    };
+    const originalMessage = skopeoError.message;
+
+    const result = scannerImages.sanitizeSkopeoErrorForLogging(
+      skopeoError,
+    ) as Record<string, unknown>;
+
+    expect(result).not.toBe(skopeoError);
+    expect(result.message).toBeUndefined();
+    expect(result.childProcess).toBeUndefined();
+    expect(result.stack).toBeUndefined();
+    expect(result.stderr).toEqual(skopeoError.stderr);
+    expect(result.exitCode).toEqual(1);
+    expect(result.name).toEqual('ChildProcessError');
+    expect(JSON.stringify(result)).not.toContain('--src-creds');
+    expect(JSON.stringify(result)).not.toContain('supersecret');
+    // original error is not mutated
+    expect(skopeoError.message).toEqual(originalMessage);
+    expect(skopeoError.childProcess).toBeDefined();
+  });
+
+  it('preserves message for non-skopeo errors (no stderr field)', () => {
+    const credentialError = new Error('ECR token fetch failed');
+
+    const result = scannerImages.sanitizeSkopeoErrorForLogging(
+      credentialError,
+    ) as Record<string, unknown>;
+
+    expect(result.message).toEqual('ECR token fetch failed');
+    expect(result.stack).toBeUndefined();
+    expect(result.childProcess).toBeUndefined();
+  });
+
+  it('preserves message when stderr is present but empty', () => {
+    const error = {
+      message: 'something exploded before skopeo ran',
+      stderr: '',
+      childProcess: { pid: 1 },
+      stack: 'stack trace',
+    };
+
+    const result = scannerImages.sanitizeSkopeoErrorForLogging(error) as Record<
+      string,
+      unknown
+    >;
+
+    expect(result.message).toEqual('something exploded before skopeo ran');
+    expect(result.childProcess).toBeUndefined();
+    expect(result.stack).toBeUndefined();
+  });
+
+  it('handles non-object errors safely', () => {
+    expect(scannerImages.sanitizeSkopeoErrorForLogging('boom')).toEqual({
+      error: 'boom',
+    });
+    expect(scannerImages.sanitizeSkopeoErrorForLogging(null)).toEqual({
+      error: null,
+    });
+  });
+});
+
 describe('getImageParts()', () => {
   it('image digest is returned', () => {
     const imageWithSha =
