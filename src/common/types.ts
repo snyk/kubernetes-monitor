@@ -42,6 +42,8 @@ export interface Config {
   NO_PROXY: string | undefined;
   USE_KEEPALIVE: boolean;
   SKIP_K8S_JOBS: boolean;
+  DELETE_GRACE_PERIOD_ENABLED: boolean;
+  DELETE_GRACE_PERIOD_MAX_DURATION: string;
   DEPLOYMENT_NAME: string;
   DEPLOYMENT_NAMESPACE: string;
   WATCH_NAMESPACE: string;

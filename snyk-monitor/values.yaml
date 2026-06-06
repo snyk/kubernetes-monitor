@@ -63,6 +63,20 @@ pvc:
   ##
   # storageClassName: "-"
 
+# Delete grace period: delays deletion of Snyk projects for workloads annotated
+# with "snyk.io/delete-grace-period" (e.g. "7d"). Requires its own PVC for state persistence.
+# When enabled, workloads with the annotation will remain in the Snyk dashboard
+# for the specified duration after being removed from the cluster.
+deleteGracePeriod:
+  enabled: false
+  # Maximum allowed grace period. Annotation values exceeding this are clamped.
+  maxDuration: "30d"
+  pvc:
+    name: snyk-monitor-grace-period
+    create: false
+    storageSize: "64Mi"
+    # storageClassName: "-"
+
 # Additional annotations for the Kubernetes ServiceAccount
 rbac:
   serviceAccount:

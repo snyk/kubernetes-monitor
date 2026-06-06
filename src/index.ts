@@ -13,6 +13,7 @@ import { setSnykMonitorAgentId } from './supervisor/agent';
 import { scrapeData } from './data-scraper';
 import { scrapeDataV1 } from './data-scraper/scraping-v1';
 import { getSysdigVersion, setupHealthCheck, sysdigV1 } from './healthcheck';
+import { initPendingDeletes, shutdownPendingDeletes } from './supervisor/pending-deletes';
 
 process.on('uncaughtException', (error) => {
   if (state.shutdownInProgress) {
@@ -40,6 +41,11 @@ process.on('unhandledRejection', (reason, promise) => {
   } finally {
     process.exit(1);
   }
+});
+
+process.on('SIGTERM', () => {
+  state.shutdownInProgress = true;
+  shutdownPendingDeletes();
 });
 
 function cleanUpTempStorage() {
@@ -123,6 +129,7 @@ setImmediate(async function setUpAndMonitor(): Promise<void> {
   await sendClusterMetadata();
   await loadAndSendWorkloadEventsPolicy();
   await monitor();
+  await initPendingDeletes();
   await setupSysdigIntegration();
   await setupHealthCheck();
 });

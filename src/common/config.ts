@@ -83,5 +83,9 @@ delete process.env['HTTP_PROXY'];
 delete process.env['NO_PROXY'];
 
 config.SKIP_K8S_JOBS = process.env.SKIP_K8S_JOBS === 'true';
+config.DELETE_GRACE_PERIOD_ENABLED =
+  process.env.SNYK_DELETE_GRACE_PERIOD_ENABLED === 'true';
+config.DELETE_GRACE_PERIOD_MAX_DURATION =
+  process.env.SNYK_DELETE_GRACE_PERIOD_MAX_DURATION || '30d';
 
 export { config };

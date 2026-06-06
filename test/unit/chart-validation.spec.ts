@@ -61,4 +61,60 @@ describe('helm chart parameter validation', () => {
       // this is expected
     }
   });
+
+  describe('deleteGracePeriod values', () => {
+    it('should render without deleteGracePeriod env vars when disabled (default)', async () => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor --dry-run`,
+      );
+      expect(stdout).not.toContain('SNYK_DELETE_GRACE_PERIOD_ENABLED');
+      expect(stdout).not.toContain('grace-period-state');
+    });
+
+    it('should render with deleteGracePeriod env vars and volume when enabled', async () => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor --dry-run ` +
+          '--set deleteGracePeriod.enabled=true ' +
+          '--set deleteGracePeriod.pvc.create=true',
+      );
+      expect(stdout).toContain('SNYK_DELETE_GRACE_PERIOD_ENABLED');
+      expect(stdout).toContain('SNYK_DELETE_GRACE_PERIOD_MAX_DURATION');
+      expect(stdout).toContain('grace-period-state');
+      expect(stdout).toContain('/var/data/grace-period');
+      expect(stdout).toContain('snyk-monitor-grace-period');
+    });
+
+    it('should create grace-period PVC when pvc.create is true', async () => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor --dry-run ` +
+          '--set deleteGracePeriod.enabled=true ' +
+          '--set deleteGracePeriod.pvc.create=true',
+      );
+      expect(stdout).toContain('kind: PersistentVolumeClaim');
+      expect(stdout).toContain('snyk-monitor-grace-period');
+      expect(stdout).toContain('64Mi');
+    });
+
+    it('should not create grace-period PVC when pvc.create is false', async () => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor --dry-run ` +
+          '--set deleteGracePeriod.enabled=true',
+      );
+      // The volume reference is there, but PVC resource is not created
+      expect(stdout).toContain('grace-period-state');
+      // Only the existing snyk-monitor-pvc template may create a PVC, not the grace period one
+      expect(stdout).not.toMatch(
+        /kind: PersistentVolumeClaim[\s\S]*?snyk-monitor-grace-period/,
+      );
+    });
+
+    it('should render custom maxDuration value', async () => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor --dry-run ` +
+          '--set deleteGracePeriod.enabled=true ' +
+          '--set deleteGracePeriod.maxDuration="14d"',
+      );
+      expect(stdout).toContain('14d');
+    });
+  });
 });

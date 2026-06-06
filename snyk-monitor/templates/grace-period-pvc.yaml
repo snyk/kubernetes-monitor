@@ -1,0 +1,26 @@
+{{- if .Values.deleteGracePeriod.enabled }}{{- if .Values.deleteGracePeriod.pvc.create }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.deleteGracePeriod.pvc.name }}
+  labels:
+    app.kubernetes.io/name: {{ include "snyk-monitor.name" . }}
+    app.kubernetes.io/component: grace-period-state
+    helm.sh/chart: {{ include "snyk-monitor.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.deleteGracePeriod.pvc.storageSize }}
+  {{- if .Values.deleteGracePeriod.pvc.storageClassName }}
+  {{- if (eq "-" .Values.deleteGracePeriod.pvc.storageClassName) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.deleteGracePeriod.pvc.storageClassName }}"
+  {{- end }}
+  {{- end }}
+{{- end }}{{- end }}

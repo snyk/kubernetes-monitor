@@ -23,6 +23,8 @@ import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import { trimWorkload } from '../../workload-sanitization';
 import { deleteWorkloadFromScanQueue, workloadsToScanQueue } from './queue';
+import { cancelPendingDelete } from '../../pending-deletes';
+import { config } from '../../../common/config';
 
 /** Exported for testing */
 export async function handleReadyPod(
@@ -143,6 +145,16 @@ export async function podWatchHandler(pod: V1Pod): Promise<void> {
     // every element contains the workload information, so we can get it from the first one
     const workloadMember = workloadMetadata[0];
     const workloadMetadataPayload = constructWorkloadMetadata(workloadMember);
+
+    // Cancel any pending grace-period delete for this workload
+    if (config.DELETE_GRACE_PERIOD_ENABLED) {
+      cancelPendingDelete({
+        namespace: workloadMember.namespace,
+        type: workloadMember.type,
+        name: workloadMember.name,
+      });
+    }
+
     // this is actually the observed generation
     const workloadRevision = workloadMember.revision
       ? workloadMember.revision.toString()
