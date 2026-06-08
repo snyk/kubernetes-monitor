@@ -111,4 +111,11 @@ ignore:
           as SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
         expires: 2026-08-26T12:00:00.000Z
         created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GNUTLS-16353670:
+    - '*':
+        reason: >-
+          Integer Underflow in gnutls 3.8.10-4.el9_8, introduced by base image
+          registry.access.redhat.com/ubi9/ubi:9.7. No RHEL 9 fix available.
+        expires: 2026-12-02T12:00:00.000Z
+        created: 2026-06-02T15:00:00.000Z
 patch: {}
