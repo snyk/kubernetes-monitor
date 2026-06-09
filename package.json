@@ -106,7 +106,7 @@
     "cross-spawn": "^7.0.5",
     "jsonpath-plus": "10.3.0",
     "qs": "^6.15.2",
-    "fast-xml-parser": "^5.3.6",
+    "fast-xml-parser": ">=5.7.2",
     "fast-xml-builder": "^1.1.7",
     "minimatch": "^10.2.3",
     "brace-expansion": "^5.0.6",
