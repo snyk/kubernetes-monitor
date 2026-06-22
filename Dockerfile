@@ -28,12 +28,26 @@ ENV NODE_ENV=production
 
 RUN apk update
 RUN apk upgrade
-RUN apk --no-cache add dumb-init skopeo curl bash python3
+RUN apk --no-cache add dumb-init curl bash python3
 
 RUN npm install -g npm@10.9.7
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
+
+# Install skopeo from a pinned static binary rather than apk: Alpine's packaged skopeo (1.20.1)
+# bundles a vulnerable google.golang.org/grpc (CVE-2026-33186); the fix only exists upstream in
+# skopeo >=1.22, which Alpine has not packaged on any branch. Keep this version in sync with Dockerfile.ubi9.
+# https://github.com/lework/skopeo-binary/releases
+ARG SKOPEO_VERSION=1.23.0
+ARG SKOPEO_BINARY_FILE_SHASUM256=15696e068c02a163e20013fab79f40cdc6c8022d99e1aee8676f6d540404691a
+RUN curl -sSfLo /usr/bin/skopeo "https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64" && \
+    chmod 755 /usr/bin/skopeo && \
+    echo "${SKOPEO_BINARY_FILE_SHASUM256}  /usr/bin/skopeo" | sha256sum -cs
+# The static skopeo binary does not ship a signature policy; create the permissive default
+# (matches the policy.json that Alpine's skopeo package previously provided).
+RUN mkdir -p /etc/containers && \
+    printf '{"default":[{"type":"insecureAcceptAnything"}]}\n' > /etc/containers/policy.json
 
 # Install gcloud
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
