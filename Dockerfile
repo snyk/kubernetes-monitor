@@ -44,10 +44,20 @@ ARG SKOPEO_BINARY_FILE_SHASUM256=15696e068c02a163e20013fab79f40cdc6c8022d99e1aee
 RUN curl -sSfLo /usr/bin/skopeo "https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64" && \
     chmod 755 /usr/bin/skopeo && \
     echo "${SKOPEO_BINARY_FILE_SHASUM256}  /usr/bin/skopeo" | sha256sum -cs
-# The static skopeo binary does not ship a signature policy; create the permissive default
-# (matches the policy.json that Alpine's skopeo package previously provided).
-RUN mkdir -p /etc/containers && \
-    printf '{"default":[{"type":"insecureAcceptAnything"}]}\n' > /etc/containers/policy.json
+# The static skopeo binary does not ship a signature policy. Mirror the structure of ubi9's
+# containers-common policy.json (insecureAcceptAnything default + docker-daemon transport).
+# kubernetes-monitor uses skopeo only to COPY arbitrary, mostly-unsigned customer workload images
+# for scanning — not to run them — so signature enforcement would break scanning. This matches the
+# permissive default that ubi9 (and Red Hat) ship; ubi9's Red Hat-registry signedBy rules are omitted
+# here because their GPG keys do not exist on Alpine and we never pull from those registries.
+RUN mkdir -p /etc/containers && cat > /etc/containers/policy.json <<'EOF'
+{
+    "default": [ { "type": "insecureAcceptAnything" } ],
+    "transports": {
+        "docker-daemon": { "": [ { "type": "insecureAcceptAnything" } ] }
+    }
+}
+EOF
 
 # Install gcloud
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
