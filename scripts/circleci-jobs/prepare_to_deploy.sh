@@ -35,6 +35,10 @@ metadata:
   labels:
     $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
     $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
+    snykappname: snyk-monitor
+    snykdclstored: 2-confidential
+    snykdclprocessed: 2-confidential
+    snykowner: container
 
 EOF
 

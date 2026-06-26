@@ -63,11 +63,56 @@ export async function pullImages(
   return pulledImages;
 }
 
-function sanitizeSkopeoErrorForLogging(error) {
-  delete error.stack;
-  delete error.message;
-  delete error.childProcess;
-  return error;
+/**
+ * Returns a copy of the error suitable for logging.
+ *
+ * For skopeo `ChildProcessError`s (identified by a populated `stderr` field)
+ * we strip `message` because it includes the full skopeo command line and
+ * therefore contains credentials passed via `--src-creds <user:pass>`. We
+ * also drop `childProcess` (noisy) and `stack` (low signal here). `stderr`
+ * is preserved because it carries the actual skopeo failure detail.
+ *
+ * For every other error (e.g. credential-resolution failures that happen
+ * before skopeo is invoked) we keep `message` so the underlying cause is
+ * not lost in the logs. `childProcess` and `stack` are still dropped
+ * defensively.
+ *
+ * The original error object is not mutated; callers receive a new object.
+ */
+// Exported for testing
+export function sanitizeSkopeoErrorForLogging(error: unknown): object {
+  if (error === null || typeof error !== 'object') {
+    return { error };
+  }
+
+  const source = error as Record<string, unknown> & {
+    stderr?: unknown;
+    message?: unknown;
+    childProcess?: unknown;
+    stack?: unknown;
+  };
+
+  const isSkopeoChildProcessError =
+    typeof source.stderr === 'string' && source.stderr.length > 0;
+
+  // Spread copies own enumerable properties only. `Error.message` / `name`
+  // are non-enumerable, so pull them across explicitly when present.
+  const sanitized: Record<string, unknown> = { ...source };
+  if (error instanceof Error) {
+    if (typeof error.name === 'string' && sanitized.name === undefined) {
+      sanitized.name = error.name;
+    }
+    if (typeof error.message === 'string' && sanitized.message === undefined) {
+      sanitized.message = error.message;
+    }
+  }
+
+  delete sanitized.stack;
+  delete sanitized.childProcess;
+  if (isSkopeoChildProcessError) {
+    delete sanitized.message;
+  }
+  return sanitized;
 }
 
 export function getImagesWithFileSystemPath(
