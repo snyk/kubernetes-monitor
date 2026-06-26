@@ -69,4 +69,53 @@ ignore:
           https://access.redhat.com/security/cve/CVE-2026-24842
         expires: 2026-11-14T12:00:00.000Z
         created: 2026-01-29T16:33:39.950Z
+  SNYK-RHEL9-GDBGDBSERVER-16125157:
+    - '*':
+        reason: >-
+          Heap-based buffer overflow in gdb-gdbserver 16.3-3.el9, introduced by
+          base image registry.access.redhat.com/ubi9/ubi:9.7. No RHEL 9 fix
+          available from Red Hat. Low exploitability — requires processing a
+          crafted binary; gdb-gdbserver is not on any application code path.
+        expires: 2026-11-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBC-16123837:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc 2.34-266.el9_8, introduced
+          by base image ubi9:9.7. RHSA-2026:2786 issued but patched RPM not
+          yet available in the UBI9 container stream. Will be resolved on next
+          base image rebuild.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBCCOMMON-16123609:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc-common 2.34-266.el9_8,
+          introduced by base image ubi9:9.7. Same root cause as
+          SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBCLANGPACKEN-16123517:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc-langpack-en 2.34-266.el9_8,
+          introduced by base image ubi9:9.7. Same root cause as
+          SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBCMINIMALLANGPACK-16123875:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc-minimal-langpack
+          2.34-266.el9_8, introduced by base image ubi9:9.7. Same root cause
+          as SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GNUTLS-16353670:
+    - '*':
+        reason: >-
+          Integer Underflow in gnutls 3.8.10-4.el9_8, introduced by base image
+          registry.access.redhat.com/ubi9/ubi:9.7. No RHEL 9 fix available.
+        expires: 2026-12-02T12:00:00.000Z
+        created: 2026-06-02T15:00:00.000Z
 patch: {}
