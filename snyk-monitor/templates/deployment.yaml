@@ -286,7 +286,7 @@ spec:
           projected:
             sources:
             - configMap:
-                name: {{.Values.certsConfigMap}}
+                name: {{ .Values.certsConfigMap }}
                 optional: true
             - secret:
                 name: {{ .Values.certsSecret }}
