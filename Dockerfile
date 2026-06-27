@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 golang:1.23-alpine AS cred-helpers-build
+FROM --platform=linux/amd64 golang:1.25-alpine AS cred-helpers-build
 
 RUN apk add git
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
@@ -14,7 +14,7 @@ RUN --mount=type=secret,id=gh_token,required=true \
 #---------------------------------------------------------------------
 # STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 node:22-alpine3.20
+FROM --platform=linux/amd64 node:22-alpine3.23
 
 LABEL name="Snyk Controller" \
     maintainer="support@snyk.io" \
@@ -28,12 +28,36 @@ ENV NODE_ENV=production
 
 RUN apk update
 RUN apk upgrade
-RUN apk --no-cache add dumb-init skopeo curl bash python3
+RUN apk --no-cache add dumb-init curl bash python3
 
-RUN npm install -g npm@v10.9.2
+RUN npm install -g npm@10.9.7
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
+
+# Install skopeo from a pinned static binary rather than apk: Alpine's packaged skopeo (1.20.1)
+# bundles a vulnerable google.golang.org/grpc (CVE-2026-33186); the fix only exists upstream in
+# skopeo >=1.22, which Alpine has not packaged on any branch. Keep this version in sync with Dockerfile.ubi9.
+# https://github.com/lework/skopeo-binary/releases
+ARG SKOPEO_VERSION=1.23.0
+ARG SKOPEO_BINARY_FILE_SHASUM256=15696e068c02a163e20013fab79f40cdc6c8022d99e1aee8676f6d540404691a
+RUN curl -sSfLo /usr/bin/skopeo "https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64" && \
+    chmod 755 /usr/bin/skopeo && \
+    echo "${SKOPEO_BINARY_FILE_SHASUM256}  /usr/bin/skopeo" | sha256sum -cs
+# The static skopeo binary does not ship a signature policy. Mirror the structure of ubi9's
+# containers-common policy.json (insecureAcceptAnything default + docker-daemon transport).
+# kubernetes-monitor uses skopeo only to COPY arbitrary, mostly-unsigned customer workload images
+# for scanning — not to run them — so signature enforcement would break scanning. This matches the
+# permissive default that ubi9 (and Red Hat) ship; ubi9's Red Hat-registry signedBy rules are omitted
+# here because their GPG keys do not exist on Alpine and we never pull from those registries.
+RUN mkdir -p /etc/containers && cat > /etc/containers/policy.json <<'EOF'
+{
+    "default": [ { "type": "insecureAcceptAnything" } ],
+    "transports": {
+        "docker-daemon": { "": [ { "type": "insecureAcceptAnything" } ] }
+    }
+}
+EOF
 
 # Install gcloud
 RUN curl -sL https://sdk.cloud.google.com > /install.sh
@@ -58,7 +82,10 @@ ADD --chown=snyk:snyk package.json package-lock.json ./
 # TODO: Remove this line once OpenShift 3 comes out of support.
 RUN mkdir -p .config
 
-RUN npm ci
+RUN --mount=type=secret,id=npm_token,uid=10001 \
+    echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
+    npm ci && \
+    rm -f ~/.npmrc
 
 # add the rest of the app files
 ADD --chown=snyk:snyk . .

@@ -22,6 +22,7 @@ docker build \
   --build-arg NODE_LATEST_VERSION="${NODE_LATEST_VERSION}" \
   --build-arg NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256="${NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256}" \
   --secret id=gh_token,env=GITHUB_PRIVATE_TOKEN \
+  --secret id=npm_token,env=NPM_TOKEN \
   -t ${NAME_AND_TAG} \
   --file=Dockerfile.ubi9 .
 

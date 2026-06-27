@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
       - name: docker-io
       containers:
-      - image: docker.io/library/openjdk:latest
+      - image: eclipse-temurin:17-jre
         imagePullPolicy: Always
         name: java
         command: ['/bin/sleep']

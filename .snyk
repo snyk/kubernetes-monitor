@@ -1,41 +1,121 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.25.0
+version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore: 
-    SNYK-JS-BRACES-6838727:
-    - '*':
-        reason: devDependency
-        expires: 2025-12-01T12:00:00.000Z
-        created: 2024-10-23T12:00:00.000Z
-    SNYK-JS-INFLIGHT-6095116:
-    - '*':
-        reason: Waiting for upstream fix
-        expires: 2025-01-10T12:00:00.000Z
-        created: 2024-10-23T12:00:00.000Z
-    SNYK-JS-REQUEST-3361831:
+ignore:
+  SNYK-RHEL9-GNUPG2-15127565:
     - '*':
         reason: >-
-          Waiting for @kubernetes/client-node fetch migration
-          https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
-        expires: 2025-01-10T12:00:00.000Z
-        created: 2024-10-23T12:00:00.000Z
-    SNYK-JS-TOUGHCOOKIE-5672873:
+          Red Hat marks CVE-2026-24881 as "Not affected" for the RHEL 9 gnupg2
+          RPM — no RHSA will be issued. See
+          https://access.redhat.com/security/cve/CVE-2026-24881
+        expires: 2026-11-14T12:00:00.000Z
+        created: 2026-01-28T21:21:29.840Z
+  SNYK-RHEL9-GNUPG2-15127613:
     - '*':
         reason: >-
-          Waiting for @kubernetes/client-node fetch migration
-          https://github.com/kubernetes-client/javascript/blob/master/FETCH_MIGRATION.md
-        expires: 2025-01-10T12:00:00.000Z
-        created: 2024-10-23T12:00:00.000Z
-    SNYK-JS-CROSSSPAWN-8303230:
+          Red Hat marks CVE-2026-24882 as "Not affected" for the RHEL 9 gnupg2
+          RPM — no RHSA will be issued. See
+          https://access.redhat.com/security/cve/CVE-2026-24882
+        expires: 2026-11-14T12:00:00.000Z
+        created: 2026-01-28T21:21:43.745Z
+  SNYK-RHEL9-VIMMINIMAL-15884750:
     - '*':
         reason: >-
-          No upstream fix available
-        expires: 2024-12-08T12:00:00.000Z
-        created: 2024-11-08T12:00:00.000Z
-    SNYK-JS-JSONPATHPLUS-7945884:
+          Red Hat marks CVE-2026-34714 as "Not affected" for the RHEL 9 vim
+          RPM — no RHSA will be issued. See
+          https://access.redhat.com/security/cve/CVE-2026-34714
+        expires: 2026-11-14T12:00:00.000Z
+        created: 2026-04-07T12:00:00.000Z
+  SNYK-RHEL9-PYTHON3PIPWHEEL-14916305:
     - '*':
         reason: >-
-          Waiting for @kubernetes/client-node upgrade
-        expires: 2024-12-08T12:00:00.000Z
-        created: 2024-11-20T12:00:00.000Z
+          CVE-2024-47081 - Red Hat has assessed this advisory as not relevant
+          for RHEL 9. The vulnerability does not affect this distribution.
+  SNYK-RHEL9-PYTHON311PIPWHEEL-14916327:
+    - '*':
+        reason: >-
+          Same vulnerability class as SNYK-RHEL9-PYTHON3PIPWHEEL-14916305 but
+          for the python3.11 RPM we install for gcloud (Python 3.9 is past
+          EOL for the gcloud CLI). Red Hat assesses this advisory as not
+          relevant for RHEL 9; the vulnerability does not affect this
+          distribution.
+  SNYK-RHEL9-TAR-15041307:
+    - '*':
+        reason: >-
+          Likely Snyk misclassification: CVE-2026-23950 is a node-tar (npm)
+          vulnerability and Red Hat marks the RHEL 9 GNU tar RPM as "Not
+          affected" — no RHSA will be issued. The npm-side issue is tracked
+          separately via SNYK-JS-TAR-*. See
+          https://access.redhat.com/security/cve/CVE-2026-23950
+        expires: 2026-11-14T12:00:00.000Z
+        created: 2026-01-28T18:27:07.114Z
+  SNYK-RHEL9-TAR-15041355:
+    - '*':
+        reason: >-
+          Likely Snyk misclassification: CVE-2026-23745 is a node-tar (npm)
+          vulnerability and Red Hat marks the RHEL 9 GNU tar RPM as "Not
+          affected" — no RHSA will be issued. The npm-side issue is tracked
+          separately via SNYK-JS-TAR-*. See
+          https://access.redhat.com/security/cve/CVE-2026-23745
+        expires: 2026-11-14T12:00:00.000Z
+        created: 2026-01-28T18:27:23.304Z
+  SNYK-RHEL9-TAR-15145598:
+    - '*':
+        reason: >-
+          Likely Snyk misclassification: CVE-2026-24842 is a node-tar (npm)
+          vulnerability and Red Hat marks the RHEL 9 GNU tar RPM as "Not
+          affected" — no RHSA will be issued. The npm-side issue is tracked
+          separately via SNYK-JS-TAR-*. See
+          https://access.redhat.com/security/cve/CVE-2026-24842
+        expires: 2026-11-14T12:00:00.000Z
+        created: 2026-01-29T16:33:39.950Z
+  SNYK-RHEL9-GDBGDBSERVER-16125157:
+    - '*':
+        reason: >-
+          Heap-based buffer overflow in gdb-gdbserver 16.3-3.el9, introduced by
+          base image registry.access.redhat.com/ubi9/ubi:9.7. No RHEL 9 fix
+          available from Red Hat. Low exploitability — requires processing a
+          crafted binary; gdb-gdbserver is not on any application code path.
+        expires: 2026-11-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBC-16123837:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc 2.34-266.el9_8, introduced
+          by base image ubi9:9.7. RHSA-2026:2786 issued but patched RPM not
+          yet available in the UBI9 container stream. Will be resolved on next
+          base image rebuild.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBCCOMMON-16123609:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc-common 2.34-266.el9_8,
+          introduced by base image ubi9:9.7. Same root cause as
+          SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBCLANGPACKEN-16123517:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc-langpack-en 2.34-266.el9_8,
+          introduced by base image ubi9:9.7. Same root cause as
+          SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GLIBCMINIMALLANGPACK-16123875:
+    - '*':
+        reason: >-
+          Buffer overflow (CVE-2026-0861) in glibc-minimal-langpack
+          2.34-266.el9_8, introduced by base image ubi9:9.7. Same root cause
+          as SNYK-RHEL9-GLIBC-16123837. Patched RPM not yet in UBI9 stream.
+        expires: 2026-08-26T12:00:00.000Z
+        created: 2026-05-26T15:00:00.000Z
+  SNYK-RHEL9-GNUTLS-16353670:
+    - '*':
+        reason: >-
+          Integer Underflow in gnutls 3.8.10-4.el9_8, introduced by base image
+          registry.access.redhat.com/ubi9/ubi:9.7. No RHEL 9 fix available.
+        expires: 2026-12-02T12:00:00.000Z
+        created: 2026-06-02T15:00:00.000Z
 patch: {}
