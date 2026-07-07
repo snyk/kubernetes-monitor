@@ -111,6 +111,14 @@ kubectl create secret generic snyk-monitor -n snyk-monitor --from-file=./dockerc
 kubectl create secret generic snyk-monitor-certs -n snyk-monitor --from-file=<path_to_certs_folder>
 ```
 
+If you were already using a ConfigMap named `snyk-monitor-certs` for these certificates, delete it once the Secret exists:
+
+```shell
+kubectl delete configmap snyk-monitor-certs -n snyk-monitor
+```
+
+The monitor now mounts the certificates through a projected volume that merges the ConfigMap and the Secret into one directory, `/srv/app/certs`. A projected volume can't have two sources writing to the same file path. If the old ConfigMap and the new Secret both hold a file with the same name — likely, since you'd create both from the same cert folder — the kubelet refuses to mount the volume and the pod is stuck in `ContainerCreating`. Keep one or the other, not both.
+
 6. (Optional) If you are using an insecure registry or your registry is using unqualified images, you can provide a `registries.conf` file. See [the documentation](https://github.com/containers/image/blob/master/docs/containers-registries.conf.5.md) for information on the format and examples.
 
 Create a file named `registries.conf`, see example adding an insecure registry: 
