@@ -403,6 +403,7 @@ workflows:
           trusted-branch: main
           context:
             - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: snyk-on-snyk-infrasec_container
           filters:
             branches:
