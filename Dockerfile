@@ -30,7 +30,7 @@ RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add dumb-init curl bash python3
 
-RUN npm install -g npm@10.9.7
+RUN npm install -g npm@10.9.8
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
@@ -84,7 +84,7 @@ RUN mkdir -p .config
 
 RUN --mount=type=secret,id=npm_token,uid=10001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci && \
+    npm ci --omit=dev && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
