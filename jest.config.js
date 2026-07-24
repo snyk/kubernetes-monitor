@@ -8,6 +8,11 @@ module.exports = {
   clearMocks: true,
   errorOnDeprecated: true,
 
+  moduleNameMapper: {
+    '^@kubernetes/client-node$':
+      '<rootDir>/test/helpers/kubernetes-client-node-bridge.js',
+  },
+
   // This is here until a bug in Jest (which in turn affects ts-jest) is resolved.
   // It affects our CI/CD runs and makes the machine run out of memory.
   // https://github.com/facebook/jest/issues/10550
