@@ -1,4 +1,4 @@
-ARG UBI9_VERSION=9.7
+ARG UBI9_VERSION=9.8
 
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container

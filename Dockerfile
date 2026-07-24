@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 golang:1.25-alpine AS cred-helpers-build
+FROM --platform=linux/amd64 golang:1.25-alpine3.24 AS cred-helpers-build
 
 RUN apk add git
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
@@ -14,7 +14,7 @@ RUN --mount=type=secret,id=gh_token,required=true \
 #---------------------------------------------------------------------
 # STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 node:22-alpine3.23
+FROM --platform=linux/amd64 node:22-alpine3.24
 
 LABEL name="Snyk Controller" \
     maintainer="support@snyk.io" \
