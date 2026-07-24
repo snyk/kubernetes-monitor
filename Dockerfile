@@ -30,7 +30,7 @@ RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add dumb-init curl bash python3
 
-RUN npm install -g npm@10.9.8
+RUN npm install -g npm@11.18.0
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
