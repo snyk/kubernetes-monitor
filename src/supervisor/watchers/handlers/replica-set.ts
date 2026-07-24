@@ -2,7 +2,6 @@ import { V1ReplicaSet, V1ReplicaSetList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
@@ -15,10 +14,7 @@ import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedReplicaSetList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1ReplicaSetList;
-}> {
+): Promise<V1ReplicaSetList> {
   const v1ReplicaSetList = new V1ReplicaSetList();
   v1ReplicaSetList.apiVersion = 'apps/v1';
   v1ReplicaSetList.kind = 'ReplicaSetList';
@@ -31,10 +27,7 @@ export async function paginatedNamespacedReplicaSetList(
   );
 }
 
-export async function paginatedClusterReplicaSetList(): Promise<{
-  response: IncomingMessage;
-  body: V1ReplicaSetList;
-}> {
+export async function paginatedClusterReplicaSetList(): Promise<V1ReplicaSetList> {
   const v1ReplicaSetList = new V1ReplicaSetList();
   v1ReplicaSetList.apiVersion = 'apps/v1';
   v1ReplicaSetList.kind = 'ReplicaSetList';

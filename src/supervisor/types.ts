@@ -1,11 +1,9 @@
-import { IncomingMessage } from 'http';
 import {
   AppsV1Api,
   BatchV1Api,
   CoreV1Api,
   CustomObjectsApi,
   KubeConfig,
-  V1Namespace,
   V1ObjectMeta,
   V1OwnerReference,
   V1PodSpec,
@@ -26,8 +24,9 @@ export enum WorkloadKind {
 
 export interface IRequestError {
   message?: string;
-  code?: string;
-  response?: IncomingMessage;
+  code?: string | number;
+  body?: unknown;
+  headers?: { [key: string]: string };
 }
 
 export interface IKubeObjectMetadata {
@@ -64,9 +63,4 @@ export class K8sClients implements IK8sClients {
     this.batchClient = config.makeApiClient(BatchV1Api);
     this.customObjectsClient = config.makeApiClient(CustomObjectsApi);
   }
-}
-
-export interface NamespaceResponse {
-  response: IncomingMessage;
-  body: V1Namespace;
 }

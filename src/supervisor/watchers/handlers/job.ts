@@ -2,7 +2,6 @@ import { V1Job, V1JobList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
@@ -13,10 +12,9 @@ import {
 import { trimWorkload } from '../../workload-sanitization';
 import { deleteWorkloadFromScanQueue } from './queue';
 
-export async function paginatedNamespacedJobList(namespace: string): Promise<{
-  response: IncomingMessage;
-  body: V1JobList;
-}> {
+export async function paginatedNamespacedJobList(
+  namespace: string,
+): Promise<V1JobList> {
   const v1JobList = new V1JobList();
   v1JobList.apiVersion = 'batch/v1';
   v1JobList.kind = 'JobList';
@@ -29,10 +27,7 @@ export async function paginatedNamespacedJobList(namespace: string): Promise<{
   );
 }
 
-export async function paginatedClusterJobList(): Promise<{
-  response: IncomingMessage;
-  body: V1JobList;
-}> {
+export async function paginatedClusterJobList(): Promise<V1JobList> {
   const v1JobList = new V1JobList();
   v1JobList.apiVersion = 'batch/v1';
   v1JobList.kind = 'JobList';

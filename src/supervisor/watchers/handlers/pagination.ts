@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http';
 import sleep from 'sleep-promise';
 import type {
   KubernetesListObject,
@@ -27,42 +26,27 @@ export async function paginatedNamespacedList<
   namespace: string,
   list: KubernetesListObject<KubernetesObject>,
   listPromise: V1NamespacedList<KubernetesListObject<T>>,
-): Promise<{
-  response: IncomingMessage;
-  body: KubernetesListObject<KubernetesObject>;
-}> {
+): Promise<KubernetesListObject<KubernetesObject>> {
   let continueToken: string | undefined = undefined;
 
-  const pretty = undefined;
-  const allowWatchBookmarks = undefined;
-  const fieldSelector = undefined;
-  const labelSelector = undefined;
-
-  let incomingMessage: IncomingMessage | undefined = undefined;
+  let receivedAnyPage = false;
 
   loop: while (true) {
     try {
-      const listCall: {
-        response: IncomingMessage;
-        body: KubernetesListObject<T>;
-      } = await listPromise(
+      const listCall: KubernetesListObject<T> = await listPromise({
         namespace,
-        pretty,
-        allowWatchBookmarks,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+        _continue: continueToken,
+        limit: PAGE_SIZE,
+      });
+      receivedAnyPage = true;
+      list.metadata = listCall.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(listCall.items)) {
+        const trimmedItems = trimWorkloads(listCall.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = listCall.metadata?._continue;
       if (!continueToken) {
         break;
       }
@@ -70,7 +54,9 @@ export async function paginatedNamespacedList<
       const error = err as IRequestError;
 
       if (
-        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
+        RETRYABLE_NETWORK_ERROR_CODES.includes(
+          typeof error.code === 'string' ? error.code : '',
+        ) ||
         RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
       ) {
         const seconds = calculateSleepSeconds();
@@ -78,14 +64,14 @@ export async function paginatedNamespacedList<
         continue;
       }
 
-      switch (error.response?.statusCode) {
+      switch (typeof error.code === 'number' ? error.code : undefined) {
         case 410: // Gone
           break loop;
         case 429: // Too Many Requests
         case 502: // Bad Gateway
         case 503: // Service Unavailable
         case 504: // Gateway Timeout
-          const seconds = calculateSleepSeconds(error.response);
+          const seconds = calculateSleepSeconds(error);
           await sleep(seconds);
           continue;
         default:
@@ -94,14 +80,11 @@ export async function paginatedNamespacedList<
     }
   }
 
-  if (!incomingMessage) {
+  if (!receivedAnyPage) {
     throw new Error('could not list workload');
   }
 
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  return list;
 }
 
 /**
@@ -114,39 +97,26 @@ export async function paginatedClusterList<
 >(
   list: KubernetesListObject<KubernetesObject>,
   listPromise: V1ClusterList<KubernetesListObject<T>>,
-): Promise<{
-  response: IncomingMessage;
-  body: KubernetesListObject<KubernetesObject>;
-}> {
+): Promise<KubernetesListObject<KubernetesObject>> {
   let continueToken: string | undefined = undefined;
 
-  const allowWatchBookmarks = undefined;
-  const fieldSelector = undefined;
-  const labelSelector = undefined;
-
-  let incomingMessage: IncomingMessage | undefined = undefined;
+  let receivedAnyPage = false;
 
   loop: while (true) {
     try {
-      const listCall: {
-        response: IncomingMessage;
-        body: KubernetesListObject<T>;
-      } = await listPromise(
-        allowWatchBookmarks,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+      const listCall: KubernetesListObject<T> = await listPromise({
+        _continue: continueToken,
+        limit: PAGE_SIZE,
+      });
+      receivedAnyPage = true;
+      list.metadata = listCall.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(listCall.items)) {
+        const trimmedItems = trimWorkloads(listCall.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = listCall.metadata?._continue;
       if (!continueToken) {
         break;
       }
@@ -154,7 +124,9 @@ export async function paginatedClusterList<
       const error = err as IRequestError;
 
       if (
-        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
+        RETRYABLE_NETWORK_ERROR_CODES.includes(
+          typeof error.code === 'string' ? error.code : '',
+        ) ||
         RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
       ) {
         const seconds = calculateSleepSeconds();
@@ -162,14 +134,14 @@ export async function paginatedClusterList<
         continue;
       }
 
-      switch (error.response?.statusCode) {
+      switch (typeof error.code === 'number' ? error.code : undefined) {
         case 410: // Gone
           break loop;
         case 429: // Too Many Requests
         case 502: // Bad Gateway
         case 503: // Service Unavailable
         case 504: // Gateway Timeout
-          const seconds = calculateSleepSeconds(error.response);
+          const seconds = calculateSleepSeconds(error);
           await sleep(seconds);
           continue;
         default:
@@ -178,12 +150,9 @@ export async function paginatedClusterList<
     }
   }
 
-  if (!incomingMessage) {
+  if (!receivedAnyPage) {
     throw new Error('could not list workload');
   }
 
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  return list;
 }

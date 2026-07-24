@@ -1,4 +1,3 @@
-import { IncomingMessage } from 'http';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import {
@@ -20,10 +19,7 @@ import { trimWorkload } from '../../workload-sanitization';
 
 export async function paginatedNamespacedDeploymentConfigList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1DeploymentConfigList;
-}> {
+): Promise<V1DeploymentConfigList> {
   const v1DeploymentConfigList = new V1DeploymentConfigList();
   v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
   v1DeploymentConfigList.kind = 'DeploymentConfigList';
@@ -32,43 +28,19 @@ export async function paginatedNamespacedDeploymentConfigList(
   return await paginatedNamespacedList(
     namespace,
     v1DeploymentConfigList,
-    async (
-      namespace: string,
-      pretty?: string,
-      _allowWatchBookmarks?: boolean,
-      _continue?: string,
-      fieldSelector?: string,
-      labelSelector?: string,
-      limit?: number,
-    ) =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
-        namespace,
-        'deploymentconfigs',
-        pretty,
-        false,
-        _continue,
-        fieldSelector,
-        labelSelector,
-        limit,
-        /**
-         * The K8s client's listNamespacedCustomObject() doesn't allow to specify
-         * the type of the response body and returns the generic "object" type,
-         * but with how we declared our types we expect it to return a "KubernetesListObject" type.
-         *
-         * Not using "any" results in a similar error (highlighting the "body" property):
-         * Type 'Promise<{ response: IncomingMessage; ***body: object;*** }>' is not assignable to type
-         * 'Promise<{ response: IncomingMessage; ***body: KubernetesListObject<...>;*** }>'
-         */
-      ) as any,
+    (args) =>
+      k8sApi.customObjectsClient.listNamespacedCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        plural: 'deploymentconfigs',
+        namespace: args.namespace,
+        _continue: args._continue,
+        limit: args.limit,
+      }) as unknown as Promise<V1DeploymentConfigList>,
   );
 }
 
-export async function paginatedClusterDeploymentConfigList(): Promise<{
-  response: IncomingMessage;
-  body: V1DeploymentConfigList;
-}> {
+export async function paginatedClusterDeploymentConfigList(): Promise<V1DeploymentConfigList> {
   const v1DeploymentConfigList = new V1DeploymentConfigList();
   v1DeploymentConfigList.apiVersion = 'apps.openshift.io/v1';
   v1DeploymentConfigList.kind = 'DeploymentConfigList';
@@ -76,25 +48,14 @@ export async function paginatedClusterDeploymentConfigList(): Promise<{
 
   return await paginatedClusterList(
     v1DeploymentConfigList,
-    async (
-      _allowWatchBookmarks?: boolean,
-      _continue?: string,
-      fieldSelector?: string,
-      labelSelector?: string,
-      limit?: number,
-      pretty?: string,
-    ) =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'apps.openshift.io',
-        'v1',
-        'deploymentconfigs',
-        pretty,
-        false,
-        _continue,
-        fieldSelector,
-        labelSelector,
-        limit,
-      ) as any,
+    (args) =>
+      k8sApi.customObjectsClient.listClusterCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        plural: 'deploymentconfigs',
+        _continue: args._continue,
+        limit: args.limit,
+      }) as unknown as Promise<V1DeploymentConfigList>,
   );
 }
 
@@ -146,37 +107,17 @@ export async function isNamespacedDeploymentConfigSupported(
   namespace: string,
 ): Promise<boolean> {
   try {
-    const pretty = undefined;
-    const continueToken = undefined;
-    const fieldSelector = undefined;
-    const labelSelector = undefined;
-    const limit = 1; // Try to grab only a single object
-    const resourceVersion = undefined; // List anything in the cluster
-    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
-    const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listNamespacedCustomObject(
-        'apps.openshift.io',
-        'v1',
+    await retryKubernetesApiRequest(() =>
+      k8sApi.customObjectsClient.listNamespacedCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
         namespace,
-        'deploymentconfigs',
-        pretty,
-        false,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        limit,
-        resourceVersion,
-        undefined,
-        timeoutSeconds,
-      ),
+        plural: 'deploymentconfigs',
+        limit: 1, // Try to grab only a single object
+        timeoutSeconds: 10, // Don't block the snyk-monitor indefinitely
+      }),
     );
-    return (
-      attemptedApiCall !== undefined &&
-      attemptedApiCall.response !== undefined &&
-      attemptedApiCall.response.statusCode !== undefined &&
-      attemptedApiCall.response.statusCode >= 200 &&
-      attemptedApiCall.response.statusCode < 300
-    );
+    return true;
   } catch (error) {
     logger.debug(
       { error, workloadKind: WorkloadKind.DeploymentConfig },
@@ -188,36 +129,16 @@ export async function isNamespacedDeploymentConfigSupported(
 
 export async function isClusterDeploymentConfigSupported(): Promise<boolean> {
   try {
-    const pretty = undefined;
-    const continueToken = undefined;
-    const fieldSelector = undefined;
-    const labelSelector = undefined;
-    const limit = 1; // Try to grab only a single object
-    const resourceVersion = undefined; // List anything in the cluster
-    const timeoutSeconds = 10; // Don't block the snyk-monitor indefinitely
-    const attemptedApiCall = await retryKubernetesApiRequest(() =>
-      k8sApi.customObjectsClient.listClusterCustomObject(
-        'apps.openshift.io',
-        'v1',
-        'deploymentconfigs',
-        pretty,
-        false,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        limit,
-        resourceVersion,
-        undefined,
-        timeoutSeconds,
-      ),
+    await retryKubernetesApiRequest(() =>
+      k8sApi.customObjectsClient.listClusterCustomObject({
+        group: 'apps.openshift.io',
+        version: 'v1',
+        plural: 'deploymentconfigs',
+        limit: 1, // Try to grab only a single object
+        timeoutSeconds: 10, // Don't block the snyk-monitor indefinitely
+      }),
     );
-    return (
-      attemptedApiCall !== undefined &&
-      attemptedApiCall.response !== undefined &&
-      attemptedApiCall.response.statusCode !== undefined &&
-      attemptedApiCall.response.statusCode >= 200 &&
-      attemptedApiCall.response.statusCode < 300
-    );
+    return true;
   } catch (error) {
     logger.debug(
       { error, workloadKind: WorkloadKind.DeploymentConfig },

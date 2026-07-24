@@ -1,5 +1,4 @@
 import * as fastq from 'fastq';
-import * as http from 'http';
 import sleep from 'sleep-promise';
 import { config } from '../common/config';
 
@@ -35,7 +34,7 @@ export async function retryKubernetesApiRequest<ResponseType>(
         throw err;
       }
 
-      const sleepSeconds = calculateSleepSeconds(err.response);
+      const sleepSeconds = calculateSleepSeconds(err);
       await sleep(sleepSeconds * 1000);
     }
   }
@@ -79,17 +78,13 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
   }
 }
 
-export function calculateSleepSeconds(
-  httpResponse?: http.IncomingMessage,
-): number {
+export function calculateSleepSeconds(err?: IRequestError): number {
   let sleepSeconds = DEFAULT_SLEEP_SEC;
-  if (
-    httpResponse &&
-    httpResponse.headers &&
-    httpResponse.headers['Retry-After']
-  ) {
+  const retryAfter =
+    err?.headers?.['retry-after'] ?? err?.headers?.['Retry-After'];
+  if (retryAfter) {
     try {
-      sleepSeconds = Number(httpResponse.headers['Retry-After']);
+      sleepSeconds = Number(retryAfter);
       if (isNaN(sleepSeconds) || sleepSeconds <= 0) {
         sleepSeconds = DEFAULT_SLEEP_SEC;
       }
@@ -105,7 +100,10 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return false;
   }
 
-  if (err.code && RETRYABLE_NETWORK_ERROR_CODES.includes(err.code)) {
+  if (
+    typeof err.code === 'string' &&
+    RETRYABLE_NETWORK_ERROR_CODES.includes(err.code)
+  ) {
     return true;
   }
 
@@ -113,13 +111,5 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return true;
   }
 
-  if (!err.response) {
-    return false;
-  }
-
-  if (err.response.statusCode === 429) {
-    return true;
-  }
-
-  return false;
+  return err.code === 429;
 }

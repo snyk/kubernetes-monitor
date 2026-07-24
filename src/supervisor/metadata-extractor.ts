@@ -11,7 +11,7 @@ import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
 import { logger } from '../common/logger';
 import { config } from '../common/config';
 
-import type { IKubeObjectMetadata } from './types';
+import type { IKubeObjectMetadata, IRequestError } from './types';
 import type { IWorkload, ILocalWorkloadLocator } from '../transmitter/types';
 
 const loopingThreshold = 20;
@@ -108,7 +108,7 @@ async function findParentWorkload(
       parentMetadata = { ...workloadMetadata, podSpec };
       ownerReferences = parentMetadata.ownerRefs;
     } catch (err: any) {
-      if (err?.response?.body?.code === 404) {
+      if ((err as IRequestError)?.code === 404) {
         logger.info(
           {
             supportedWorkloadName: supportedWorkload.name,
