@@ -104,7 +104,8 @@
       "form-data": "2.5.6",
       "qs": "^6.15.2",
       "ajv": "8.18.0",
-      "fast-uri": "^3.1.4"
+      "fast-uri": "^3.1.4",
+      "js-yaml": "^4.3.0"
     },
     "cross-spawn": "^7.0.5",
     "jsonpath-plus": "10.3.0",
