@@ -66,10 +66,8 @@ test('Kubernetes-Monitor with KinD', async () => {
   const retryKubernetesApiRequestMock = jest
     .spyOn(kubernetesApiWrappers, 'retryKubernetesApiRequestIndefinitely')
     .mockResolvedValueOnce({
-      body: {
-        metadata: {
-          uid: agentId,
-        },
+      metadata: {
+        uid: agentId,
       },
     });
 

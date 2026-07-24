@@ -1,4 +1,4 @@
-import * as http from 'http';
+import { IRequestError } from '../../../src/supervisor/types';
 import * as kubernetesApiWrappers from '../../../src/supervisor/kuberenetes-api-wrappers';
 
 describe('kubernetes api wrappers', () => {
@@ -6,44 +6,55 @@ describe('kubernetes api wrappers', () => {
     const responseWithoutHeaders = {};
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithoutHeaders as http.IncomingMessage,
+        responseWithoutHeaders as IRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
-    const responseWithNegativeSeconds = { headers: { 'Retry-After': -3 } };
+    const responseWithNegativeSeconds = {
+      headers: { 'retry-after': '-3' },
+    };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithNegativeSeconds as unknown as http.IncomingMessage,
+        responseWithNegativeSeconds as unknown as IRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
-    const responseWithZeroSeconds = { headers: { 'Retry-After': 0 } };
+    const responseWithZeroSeconds = { headers: { 'retry-after': '0' } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithZeroSeconds as unknown as http.IncomingMessage,
+        responseWithZeroSeconds as unknown as IRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
     const responseWithDate = {
-      headers: { 'Retry-After': 'Fri, 31 Dec 1999 23:59:59 GMT' },
+      headers: { 'retry-after': 'Fri, 31 Dec 1999 23:59:59 GMT' },
     };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithDate as unknown as http.IncomingMessage,
+        responseWithDate as unknown as IRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.DEFAULT_SLEEP_SEC);
 
-    const responseWithHighSecondsMock = { headers: { 'Retry-After': 55 } };
+    const responseWithHighSecondsMock = { headers: { 'retry-after': '55' } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithHighSecondsMock as unknown as http.IncomingMessage,
+        responseWithHighSecondsMock as unknown as IRequestError,
       ),
     ).toEqual(kubernetesApiWrappers.MAX_SLEEP_SEC);
 
-    const responseWithSecondsMock = { headers: { 'Retry-After': 4 } };
+    const responseWithSecondsMock = { headers: { 'retry-after': '4' } };
     expect(
       kubernetesApiWrappers.calculateSleepSeconds(
-        responseWithSecondsMock as unknown as http.IncomingMessage,
+        responseWithSecondsMock as unknown as IRequestError,
+      ),
+    ).toEqual(4);
+
+    const responseWithCapitalizedHeader = {
+      headers: { 'Retry-After': '4' },
+    };
+    expect(
+      kubernetesApiWrappers.calculateSleepSeconds(
+        responseWithCapitalizedHeader as unknown as IRequestError,
       ),
     ).toEqual(4);
   });
@@ -134,13 +145,13 @@ describe('kubernetes api wrappers', () => {
   test.concurrent(
     'retryKubernetesApiRequest for retryable errors',
     async () => {
-      const retryableErrorResponse = { response: { statusCode: 429 } };
+      const retryableErrorResponse = { code: 429 };
 
       await expect(async () =>
         kubernetesApiWrappers.retryKubernetesApiRequest(() =>
           Promise.reject(retryableErrorResponse),
         ),
-      ).rejects.toEqual({ response: { statusCode: 429 } });
+      ).rejects.toEqual({ code: 429 });
 
       let failures = 0;
       const functionThatFailsJustEnoughTimes = () => {
@@ -170,14 +181,14 @@ describe('kubernetes api wrappers', () => {
         kubernetesApiWrappers.retryKubernetesApiRequest(
           functionThatFailsOneTooManyTimes,
         ),
-      ).rejects.toEqual({ response: { statusCode: 429 } });
+      ).rejects.toEqual({ code: 429 });
     },
   );
 
   test.concurrent(
     'retryKubernetesApiRequest for non-retryable errors',
     async () => {
-      const nonRetryableErrorResponse = { response: { statusCode: 500 } };
+      const nonRetryableErrorResponse = { code: 500 };
 
       let failures = 0;
       const functionThatFails = () => {
@@ -187,7 +198,7 @@ describe('kubernetes api wrappers', () => {
 
       await expect(async () =>
         kubernetesApiWrappers.retryKubernetesApiRequest(functionThatFails),
-      ).rejects.toEqual({ response: { statusCode: 500 } });
+      ).rejects.toEqual({ code: 500 });
       expect(failures).toEqual(1);
     },
   );
