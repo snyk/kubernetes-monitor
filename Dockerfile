@@ -93,7 +93,6 @@ RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
 
 # This must be in the end for Red Hat Build Service
 RUN chown -R snyk:snyk .
-USER 10001:10001
 
 # Build typescript
 RUN npm run build
