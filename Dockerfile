@@ -30,8 +30,6 @@ RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add dumb-init curl bash python3
 
-RUN npm install -g npm@10.9.8
-
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
 
@@ -95,9 +93,18 @@ RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
 
 # This must be in the end for Red Hat Build Service
 RUN chown -R snyk:snyk .
-USER 10001:10001
 
 # Build typescript
 RUN npm run build
+
+# Remove npm, npx, corepack and yarn from the final image: the runtime entrypoint is `node`
+# directly and nothing shells out to a package manager, so shipping them only adds vulnerable
+# surface (the bundled npm CLI is a recurring source of scanner findings). This mirrors
+# Dockerfile.ubi9, whose final stage installs only the node binary.
+USER root
+RUN rm -rf /usr/local/lib/node_modules \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+    /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-v*
+USER 10001:10001
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "bin/start"]
