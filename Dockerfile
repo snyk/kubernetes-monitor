@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------
 # STAGE 1: Build credential helpers inside a temporary container
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 golang:1.25-alpine AS cred-helpers-build
+FROM --platform=linux/amd64 golang:1.25-alpine3.24 AS cred-helpers-build
 
 RUN apk add git
 RUN go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
@@ -14,7 +14,7 @@ RUN --mount=type=secret,id=gh_token,required=true \
 #---------------------------------------------------------------------
 # STAGE 2: Build kubernetes-monitor application
 #---------------------------------------------------------------------
-FROM --platform=linux/amd64 node:22-alpine3.23
+FROM --platform=linux/amd64 node:22-alpine3.24
 
 LABEL name="Snyk Controller" \
     maintainer="support@snyk.io" \
@@ -29,8 +29,6 @@ ENV NODE_ENV=production
 RUN apk update
 RUN apk upgrade
 RUN apk --no-cache add dumb-init curl bash python3
-
-RUN npm install -g npm@10.9.7
 
 RUN addgroup -S -g 10001 snyk
 RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
@@ -84,7 +82,7 @@ RUN mkdir -p .config
 
 RUN --mount=type=secret,id=npm_token,uid=10001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci && \
+    npm ci --omit=dev && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
@@ -95,9 +93,18 @@ RUN chmod 755 /srv/app && chmod 755 /srv/app/bin && chmod +x /srv/app/bin/start
 
 # This must be in the end for Red Hat Build Service
 RUN chown -R snyk:snyk .
-USER 10001:10001
 
 # Build typescript
 RUN npm run build
+
+# Remove npm, npx, corepack and yarn from the final image: the runtime entrypoint is `node`
+# directly and nothing shells out to a package manager, so shipping them only adds vulnerable
+# surface (the bundled npm CLI is a recurring source of scanner findings). This mirrors
+# Dockerfile.ubi9, whose final stage installs only the node binary.
+USER root
+RUN rm -rf /usr/local/lib/node_modules \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+    /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-v*
+USER 10001:10001
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "bin/start"]
