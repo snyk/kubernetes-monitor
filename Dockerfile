@@ -80,9 +80,11 @@ ADD --chown=snyk:snyk package.json package-lock.json ./
 # TODO: Remove this line once OpenShift 3 comes out of support.
 RUN mkdir -p .config
 
+# --include=dev is required despite NODE_ENV=production above: tsc and @types/* are
+# devDependencies and `npm run build` below needs them. They are pruned again after the build.
 RUN --mount=type=secret,id=npm_token,uid=10001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci --omit=dev && \
+    npm ci --include=dev && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
@@ -96,6 +98,10 @@ RUN chown -R snyk:snyk .
 
 # Build typescript
 RUN npm run build
+
+# devDependencies (typescript, @types/*, etc.) are only needed to produce dist/ above;
+# strip them so the final image's node_modules matches a production-only install.
+RUN npm prune --omit=dev
 
 # Remove npm, npx, corepack and yarn from the final image: the runtime entrypoint is `node`
 # directly and nothing shells out to a package manager, so shipping them only adds vulnerable
