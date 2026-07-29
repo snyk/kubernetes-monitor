@@ -82,9 +82,14 @@ RUN mkdir -p .config
 
 # --include=dev is required despite NODE_ENV=production above: tsc and @types/* are
 # devDependencies and `npm run build` below needs them. They are pruned again after the build.
+# The cache mount keeps the npm tarball cache across builds so a package-lock.json change
+# re-resolves from local disk instead of re-downloading the whole tree. It is a BuildKit cache
+# mount, so it is never part of the resulting image. uid/gid match the snyk user, which is who
+# runs npm here.
 RUN --mount=type=secret,id=npm_token,uid=10001 \
+    --mount=type=cache,target=/tmp/npm-cache,uid=10001,gid=10001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci --include=dev && \
+    npm ci --include=dev --cache /tmp/npm-cache && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
