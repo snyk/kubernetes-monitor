@@ -82,7 +82,7 @@ RUN mkdir -p .config
 
 RUN --mount=type=secret,id=npm_token,uid=10001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci --omit=dev && \
+    npm ci && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
@@ -96,6 +96,10 @@ RUN chown -R snyk:snyk .
 
 # Build typescript
 RUN npm run build
+
+# devDependencies (typescript, @types/*, etc.) are only needed to produce dist/ above;
+# strip them so the final image's node_modules matches a production-only install.
+RUN npm prune --omit=dev
 
 # Remove npm, npx, corepack and yarn from the final image: the runtime entrypoint is `node`
 # directly and nothing shells out to a package manager, so shipping them only adds vulnerable
