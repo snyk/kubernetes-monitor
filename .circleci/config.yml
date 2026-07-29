@@ -94,40 +94,69 @@ jobs:
           mode: auto
           release-branch: master
           open-source-additional-arguments: --exclude=test
-  build_image:
-    docker:
-      - image: cimg/base:current
+  # The alpine and ubi9 images share no build stages, so they build, scan and push
+  # as two independent jobs. Both run on a machine executor rather than a docker
+  # executor plus setup_remote_docker: that avoids shipping the build context to a
+  # separate VM, lets docker_layer_caching reuse the gcloud SDK, skopeo, Node and
+  # credential-helper layers between runs, and lets resource_class apply to the build
+  # itself. `system_tests` already uses this executor.
+  build_image_alpine:
+    machine:
+      docker_layer_caching: true
+      image: default
+    resource_class: large
+    environment:
+      DOCKER_BUILDKIT: 1
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           command: |
             IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
             IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
-            IMAGE_NAME_CANDIDATE_UBI9=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}
             echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
-            echo "export IMAGE_NAME_CANDIDATE_UBI9=$IMAGE_NAME_CANDIDATE_UBI9" >> $BASH_ENV
           name: Export environment variables
       - run:
           command: |
             docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS}
             ./scripts/docker/build-image.sh ${IMAGE_NAME_CANDIDATE}
-            ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
           name: Build image
       - prodsec/container_scan:
           mode: gate
           docker-image-name: ${IMAGE_NAME_CANDIDATE}
           docker-file: Dockerfile
           project-name: alpine
+      - run:
+          command: docker push ${IMAGE_NAME_CANDIDATE}
+          name: Push image
+      - notify_slack_on_failure
+    working_directory: ~/kubernetes-monitor
+  build_image_ubi9:
+    machine:
+      docker_layer_caching: true
+      image: default
+    resource_class: large
+    environment:
+      DOCKER_BUILDKIT: 1
+    steps:
+      - checkout
+      - run:
+          command: |
+            IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            IMAGE_NAME_CANDIDATE_UBI9=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}
+            echo "export IMAGE_NAME_CANDIDATE_UBI9=$IMAGE_NAME_CANDIDATE_UBI9" >> $BASH_ENV
+          name: Export environment variables
+      - run:
+          command: |
+            docker login --username ${DOCKERHUB_USER} --password ${DOCKERHUB_PASS}
+            ./scripts/docker/build-image-ubi9.sh ${IMAGE_NAME_CANDIDATE_UBI9}
+          name: Build image
       - prodsec/container_scan:
           mode: gate
           docker-image-name: ${IMAGE_NAME_CANDIDATE_UBI9}
           docker-file: Dockerfile.ubi9
           project-name: ubi9
       - run:
-          command: |
-            docker push ${IMAGE_NAME_CANDIDATE}
-            docker push ${IMAGE_NAME_CANDIDATE_UBI9}
+          command: docker push ${IMAGE_NAME_CANDIDATE_UBI9}
           name: Push image
       - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
@@ -344,7 +373,18 @@ workflows:
             - publish
   MERGE_TO_STAGING:
     jobs:
-      - build_image:
+      - build_image_alpine:
+          context:
+            - infrasec_container
+            - go-private-modules
+            - snyk-bot-slack
+            - team-container-integration-docker-hub
+            - prodsec-orb-runtime
+          filters:
+            branches:
+              only:
+                - staging
+      - build_image_ubi9:
           context:
             - infrasec_container
             - go-private-modules
@@ -381,7 +421,8 @@ workflows:
               only:
                 - staging
           requires:
-            - build_image
+            - build_image_alpine
+            - build_image_ubi9
             - unit_tests
             - system_tests
       - prepare_to_deploy:
@@ -421,7 +462,22 @@ workflows:
               ignore:
                 - staging
                 - master
-      - build_image:
+      - build_image_alpine:
+          context:
+            - infrasec_container
+            - go-private-modules
+            - snyk-bot-slack
+            - team-container-integration-docker-hub
+            - prodsec-orb-runtime
+          requires:
+            - Scan repository for secrets
+            - Security Scans
+          filters:
+            branches:
+              ignore:
+                - staging
+                - master
+      - build_image_ubi9:
           context:
             - infrasec_container
             - go-private-modules

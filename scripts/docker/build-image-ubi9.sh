@@ -14,9 +14,10 @@ NAME_AND_TAG=${1:-$LOCAL_DISCARDABLE_IMAGE}
 # This step gets the latest version of node 22 from node.js. It removes the .tar.gz extension and then returns the result.
 # It is used when buidling the ubi image in order to download the latest node 22 version and copy its binary.
 NODE_MAJOR_VERSION=22
-NODE_LATEST_VERSION_TAR_GZ_FILE=$(curl -L --fail --silent https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/SHASUMS256.txt | grep linux-x64.tar.gz | awk '{ print $2 }')
+NODE_SHASUMS_LINE=$(curl -L --fail --silent https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/SHASUMS256.txt | grep linux-x64.tar.gz)
+NODE_LATEST_VERSION_TAR_GZ_FILE=$(echo "${NODE_SHASUMS_LINE}" | awk '{ print $2 }')
 NODE_LATEST_VERSION="${NODE_LATEST_VERSION_TAR_GZ_FILE%%.tar.gz}"
-NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256=$(curl -L --fail --silent https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/SHASUMS256.txt | grep linux-x64.tar.gz | awk '{ print $1 }')
+NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256=$(echo "${NODE_SHASUMS_LINE}" | awk '{ print $1 }')
 
 docker build \
   --build-arg NODE_LATEST_VERSION="${NODE_LATEST_VERSION}" \
