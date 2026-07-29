@@ -22,9 +22,11 @@ ENV NODE_ENV production
 # Add manifest files and install before adding anything else to take advantage of layer caching
 COPY --chown=1001:1001 package.json package-lock.json ./
 
+# --include=dev is required despite NODE_ENV=production above: tsc and @types/* are
+# devDependencies and `npm run build` below needs them. They are pruned again after the build.
 RUN --mount=type=secret,id=npm_token,uid=1001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci && \
+    npm ci --include=dev && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
@@ -32,6 +34,10 @@ COPY --chown=1001:1001 . ./
 
 # Build typescript
 RUN npm run build
+
+# The final stage copies this stage's tree wholesale, so drop devDependencies here to keep
+# them out of the shipped image.
+RUN npm prune --omit=dev
 
 #---------------------------------------------------------------------
 # STAGE 3: Install containers-common to obtain configuration files

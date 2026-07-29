@@ -80,9 +80,11 @@ ADD --chown=snyk:snyk package.json package-lock.json ./
 # TODO: Remove this line once OpenShift 3 comes out of support.
 RUN mkdir -p .config
 
+# --include=dev is required despite NODE_ENV=production above: tsc and @types/* are
+# devDependencies and `npm run build` below needs them. They are pruned again after the build.
 RUN --mount=type=secret,id=npm_token,uid=10001 \
     echo "//registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token)" > ~/.npmrc && \
-    npm ci && \
+    npm ci --include=dev && \
     rm -f ~/.npmrc
 
 # add the rest of the app files
