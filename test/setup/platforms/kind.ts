@@ -27,8 +27,12 @@ export async function createCluster(version: string): Promise<void> {
   const clusterConfigPath = 'test/setup/platforms/cluster-config.yaml';
 
   try {
+    // --retain keeps the node containers when creation fails. Without it KinD tears
+    // them down itself, so any attempt to read logs afterwards gets
+    // `unknown cluster "kind"` and an empty journal. tearDown deletes the cluster
+    // either way, so this only changes what survives long enough to be read.
     await exec(
-      `./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`,
+      `./kind create cluster --name="${clusterName}" --retain ${kindImageArgument} --config="${clusterConfigPath}"`,
     );
   } catch (err: any) {
     // The cluster is deleted in afterAll, which destroys the kubelet and container
@@ -41,16 +45,39 @@ export async function createCluster(version: string): Promise<void> {
     } catch (exportErr: any) {
       console.log('Could not export KinD logs', exportErr.message);
     }
-    // Surface the kubelet's own error inline too, so it lands in the CI log even
-    // if the artifacts are not collected.
-    try {
-      const kubeletLog = await exec(
-        `docker exec ${clusterName}-control-plane journalctl -xeu kubelet --no-pager | tail -n 120`,
-      );
-      console.log('=== kubelet journal (last 120 lines) ===');
-      console.log(kubeletLog.stdout);
-    } catch (journalErr: any) {
-      console.log('Could not read the kubelet journal', journalErr.message);
+    // Surface the node's state inline too, so it lands in the CI log even if the
+    // artifacts are not collected. journalctl alone came back empty on the first
+    // attempt, so probe several sources: the unit's status and exit code, the
+    // journal, what the container runtime saw, and the static pod logs.
+    const node = `${clusterName}-control-plane`;
+    const probes: Array<[string, string]> = [
+      ['containers', 'docker ps -a'],
+      [
+        'kubelet unit status',
+        `docker exec ${node} systemctl status kubelet --no-pager -l`,
+      ],
+      [
+        'kubelet journal',
+        `docker exec ${node} journalctl -u kubelet --no-pager | tail -n 200`,
+      ],
+      [
+        'all journal errors',
+        `docker exec ${node} journalctl -p err --no-pager | tail -n 100`,
+      ],
+      ['node container logs', `docker logs ${node} 2>&1 | tail -n 100`],
+      [
+        'containerd containers',
+        `docker exec ${node} crictl ps -a 2>&1 | head -n 40`,
+      ],
+    ];
+    for (const [label, command] of probes) {
+      try {
+        const result = await exec(command);
+        const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
+        console.log(`=== ${label} ===\n${output || '(no output)'}`);
+      } catch (probeErr: any) {
+        console.log(`=== ${label} === failed: ${probeErr.message}`);
+      }
     }
     throw err;
   }
