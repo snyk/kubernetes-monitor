@@ -97,12 +97,16 @@ jobs:
   # The alpine and ubi9 images share no build stages, so they build, scan and push
   # as two independent jobs. Both run on a machine executor rather than a docker
   # executor plus setup_remote_docker: that avoids shipping the build context to a
-  # separate VM, lets docker_layer_caching reuse the gcloud SDK, skopeo, Node and
-  # credential-helper layers between runs, and lets resource_class apply to the build
-  # itself. `system_tests` already uses this executor.
+  # separate VM and lets resource_class apply to the build itself.
+  #
+  # These two deliberately do NOT set docker_layer_caching. `system_tests` relies on
+  # DLC for its KinD cluster, and having three jobs share the project's DLC pool
+  # concurrently left system_tests restoring a /var/lib/docker shaped by these image
+  # builds, where the KinD node's kubelet fails to start. CN-1555 measured layer
+  # caching as contributing almost none of its speedup, so dropping it here costs
+  # little and keeps system_tests as the only DLC consumer, as it is on master.
   build_image_alpine:
     machine:
-      docker_layer_caching: true
       image: default
     resource_class: large
     environment:
@@ -132,7 +136,6 @@ jobs:
     working_directory: ~/kubernetes-monitor
   build_image_ubi9:
     machine:
-      docker_layer_caching: true
       image: default
     resource_class: large
     environment:
