@@ -26,9 +26,34 @@ export async function createCluster(version: string): Promise<void> {
   }
   const clusterConfigPath = 'test/setup/platforms/cluster-config.yaml';
 
-  await exec(
-    `./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`,
-  );
+  try {
+    await exec(
+      `./kind create cluster --name="${clusterName}" ${kindImageArgument} --config="${clusterConfigPath}"`,
+    );
+  } catch (err: any) {
+    // The cluster is deleted in afterAll, which destroys the kubelet and container
+    // logs that explain *why* it failed. kubeadm only prints a generic hint, so
+    // capture the node's logs here, at the failure point, before anything cleans up.
+    console.log('Cluster creation failed, exporting KinD logs...');
+    try {
+      await exec(`./kind export logs /tmp/kind-logs --name="${clusterName}"`);
+      console.log('Exported KinD logs to /tmp/kind-logs');
+    } catch (exportErr: any) {
+      console.log('Could not export KinD logs', exportErr.message);
+    }
+    // Surface the kubelet's own error inline too, so it lands in the CI log even
+    // if the artifacts are not collected.
+    try {
+      const kubeletLog = await exec(
+        `docker exec ${clusterName}-control-plane journalctl -xeu kubelet --no-pager | tail -n 120`,
+      );
+      console.log('=== kubelet journal (last 120 lines) ===');
+      console.log(kubeletLog.stdout);
+    } catch (journalErr: any) {
+      console.log('Could not read the kubelet journal', journalErr.message);
+    }
+    throw err;
+  }
   console.log(`Created cluster ${clusterName}!`);
 }
 

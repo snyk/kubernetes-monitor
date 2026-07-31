@@ -273,6 +273,12 @@ jobs:
             npm run build &&
             npm run test:system
           name: System tests
+      # Kept even when the tests fail: createCluster exports the KinD node logs on
+      # failure, which is the only place the kubelet's own error survives.
+      - store_artifacts:
+          path: /tmp/kind-logs
+          destination: kind-logs
+          when: always
       - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   tag_and_push:
