@@ -62,3 +62,5 @@ Error: EROFS: read-only file system, mkdir '/srv/app/.npm/_npx'
 ### Cleaning up
 
 Run `tilt down` to tear down the debugging session.
+
+<!-- CI control: no-op comment to trigger a pipeline run. Safe to revert. -->
