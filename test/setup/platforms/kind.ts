@@ -8,7 +8,13 @@ const clusterName = 'kind';
 
 export async function setupTester(): Promise<void> {
   const osDistro = platform();
-  await download(osDistro, 'v0.11.1');
+  // v0.11.1 (2021) ships kindest/node:v1.21.1, whose kubelet ExecStartPre script
+  // refuses to run on a cgroup v2 host whose root cgroup has processes in it:
+  //   ERROR: this script needs /sys/fs/cgroup/cgroup.procs to be empty
+  //   (for writing the top-level cgroup.subtree_control)
+  // The kubelet then never starts, kubeadm times out waiting for the control plane,
+  // and cluster creation fails. CI runs cgroup v2, so this is no longer viable.
+  await download(osDistro, 'v0.32.0');
 }
 
 export async function createCluster(version: string): Promise<void> {
