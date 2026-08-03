@@ -1,5 +1,40 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore: {}
+ignore:
+  SNYK-RHEL9-VIMMINIMAL-17712765:
+    - '*':
+        reason: >-
+          CVE-2026-47162 — Vimscript code injection in vim netrw. Upstream
+          fixed in Vim 9.2.0495 but no fix currently available for the RHEL 9
+          vim-minimal RPM (base image ubi9:9.8). Exploitation requires a user
+          to open a crafted directory tree in interactive vim; vim is not on
+          any kubernetes-monitor code path. Re-evaluate on next UBI9 base
+          rebuild. See https://access.redhat.com/security/cve/CVE-2026-47162
+        expires: 2026-11-03T12:00:00.000Z
+        created: 2026-08-03T12:00:00.000Z
+  SNYK-RHEL9-VIMMINIMAL-17790082:
+    - '*':
+        reason: >-
+          CVE-2026-55895 — Arbitrary code injection via a crafted filename
+          containing '|' in vim netrw. Upstream fixed in Vim 9.2.0663 but no
+          fix currently available for the RHEL 9 vim-minimal RPM (base image
+          ubi9:9.8). Exploitation requires interactive vim usage on an
+          attacker-controlled filename; vim is not on any kubernetes-monitor
+          code path. Re-evaluate on next UBI9 base rebuild.
+          See https://access.redhat.com/security/cve/CVE-2026-55895
+        expires: 2026-11-03T12:00:00.000Z
+        created: 2026-08-03T12:00:00.000Z
+  SNYK-RHEL9-VIMMINIMAL-17816811:
+    - '*':
+        reason: >-
+          CVE-2026-57456 — Arbitrary code injection via Python omni-completion
+          docstring breakout in vim. No fix currently available for the RHEL 9
+          vim-minimal RPM (base image ubi9:9.8). Exploitation requires
+          interactive vim usage with attacker-controlled Python source; vim is
+          not on any kubernetes-monitor code path. Re-evaluate on next UBI9
+          base rebuild.
+          See https://access.redhat.com/security/cve/CVE-2026-57456
+        expires: 2026-11-03T12:00:00.000Z
+        created: 2026-08-03T12:00:00.000Z
 patch: {}
