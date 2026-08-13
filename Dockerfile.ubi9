@@ -5,11 +5,11 @@ ARG UBI9_VERSION=9.8
 #---------------------------------------------------------------------
 FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:${UBI9_VERSION} as cred-helpers-build
 
-RUN GOTOOLCHAIN=go1.23.4 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
+RUN GOTOOLCHAIN=go1.25.12 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
     git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
     go env -w GOPRIVATE=github.com/snyk && \
-    GOTOOLCHAIN=go1.23.4 go install github.com/snyk/docker-credential-acr-env@62fbee8398a22171cb0f628400a29b2ebaed7a3a && \
+    GOTOOLCHAIN=go1.25.12 go install github.com/snyk/docker-credential-acr-env@62fbee8398a22171cb0f628400a29b2ebaed7a3a && \
     git config --global --unset url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf
 
 #---------------------------------------------------------------------
