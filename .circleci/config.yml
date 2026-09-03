@@ -13,7 +13,7 @@ commands:
     steps:
       - slack/notify:
           branch_pattern: master,staging
-          channel: team-container-pipeline-info
+          channel: team-sca-scanners-alerts
           event: fail
           #   mentions: '@testenrichers'
           custom: |
