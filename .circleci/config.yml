@@ -9,74 +9,6 @@ commands:
             ./get_helm.sh
           name: Install Helm
 
-  notify_slack_on_failure:
-    steps:
-      - slack/notify:
-          branch_pattern: master,staging
-          channel: team-sca-scanners-alerts
-          event: fail
-          #   mentions: '@testenrichers'
-          custom: |
-            {
-                "blocks": [
-                    {
-                        "type": "header",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "CICD pipeline failed :circleci-fail:",
-                            "emoji": true
-                        }
-                    },
-                    {
-                        "type": "divider"
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Project*: ${CIRCLE_PROJECT_REPONAME}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Job*: ${CIRCLE_JOB}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Branch*: ${CIRCLE_BRANCH}"
-                            },
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Author*: ${CIRCLE_USERNAME}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "section",
-                        "fields": [
-                            {
-                                "type": "mrkdwn",
-                                "text": "*Mentions*: ${SLACK_PARAM_MENTIONS}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "action_id": "basic_fail_view",
-                                "text": {
-                                    "type": "plain_text",
-                                    "text": "View Job"
-                                },
-                                "url": "${CIRCLE_BUILD_URL}"
-                            }
-                        ]
-                    }
-                ]
-            }
-
   setup_npm_auth:
     description: Configure ~/.npmrc with NPM_TOKEN so npm ci can resolve private @snyk/* packages.
     steps:
@@ -128,7 +60,6 @@ jobs:
       - run:
           command: docker push ${IMAGE_NAME_CANDIDATE}
           name: Push image
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   build_image_ubi9:
     machine:
@@ -158,7 +89,6 @@ jobs:
       - run:
           command: docker push ${IMAGE_NAME_CANDIDATE_UBI9}
           name: Push image
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   code_formatter:
     docker:
@@ -172,7 +102,6 @@ jobs:
           command: |
             npm run format:check
           name: code formatter check
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   prepare_to_deploy:
     docker:
@@ -182,7 +111,6 @@ jobs:
       - run:
           command: ./scripts/circleci-jobs/prepare_to_deploy.sh
           name: Deploy to dev
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   deploy_to_prod:
     docker:
@@ -192,7 +120,6 @@ jobs:
       - run:
           command: ./scripts/circleci-jobs/deploy_to_prod.sh
           name: Deploy to prod
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   lint:
     docker:
@@ -206,7 +133,6 @@ jobs:
           command: |
             npm run lint
           name: lint
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   publish:
     docker:
@@ -251,7 +177,6 @@ jobs:
             docker push ${IMAGE_NAME_PUBLISHED_UBI9} &&
             ./scripts/publish-gh-pages.sh ${LATEST_TAG}
           name: Publish
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   system_tests:
     machine:
@@ -273,7 +198,6 @@ jobs:
             npm run build &&
             npm run test:system
           name: System tests
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   tag_and_push:
     docker:
@@ -294,7 +218,6 @@ jobs:
             NEW_VERSION=`cat ./package.json | jq -r '.version'` &&
             ./scripts/docker/approve-image.sh $NEW_VERSION
           name: Tag and push
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
   unit_tests:
     docker:
@@ -309,7 +232,6 @@ jobs:
             npm run build &&
             npm run test:unit
           name: Unit tests
-      - notify_slack_on_failure
     working_directory: ~/kubernetes-monitor
 main_branches_filter:
   filters:
@@ -326,7 +248,6 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.6
   azure-cli: circleci/azure-cli@1.2.0
   prodsec: snyk/prodsec-orb@1
-  slack: circleci/slack@4.12.5
 
 staging_branch_only_filter:
   filters:
@@ -340,7 +261,7 @@ workflows:
       - security-scans:
           name: Security Scans
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - prodsec-orb-runtime
           filters:
             branches:
@@ -348,7 +269,7 @@ workflows:
                 - master
       - publish:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
             - team-container-integration-docker-hub
             - prodsec-orb-runtime
@@ -362,7 +283,7 @@ workflows:
           context:
             - kubernetes-monitor
             - snyk-bot-slack
-            - infrasec_container
+            - engines_sca-scanners
             - team-container-integration-circleci
             - prodsec-orb-runtime
           filters:
@@ -375,7 +296,7 @@ workflows:
     jobs:
       - build_image_alpine:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - go-private-modules
             - snyk-bot-slack
             - team-container-integration-docker-hub
@@ -386,7 +307,7 @@ workflows:
                 - staging
       - build_image_ubi9:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - go-private-modules
             - snyk-bot-slack
             - team-container-integration-docker-hub
@@ -397,7 +318,7 @@ workflows:
                 - staging
       - unit_tests:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
           filters:
             branches:
@@ -405,7 +326,7 @@ workflows:
                 - staging
       - system_tests:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
           filters:
             branches:
@@ -414,7 +335,7 @@ workflows:
       - tag_and_push:
           context:
             - snyk-bot-slack
-            - infrasec_container
+            - engines_sca-scanners
             - team-container-integration-docker-hub
           filters:
             branches:
@@ -429,7 +350,7 @@ workflows:
           context:
             - kubernetes-monitor
             - snyk-bot-slack
-            - infrasec_container
+            - engines_sca-scanners
             - team-container-integration-circleci
           filters:
             branches:
@@ -454,7 +375,7 @@ workflows:
       - security-scans:
           name: Security Scans
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
             - prodsec-orb-runtime
           filters:
@@ -464,7 +385,7 @@ workflows:
                 - master
       - build_image_alpine:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - go-private-modules
             - snyk-bot-slack
             - team-container-integration-docker-hub
@@ -479,7 +400,7 @@ workflows:
                 - master
       - build_image_ubi9:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - go-private-modules
             - snyk-bot-slack
             - team-container-integration-docker-hub
@@ -494,7 +415,7 @@ workflows:
                 - master
       - unit_tests:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
           filters:
             branches:
@@ -503,7 +424,7 @@ workflows:
                 - master
       - lint:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
           filters:
             branches:
@@ -512,7 +433,7 @@ workflows:
                 - master
       - code_formatter:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
           filters:
             branches:
@@ -521,7 +442,7 @@ workflows:
                 - master
       - system_tests:
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - snyk-bot-slack
           filters:
             branches:
