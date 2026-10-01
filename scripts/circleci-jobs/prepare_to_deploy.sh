@@ -31,14 +31,14 @@ image:
 metadata:
   annotations:
     github.com/project-slug: snyk/kubernetes-monitor
-    github.com/team-slug: snyk/infrasec_container
+    github.com/team-slug: snyk/engines_sca-scanners
   labels:
     $SNYK_OWNER_LABEL_KEY: $SNYK_OWNER_LABEL_VALUE
     $SNYK_LOG_DEST_LABEL_KEY: $SNYK_LOG_DEST_LABEL_VALUE
     snykappname: snyk-monitor
     snykdclstored: 2-confidential
     snykdclprocessed: 2-confidential
-    snykowner: container
+    snykowner: sca-scanners
 
 EOF
 
