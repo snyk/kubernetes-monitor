@@ -8,7 +8,7 @@ const clusterName = 'kind';
 
 export async function setupTester(): Promise<void> {
   const osDistro = platform();
-  await download(osDistro, 'v0.11.1');
+  await download(osDistro, 'v0.24.0');
 }
 
 export async function createCluster(version: string): Promise<void> {
