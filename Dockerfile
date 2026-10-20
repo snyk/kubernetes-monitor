@@ -37,8 +37,8 @@ RUN adduser -S -G snyk -h /srv/app -u 10001 snyk
 # bundles a vulnerable google.golang.org/grpc (CVE-2026-33186); the fix only exists upstream in
 # skopeo >=1.22, which Alpine has not packaged on any branch. Keep this version in sync with Dockerfile.ubi9.
 # https://github.com/lework/skopeo-binary/releases
-ARG SKOPEO_VERSION=1.23.0
-ARG SKOPEO_BINARY_FILE_SHASUM256=15696e068c02a163e20013fab79f40cdc6c8022d99e1aee8676f6d540404691a
+ARG SKOPEO_VERSION=1.24.1
+ARG SKOPEO_BINARY_FILE_SHASUM256=067d461564e606b4f54f30453a9f21a53aabc4f1bb0acd5193ffff5b1aececbc
 RUN curl -sSfLo /usr/bin/skopeo "https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64" && \
     chmod 755 /usr/bin/skopeo && \
     echo "${SKOPEO_BINARY_FILE_SHASUM256}  /usr/bin/skopeo" | sha256sum -cs
