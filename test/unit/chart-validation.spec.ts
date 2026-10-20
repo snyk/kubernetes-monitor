@@ -55,8 +55,9 @@ describe('helm chart parameter validation', () => {
         `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor ${setValues}`,
       );
       const image = /^\s*image: "snyk\/kubernetes-monitor:(.+)"$/m.exec(stdout);
-      const version =
-        /name: SNYK_MONITOR_VERSION\n\s*value: (.+)$/m.exec(stdout);
+      const version = /name: SNYK_MONITOR_VERSION\n\s*value: (.+)$/m.exec(
+        stdout,
+      );
       return { image: image?.[1], version: version?.[1] };
     };
 
