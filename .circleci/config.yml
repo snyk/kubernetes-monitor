@@ -452,7 +452,6 @@ workflows:
             - snyk-bot-slack
             - engines_sca-scanners
             - team-container-integration-circleci
-            - github-release
           filters:
             branches:
               only:

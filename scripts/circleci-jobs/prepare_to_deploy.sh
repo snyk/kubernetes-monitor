@@ -9,8 +9,28 @@ LATEST_TAG=${LATEST_TAG_WITH_V:1}
 git config --global user.email "k-m@example.com"
 git config --global user.name "K-M Deploy Bot"
 
+# The token needs Contents read/write on the deployer repo. Contexts attached to this job can also
+# define GITHUB_TOKEN or GH_TOKEN, so prefer a name that nothing else sets.
+if [ -n "${DEPLOYER_GITHUB_TOKEN}" ]; then
+  TOKEN_NAME=DEPLOYER_GITHUB_TOKEN
+  DEPLOYER_TOKEN=${DEPLOYER_GITHUB_TOKEN}
+elif [ -n "${GITHUB_TOKEN}" ]; then
+  TOKEN_NAME=GITHUB_TOKEN
+  DEPLOYER_TOKEN=${GITHUB_TOKEN}
+else
+  TOKEN_NAME=GH_TOKEN
+  DEPLOYER_TOKEN=${GH_TOKEN}
+fi
+echo "Pushing to the deployer repo with the token from ${TOKEN_NAME}"
+
 # Clone repo
-git clone https://${GH_TOKEN:-$GITHUB_TOKEN}@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
+git clone https://${DEPLOYER_TOKEN}@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
+
+# Fail before doing any work if the token cannot push
+if ! git -C $KUBERNETES_MONITOR_DEPLOYER_REPO push --dry-run origin HEAD:main; then
+  echo "The token from ${TOKEN_NAME} cannot push to the deployer repo. Check it has Contents read/write on that repo and that no other attached context overrides ${TOKEN_NAME}." >&2
+  exit 1
+fi
 
 # Copy contents from snyk-monitor/ folder into deployer helm/ folder in github
 cp -r snyk-monitor/* $KUBERNETES_MONITOR_DEPLOYER_REPO/helm 
