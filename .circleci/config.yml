@@ -45,10 +45,11 @@ commands:
       - run:
           name: Export release tag
           command: |
-            LATEST_TAG_WITH_V=`git tag --points-at ${CIRCLE_SHA1} | grep '^v' | head -n 1`
+            LATEST_TAG_WITH_V=`git tag --points-at ${CIRCLE_SHA1} | grep '^v' | head -n 1 || true`
             if [ -z "${LATEST_TAG_WITH_V}" ]; then
               echo "No release was cut for ${CIRCLE_SHA1}, nothing to publish to GAR"
               circleci-agent step halt
+              exit 0
             fi
             echo "export LATEST_TAG=${LATEST_TAG_WITH_V:1}" >> $BASH_ENV
       - attach_workspace:
