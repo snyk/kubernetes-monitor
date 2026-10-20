@@ -37,4 +37,26 @@ ignore:
           See https://access.redhat.com/security/cve/CVE-2026-57456
         expires: 2026-11-03T12:00:00.000Z
         created: 2026-08-03T12:00:00.000Z
+  SNYK-JS-BRACES-19963945:
+    - '*':
+        reason: >-
+          Uncontrolled Recursion in braces@3.0.3, a transitive dependency of
+          snyk-docker-plugin > snyk-nodejs-lockfile-parser > micromatch. No
+          fixed version of braces has been published upstream (3.0.3 is the
+          latest release). Re-evaluate when braces or micromatch ships a fix.
+          See https://security.snyk.io/vuln/SNYK-JS-BRACES-19963945
+        expires: 2026-11-19T12:00:00.000Z
+        created: 2026-10-20T12:00:00.000Z
+  SNYK-JS-URIJS-19963963:
+    - '*':
+        reason: >-
+          Infinite loop in uri-js@4.4.1 (the latest release, no fixed version
+          upstream), reached via @kubernetes/client-node@0.22.3 > request >
+          har-validator > ajv@6. Snyk's only upgrade path is
+          @kubernetes/client-node 1.x, a major upgrade that is tracked
+          separately and deliberately not bundled with vulnerability sweeps.
+          Re-evaluate when uri-js ships a fix or the client-node major upgrade
+          lands. See https://security.snyk.io/vuln/SNYK-JS-URIJS-19963963
+        expires: 2026-11-19T12:00:00.000Z
+        created: 2026-10-20T12:00:00.000Z
 patch: {}
