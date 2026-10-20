@@ -10,7 +10,7 @@ git config --global user.email "k-m@example.com"
 git config --global user.name "K-M Deploy Bot"
 
 # Clone repo
-git clone https://$GH_TOKEN@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
+git clone https://${GH_TOKEN:-$GITHUB_TOKEN}@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
 
 # Copy contents from snyk-monitor/ folder into deployer helm/ folder in github
 cp -r snyk-monitor/* $KUBERNETES_MONITOR_DEPLOYER_REPO/helm 
@@ -26,6 +26,7 @@ policyOrgs:
   - $POLICY_ORG_PROD
 
 image:
+  repository: us-docker.pkg.dev/polaris-gcp-gar/polaris/kubernetes-monitor
   tag: $LATEST_TAG
 
 metadata:
