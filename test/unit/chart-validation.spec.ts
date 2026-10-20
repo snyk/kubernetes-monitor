@@ -49,6 +49,31 @@ describe('helm chart parameter validation', () => {
     );
   });
 
+  describe('monitor image tag', () => {
+    const renderImageAndVersion = async (setValues: string) => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor ${setValues}`,
+      );
+      const image = /^\s*image: "snyk\/kubernetes-monitor:(.+)"$/m.exec(stdout);
+      const version =
+        /name: SNYK_MONITOR_VERSION\n\s*value: (.+)$/m.exec(stdout);
+      return { image: image?.[1], version: version?.[1] };
+    };
+
+    it('should use image.tag when image.releaseTag is not set', async () => {
+      const rendered = await renderImageAndVersion('--set image.tag=1.2.3');
+      expect(rendered).toEqual({ image: '1.2.3', version: '1.2.3' });
+    });
+
+    it('should prefer image.releaseTag over image.tag', async () => {
+      // GitOps tools such as ArgoCD overwrite image.tag with a manifest SHA.
+      const rendered = await renderImageAndVersion(
+        '--set image.tag=0123456789abcdef --set image.releaseTag=2.24.1',
+      );
+      expect(rendered).toEqual({ image: '2.24.1', version: '2.24.1' });
+    });
+  });
+
   it('should reject invalid cluster name', async () => {
     try {
       await exec(
