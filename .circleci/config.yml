@@ -325,6 +325,7 @@ workflows:
             - snyk-bot-slack
             - team-container-integration-docker-hub
             - prodsec-orb-runtime
+            - github-release
           requires:
             - Security Scans
           filters:
@@ -389,6 +390,7 @@ workflows:
             - snyk-bot-slack
             - engines_sca-scanners
             - team-container-integration-docker-hub
+            - github-release
           filters:
             branches:
               only:
@@ -450,6 +452,7 @@ workflows:
             - snyk-bot-slack
             - engines_sca-scanners
             - team-container-integration-circleci
+            - github-release
           filters:
             branches:
               only:
