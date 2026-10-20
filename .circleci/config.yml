@@ -16,6 +16,51 @@ commands:
           name: Configure npm auth
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
 
+  save_image_for_gar:
+    description: Save the freshly built image to the workspace for the publish orb, on staging only.
+    parameters:
+      image_to_save:
+        type: string
+      archive_prefix:
+        type: string
+    steps:
+      - when:
+          condition:
+            equal: [staging, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: Tag image for the publish orb
+                command: docker tag <<parameters.image_to_save>> kubernetes-monitor:${CIRCLE_WORKFLOW_ID}
+            - publish-orb/save-image:
+                image_name: kubernetes-monitor
+                save_filename_prefix: <<parameters.archive_prefix>>
+
+  stage_image_for_gar:
+    description: Stage a saved image archive under the name the publish orb loads, and export LATEST_TAG. Halts the job when staging produced no release.
+    parameters:
+      archive_prefix:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Export release tag
+          command: |
+            LATEST_TAG_WITH_V=`git tag --points-at ${CIRCLE_SHA1} | grep '^v' | head -n 1 || true`
+            if [ -z "${LATEST_TAG_WITH_V}" ]; then
+              echo "No release was cut for ${CIRCLE_SHA1}, nothing to publish to GAR"
+              circleci-agent step halt
+              exit 0
+            fi
+            echo "export LATEST_TAG=${LATEST_TAG_WITH_V:1}" >> $BASH_ENV
+      - attach_workspace:
+          at: /tmp/source-workspace
+      - run:
+          name: Stage image archive
+          command: |
+            mkdir -p /tmp/gar-workspace/images
+            cp "/tmp/source-workspace/images/<<parameters.archive_prefix>>:$CIRCLE_WORKFLOW_ID.tar.gz" \
+              "/tmp/gar-workspace/images/kubernetes-monitor:$CIRCLE_WORKFLOW_ID.tar.gz"
+
 jobs:
   security-scans:
     docker:
@@ -60,6 +105,9 @@ jobs:
       - run:
           command: docker push ${IMAGE_NAME_CANDIDATE}
           name: Push image
+      - save_image_for_gar:
+          image_to_save: ${IMAGE_NAME_CANDIDATE}
+          archive_prefix: kubernetes-monitor-alpine
     working_directory: ~/kubernetes-monitor
   build_image_ubi9:
     machine:
@@ -89,6 +137,9 @@ jobs:
       - run:
           command: docker push ${IMAGE_NAME_CANDIDATE_UBI9}
           name: Push image
+      - save_image_for_gar:
+          image_to_save: ${IMAGE_NAME_CANDIDATE_UBI9}
+          archive_prefix: kubernetes-monitor-ubi9
     working_directory: ~/kubernetes-monitor
   code_formatter:
     docker:
@@ -248,6 +299,7 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.6
   azure-cli: circleci/azure-cli@1.2.0
   prodsec: snyk/prodsec-orb@1
+  publish-orb: snyk/publish@1
 
 staging_branch_only_filter:
   filters:
@@ -273,6 +325,7 @@ workflows:
             - snyk-bot-slack
             - team-container-integration-docker-hub
             - prodsec-orb-runtime
+            - github-release
           requires:
             - Security Scans
           filters:
@@ -337,6 +390,7 @@ workflows:
             - snyk-bot-slack
             - engines_sca-scanners
             - team-container-integration-docker-hub
+            - github-release
           filters:
             branches:
               only:
@@ -346,18 +400,67 @@ workflows:
             - build_image_ubi9
             - unit_tests
             - system_tests
+      - publish-orb/publish:
+          name: Publish alpine image to GAR
+          context:
+            - snyk-docker-build
+            - infra-publish-orb
+            - engines_sca-scanners
+            - prodsec-orb-runtime
+          requires:
+            - build_image_alpine
+            - tag_and_push
+          image_mount_path: /tmp/gar-workspace
+          image_name: kubernetes-monitor
+          image_tags: ${LATEST_TAG}
+          publish_helm_chart: false
+          snyk_project: alpine
+          snyk_target_file: Dockerfile
+          pre-steps:
+            - stage_image_for_gar:
+                archive_prefix: kubernetes-monitor-alpine
+          filters:
+            branches:
+              only:
+                - staging
+      - publish-orb/publish:
+          name: Publish ubi9 image to GAR
+          context:
+            - snyk-docker-build
+            - infra-publish-orb
+            - engines_sca-scanners
+            - prodsec-orb-runtime
+          requires:
+            - build_image_ubi9
+            - tag_and_push
+          image_mount_path: /tmp/gar-workspace
+          image_name: kubernetes-monitor
+          image_tags: ${LATEST_TAG}-ubi9
+          publish_helm_chart: false
+          snyk_project: ubi9
+          snyk_target_file: Dockerfile.ubi9
+          pre-steps:
+            - stage_image_for_gar:
+                archive_prefix: kubernetes-monitor-ubi9
+          filters:
+            branches:
+              only:
+                - staging
       - prepare_to_deploy:
           context:
             - kubernetes-monitor
             - snyk-bot-slack
             - engines_sca-scanners
             - team-container-integration-circleci
+            - github-release
           filters:
             branches:
               only:
                 - staging
           requires:
             - tag_and_push
+            - Publish alpine image to GAR
+            - Publish ubi9 image to GAR
   PR_TO_STAGING:
     jobs:
       - prodsec/secrets-scan:
