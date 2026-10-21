@@ -9,8 +9,23 @@ LATEST_TAG=${LATEST_TAG_WITH_V:1}
 git config --global user.email "k-m@example.com"
 git config --global user.name "K-M Deploy Bot"
 
+# Git drops a token embedded in the clone URL when it rewrites the remote, then prompts for a
+# username. Send the same token in a header instead. GH_TOKEN wins when both are set.
+AUTH_TOKEN=${GH_TOKEN:-$GITHUB_TOKEN}
+if [ -z "${AUTH_TOKEN}" ]; then
+  echo "No token found in GH_TOKEN or GITHUB_TOKEN." >&2
+  exit 1
+fi
+git config --global http.https://github.com/.extraheader \
+  "Authorization: Basic $(printf 'x-access-token:%s' "${AUTH_TOKEN}" | base64 -w0)"
+
 # Clone repo
-git clone https://${GH_TOKEN:-$GITHUB_TOKEN}@github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
+git clone https://github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
+
+if ! git -C $KUBERNETES_MONITOR_DEPLOYER_REPO push --dry-run origin HEAD:main; then
+  echo "The token cannot push to the deployer repo. It needs Contents read and write on that repo." >&2
+  exit 1
+fi
 
 # Copy contents from snyk-monitor/ folder into deployer helm/ folder in github
 cp -r snyk-monitor/* $KUBERNETES_MONITOR_DEPLOYER_REPO/helm 
