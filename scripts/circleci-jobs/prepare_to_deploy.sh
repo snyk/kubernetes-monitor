@@ -28,6 +28,7 @@ policyOrgs:
 image:
   repository: us-docker.pkg.dev/polaris-gcp-gar/polaris/kubernetes-monitor
   tag: $LATEST_TAG
+  releaseTag: $LATEST_TAG
 
 metadata:
   annotations:
