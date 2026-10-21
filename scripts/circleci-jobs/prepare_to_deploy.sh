@@ -10,14 +10,15 @@ git config --global user.email "k-m@example.com"
 git config --global user.name "K-M Deploy Bot"
 
 # Git drops a token embedded in the clone URL when it rewrites the remote, then prompts for a
-# username. Send the same token as a Bearer header, which is what GitHub documents for token
-# auth. GH_TOKEN wins when both are set.
+# username. GitHub's git HTTPS endpoint rejects Authorization: Bearer and accepts Basic with
+# username x-access-token. GH_TOKEN wins when both are set.
 AUTH_TOKEN=${GH_TOKEN:-$GITHUB_TOKEN}
 if [ -z "${AUTH_TOKEN}" ]; then
   echo "No token found in GH_TOKEN or GITHUB_TOKEN." >&2
   exit 1
 fi
-git config --global http.https://github.com/.extraheader "Authorization: Bearer ${AUTH_TOKEN}"
+git config --global http.https://github.com/.extraheader \
+  "Authorization: Basic $(printf 'x-access-token:%s' "${AUTH_TOKEN}" | base64 -w0)"
 
 # CircleCI can rewrite https://github.com to the checkout SSH key. The config key and
 # file vary, so unsetting one entry is not enough. Git picks the longest insteadOf
