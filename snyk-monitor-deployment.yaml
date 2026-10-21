@@ -122,9 +122,14 @@ spec:
         emptyDir:
           sizeLimit: 50Gi
       - name: ssl-certs
-        configMap:
-          name: snyk-monitor-certs
-          optional: true
+        projected:
+          sources:
+          - configMap:
+              name: snyk-monitor-certs
+              optional: true
+          - secret:
+              name: snyk-monitor-certs
+              optional: true
       - name: registries-conf
         configMap:
           name: snyk-monitor-registries-conf

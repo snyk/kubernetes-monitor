@@ -5,7 +5,11 @@
 # The secrets should be created externally, before applying this Helm chart.
 # The currently used keys within the secret are: "dockercfg.json", "integrationId".
 monitorSecrets: snyk-monitor
+certsSecret: snyk-monitor-certs
+
+# Deprecated, use the certsSecret instead
 certsConfigMap: snyk-monitor-certs
+
 registriesConfConfigMap: snyk-monitor-registries-conf
 
 # An external ConfigMap to use for loading policies into snyk-monitor.
