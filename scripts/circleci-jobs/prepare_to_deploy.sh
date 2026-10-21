@@ -19,12 +19,16 @@ if [ -z "${AUTH_TOKEN}" ]; then
 fi
 git config --global http.https://github.com/.extraheader "Authorization: Bearer ${AUTH_TOKEN}"
 
-# CircleCI checkout rewrites https://github.com to its SSH deploy key. That key cannot read
-# the deployer repo, so GitHub returns "Repository not found". Stay on HTTPS.
-git config --global --unset-all url."ssh://git@github.com".insteadOf || true
+# CircleCI can rewrite https://github.com to the checkout SSH key. The config key and
+# file vary, so unsetting one entry is not enough. Git picks the longest insteadOf
+# match: pin this repo's own URL back to HTTPS so the rewrite loses.
+echo "Git URL rewrites:"
+git config --show-origin --get-regexp '^url\..*\.insteadof$' || echo "(none)"
+DEPLOYER_URL="https://github.com/snyk/${KUBERNETES_MONITOR_DEPLOYER_REPO}.git"
+git config --global url."${DEPLOYER_URL}".insteadOf "${DEPLOYER_URL}"
 
 # Clone repo
-git clone https://github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
+git clone "$DEPLOYER_URL"
 
 if ! git -C $KUBERNETES_MONITOR_DEPLOYER_REPO push --dry-run origin HEAD:main; then
   echo "The token cannot push to the deployer repo. It needs Contents read and write on that repo." >&2
