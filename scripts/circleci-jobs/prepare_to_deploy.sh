@@ -19,6 +19,10 @@ fi
 git config --global http.https://github.com/.extraheader \
   "Authorization: Basic $(printf 'x-access-token:%s' "${AUTH_TOKEN}" | base64 -w0)"
 
+# CircleCI checkout rewrites https://github.com to its SSH deploy key. That key cannot read
+# the deployer repo, so GitHub returns "Repository not found". Stay on HTTPS.
+git config --global --unset-all url."ssh://git@github.com".insteadOf || true
+
 # Clone repo
 git clone https://github.com/snyk/$KUBERNETES_MONITOR_DEPLOYER_REPO.git
 
