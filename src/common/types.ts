@@ -37,6 +37,7 @@ export interface Config {
   SYSDIG_RISK_SPOTLIGHT_TOKEN?: string;
   SYSDIG_ENDPOINT_URL?: string;
   SYSDIG_CLUSTER_NAME?: string;
+  SYSDIG_SKIP_TLS_VERIFY?: boolean;
   HTTPS_PROXY: string | undefined;
   HTTP_PROXY: string | undefined;
   NO_PROXY: string | undefined;

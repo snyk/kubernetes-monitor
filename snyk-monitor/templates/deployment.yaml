@@ -202,6 +202,8 @@ spec:
           - name: SNYK_SYSDIG_POLLING_INTERVAL_MINS
             value: {{ quote .Values.sysdig.pollingIntervalMins }}
           {{- if .Values.sysdig.enabled }}
+          - name: SNYK_SYSDIG_SKIP_TLS_VERIFY
+            value: {{ quote .Values.sysdig.skipTlsVerify }}
           - name: SNYK_SYSDIG_RISK_SPOTLIGHT_TOKEN
             valueFrom:
               secretKeyRef:

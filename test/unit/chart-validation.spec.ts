@@ -75,6 +75,27 @@ describe('helm chart parameter validation', () => {
     });
   });
 
+  describe('sysdig TLS verification', () => {
+    const renderSkipTlsVerify = async (setValues: string) => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor --set sysdig.enabled=true ${setValues}`,
+      );
+      return /name: SNYK_SYSDIG_SKIP_TLS_VERIFY\n\s*value: (.+)$/m.exec(
+        stdout,
+      )?.[1];
+    };
+
+    it('should verify TLS certificates by default', async () => {
+      expect(await renderSkipTlsVerify('')).toEqual('"false"');
+    });
+
+    it('should skip TLS verification when sysdig.skipTlsVerify is set', async () => {
+      expect(
+        await renderSkipTlsVerify('--set sysdig.skipTlsVerify=true'),
+      ).toEqual('"true"');
+    });
+  });
+
   it('should reject invalid cluster name', async () => {
     try {
       await exec(
