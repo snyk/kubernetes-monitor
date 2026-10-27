@@ -4,9 +4,14 @@ import { globalAgent as HttpsAgent } from 'https';
 
 import { logger } from '../common/logger';
 
+export interface IProxyTlsOptions {
+  rejectUnauthorized?: boolean;
+}
+
 export function getProxyAgent(
   config: Record<string, any>,
   endpoint: string,
+  tlsOptions: IProxyTlsOptions = {},
 ): Agent {
   const url = new URL(endpoint);
 
@@ -46,6 +51,7 @@ export function getProxyAgent(
           host: httpsProxyUrl.hostname,
           port: getPort(httpsProxyUrl),
         },
+        ...tlsOptions,
       });
 
     default:

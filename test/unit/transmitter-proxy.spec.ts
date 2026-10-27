@@ -332,3 +332,17 @@ describe('transmitter proxy tests', () => {
     });
   });
 });
+
+describe('getProxyAgent() TLS options', () => {
+  it('passes rejectUnauthorized to the HTTPS tunnelling agent', () => {
+    const agent: any = getProxyAgent(
+      { HTTPS_PROXY: 'http://proxy:8080' },
+      'https://example.endpoint',
+      { rejectUnauthorized: false },
+    );
+    expect(agent.options).toEqual({
+      proxy: { host: 'proxy', port: 8080 },
+      rejectUnauthorized: false,
+    });
+  });
+});
