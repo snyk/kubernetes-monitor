@@ -1,5 +1,5 @@
 import { globalAgent as HttpAgent } from 'http';
-import { globalAgent as HttpsAgent } from 'https';
+import { Agent, globalAgent as HttpsAgent } from 'https';
 
 import { getProxyAgent } from '../../src/transmitter/proxy';
 
@@ -330,5 +330,39 @@ describe('transmitter proxy tests', () => {
         port: port,
       },
     });
+  });
+});
+
+describe('getProxyAgent() with a caller agent', () => {
+  const callerAgent = new Agent({ rejectUnauthorized: false });
+
+  it('passes rejectUnauthorized to the HTTPS tunnelling agent', () => {
+    const agent: any = getProxyAgent(
+      { HTTPS_PROXY: 'http://proxy:8080' },
+      'https://example.endpoint',
+      callerAgent,
+    );
+    expect(agent.options).toEqual({
+      proxy: { host: 'proxy', port: 8080 },
+      rejectUnauthorized: false,
+    });
+  });
+
+  it('returns the caller agent when the endpoint is in NO_PROXY', () => {
+    const agent = getProxyAgent(
+      { HTTPS_PROXY: 'http://proxy:8080', NO_PROXY: 'example.endpoint' },
+      'https://example.endpoint',
+      callerAgent,
+    );
+    expect(agent).toBe(callerAgent);
+  });
+
+  it('returns the caller agent when HTTPS_PROXY is not set', () => {
+    const agent = getProxyAgent(
+      { HTTP_PROXY: 'http://proxy:8080' },
+      'https://example.endpoint',
+      callerAgent,
+    );
+    expect(agent).toBe(callerAgent);
   });
 });
