@@ -67,9 +67,13 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
+      # Snyk Code is disabled temporarily, agreed with ProdSec: a new Snyk Code rule flags the
+      # Sysdig client's rejectUnauthorized: false, and Code ignores cannot be approved in this
+      # org yet. Re-enable once snyk/kubernetes-monitor#1770 lands.
       - prodsec/security_scans:
           mode: auto
           release-branch: master
+          code-scan: disabled
           open-source-additional-arguments: --exclude=test
   # The alpine and ubi9 images share no build stages, so they build, scan and push
   # as two independent jobs. Both run on a machine executor rather than a docker

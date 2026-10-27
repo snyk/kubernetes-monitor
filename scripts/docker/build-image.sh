@@ -11,7 +11,7 @@ LOCAL_DISCARDABLE_IMAGE=snyk/kubernetes-monitor:local
 # should happen on merging to `staging`
 NAME_AND_TAG=${1:-$LOCAL_DISCARDABLE_IMAGE}
 
-docker build \
+docker build --pull \
   --secret id=gh_token,env=GITHUB_PRIVATE_TOKEN \
   --secret id=npm_token,env=NPM_TOKEN \
   -t ${NAME_AND_TAG} .
