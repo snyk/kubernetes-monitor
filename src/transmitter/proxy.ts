@@ -1,17 +1,22 @@
 import { httpOverHttp, httpsOverHttp } from 'tunnel';
 import { Agent, globalAgent as HttpAgent } from 'http';
-import { globalAgent as HttpsAgent } from 'https';
+import { Agent as HttpsAgentClass, globalAgent as HttpsAgent } from 'https';
 
 import { logger } from '../common/logger';
 
-export interface IProxyTlsOptions {
+function getTlsOptions(agent: Agent | undefined): {
   rejectUnauthorized?: boolean;
+} {
+  if (agent instanceof HttpsAgentClass) {
+    return { rejectUnauthorized: agent.options.rejectUnauthorized };
+  }
+  return {};
 }
 
 export function getProxyAgent(
   config: Record<string, any>,
   endpoint: string,
-  tlsOptions: IProxyTlsOptions = {},
+  callerAgent?: Agent,
 ): Agent {
   const url = new URL(endpoint);
 
@@ -20,7 +25,9 @@ export function getProxyAgent(
     const hosts = config.NO_PROXY.split(',').map((host) => host.toLowerCase());
 
     if (hosts.includes(url.hostname.toLowerCase())) {
-      return url.protocol === 'https:' ? HttpsAgent : HttpAgent;
+      return (
+        callerAgent ?? (url.protocol === 'https:' ? HttpsAgent : HttpAgent)
+      );
     }
 
     // CIDR ranges are not supported, e.g. NO_PROXY=192.168.0.0/16.
@@ -31,7 +38,7 @@ export function getProxyAgent(
   switch (url.protocol) {
     case 'http:':
       if (!config.HTTP_PROXY) {
-        return HttpAgent;
+        return callerAgent ?? HttpAgent;
       }
       const httpProxyUrl = new URL(config.HTTP_PROXY);
       return httpOverHttp({
@@ -43,7 +50,7 @@ export function getProxyAgent(
 
     case 'https:':
       if (!config.HTTPS_PROXY) {
-        return HttpsAgent;
+        return callerAgent ?? HttpsAgent;
       }
       const httpsProxyUrl = new URL(config.HTTPS_PROXY);
       return httpsOverHttp({
@@ -51,7 +58,7 @@ export function getProxyAgent(
           host: httpsProxyUrl.hostname,
           port: getPort(httpsProxyUrl),
         },
-        ...tlsOptions,
+        ...getTlsOptions(callerAgent),
       });
 
     default:

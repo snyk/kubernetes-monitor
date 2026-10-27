@@ -18,7 +18,7 @@ import {
   IClusterMetadataPayload,
   IRuntimeDataPayload,
 } from './types';
-import { getProxyAgent, IProxyTlsOptions } from './proxy';
+import { getProxyAgent } from './proxy';
 
 import type { queueAsPromised } from 'fastq';
 import path from 'path';
@@ -279,13 +279,6 @@ function isSuccessStatusCode(statusCode: number | undefined): boolean {
   return statusCode !== undefined && statusCode > 100 && statusCode < 400;
 }
 
-function getTlsOptionsOfAgent(agent: NeedleOptions['agent']): IProxyTlsOptions {
-  if (agent instanceof HttpsAgent) {
-    return { rejectUnauthorized: agent.options.rejectUnauthorized };
-  }
-  return {};
-}
-
 export async function retryRequest(
   verb: NeedleHttpVerbs,
   url: string,
@@ -305,11 +298,9 @@ export async function retryRequest(
   };
 
   if (config.HTTP_PROXY || config.HTTPS_PROXY) {
-    options.agent = getProxyAgent(
-      config,
-      url,
-      getTlsOptionsOfAgent(reqOptions.agent),
-    );
+    const callerAgent =
+      reqOptions.agent instanceof HttpAgent ? reqOptions.agent : undefined;
+    options.agent = getProxyAgent(config, url, callerAgent);
   }
 
   let response: NeedleResponse | undefined;
