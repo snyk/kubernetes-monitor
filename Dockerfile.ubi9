@@ -5,11 +5,11 @@ ARG UBI9_VERSION=9.8
 #---------------------------------------------------------------------
 FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:${UBI9_VERSION} as cred-helpers-build
 
-RUN GOTOOLCHAIN=go1.25.12 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
+RUN GOTOOLCHAIN=go1.25.14 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
     git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
     go env -w GOPRIVATE=github.com/snyk && \
-    GOTOOLCHAIN=go1.25.12 go install github.com/snyk/docker-credential-acr-env@62fbee8398a22171cb0f628400a29b2ebaed7a3a && \
+    GOTOOLCHAIN=go1.25.14 go install github.com/snyk/docker-credential-acr-env@62fbee8398a22171cb0f628400a29b2ebaed7a3a && \
     git config --global --unset url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf
 
 #---------------------------------------------------------------------
@@ -63,8 +63,8 @@ ARG NODE_LATEST_VERSION_TAR_GZ_FILE_SHASUM256
 ARG DUMB_INIT_VERSION=1.2.5
 ARG DUMB_INIT_BINARY_FILE_SHASUM256=e874b55f3279ca41415d290c512a7ba9d08f98041b28ae7c2acb19a545f1c4df
 # https://github.com/lework/skopeo-binary/releases
-ARG SKOPEO_VERSION=1.23.0
-ARG SKOPEO_BINARY_FILE_SHASUM256=15696e068c02a163e20013fab79f40cdc6c8022d99e1aee8676f6d540404691a
+ARG SKOPEO_VERSION=1.24.1
+ARG SKOPEO_BINARY_FILE_SHASUM256=067d461564e606b4f54f30453a9f21a53aabc4f1bb0acd5193ffff5b1aececbc
 
 LABEL name="Snyk Controller" \
     maintainer="support@snyk.io" \
@@ -77,6 +77,15 @@ COPY LICENSE /licenses/LICENSE
 ENV NODE_ENV=production
 
 RUN dnf upgrade -y && dnf clean all
+
+# Distrust the emSign roots removed after the eMudhra CA compromise. ubi9's ca-certificates
+# (2026.2.92_v9.0.319-90.3) still ships emSign ECC Root CA - C3, so blocklist all three for
+# curl, skopeo, gcloud and python. Roots the package already dropped extract to empty files.
+RUN for ROOT in "emSign ECC Root CA - G3" "emSign Root CA - C1" "emSign ECC Root CA - C3"; do \
+      trust extract --overwrite --format=pem-bundle --filter="pkcs11:object=${ROOT// /%20};type=cert" \
+        "/etc/pki/ca-trust/source/blocklist/${ROOT// /-}.pem"; \
+    done && \
+    update-ca-trust extract
 
 WORKDIR /srv/app
 
