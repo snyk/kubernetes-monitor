@@ -78,6 +78,15 @@ ENV NODE_ENV=production
 
 RUN dnf upgrade -y && dnf clean all
 
+# Distrust the emSign roots removed after the eMudhra CA compromise. ubi9's ca-certificates
+# (2026.2.92_v9.0.319-90.3) still ships emSign ECC Root CA - C3, so blocklist all three for
+# curl, skopeo, gcloud and python. Roots the package already dropped extract to empty files.
+RUN for ROOT in "emSign ECC Root CA - G3" "emSign Root CA - C1" "emSign ECC Root CA - C3"; do \
+      trust extract --overwrite --format=pem-bundle --filter="pkcs11:object=${ROOT// /%20};type=cert" \
+        "/etc/pki/ca-trust/source/blocklist/${ROOT// /-}.pem"; \
+    done && \
+    update-ca-trust extract
+
 WORKDIR /srv/app
 
 RUN groupadd -g 10001 snyk
