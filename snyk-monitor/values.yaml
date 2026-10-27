@@ -32,6 +32,8 @@ integrationApi: ""
 image:
   repository: snyk/kubernetes-monitor
   tag: IMAGE_TAG_OVERRIDE_WHEN_PUBLISHING
+  # Optional. Takes precedence over the tag above when set, for deployment tools that overwrite it.
+  releaseTag: ""
   pullPolicy: Always
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
