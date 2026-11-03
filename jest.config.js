@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: './jest-environment-fail-fast.ts',
   testRunner: 'jest-circus/runner',
   testMatch: ["<rootDir>/test/**/*.spec.ts"],
-  testTimeout: 900000, // 15 minutes. Must match UPSTREAM_POLLING_CONFIGURATION in test/helpers/kubernetes-upstream.ts
+  testTimeout: 900000, // 15 minutes
   bail: true,
   clearMocks: true,
   errorOnDeprecated: true,
