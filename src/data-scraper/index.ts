@@ -5,13 +5,9 @@ import { constructRuntimeData } from '../transmitter/payload';
 import { retryRequest } from '../transmitter';
 import { IRuntimeImagesResponse } from '../transmitter/types';
 import { NeedleOptions } from 'needle';
-import { Agent as HttpsAgent } from 'https';
+import { createSysdigHttpsAgent } from './https-agent';
 
-const httpsAgent = new HttpsAgent({
-  keepAlive: true,
-  // We agreed with Sysdig to skip TLS certificates validation for HTTPS connection.
-  rejectUnauthorized: false,
-});
+const httpsAgent = createSysdigHttpsAgent();
 
 function getSysdigUrl(): string {
   return (

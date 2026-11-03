@@ -182,6 +182,9 @@ sysdig:
   secretName: sysdig-eve-secret
   # The minumum pollingIntervalMins is 30
   pollingIntervalMins: 30
+  # TLS certificates of the Sysdig endpoint are verified against the system CAs
+  # and extraCaCerts. Set to true only for endpoints with untrusted certificates.
+  skipTlsVerify: false
 
 strategy:
   type: RollingUpdate

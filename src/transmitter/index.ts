@@ -298,7 +298,9 @@ export async function retryRequest(
   };
 
   if (config.HTTP_PROXY || config.HTTPS_PROXY) {
-    options.agent = getProxyAgent(config, url);
+    const callerAgent =
+      reqOptions.agent instanceof HttpAgent ? reqOptions.agent : undefined;
+    options.agent = getProxyAgent(config, url, callerAgent);
   }
 
   let response: NeedleResponse | undefined;
