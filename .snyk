@@ -11,7 +11,7 @@ ignore:
           to open a crafted directory tree in interactive vim; vim is not on
           any kubernetes-monitor code path. Re-evaluate on next UBI9 base
           rebuild. See https://access.redhat.com/security/cve/CVE-2026-47162
-        expires: 2026-11-03T12:00:00.000Z
+        expires: 2026-12-03T12:00:00.000Z
         created: 2026-08-03T12:00:00.000Z
   SNYK-RHEL9-VIMMINIMAL-17790082:
     - '*':
@@ -23,7 +23,7 @@ ignore:
           attacker-controlled filename; vim is not on any kubernetes-monitor
           code path. Re-evaluate on next UBI9 base rebuild.
           See https://access.redhat.com/security/cve/CVE-2026-55895
-        expires: 2026-11-03T12:00:00.000Z
+        expires: 2026-12-03T12:00:00.000Z
         created: 2026-08-03T12:00:00.000Z
   SNYK-RHEL9-VIMMINIMAL-17816811:
     - '*':
@@ -35,7 +35,7 @@ ignore:
           not on any kubernetes-monitor code path. Re-evaluate on next UBI9
           base rebuild.
           See https://access.redhat.com/security/cve/CVE-2026-57456
-        expires: 2026-11-03T12:00:00.000Z
+        expires: 2026-12-03T12:00:00.000Z
         created: 2026-08-03T12:00:00.000Z
   SNYK-JS-BRACES-19963945:
     - '*':
