@@ -48,7 +48,7 @@ Every item is a blocking gate — a PR that violates any of these must not merge
 | `src/transmitter/` | Outbound HTTP to Snyk upstream — payloads, proxy, retry |
 | `src/data-scraper/` | Sysdig runtime data scraping |
 | `snyk-monitor/` | Helm chart (Chart.yaml, values.yaml, templates) for deployment |
-| `test/` | Unit, system, and integration suites plus fixtures/helpers |
+| `test/` | Unit and system suites plus fixtures/helpers |
 
 ### Danger zone
 
@@ -91,7 +91,6 @@ When you touch a file that has existing violations:
 |---------|--------------|
 | `npm run test:unit` | Unit tests (Jest; may require `KUBECONFIG` set to a valid kubeconfig) |
 | `npm run test:system` | System tests — spins up a local KinD cluster; requires Skopeo |
-| `npm run test:integration:kind:helm` | Integration tests against a KinD cluster via the Helm chart |
 
 System tests need Skopeo (auto-installed on Linux, manual on macOS) and a Kubernetes cluster; they must not mock the Kubernetes API.
 
@@ -120,15 +119,28 @@ scope and may introduce incorrect assumptions about existing behavior. Do write 
 ## Local development
 
 - Requires Node 22 and npm; install with `npm install`.
-- Debug in-cluster with Tilt: `tilt up` deploys via the published Helm chart, `tilt down` tears it down. If Tilt fails with `EROFS: read-only file system`, remove `readOnlyRootFilesystem: true` from `snyk-monitor/templates/deployment.yaml` (debugging only — do not commit).
+- Debug in-cluster with Tilt: `tilt up` builds the image locally and deploys it with the local `snyk-monitor/` chart (KinD or minikube contexts only), `tilt down` tears it down. If Tilt fails with `EROFS: read-only file system`, remove `readOnlyRootFilesystem: true` from `snyk-monitor/templates/deployment.yaml` (debugging only — do not commit).
 
 ## Commits and PRs
 
 **Commit format:** Conventional Commits, enforced by commitlint. Type required, subject line ≤ 100 chars, body needs a leading blank line.
-Allowed types: feat, fix, docs, chore, refactor, test, revert.
+Allowed types: feat, fix, docs, chore, refactor, test, revert. The PR-title check also accepts `style`, `perf`, `ci` and `build`, but commitlint rejects them, so stick to the commitlint list.
 Example: `fix(deps): update snyk-docker-plugin to 9.20.1`
-Branch naming (inferred): conventional prefix with slash (`fix/...`, `chore/...`) or Jira-ticket-prefixed (`CN-1563-...`). Default branch is `staging`.
+Branch naming (inferred): conventional prefix with slash (`fix/...`, `chore/...`) or Jira-ticket-prefixed (`CN-1563-...`). Default branch is `staging`; open PRs against it.
 **PR description sections:** What this does, Notes for the reviewer, Screenshots. PR titles are validated by a semantic-PR-title CI check.
+
+## Branches and releases
+
+Two long-lived branches, plus `gh-pages` for the Helm repository. Pipelines live in `.circleci/config.yml`.
+
+| Branch | What a merge does |
+|--------|-------------------|
+| `staging` | Builds and gates both images, runs unit and system tests, then `semantic-release` tags `vX.Y.Z` and creates the GitHub release. Images are retagged `X.Y.Z-approved` / `X.Y.Z-ubi9-approved`, pushed to GAR, and `prepare_to_deploy` commits the new version to the internal deployer repo. |
+| `master` | Promotion only: `publish` retags the approved images as `X.Y.Z` / `X.Y.Z-ubi9` on Docker Hub and runs `scripts/publish-gh-pages.sh`, which packages the chart onto `gh-pages` (what Artifact Hub indexes). `deploy_to_prod` then approves the deployer's pending prod job. |
+
+- Every `feat`/`fix` merge to `staging` cuts a version, but customers only get the version that is on `staging` when it is next merged into `master`, so published chart versions skip numbers.
+- `chore`, `docs`, `test` and `refactor` commits do not cut a release; merging only those to `staging` publishes nothing.
+- Promotion is a PR from `staging` into `master`. Never commit to `master` directly.
 
 ## Before you finish
 

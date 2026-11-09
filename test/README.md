@@ -14,10 +14,9 @@ All our tests prefer a blackbox approach whenever possible.
 Different tests have different requirements in terms of software and environment variables. Requirements specific to one test suite will be described in each section, but the requirements shared by all of them are:
 
 1. npm
-2. Node (v10 or higher)
+2. Node 22 (see `.nvmrc`)
 
-In order to run the Kubernetes-Monitor's tests, please run
-`npm test`.
+Run each suite with the command given in its section below.
 
 ## Unit Tests
 
@@ -30,7 +29,7 @@ Run with `npm run test:unit`.
 ## System Tests
 
 System tests are supposed to test the Kubernetes-Monitor as a stand-alone component with as little external dependencies as possible. They are also supposed to completely cover the core functionality, so mocking or ignoring the Kubernetes API is out of the question.
-The resulting infrastructure is comprised of a local KinD cluster (like our integration tests) but does not install the Kubernetes-Monitor inside it. Rather, it runs the Kubernetes-Monitor's code as part of the test, and configures it against the KinD cluster.
+The resulting infrastructure is comprised of a local KinD cluster but does not install the Kubernetes-Monitor inside it. Rather, it runs the Kubernetes-Monitor's code as part of the test, and configures it against the KinD cluster.
 This means we're not running in the real runtime environment we expect to run (a Kubernetes cluster), but it's much easier to test the Monitor's outgoing requests or even internal state if we choose to, instead of relying on the Upstream service's state and API.
 
 This test requires Skopeo for MacOS machines, but will install it for Linux machines that don't have it.
