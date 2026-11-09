@@ -8,7 +8,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 LOCAL_DISCARDABLE_IMAGE=snyk/kubernetes-monitor:local
 
 # allow overriding name and tag, when we intend to push the image
-# should happen on merging to `staging`
+# should happen on merging to `main`
 NAME_AND_TAG=${1:-$LOCAL_DISCARDABLE_IMAGE}
 
 docker build --pull \

@@ -28,7 +28,7 @@
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect-brk .'",
     "lint": "npm run lint:commit && npm run lint:eslint && npm run lint:circular",
     "lint:eslint": "eslint \"src/**/*.ts\" && (cd test && eslint \"**/*.ts\")",
-    "lint:commit": "commitlint --from=$(git rev-parse origin/staging)",
+    "lint:commit": "commitlint --from=$(git rev-parse origin/main)",
     "lint:circular": "fadge detect-cycles --allow-ignores=true \"./{src,test}/**/*.ts\"",
     "format": "prettier --write '{src,test}/**/*.{js,ts,json,yml}'",
     "format:check": "prettier --check '{src,test}/**/*.{js,ts,json,yml}'"
@@ -79,7 +79,7 @@
     "tsc-watch": "^4.6.2"
   },
   "release": {
-    "branches": "staging",
+    "branches": "main",
     "verifyConditions": [
       "@semantic-release/github"
     ],

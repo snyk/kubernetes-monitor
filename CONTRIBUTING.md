@@ -4,7 +4,7 @@ Thanks for your interest in contributing to the Snyk Kubernetes monitor. This pr
 
 In order to run the tests for the Snyk Kubernetes monitor you will need a suitable development environment installed.
 
-Requirements and additional information on how to run the tests can be found in [the tests' readme](https://github.com/snyk/kubernetes-monitor/tree/staging/test).
+Requirements and additional information on how to run the tests can be found in [the tests' readme](https://github.com/snyk/kubernetes-monitor/tree/main/test).
 
 # How to submit changes
 

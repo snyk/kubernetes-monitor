@@ -17,7 +17,7 @@ commands:
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
 
   save_image_for_gar:
-    description: Save the freshly built image to the workspace for the publish orb, on staging only.
+    description: Save the freshly built image to the workspace for the publish orb, on main only.
     parameters:
       image_to_save:
         type: string
@@ -26,7 +26,7 @@ commands:
     steps:
       - when:
           condition:
-            equal: [staging, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             - run:
                 name: Tag image for the publish orb
@@ -35,23 +35,28 @@ commands:
                 image_name: kubernetes-monitor
                 save_filename_prefix: <<parameters.archive_prefix>>
 
-  stage_image_for_gar:
-    description: Stage a saved image archive under the name the publish orb loads, and export LATEST_TAG. Halts the job when staging produced no release.
-    parameters:
-      archive_prefix:
-        type: string
+  require_release_tag:
+    description: Export LATEST_TAG for the release semantic-release cut at this commit. Halts the job when this commit cut no release.
     steps:
-      - checkout
       - run:
           name: Export release tag
           command: |
             LATEST_TAG_WITH_V=`git tag --points-at ${CIRCLE_SHA1} | grep '^v' | head -n 1 || true`
             if [ -z "${LATEST_TAG_WITH_V}" ]; then
-              echo "No release was cut for ${CIRCLE_SHA1}, nothing to publish to GAR"
+              echo "No release was cut for ${CIRCLE_SHA1}, nothing to do"
               circleci-agent step halt
               exit 0
             fi
             echo "export LATEST_TAG=${LATEST_TAG_WITH_V:1}" >> $BASH_ENV
+
+  stage_image_for_gar:
+    description: Stage a saved image archive under the name the publish orb loads, and export LATEST_TAG. Halts the job when this commit cut no release.
+    parameters:
+      archive_prefix:
+        type: string
+    steps:
+      - checkout
+      - require_release_tag
       - attach_workspace:
           at: /tmp/source-workspace
       - run:
@@ -72,7 +77,7 @@ jobs:
       # org yet. Re-enable once snyk/kubernetes-monitor#1770 lands.
       - prodsec/security_scans:
           mode: auto
-          release-branch: master
+          release-branch: main
           code-scan: disabled
           open-source-additional-arguments: --exclude=test
   # The alpine and ubi9 images share no build stages, so they build, scan and push
@@ -92,7 +97,7 @@ jobs:
       - checkout
       - run:
           command: |
-            IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "main" ]] && echo "staging-candidate" || echo "discardable")
             IMAGE_NAME_CANDIDATE=snyk/kubernetes-monitor:${IMAGE_TAG}-${CIRCLE_SHA1}
             echo "export IMAGE_NAME_CANDIDATE=$IMAGE_NAME_CANDIDATE" >> $BASH_ENV
           name: Export environment variables
@@ -124,7 +129,7 @@ jobs:
       - checkout
       - run:
           command: |
-            IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "staging" ]] && echo "staging-candidate" || echo "discardable")
+            IMAGE_TAG=$([[ "$CIRCLE_BRANCH" == "main" ]] && echo "staging-candidate" || echo "discardable")
             IMAGE_NAME_CANDIDATE_UBI9=snyk/kubernetes-monitor:${IMAGE_TAG}-ubi9-${CIRCLE_SHA1:0:8}
             echo "export IMAGE_NAME_CANDIDATE_UBI9=$IMAGE_NAME_CANDIDATE_UBI9" >> $BASH_ENV
           name: Export environment variables
@@ -172,6 +177,7 @@ jobs:
       - image: cimg/base:current
     steps:
       - checkout
+      - require_release_tag
       - run:
           command: ./scripts/circleci-jobs/deploy_to_prod.sh
           name: Deploy to prod
@@ -196,15 +202,22 @@ jobs:
       - checkout
       - setup_remote_docker
       - install_helm
+      - require_release_tag
+      - run:
+          name: Skip releases older than the published chart
+          command: |
+            PUBLISHED_TAG=$(./scripts/circleci-jobs/published-chart-version.sh)
+            NEWEST_TAG=$(printf '%s\n%s\n' "${PUBLISHED_TAG}" "${LATEST_TAG}" | sort -V | tail -n 1)
+            if [ "${NEWEST_TAG}" != "${LATEST_TAG}" ]; then
+              echo "${LATEST_TAG} is older than the published ${PUBLISHED_TAG}, not publishing it"
+              circleci-agent step halt
+            fi
       - run:
           command: |
-            LATEST_TAG_WITH_V=`git describe --abbrev=0 --tags ${CIRCLE_SHA1}`
-            LATEST_TAG=${LATEST_TAG_WITH_V:1}
             IMAGE_NAME_APPROVED=snyk/kubernetes-monitor:${LATEST_TAG}-approved
             IMAGE_NAME_PUBLISHED=snyk/kubernetes-monitor:${LATEST_TAG}
             IMAGE_NAME_APPROVED_UBI9=snyk/kubernetes-monitor:${LATEST_TAG}-ubi9-approved
             IMAGE_NAME_PUBLISHED_UBI9=snyk/kubernetes-monitor:${LATEST_TAG}-ubi9
-            echo "export LATEST_TAG=${LATEST_TAG}" >> $BASH_ENV
             echo "export IMAGE_NAME_APPROVED=${IMAGE_NAME_APPROVED}" >> $BASH_ENV
             echo "export IMAGE_NAME_PUBLISHED=${IMAGE_NAME_PUBLISHED}" >> $BASH_ENV
             echo "export IMAGE_NAME_APPROVED_UBI9=${IMAGE_NAME_APPROVED_UBI9}" >> $BASH_ENV
@@ -288,68 +301,15 @@ jobs:
             npm run test:unit
           name: Unit tests
     working_directory: ~/kubernetes-monitor
-main_branches_filter:
-  filters:
-    branches:
-      ignore:
-        - staging
-        - master
-master_branch_only_filter:
-  filters:
-    branches:
-      only:
-        - master
 orbs:
   aws-cli: circleci/aws-cli@2.0.6
   azure-cli: circleci/azure-cli@1.2.0
   prodsec: snyk/prodsec-orb@1
   publish-orb: snyk/publish@1
 
-staging_branch_only_filter:
-  filters:
-    branches:
-      only:
-        - staging
 version: 2.1
 workflows:
-  MERGE_TO_MASTER:
-    jobs:
-      - security-scans:
-          name: Security Scans
-          context:
-            - engines_sca-scanners
-            - prodsec-orb-runtime
-          filters:
-            branches:
-              only:
-                - master
-      - publish:
-          context:
-            - engines_sca-scanners
-            - snyk-bot-slack
-            - team-container-integration-docker-hub
-            - prodsec-orb-runtime
-            - github-release
-          requires:
-            - Security Scans
-          filters:
-            branches:
-              only:
-                - master
-      - deploy_to_prod:
-          context:
-            - kubernetes-monitor
-            - snyk-bot-slack
-            - engines_sca-scanners
-            - team-container-integration-circleci
-            - prodsec-orb-runtime
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - publish
-  MERGE_TO_STAGING:
+  MERGE_TO_MAIN:
     jobs:
       - build_image_alpine:
           context:
@@ -361,7 +321,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
       - build_image_ubi9:
           context:
             - engines_sca-scanners
@@ -372,7 +332,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
       - unit_tests:
           context:
             - engines_sca-scanners
@@ -380,7 +340,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
       - system_tests:
           context:
             - engines_sca-scanners
@@ -388,7 +348,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
       - tag_and_push:
           context:
             - snyk-bot-slack
@@ -398,7 +358,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
           requires:
             - build_image_alpine
             - build_image_ubi9
@@ -426,7 +386,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
       - publish-orb/publish:
           name: Publish ubi9 image to GAR
           context:
@@ -449,7 +409,7 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
       - prepare_to_deploy:
           context:
             - kubernetes-monitor
@@ -460,12 +420,56 @@ workflows:
           filters:
             branches:
               only:
-                - staging
+                - main
           requires:
             - tag_and_push
             - Publish alpine image to GAR
             - Publish ubi9 image to GAR
-  PR_TO_STAGING:
+      - security-scans:
+          name: Security Scans
+          context:
+            - engines_sca-scanners
+            - prodsec-orb-runtime
+          filters:
+            branches:
+              only:
+                - main
+      - approve_release:
+          type: approval
+          requires:
+            - prepare_to_deploy
+          filters:
+            branches:
+              only:
+                - main
+      - publish:
+          context:
+            - engines_sca-scanners
+            - snyk-bot-slack
+            - team-container-integration-docker-hub
+            - prodsec-orb-runtime
+            - github-release
+          requires:
+            - Security Scans
+            - approve_release
+          filters:
+            branches:
+              only:
+                - main
+      - deploy_to_prod:
+          context:
+            - kubernetes-monitor
+            - snyk-bot-slack
+            - engines_sca-scanners
+            - team-container-integration-circleci
+            - prodsec-orb-runtime
+          requires:
+            - publish
+          filters:
+            branches:
+              only:
+                - main
+  PULL_REQUEST:
     jobs:
       - prodsec/secrets-scan:
           name: Scan repository for secrets
@@ -477,8 +481,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - security-scans:
           name: Security Scans
           context:
@@ -488,8 +491,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - build_image_alpine:
           context:
             - engines_sca-scanners
@@ -503,8 +505,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - build_image_ubi9:
           context:
             - engines_sca-scanners
@@ -518,8 +519,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - unit_tests:
           context:
             - engines_sca-scanners
@@ -527,8 +527,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - lint:
           context:
             - engines_sca-scanners
@@ -536,8 +535,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - code_formatter:
           context:
             - engines_sca-scanners
@@ -545,8 +543,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main
       - system_tests:
           context:
             - engines_sca-scanners
@@ -554,5 +551,4 @@ workflows:
           filters:
             branches:
               ignore:
-                - staging
-                - master
+                - main

@@ -126,21 +126,24 @@ scope and may introduce incorrect assumptions about existing behavior. Do write 
 **Commit format:** Conventional Commits, enforced by commitlint. Type required, subject line ≤ 100 chars, body needs a leading blank line.
 Allowed types: feat, fix, docs, chore, refactor, test, revert. The PR-title check also accepts `style`, `perf`, `ci` and `build`, but commitlint rejects them, so stick to the commitlint list.
 Example: `fix(deps): update snyk-docker-plugin to 9.20.1`
-Branch naming (inferred): conventional prefix with slash (`fix/...`, `chore/...`) or Jira-ticket-prefixed (`CN-1563-...`). Default branch is `staging`; open PRs against it.
+Branch naming (inferred): conventional prefix with slash (`fix/...`, `chore/...`) or Jira-ticket-prefixed (`CN-1563-...`). Default branch is `main`; open PRs against it.
 **PR description sections:** What this does, Notes for the reviewer, Screenshots. PR titles are validated by a semantic-PR-title CI check.
 
 ## Branches and releases
 
-Two long-lived branches, plus `gh-pages` for the Helm repository. Pipelines live in `.circleci/config.yml`.
+`main` is the only long-lived branch; `gh-pages` holds the published Helm repository. Pipelines live in `.circleci/config.yml`.
 
-| Branch | What a merge does |
-|--------|-------------------|
-| `staging` | Builds and gates both images, runs unit and system tests, then `semantic-release` tags `vX.Y.Z` and creates the GitHub release. Images are retagged `X.Y.Z-approved` / `X.Y.Z-ubi9-approved`, pushed to GAR, and `prepare_to_deploy` commits the new version to the internal deployer repo. |
-| `master` | Promotion only: `publish` retags the approved images as `X.Y.Z` / `X.Y.Z-ubi9` on Docker Hub and runs `scripts/publish-gh-pages.sh`, which packages the chart onto `gh-pages` (what Artifact Hub indexes). `deploy_to_prod` then approves the deployer's pending prod job. |
+A merge to `main` runs the `MERGE_TO_MAIN` workflow:
 
-- Every `feat`/`fix` merge to `staging` cuts a version, but customers only get the version that is on `staging` when it is next merged into `master`, so published chart versions skip numbers.
-- `chore`, `docs`, `test` and `refactor` commits do not cut a release; merging only those to `staging` publishes nothing.
-- Promotion is a PR from `staging` into `master`. Never commit to `master` directly.
+1. Builds and gates both images, and runs unit and system tests.
+2. `tag_and_push`: `semantic-release` tags `vX.Y.Z`, creates the GitHub release, and retags the images `X.Y.Z-approved` / `X.Y.Z-ubi9-approved`.
+3. Pushes both images to GAR, then `prepare_to_deploy` commits the version to the internal deployer repo (dev).
+4. `approve_release` waits for a human to approve the public release in CircleCI.
+5. `publish` retags the images as `X.Y.Z` / `X.Y.Z-ubi9` on Docker Hub and runs `scripts/publish-gh-pages.sh`, which packages the chart from the `vX.Y.Z` tag onto `gh-pages` (what Artifact Hub indexes).
+6. `deploy_to_prod` approves the deployer's prod job for that same version.
+
+- Only `feat`, `fix` and `revert` commits (and breaking changes) cut a release. `publish` and `deploy_to_prod` halt when the commit cut no release, or when a newer version is already published, so approving an old pipeline never rolls the chart back.
+- Never push to `main` or `gh-pages` directly.
 
 ## Before you finish
 

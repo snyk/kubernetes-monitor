@@ -1,9 +1,9 @@
 #! /bin/bash
 set -e
 
-trap "git checkout --force master" EXIT
-
 NEW_TAG=$1
+ORIGINAL_HEAD=$(git rev-parse HEAD)
+trap 'git checkout --force "${ORIGINAL_HEAD}"' EXIT
 echo About to update the gh-pages branch with new tag ${NEW_TAG}
 
 echo configuring git
@@ -18,8 +18,8 @@ then
   exit 0
 fi
 
-echo overriding new yaml / chart files from master branch
-git checkout origin/master -- snyk-monitor snyk-monitor-cluster-permissions.yaml snyk-monitor-deployment.yaml snyk-monitor-namespaced-permissions.yaml
+echo overriding new yaml / chart files from release tag v${NEW_TAG}
+git checkout "v${NEW_TAG}" -- snyk-monitor snyk-monitor-cluster-permissions.yaml snyk-monitor-deployment.yaml snyk-monitor-namespaced-permissions.yaml
 git reset ./snyk-monitor/README.md
 
 echo overriding tag placeholders with latest semantic version
