@@ -434,14 +434,6 @@ workflows:
             branches:
               only:
                 - main
-      - approve_release:
-          type: approval
-          requires:
-            - prepare_to_deploy
-          filters:
-            branches:
-              only:
-                - main
       - publish:
           context:
             - engines_sca-scanners
@@ -451,7 +443,7 @@ workflows:
             - github-release
           requires:
             - Security Scans
-            - approve_release
+            - prepare_to_deploy
           filters:
             branches:
               only:

@@ -138,12 +138,11 @@ A merge to `main` runs the `MERGE_TO_MAIN` workflow:
 1. Builds and gates both images, and runs unit and system tests.
 2. `tag_and_push`: `semantic-release` tags `vX.Y.Z`, creates the GitHub release, and retags the images `X.Y.Z-approved` / `X.Y.Z-ubi9-approved`.
 3. Pushes both images to GAR, then `prepare_to_deploy` commits the version to the internal deployer repo (dev).
-4. `approve_release` waits for a human to approve the public release in CircleCI.
-5. `publish` retags the images as `X.Y.Z` / `X.Y.Z-ubi9` on Docker Hub and runs `scripts/publish-gh-pages.sh`, which packages the chart from the `vX.Y.Z` tag onto `gh-pages` (what Artifact Hub indexes).
-6. `deploy_to_prod` approves the deployer's prod job for that same version.
+4. `publish` retags the images as `X.Y.Z` / `X.Y.Z-ubi9` on Docker Hub and runs `scripts/publish-gh-pages.sh`, which packages the chart from the `vX.Y.Z` tag onto `gh-pages` (what Artifact Hub indexes).
+5. `deploy_to_prod` waits for the deployer's prod approval job for that same version, then approves it.
 
-- Only `feat`, `fix` and `revert` commits (and breaking changes) cut a release. `publish` and `deploy_to_prod` halt when the commit cut no release, or when a newer version is already published, so approving an old pipeline never rolls the chart back.
-- Never push to `main` or `gh-pages` directly.
+- Only `feat`, `fix` and `revert` commits (and breaking changes) cut a release. `publish` and `deploy_to_prod` halt when the commit cut no release, or when a newer version is already published, so a pipeline that finishes late never rolls the chart back.
+- There is no manual promotion step: every releasing merge to `main` reaches Docker Hub, Artifact Hub and prod. Never push to `main` or `gh-pages` directly.
 
 ## Before you finish
 
