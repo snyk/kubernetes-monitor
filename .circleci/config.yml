@@ -64,7 +64,7 @@ commands:
 jobs:
   security-scans:
     docker:
-      - image: cimg/node:22.15
+      - image: cimg/node:22
     steps:
       - checkout
       # Snyk Code is disabled temporarily, agreed with ProdSec: a new Snyk Code rule flags the
@@ -147,7 +147,7 @@ jobs:
     working_directory: ~/kubernetes-monitor
   code_formatter:
     docker:
-      - image: cimg/node:22.15
+      - image: cimg/node:22
     steps:
       - checkout
       - setup_npm_auth
@@ -178,7 +178,7 @@ jobs:
     working_directory: ~/kubernetes-monitor
   lint:
     docker:
-      - image: cimg/node:22.15
+      - image: cimg/node:22
     steps:
       - checkout
       - setup_npm_auth
@@ -191,7 +191,7 @@ jobs:
     working_directory: ~/kubernetes-monitor
   publish:
     docker:
-      - image: cimg/node:22.15
+      - image: cimg/node:22
     steps:
       - checkout
       - setup_remote_docker
@@ -238,6 +238,8 @@ jobs:
       docker_layer_caching: true
       image: default
     steps:
+      - node/install:
+          node-version: "22"
       - checkout
       - setup_npm_auth
       - run:
@@ -256,7 +258,7 @@ jobs:
     working_directory: ~/kubernetes-monitor
   tag_and_push:
     docker:
-      - image: cimg/node:22.15
+      - image: cimg/node:22
     steps:
       - checkout
       - setup_remote_docker
@@ -276,7 +278,7 @@ jobs:
     working_directory: ~/kubernetes-monitor
   unit_tests:
     docker:
-      - image: cimg/node:22.15
+      - image: cimg/node:22
     steps:
       - checkout
       - setup_npm_auth
@@ -302,6 +304,7 @@ master_branch_only_filter:
 orbs:
   aws-cli: circleci/aws-cli@2.0.6
   azure-cli: circleci/azure-cli@1.2.0
+  node: circleci/node@7.2.1
   prodsec: snyk/prodsec-orb@1
   publish-orb: snyk/publish@1
 

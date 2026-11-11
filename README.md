@@ -14,7 +14,7 @@ All our tests prefer a blackbox approach whenever possible.
 Different tests have different requirements in terms of software and environment variables. Requirements specific to one test suite will be described in each section, but the requirements shared by all of them are:
 
 1. npm
-2. Node (v10 or higher)
+2. Node 22
 
 In order to run the Kubernetes-Monitor's tests, please run
 `npm test`
