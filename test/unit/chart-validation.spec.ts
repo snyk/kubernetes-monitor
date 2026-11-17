@@ -1,6 +1,7 @@
 import { exec } from 'child-process-promise';
 import { existsSync, chmodSync, rmSync } from 'fs';
 import { platform } from 'os';
+import { parseAllDocuments } from 'yaml';
 
 const helmVersion = '3.0.0';
 
@@ -86,5 +87,35 @@ describe('helm chart parameter validation', () => {
     } catch (_) {
       // this is expected
     }
+  });
+
+  describe('image pull secrets', () => {
+    const renderManifests = async (setValues: string) => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor ${setValues}`,
+      );
+      return parseAllDocuments(stdout)
+        .map((document) => document.toJS())
+        .filter((manifest) => manifest);
+    };
+
+    it('should add imagePullSecrets to the snyk-monitor pod', async () => {
+      const manifests = await renderManifests(
+        '--set imagePullSecrets[0].name=regcred',
+      );
+
+      const deployment = manifests.find(
+        (manifest) => manifest.kind === 'Deployment',
+      );
+      expect(deployment.spec.template.spec.imagePullSecrets).toEqual([
+        { name: 'regcred' },
+      ]);
+    });
+
+    it('should reject imagePullSecrets that are not objects with a name', async () => {
+      await expect(
+        renderManifests('--set imagePullSecrets[0]=regcred'),
+      ).rejects.toThrow(/imagePullSecrets/);
+    });
   });
 });
