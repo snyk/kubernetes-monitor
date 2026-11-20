@@ -8,6 +8,7 @@ import {
 import { currentClusterName } from './cluster';
 import { WorkloadKind } from './types';
 import { getSupportedWorkload, getWorkloadReader } from './workload-reader';
+import { getErrorStatusCode } from './kuberenetes-api-wrappers';
 import { logger } from '../common/logger';
 import { config } from '../common/config';
 
@@ -108,7 +109,7 @@ async function findParentWorkload(
       parentMetadata = { ...workloadMetadata, podSpec };
       ownerReferences = parentMetadata.ownerRefs;
     } catch (err: any) {
-      if (err?.response?.body?.code === 404) {
+      if (getErrorStatusCode(err) === 404) {
         logger.info(
           {
             supportedWorkloadName: supportedWorkload.name,

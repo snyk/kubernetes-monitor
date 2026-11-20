@@ -1,5 +1,4 @@
 import * as fastq from 'fastq';
-import * as http from 'http';
 import sleep from 'sleep-promise';
 import { config } from '../common/config';
 
@@ -35,7 +34,7 @@ export async function retryKubernetesApiRequest<ResponseType>(
         throw err;
       }
 
-      const sleepSeconds = calculateSleepSeconds(err.response);
+      const sleepSeconds = calculateSleepSeconds(err?.headers);
       await sleep(sleepSeconds * 1000);
     }
   }
@@ -79,21 +78,42 @@ export async function retryKubernetesApiRequestIndefinitely<ResponseType>(
   }
 }
 
+export function getErrorStatusCode(err: IRequestError): number | undefined {
+  if (typeof err?.code === 'number') {
+    return err.code;
+  }
+  return err?.statusCode;
+}
+
+export function getNetworkErrorCode(err: IRequestError): string | undefined {
+  if (typeof err?.code === 'string') {
+    return err.code;
+  }
+  return err?.cause?.code;
+}
+
+export function isRetryableNetworkError(err: IRequestError): boolean {
+  const code = getNetworkErrorCode(err);
+  if (code && RETRYABLE_NETWORK_ERROR_CODES.includes(code)) {
+    return true;
+  }
+  return (
+    !!err?.message && RETRYABLE_NETWORK_ERROR_MESSAGES.includes(err.message)
+  );
+}
+
 export function calculateSleepSeconds(
-  httpResponse?: http.IncomingMessage,
+  headers?: Record<string, string>,
 ): number {
   let sleepSeconds = DEFAULT_SLEEP_SEC;
-  if (
-    httpResponse &&
-    httpResponse.headers &&
-    httpResponse.headers['Retry-After']
-  ) {
-    try {
-      sleepSeconds = Number(httpResponse.headers['Retry-After']);
-      if (isNaN(sleepSeconds) || sleepSeconds <= 0) {
-        sleepSeconds = DEFAULT_SLEEP_SEC;
-      }
-    } catch (err) {
+  const retryAfter =
+    headers &&
+    Object.entries(headers).find(
+      ([name]) => name.toLowerCase() === 'retry-after',
+    )?.[1];
+  if (retryAfter) {
+    sleepSeconds = Number(retryAfter);
+    if (isNaN(sleepSeconds) || sleepSeconds <= 0) {
       sleepSeconds = DEFAULT_SLEEP_SEC;
     }
   }
@@ -105,21 +125,9 @@ function shouldRetryRequest(err: IRequestError, attempt: number): boolean {
     return false;
   }
 
-  if (err.code && RETRYABLE_NETWORK_ERROR_CODES.includes(err.code)) {
+  if (isRetryableNetworkError(err)) {
     return true;
   }
 
-  if (err.message && RETRYABLE_NETWORK_ERROR_MESSAGES.includes(err.message)) {
-    return true;
-  }
-
-  if (!err.response) {
-    return false;
-  }
-
-  if (err.response.statusCode === 429) {
-    return true;
-  }
-
-  return false;
+  return getErrorStatusCode(err) === 429;
 }
