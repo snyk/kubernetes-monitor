@@ -8,7 +8,6 @@ import {
   DELETE,
   UPDATE,
 } from '@kubernetes/client-node';
-import { IncomingMessage } from 'http';
 
 export const FALSY_WORKLOAD_NAME_MARKER = 'falsy workload name';
 
@@ -22,15 +21,11 @@ type WorkloadHandlerFunc = (workload: any) => Promise<void>;
 
 type ListNamespacedWorkloadFunctionFactory = (
   namespace: string,
-) => () => Promise<{
-  response: any;
-  body: any;
-}>;
+) => () => Promise<KubernetesListObject<KubernetesObject>>;
 
-type ListClusterWorkloadFunctionFactory = () => () => Promise<{
-  response: any;
-  body: any;
-}>;
+type ListClusterWorkloadFunctionFactory = () => () => Promise<
+  KubernetesListObject<KubernetesObject>
+>;
 
 export interface IWorkloadWatchMetadata {
   [workloadKind: string]: {
@@ -99,47 +94,13 @@ export interface V1alpha1RolloutWorkloadRef {
   name: string;
 }
 
-export type V1ClusterList<T> = (
-  allowWatchBookmarks?: boolean,
-  _continue?: string,
-  fieldSelector?: string,
-  labelSelector?: string,
-  limit?: number,
-  pretty?: string,
-  resourceVersion?: string,
-  resourceVersionMatch?: string,
-  sendInitialEvents?: boolean,
-  timeoutSeconds?: number,
-  watch?: boolean,
-  options?: {
-    headers: {
-      [name: string]: string;
-    };
-  },
-) => Promise<{
-  response: IncomingMessage;
-  body: T;
-}>;
+export type V1ClusterList<T> = (param?: {
+  _continue?: string;
+  limit?: number;
+}) => Promise<T>;
 
-export type V1NamespacedList<T> = (
-  namespace: string,
-  pretty?: string,
-  allowWatchBookmarks?: boolean,
-  _continue?: string,
-  fieldSelector?: string,
-  labelSelector?: string,
-  limit?: number,
-  resourceVersion?: string,
-  resourceVersionMatch?: string,
-  sendInitialEvents?: boolean,
-  timeoutSeconds?: number,
-  watch?: boolean,
-  options?: {
-    headers: {
-      [name: string]: string;
-    };
-  },
-) => Promise<{
-  response: IncomingMessage;
-  body: T;
-}>;
+export type V1NamespacedList<T> = (param: {
+  namespace: string;
+  _continue?: string;
+  limit?: number;
+}) => Promise<T>;

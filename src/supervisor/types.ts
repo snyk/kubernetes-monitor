@@ -1,11 +1,9 @@
-import { IncomingMessage } from 'http';
 import {
   AppsV1Api,
   BatchV1Api,
   CoreV1Api,
   CustomObjectsApi,
   KubeConfig,
-  V1Namespace,
   V1ObjectMeta,
   V1OwnerReference,
   V1PodSpec,
@@ -24,10 +22,18 @@ export enum WorkloadKind {
   ArgoRollout = 'Rollout',
 }
 
+/**
+ * Errors thrown by @kubernetes/client-node: ApiException carries the HTTP status
+ * in `code` (number), watch errors carry it in `statusCode`, and network failures
+ * from undici are a TypeError whose `cause` has the errno-style `code`.
+ */
 export interface IRequestError {
   message?: string;
-  code?: string;
-  response?: IncomingMessage;
+  code?: string | number;
+  statusCode?: number;
+  headers?: Record<string, string>;
+  body?: unknown;
+  cause?: { code?: string; message?: string };
 }
 
 export interface IKubeObjectMetadata {
@@ -64,9 +70,4 @@ export class K8sClients implements IK8sClients {
     this.batchClient = config.makeApiClient(BatchV1Api);
     this.customObjectsClient = config.makeApiClient(CustomObjectsApi);
   }
-}
-
-export interface NamespaceResponse {
-  response: IncomingMessage;
-  body: V1Namespace;
 }

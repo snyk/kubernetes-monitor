@@ -2,7 +2,6 @@ import { V1CronJob, V1CronJobList } from '@kubernetes/client-node';
 import { deleteWorkload } from './workload';
 import { WorkloadKind } from '../../types';
 import { FALSY_WORKLOAD_NAME_MARKER } from './types';
-import { IncomingMessage } from 'http';
 import { k8sApi } from '../../cluster';
 import { paginatedClusterList, paginatedNamespacedList } from './pagination';
 import {
@@ -15,10 +14,7 @@ import { deleteWorkloadFromScanQueue } from './queue';
 
 export async function paginatedNamespacedCronJobList(
   namespace: string,
-): Promise<{
-  response: IncomingMessage;
-  body: V1CronJobList;
-}> {
+): Promise<V1CronJobList> {
   const v1CronJobList = new V1CronJobList();
   v1CronJobList.apiVersion = 'batch/v1';
   v1CronJobList.kind = 'CronJobList';
@@ -31,10 +27,7 @@ export async function paginatedNamespacedCronJobList(
   );
 }
 
-export async function paginatedClusterCronJobList(): Promise<{
-  response: IncomingMessage;
-  body: V1CronJobList;
-}> {
+export async function paginatedClusterCronJobList(): Promise<V1CronJobList> {
   const v1CronJobList = new V1CronJobList();
   v1CronJobList.apiVersion = 'batch/v1';
   v1CronJobList.kind = 'CronJobList';
