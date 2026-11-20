@@ -31,10 +31,16 @@ integrationApi: ""
 # The registry from which to pull the snyk-monitor image.
 image:
   repository: snyk/kubernetes-monitor
-  tag: 2.25.8
+  tag: 2.26.0
   # Optional. Takes precedence over the tag above when set, for deployment tools that overwrite it.
   releaseTag: ""
   pullPolicy: Always
+
+# Existing secrets of type kubernetes.io/dockerconfigjson used by the kubelet to pull
+# the snyk-monitor and init container images from a private registry.
+# These secrets must be created externally, in the same namespace as the release.
+imagePullSecrets: []
+#  - name: my-registry-credentials
 
 # If deploying in an air-gapped environment that can't pull from DockerHub, override the initContainer's image here for one that is accessible to your environment.
 initContainerImage:
