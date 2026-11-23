@@ -26,14 +26,16 @@ ignore:
         expires: 2026-12-19T00:00:00.000Z
         created: 2026-10-20T12:00:00.000Z
   SNYK-GOLANG-STDCRYPTOX509-21400137:
-    - 'go.podman.io/skopeo > stdlib':
+    - 'stdlib':
         reason: >-
           Go stdlib 1.25.14 compiled into the pinned static skopeo 1.24.1
           binary downloaded from lework/skopeo-binary (Dockerfile and
           Dockerfile.ubi9). Fixed in Go 1.26.10/1.27.3, but no skopeo-binary
           release built with a fixed Go exists yet (latest 1.24.x is v1.24.1,
           2026-09-18), so there is no repo-level fix. The credential helpers
-          built in this repo were moved to Go 1.26.11 instead. Remove when
+          built in this repo were moved to Go 1.26.11 instead, so skopeo is
+          the only remaining stdlib 1.25.14 binary (Snyk matches Go binary
+          findings on the module path, hence `stdlib`). Remove when
           lework/skopeo-binary publishes a skopeo build with Go >= 1.26.10
           and SKOPEO_VERSION is bumped.
           See https://security.snyk.io/vuln/SNYK-GOLANG-STDCRYPTOX509-21400137
