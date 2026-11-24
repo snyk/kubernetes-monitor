@@ -41,4 +41,19 @@ ignore:
           See https://security.snyk.io/vuln/SNYK-GOLANG-STDCRYPTOX509-21400137
         expires: 2026-12-23T00:00:00.000Z
         created: 2026-11-23T00:00:00.000Z
+  SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-21755478:
+    - 'github.com/go-jose/go-jose/v4':
+        reason: >-
+          go-jose v4.1.4 compiled into the pinned static skopeo 1.24.1 binary
+          downloaded from lework/skopeo-binary (Dockerfile and
+          Dockerfile.ubi9). Fixed in go-jose 4.1.6, but no skopeo release
+          ships it yet: upstream skopeo v1.25.2 (2026-11-16) still pins
+          go-jose v4.1.5, and lework/skopeo-binary has no 1.25.x build. skopeo
+          is the only binary in the image that contains go-jose (Snyk matches
+          Go binary findings on the module path). Remove when a skopeo release
+          with go-jose >= 4.1.6 is available as a lework binary and
+          SKOPEO_VERSION is bumped.
+          See https://security.snyk.io/vuln/SNYK-GOLANG-GITHUBCOMGOJOSEGOJOSEV4-21755478
+        expires: 2026-12-24T00:00:00.000Z
+        created: 2026-11-24T00:00:00.000Z
 patch: {}
