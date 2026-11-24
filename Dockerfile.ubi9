@@ -5,11 +5,11 @@ ARG UBI9_VERSION=9.8
 #---------------------------------------------------------------------
 FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/go-toolset:${UBI9_VERSION} as cred-helpers-build
 
-RUN GOTOOLCHAIN=go1.25.14 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
+RUN GOTOOLCHAIN=go1.26.11 go install github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login@bef5bd9384b752e5c645659165746d5af23a098a
 RUN --mount=type=secret,id=gh_token,uid=1001,required=true \
     git config --global url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf "https://github.com/snyk" && \
     go env -w GOPRIVATE=github.com/snyk && \
-    GOTOOLCHAIN=go1.25.14 go install github.com/snyk/docker-credential-acr-env@62fbee8398a22171cb0f628400a29b2ebaed7a3a && \
+    GOTOOLCHAIN=go1.26.11 go install github.com/snyk/docker-credential-acr-env@62fbee8398a22171cb0f628400a29b2ebaed7a3a && \
     git config --global --unset url."https://$(cat /run/secrets/gh_token):x-oauth-basic@github.com/snyk".insteadOf
 
 #---------------------------------------------------------------------
@@ -127,6 +127,10 @@ RUN curl -sSfLo /tmp/node_${NODE_MAJOR_VERSION}.tar.gz "https://nodejs.org/dist/
 
 RUN rpm -e --nodeps curl-minimal && \
     rpm -e --nodeps libcurl-minimal
+
+# The monitor never runs an editor. vim-minimal ships in the ubi9 base image and has open
+# findings with no RHEL 9 fix, so remove it rather than carrying scan ignores for it.
+RUN rpm -e --nodeps vim-minimal
 
 # The `.config` directory is used by `snyk protect` and we also mount a K8s volume there at runtime.
 # This clashes with OpenShift 3 which mounts things differently and prevents access to the directory.

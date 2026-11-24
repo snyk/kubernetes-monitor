@@ -337,6 +337,31 @@ You can provide custom CA certificates to use for validating TLS connections by 
 
 If running Snyk on-prem, you can also use a custom CA certificate to validate the connection to kubernetes-upstream for sending scan results by providing the certificate under the following path in the ConfigMap: /srv/app/certs/ca.pem
 
+## Pulling the snyk-monitor images from a private registry ##
+
+If your cluster can only pull images from a private registry, mirror the snyk-monitor image and the init container image (`busybox` by default) into it, and create a pull secret in the snyk-monitor namespace:
+
+```shell
+kubectl create secret docker-registry my-registry-credentials -n snyk-monitor \
+  --docker-server=registry.example.com \
+  --docker-username=<username> \
+  --docker-password=<password>
+```
+
+Then point the chart to the mirrored images and the pull secret:
+
+```shell
+helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
+  --namespace snyk-monitor \
+  --set image.repository=registry.example.com/snyk/kubernetes-monitor \
+  --set initContainerImage.repository=registry.example.com/busybox \
+  --set 'imagePullSecrets[0].name=my-registry-credentials'
+```
+
+`imagePullSecrets` is added to the snyk-monitor Pod spec.
+
+Note that pull secrets are only used by the kubelet to start the snyk-monitor. To scan your workloads' images from private registries, the snyk-monitor needs its own registry credentials, see the `dockercfg.json` step in [Installing](#installing).
+
 ## Helm chart extensibility ##
 
 ### Additional Kubernetes volumes and volume mounts ###

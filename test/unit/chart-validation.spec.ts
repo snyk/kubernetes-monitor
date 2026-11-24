@@ -1,6 +1,7 @@
 import { exec } from 'child-process-promise';
 import { existsSync, chmodSync, rmSync } from 'fs';
 import { platform } from 'os';
+import { parseAllDocuments } from 'yaml';
 
 const helmVersion = '3.0.0';
 
@@ -107,5 +108,68 @@ describe('helm chart parameter validation', () => {
     } catch (_) {
       // this is expected
     }
+  });
+
+  describe('image pull secrets', () => {
+    const renderPodSpec = async (setValues = '') => {
+      const { stdout } = await exec(
+        `${helmPath} template snyk-monitor ${helmChartPath} --namespace snyk-monitor ${setValues}`,
+      );
+      const deployment = parseAllDocuments(stdout)
+        .map((document) => document.toJS())
+        .find((manifest) => manifest?.kind === 'Deployment');
+      expect(deployment).toBeDefined();
+      return deployment.spec.template.spec;
+    };
+
+    it('should not set imagePullSecrets by default', async () => {
+      const podSpec = await renderPodSpec();
+
+      expect(podSpec).not.toHaveProperty('imagePullSecrets');
+    });
+
+    it('should add imagePullSecrets to the snyk-monitor pod', async () => {
+      const podSpec = await renderPodSpec(
+        "--set 'imagePullSecrets[0].name=regcred'",
+      );
+
+      expect(podSpec.imagePullSecrets).toEqual([{ name: 'regcred' }]);
+    });
+
+    it('should add multiple imagePullSecrets in the given order', async () => {
+      const podSpec = await renderPodSpec(
+        "--set 'imagePullSecrets[0].name=first,imagePullSecrets[1].name=second'",
+      );
+
+      expect(podSpec.imagePullSecrets).toEqual([
+        { name: 'first' },
+        { name: 'second' },
+      ]);
+    });
+
+    describe('schema validation', () => {
+      // Match the schema violation reported by helm rather than the flag name:
+      // the failed command line is part of the error message, so a loose match
+      // would pass for any helm failure.
+      it.each([
+        [
+          'an item that is not an object',
+          "--set 'imagePullSecrets[0]=regcred'",
+          /imagePullSecrets\.0: Invalid type\. Expected: object, given: string/,
+        ],
+        [
+          'an item without a name',
+          "--set 'imagePullSecrets[0].other=value'",
+          /imagePullSecrets\.0: name is required/,
+        ],
+        [
+          'an item with an empty name',
+          "--set 'imagePullSecrets[0].name='",
+          /imagePullSecrets\.0\.name: String length must be greater than or equal to 1/,
+        ],
+      ])('should reject %s', async (_description, setValues, violation) => {
+        await expect(renderPodSpec(setValues)).rejects.toThrow(violation);
+      });
+    });
   });
 });

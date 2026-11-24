@@ -2,61 +2,43 @@
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-RHEL9-VIMMINIMAL-17712765:
-    - '*':
-        reason: >-
-          CVE-2026-47162 — Vimscript code injection in vim netrw. Upstream
-          fixed in Vim 9.2.0495 but no fix currently available for the RHEL 9
-          vim-minimal RPM (base image ubi9:9.8). Exploitation requires a user
-          to open a crafted directory tree in interactive vim; vim is not on
-          any kubernetes-monitor code path. Re-evaluate on next UBI9 base
-          rebuild. See https://access.redhat.com/security/cve/CVE-2026-47162
-        expires: 2026-11-03T12:00:00.000Z
-        created: 2026-08-03T12:00:00.000Z
-  SNYK-RHEL9-VIMMINIMAL-17790082:
-    - '*':
-        reason: >-
-          CVE-2026-55895 — Arbitrary code injection via a crafted filename
-          containing '|' in vim netrw. Upstream fixed in Vim 9.2.0663 but no
-          fix currently available for the RHEL 9 vim-minimal RPM (base image
-          ubi9:9.8). Exploitation requires interactive vim usage on an
-          attacker-controlled filename; vim is not on any kubernetes-monitor
-          code path. Re-evaluate on next UBI9 base rebuild.
-          See https://access.redhat.com/security/cve/CVE-2026-55895
-        expires: 2026-11-03T12:00:00.000Z
-        created: 2026-08-03T12:00:00.000Z
-  SNYK-RHEL9-VIMMINIMAL-17816811:
-    - '*':
-        reason: >-
-          CVE-2026-57456 — Arbitrary code injection via Python omni-completion
-          docstring breakout in vim. No fix currently available for the RHEL 9
-          vim-minimal RPM (base image ubi9:9.8). Exploitation requires
-          interactive vim usage with attacker-controlled Python source; vim is
-          not on any kubernetes-monitor code path. Re-evaluate on next UBI9
-          base rebuild.
-          See https://access.redhat.com/security/cve/CVE-2026-57456
-        expires: 2026-11-03T12:00:00.000Z
-        created: 2026-08-03T12:00:00.000Z
   SNYK-JS-BRACES-19963945:
     - '*':
         reason: >-
           Uncontrolled Recursion in braces@3.0.3, a transitive dependency of
           snyk-docker-plugin > snyk-nodejs-lockfile-parser > micromatch. No
-          fixed version of braces has been published upstream (3.0.3 is the
-          latest release). Re-evaluate when braces or micromatch ships a fix.
+          fixed version of braces has been published upstream (3.0.3 is still
+          the latest release as of 2026-11-19). Re-evaluate when braces or
+          micromatch ships a fix.
           See https://security.snyk.io/vuln/SNYK-JS-BRACES-19963945
-        expires: 2026-11-19T12:00:00.000Z
+        expires: 2026-12-19T00:00:00.000Z
         created: 2026-10-20T12:00:00.000Z
   SNYK-JS-URIJS-19963963:
     - '*':
         reason: >-
           Infinite loop in uri-js@4.4.1 (the latest release, no fixed version
           upstream), reached via @kubernetes/client-node@0.22.3 > request >
-          har-validator > ajv@6. Snyk's only upgrade path is
-          @kubernetes/client-node 1.x, a major upgrade that is tracked
-          separately and deliberately not bundled with vulnerability sweeps.
-          Re-evaluate when uri-js ships a fix or the client-node major upgrade
-          lands. See https://security.snyk.io/vuln/SNYK-JS-URIJS-19963963
-        expires: 2026-11-19T12:00:00.000Z
+          har-validator > ajv@6. Snyk's only upgrade path is a major upgrade
+          of @kubernetes/client-node (tracked in #1723 / #1787), deliberately
+          not bundled with vulnerability sweeps. Remove when uri-js ships a
+          fix or the client-node major upgrade lands.
+          See https://security.snyk.io/vuln/SNYK-JS-URIJS-19963963
+        expires: 2026-12-19T00:00:00.000Z
         created: 2026-10-20T12:00:00.000Z
+  SNYK-GOLANG-STDCRYPTOX509-21400137:
+    - 'stdlib':
+        reason: >-
+          Go stdlib 1.25.14 compiled into the pinned static skopeo 1.24.1
+          binary downloaded from lework/skopeo-binary (Dockerfile and
+          Dockerfile.ubi9). Fixed in Go 1.26.10/1.27.3, but no skopeo-binary
+          release built with a fixed Go exists yet (latest 1.24.x is v1.24.1,
+          2026-09-18), so there is no repo-level fix. The credential helpers
+          built in this repo were moved to Go 1.26.11 instead, so skopeo is
+          the only remaining stdlib 1.25.14 binary (Snyk matches Go binary
+          findings on the module path, hence `stdlib`). Remove when
+          lework/skopeo-binary publishes a skopeo build with Go >= 1.26.10
+          and SKOPEO_VERSION is bumped.
+          See https://security.snyk.io/vuln/SNYK-GOLANG-STDCRYPTOX509-21400137
+        expires: 2026-12-23T00:00:00.000Z
+        created: 2026-11-23T00:00:00.000Z
 patch: {}
