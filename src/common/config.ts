@@ -70,6 +70,9 @@ if (config.SYSDIG_ENDPOINT && config.SYSDIG_TOKEN) {
   config.SYSDIG_TOKEN = config.SYSDIG_TOKEN.trim();
 }
 
+config.SYSDIG_SKIP_TLS_VERIFY =
+  process.env.SNYK_SYSDIG_SKIP_TLS_VERIFY === 'true';
+
 /**
  * Important: we delete the following env vars because we don't want to proxy requests to the Kubernetes API server.
  * The Kubernetes client library would honor the NO/HTTP/HTTPS_PROXY env vars.
