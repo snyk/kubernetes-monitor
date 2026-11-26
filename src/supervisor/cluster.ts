@@ -5,6 +5,15 @@ import { IK8sClients, K8sClients } from './types';
 function getKubeConfig(): KubeConfig {
   const kc = new KubeConfig();
   kc.loadFromDefault();
+  // @kubernetes/client-node >= 1 refuses plain-HTTP clusters unless skipTLSVerify is set, which 0.x
+  // allowed. loadFromDefault() falls back to http://localhost:8080 (e.g. `kubectl proxy`) when there
+  // is neither a kubeconfig nor in-cluster config. There is no TLS to verify on http://, so this
+  // only affects such clusters; https:// clusters keep their verification settings.
+  kc.clusters = kc.clusters.map((cluster) =>
+    cluster.server.startsWith('http://')
+      ? { ...cluster, skipTLSVerify: true }
+      : cluster,
+  );
   return kc;
 }
 

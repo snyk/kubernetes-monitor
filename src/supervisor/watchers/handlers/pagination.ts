@@ -1,91 +1,63 @@
-import { IncomingMessage } from 'http';
 import sleep from 'sleep-promise';
 import type {
   KubernetesListObject,
   KubernetesObject,
 } from '@kubernetes/client-node';
 
-import { calculateSleepSeconds } from '../../kuberenetes-api-wrappers';
+import {
+  calculateSleepSeconds,
+  getErrorStatusCode,
+  isRetryableNetworkError,
+} from '../../kuberenetes-api-wrappers';
 import { V1ClusterList, V1NamespacedList } from './types';
 import { trimWorkloads } from '../../workload-sanitization';
 import type { IRequestError } from '../../types';
-import {
-  RETRYABLE_NETWORK_ERROR_CODES,
-  RETRYABLE_NETWORK_ERROR_MESSAGES,
-} from '../types';
 
 export const PAGE_SIZE = 100;
 
-/**
- * This function ensures that when listing workloads from the Kubernetes API, they are paginated in batches of 100.
- * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
- * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
- */
-export async function paginatedNamespacedList<
-  T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
->(
-  namespace: string,
-  list: KubernetesListObject<KubernetesObject>,
-  listPromise: V1NamespacedList<KubernetesListObject<T>>,
-): Promise<{
-  response: IncomingMessage;
-  body: KubernetesListObject<KubernetesObject>;
-}> {
+type ListPage = (
+  continueToken: string | undefined,
+) => Promise<KubernetesListObject<KubernetesObject>>;
+
+async function paginatedList<L extends KubernetesListObject<KubernetesObject>>(
+  list: L,
+  listPage: ListPage,
+): Promise<L> {
   let continueToken: string | undefined = undefined;
-
-  const pretty = undefined;
-  const allowWatchBookmarks = undefined;
-  const fieldSelector = undefined;
-  const labelSelector = undefined;
-
-  let incomingMessage: IncomingMessage | undefined = undefined;
+  let listed = false;
 
   loop: while (true) {
     try {
-      const listCall: {
-        response: IncomingMessage;
-        body: KubernetesListObject<T>;
-      } = await listPromise(
-        namespace,
-        pretty,
-        allowWatchBookmarks,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
+      const page = await listPage(continueToken);
+      listed = true;
+      list.metadata = page.metadata;
 
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
+      if (Array.isArray(page.items)) {
+        const trimmedItems = trimWorkloads(page.items);
         list.items.push(...trimmedItems);
       }
 
-      continueToken = listCall.body.metadata?._continue;
+      continueToken = page.metadata?._continue;
       if (!continueToken) {
         break;
       }
     } catch (err) {
       const error = err as IRequestError;
 
-      if (
-        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
-        RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
-      ) {
+      if (isRetryableNetworkError(error)) {
         const seconds = calculateSleepSeconds();
         await sleep(seconds);
         continue;
       }
 
-      switch (error.response?.statusCode) {
+      switch (getErrorStatusCode(error)) {
         case 410: // Gone
           break loop;
         case 429: // Too Many Requests
         case 502: // Bad Gateway
         case 503: // Service Unavailable
         case 504: // Gateway Timeout
-          const seconds = calculateSleepSeconds(error.response);
+          const seconds = calculateSleepSeconds(error.headers);
           await sleep(seconds);
           continue;
         default:
@@ -94,14 +66,28 @@ export async function paginatedNamespacedList<
     }
   }
 
-  if (!incomingMessage) {
+  if (!listed) {
     throw new Error('could not list workload');
   }
 
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  return list;
+}
+
+/**
+ * This function ensures that when listing workloads from the Kubernetes API, they are paginated in batches of 100.
+ * The workloads collected are additionally trimmed to contain only the relevant data for vulnerability analysis.
+ * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
+ */
+export async function paginatedNamespacedList<
+  L extends KubernetesListObject<KubernetesObject>,
+>(
+  namespace: string,
+  list: L,
+  listPromise: V1NamespacedList<KubernetesListObject<KubernetesObject>>,
+): Promise<L> {
+  return paginatedList(list, (continueToken) =>
+    listPromise({ namespace, _continue: continueToken, limit: PAGE_SIZE }),
+  );
 }
 
 /**
@@ -110,80 +96,12 @@ export async function paginatedNamespacedList<
  * The combination of both listing and trimming ensures we reduce our memory footprint and prevent overloading the API server.
  */
 export async function paginatedClusterList<
-  T extends KubernetesObject & Partial<{ status: unknown; spec: unknown }>,
+  L extends KubernetesListObject<KubernetesObject>,
 >(
-  list: KubernetesListObject<KubernetesObject>,
-  listPromise: V1ClusterList<KubernetesListObject<T>>,
-): Promise<{
-  response: IncomingMessage;
-  body: KubernetesListObject<KubernetesObject>;
-}> {
-  let continueToken: string | undefined = undefined;
-
-  const allowWatchBookmarks = undefined;
-  const fieldSelector = undefined;
-  const labelSelector = undefined;
-
-  let incomingMessage: IncomingMessage | undefined = undefined;
-
-  loop: while (true) {
-    try {
-      const listCall: {
-        response: IncomingMessage;
-        body: KubernetesListObject<T>;
-      } = await listPromise(
-        allowWatchBookmarks,
-        continueToken,
-        fieldSelector,
-        labelSelector,
-        PAGE_SIZE,
-      );
-      incomingMessage = listCall.response;
-      list.metadata = listCall.body.metadata;
-
-      if (Array.isArray(listCall.body.items)) {
-        const trimmedItems = trimWorkloads(listCall.body.items);
-        list.items.push(...trimmedItems);
-      }
-
-      continueToken = listCall.body.metadata?._continue;
-      if (!continueToken) {
-        break;
-      }
-    } catch (err) {
-      const error = err as IRequestError;
-
-      if (
-        RETRYABLE_NETWORK_ERROR_CODES.includes(error.code || '') ||
-        RETRYABLE_NETWORK_ERROR_MESSAGES.includes(error.message || '')
-      ) {
-        const seconds = calculateSleepSeconds();
-        await sleep(seconds);
-        continue;
-      }
-
-      switch (error.response?.statusCode) {
-        case 410: // Gone
-          break loop;
-        case 429: // Too Many Requests
-        case 502: // Bad Gateway
-        case 503: // Service Unavailable
-        case 504: // Gateway Timeout
-          const seconds = calculateSleepSeconds(error.response);
-          await sleep(seconds);
-          continue;
-        default:
-          throw err;
-      }
-    }
-  }
-
-  if (!incomingMessage) {
-    throw new Error('could not list workload');
-  }
-
-  return {
-    response: incomingMessage,
-    body: list,
-  };
+  list: L,
+  listPromise: V1ClusterList<KubernetesListObject<KubernetesObject>>,
+): Promise<L> {
+  return paginatedList(list, (continueToken) =>
+    listPromise({ _continue: continueToken, limit: PAGE_SIZE }),
+  );
 }

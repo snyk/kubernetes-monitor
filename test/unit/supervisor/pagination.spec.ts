@@ -32,13 +32,23 @@ describe('pagination', () => {
       sleepMock.mockRestore();
     });
 
-    it.each([['ECONNRESET']])('handles network error: %s', async (code) => {
+    it.each([
+      ['ECONNRESET', { code: 'ECONNRESET' }],
+      [
+        'undici fetch failure',
+        { message: 'fetch failed', cause: { code: 'ECONNRESET' } },
+      ],
+      [
+        'undici socket error',
+        { message: 'terminated', cause: { code: 'UND_ERR_SOCKET' } },
+      ],
+    ])('handles network error: %s', async (_name, error) => {
       const sleepError = new Error('timeout');
       sleepMock
         .mockResolvedValueOnce(undefined)
         .mockRejectedValueOnce(sleepError);
 
-      const listError = { code } as IRequestError;
+      const listError = error as IRequestError;
       const listMock = jest.fn().mockRejectedValue(listError);
       const pushMock = jest.fn();
       const workloads = { items: [] };
@@ -79,7 +89,7 @@ describe('pagination', () => {
           .mockResolvedValueOnce(undefined)
           .mockRejectedValueOnce(sleepError);
 
-        const listError = { response: { statusCode: code } } as IRequestError;
+        const listError = { code } as IRequestError;
         const listMock = jest.fn().mockRejectedValue(listError);
         const pushMock = jest.fn();
         const workloads = { items: [] };
@@ -97,7 +107,7 @@ describe('pagination', () => {
     );
 
     it.each([[410]])('handles unrecoverable http error: %s', async (code) => {
-      const listError = { response: { statusCode: code } } as IRequestError;
+      const listError = { code } as IRequestError;
       const listMock = jest.fn().mockRejectedValue(listError);
       const pushMock = jest.fn();
       const workloads = { items: [] };
@@ -118,7 +128,7 @@ describe('pagination', () => {
       async (codes) => {
         const listMock = jest.fn();
         for (const code of codes) {
-          const listError = { response: { statusCode: code } } as IRequestError;
+          const listError = { code } as IRequestError;
           listMock.mockRejectedValueOnce(listError);
         }
 
@@ -138,17 +148,14 @@ describe('pagination', () => {
     );
 
     it('handles failure after success', async () => {
-      const listError = { response: { statusCode: 410 } } as IRequestError;
+      const listError = { code: 410 } as IRequestError;
       const items = [{ metadata: { name: 'pod ' } }];
       const listMock = jest
         .fn()
         .mockResolvedValueOnce({
-          response: {},
-          body: {
-            items,
-            metadata: {
-              _continue: 'token',
-            },
+          items,
+          metadata: {
+            _continue: 'token',
           },
         })
         .mockRejectedValueOnce(listError);
@@ -172,28 +179,22 @@ describe('pagination', () => {
     });
 
     it('retries after failure', async () => {
-      const listError = { response: { statusCode: 429 } } as IRequestError;
+      const listError = { code: 429 } as IRequestError;
       const firstItems = [{ metadata: { name: 'first ' } }];
       const secondItems = [{ metadata: { name: 'second ' } }];
       const listMock = jest
         .fn()
         .mockResolvedValueOnce({
-          response: {},
-          body: {
-            items: firstItems,
-            metadata: {
-              _continue: 'token',
-            },
+          items: firstItems,
+          metadata: {
+            _continue: 'token',
           },
         })
         .mockRejectedValueOnce(listError)
         .mockResolvedValueOnce({
-          response: {},
-          body: {
-            items: secondItems,
-            metadata: {
-              _continue: undefined,
-            },
+          items: secondItems,
+          metadata: {
+            _continue: undefined,
           },
         });
 
@@ -207,6 +208,14 @@ describe('pagination', () => {
       );
 
       expect(listMock).toHaveBeenCalledTimes(3);
+      expect(listMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ _continue: undefined, limit: 100 }),
+      );
+      expect(listMock).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({ _continue: 'token', limit: 100 }),
+      );
       expect(sleepMock).toHaveBeenCalledTimes(1);
       expect(pushMock).toHaveBeenNthCalledWith(
         1,
