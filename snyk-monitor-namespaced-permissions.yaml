@@ -1,10 +1,9 @@
 #
 # This file sets up the namespace-specific permissions required to run the Kubernetes-Monitor
 #
-
 ---
 kind: Role
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: snyk-monitor
   labels:
@@ -90,4 +89,3 @@ data:
   http_proxy: ""
   https_proxy: ""
   no_proxy: ""
----
