@@ -207,6 +207,8 @@ helm upgrade --install snyk-monitor snyk-charts/snyk-monitor \
 
 The snyk-monitor will now collect data from Sysdig every 30 mins.
 
+The snyk-monitor verifies the TLS certificate of the Sysdig endpoint. If your Sysdig endpoint uses a certificate signed by a private CA, add that CA to the `snyk-monitor-certs` ConfigMap as `ca.pem` (see [Using custom CA certificate](#using-custom-ca-certificate) below). To skip verification instead, use `--set sysdig.skipTlsVerify=true`. This is not recommended.
+
 ## Setting up proxying ##
 
 Proxying traffic through a forwarding proxy can be achieved by setting the following values in the Helm chart:
