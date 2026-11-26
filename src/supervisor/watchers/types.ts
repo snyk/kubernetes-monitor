@@ -15,6 +15,9 @@ export const RETRYABLE_NETWORK_ERROR_CODES: readonly string[] = [
   'ECONNREFUSED',
   'ETIMEDOUT',
   'ECONNRESET',
+  // undici (used by @kubernetes/client-node for fetch and watch) equivalents of ECONNRESET / ETIMEDOUT
+  'UND_ERR_SOCKET',
+  'UND_ERR_CONNECT_TIMEOUT',
 ];
 
 export const RETRYABLE_NETWORK_ERROR_MESSAGES: readonly string[] = [
